@@ -81,21 +81,24 @@ namespace EventCentric.Tests.Playground.InMemoryObjectsPerformance
 
             Assert.AreEqual(1000, actors.Count);
 
+            // Change property by a variable that reference the element in the collection
             var actor = actors.First();
             Assert.AreNotEqual(Guid.Empty, actor.Id);
 
             actor.Id = Guid.Empty;
-
             Assert.AreEqual(Guid.Empty, actors.First().Id);
 
+            // Change property directly to the element in the collection
+            Assert.AreNotEqual(Guid.Empty, actors.Last().Id);
+            actors.Last().Id = Guid.Empty;
+            Assert.AreEqual(Guid.Empty, actors.Last().Id);
 
+            // Changing property in a loop
             Assert.IsTrue(actors.Where(a => a.Id != Guid.Empty).Any());
-
             foreach (var a in actors)
             {
                 a.Id = Guid.Empty;
             }
-
             Assert.IsFalse(actors.Where(a => a.Id != Guid.Empty).Any());
         }
 
