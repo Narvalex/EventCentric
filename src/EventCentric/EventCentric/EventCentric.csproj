@@ -52,9 +52,11 @@
     <Compile Include="Database\DataReaderExtensions.cs" />
     <Compile Include="Database\SqlClientLite.cs" />
     <Compile Include="EventStoreDbInitializer.cs" />
+    <Compile Include="FSM.cs" />
     <Compile Include="Messaging\Bus.cs" />
     <Compile Include="Messaging\Envelope.cs" />
     <Compile Include="Messaging\IBus.cs" />
+    <Compile Include="Messaging\Worker.cs" />
     <Compile Include="Processing\EventProcessor.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Publishing\EventPublisher.cs" />

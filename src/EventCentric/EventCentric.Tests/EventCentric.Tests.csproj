@@ -61,6 +61,7 @@
   </Choose>
   <ItemGroup>
     <Compile Include="EventStoreDbInitializerFixture.cs" />
+    <Compile Include="FsmFixture.cs" />
     <Compile Include="Playground\Helpers\TestActor.cs" />
     <Compile Include="Playground\InMemoryObjectsPerformance.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

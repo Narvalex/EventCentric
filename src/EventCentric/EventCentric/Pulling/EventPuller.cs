@@ -1,15 +1,17 @@
-﻿using System;
+﻿using EventCentric.Messaging;
+using System;
 using System.Collections.Concurrent;
 using System.Linq;
 using System.Threading;
 
 namespace EventCentric.Pulling
 {
-    public class EventPuller
+    public class EventPuller : Worker
     {
         private readonly ConcurrentBag<Subscription> subscriptions;
 
-        public EventPuller()
+        public EventPuller(IBus bus)
+            : base(bus)
         {
             // Pull from db.
             this.subscriptions = new ConcurrentBag<Subscription>();
