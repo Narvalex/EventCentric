@@ -38,6 +38,10 @@
       <HintPath>..\packages\EntityFramework.6.1.3\lib\net45\EntityFramework.SqlServer.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="Newtonsoft.Json, Version=7.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.7.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Core" />
@@ -51,22 +55,34 @@
   <ItemGroup>
     <Compile Include="Database\DataReaderExtensions.cs" />
     <Compile Include="Database\SqlClientLite.cs" />
+    <Compile Include="EventSourcing\IEvent.cs" />
     <Compile Include="EventStoreDbInitializer.cs" />
     <Compile Include="FSM.cs" />
     <Compile Include="Messaging\Bus.cs" />
+    <Compile Include="Messaging\Commands\StartEngine.cs" />
+    <Compile Include="Messaging\Commands\StopEngine.cs" />
     <Compile Include="Messaging\Envelope.cs" />
+    <Compile Include="Messaging\Events\EngineStarted.cs" />
+    <Compile Include="Messaging\Events\EngineStopped.cs" />
     <Compile Include="Messaging\IBus.cs" />
+    <Compile Include="Serialization\ITextSerializer.cs" />
+    <Compile Include="Serialization\JsonTextSerializer.cs" />
+    <Compile Include="Serialization\TextSerializerExtensions.cs" />
+    <Compile Include="Transport\EventData.cs" />
+    <Compile Include="Transport\IHttpClient.cs" />
+    <Compile Include="Transport\PollResponse.cs" />
     <Compile Include="Messaging\Worker.cs" />
     <Compile Include="Processing\EventProcessor.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Publishing\EventPublisher.cs" />
     <Compile Include="Pulling\EventPuller.cs" />
+    <Compile Include="Pulling\ISubscriptionsDao.cs" />
+    <Compile Include="Pulling\PollEventsDto.cs" />
     <Compile Include="Pulling\Subscription.cs" />
+    <Compile Include="Utils\StringExtensions.cs" />
+    <Compile Include="Utils\TaskExtensions.cs" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Messaging\Commands\" />
-    <Folder Include="Messaging\Events\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <None Include="App.config" />
     <None Include="packages.config" />

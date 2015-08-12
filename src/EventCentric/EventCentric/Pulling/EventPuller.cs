@@ -1,25 +1,66 @@
 ﻿using EventCentric.Messaging;
+using EventCentric.Messaging.Commands;
+using EventCentric.Messaging.Events;
+using EventCentric.Serialization;
+using EventCentric.Transport;
+using EventCentric.Utils;
 using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace EventCentric.Pulling
 {
-    public class EventPuller : Worker
+    public class EventPuller : Worker,
+        IMessageHandler<StartEventPuller>,
+        IMessageHandler<StopEventPuller>
     {
-        private readonly ConcurrentBag<Subscription> subscriptions;
+        private readonly ISubscriptionsDao dao;
+        private readonly Func<IHttpClient> httpClientFactory;
+        private readonly ITextSerializer serializer;
 
-        public EventPuller(IBus bus)
+        private ConcurrentBag<Subscription> subscriptions;
+
+        public EventPuller(IBus bus, ISubscriptionsDao dao, Func<IHttpClient> httpClientFactory, ITextSerializer serializer)
             : base(bus)
         {
-            // Pull from db.
-            this.subscriptions = new ConcurrentBag<Subscription>();
+            this.dao = dao;
+            this.httpClientFactory = httpClientFactory;
+            this.serializer = serializer;
         }
 
-        public void Pull()
+        public void Handle(StopEventPuller message)
         {
-            while (true)
+            base.Stop();
+        }
+
+        public void Handle(StartEventPuller message)
+        {
+            base.Start();
+        }
+
+        protected override void OnStarting()
+        {
+            this.subscriptions = new ConcurrentBag<Subscription>(this.dao.GetSubscriptionsOrderedByStreamName());
+            Task.Factory.StartNewLongRunning(() => this.CountinuoslyPullEvents());
+
+            // Ensure to start everything;
+            this.bus.Publish(new EventPullerStarted());
+        }
+
+        protected override void OnStopping()
+        {
+            this.subscriptions = null;
+
+            // Ensure to stop everything;
+            this.bus.Publish(new EventPullerStopped());
+        }
+
+        public void CountinuoslyPullEvents()
+        {
+            while (!this.stop)
             {
                 var pendingSubscriptions = subscriptions.Where(s => !s.IsBusy && !s.IsPoisoned);
 
@@ -28,27 +69,52 @@ namespace EventCentric.Pulling
                 else
                 {
                     // Build request.
-                    var batch = 0;
+                    var batchSizeCount = 0;
+                    var dtos = new List<PollEventsDto>();
                     foreach (var subscription in pendingSubscriptions)
                     {
                         // Mark subscription as busy
-                        batch += 1;
+                        batchSizeCount += 1;
                         subscription.IsBusy = true;
-                        if (batch > 9)
+
+                        // Group by streamType, asuming that stream types lives in the same url
+                        var queryForStreamType = dtos.Where(d => d.StreamType == subscription.StreamType);
+                        if (queryForStreamType.Any())
+                            queryForStreamType.First().Add(subscription.StreamId, subscription.Version);
+                        else
+                            dtos.Add(new PollEventsDto(subscription.StreamType, subscription.Url, subscription.StreamId, subscription.Version));
+
+                        if (batchSizeCount == 5)
                         {
-                            // Send request async.
-                            batch = 0;
-                            TryPullFromRemote();
+                            // Send requests async.
+                            dtos.ForEach(dto => Task.Factory.StartNewLongRunning(() => PollEvents(dto)));
+
+                            batchSizeCount = 0;
+                            dtos = new List<PollEventsDto>();
                         }
                     }
                 }
             }
         }
 
-        private void TryPullFromRemote()
+        private void PollEvents(PollEventsDto dto)
         {
-            // This is an asyncronous method. In a separate thread we make a new request for the batch of subscriptions that we have
-            // for each stream type.
+            var serializedResponse = string.Empty;
+            using (var http = this.httpClientFactory.Invoke())
+            {
+                // Fill the request with the formatter
+                var uri = string.Empty;
+                serializedResponse = http.GetStringAsync(uri).Result;
+            }
+
+            var response = this.serializer.Deserialize<PollResponse>(serializedResponse);
+
+            response.Events.ForEach(e =>
+            {
+                if (e.IsNewEvent)
+
+
+            });
 
             // If failure or no new event, the subscription is not busy anymore
             var failedId = Guid.Empty;

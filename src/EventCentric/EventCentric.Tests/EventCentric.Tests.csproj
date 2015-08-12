@@ -46,6 +46,7 @@
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Configuration" />
+    <Reference Include="System.Net.Http" />
   </ItemGroup>
   <Choose>
     <When Condition="('$(VisualStudioVersion)' == '10.0' or '$(VisualStudioVersion)' == '') and '$(TargetFrameworkVersion)' == 'v3.5'">
@@ -62,7 +63,9 @@
   <ItemGroup>
     <Compile Include="EventStoreDbInitializerFixture.cs" />
     <Compile Include="FsmFixture.cs" />
+    <Compile Include="Helpers\TestWorkerContainer.cs" />
     <Compile Include="Playground\Helpers\TestActor.cs" />
+    <Compile Include="Playground\HttpClientCapabilities.cs" />
     <Compile Include="Playground\InMemoryObjectsPerformance.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
