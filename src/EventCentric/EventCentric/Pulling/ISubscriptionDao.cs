@@ -2,7 +2,7 @@
 
 namespace EventCentric.Pulling
 {
-    public interface ISubscriptionsDao
+    public interface ISubscriptionDao
     {
         /// <summary>
         /// Returns an enumeration of <see cref="Subscription"/> ordered by StreamName.

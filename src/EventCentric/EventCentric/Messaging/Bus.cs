@@ -1,9 +1,10 @@
-﻿using System;
+﻿using EventCentric.Utils;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using System.Threading;
+using System.Threading.Tasks;
 
 namespace EventCentric.Messaging
 {
@@ -104,7 +105,7 @@ namespace EventCentric.Messaging
             List<Tuple<Type, Action<Envelope>>> handlers;
             if (this.handlersByMessageType.TryGetValue(typeof(T), out handlers))
                 foreach (var handler in handlers)
-                    ThreadPool.QueueUserWorkItem(_ => handler.Item2(envelope));
+                    Task.Factory.StartNewLongRunning(() => handler.Item2(envelope));
         }
     }
 }

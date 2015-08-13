@@ -13,7 +13,6 @@
         public static bool IsAnEncodedEmptyString(this string stringObject, string textToCompare)
         {
             return textToCompare == "empty" ? true : false;
-
         }
     }
 }

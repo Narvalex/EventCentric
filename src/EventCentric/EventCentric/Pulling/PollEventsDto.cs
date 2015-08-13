@@ -3,9 +3,9 @@ using System.Collections.Generic;
 
 namespace EventCentric.Pulling
 {
-    public class PollEventsDto
+    public class PollRemoteEndpointDto
     {
-        public PollEventsDto(string streamType, string url, Guid streamId, int version)
+        public PollRemoteEndpointDto(string streamType, string url, Guid streamId, int version)
         {
             this.StreamType = streamType;
             this.Url = url;
@@ -20,6 +20,6 @@ namespace EventCentric.Pulling
 
         public string StreamType { get; private set; }
         public string Url { get; private set; }
-        public ICollection<KeyValuePair<Guid, int>> ProcessedStreams { get; private set; }
+        public List<KeyValuePair<Guid, int>> ProcessedStreams { get; private set; }
     }
 }

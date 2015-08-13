@@ -1,4 +1,5 @@
-﻿using EventCentric.Messaging;
+﻿using EventCentric.EventSourcing;
+using EventCentric.Messaging;
 using EventCentric.Messaging.Commands;
 using EventCentric.Messaging.Events;
 using EventCentric.Serialization;
@@ -15,15 +16,18 @@ namespace EventCentric.Pulling
 {
     public class EventPuller : Worker,
         IMessageHandler<StartEventPuller>,
-        IMessageHandler<StopEventPuller>
+        IMessageHandler<StopEventPuller>,
+        IMessageHandler<IncomingEventHasBeenProcessed>,
+        IMessageHandler<IncomingEventIsPoisoned>,
+        IMessageHandler<NewSubscriptionAcquired>
     {
-        private readonly ISubscriptionsDao dao;
+        private readonly ISubscriptionDao dao;
         private readonly Func<IHttpClient> httpClientFactory;
         private readonly ITextSerializer serializer;
 
         private ConcurrentBag<Subscription> subscriptions;
 
-        public EventPuller(IBus bus, ISubscriptionsDao dao, Func<IHttpClient> httpClientFactory, ITextSerializer serializer)
+        public EventPuller(IBus bus, ISubscriptionDao dao, Func<IHttpClient> httpClientFactory, ITextSerializer serializer)
             : base(bus)
         {
             this.dao = dao;
@@ -31,14 +35,41 @@ namespace EventCentric.Pulling
             this.serializer = serializer;
         }
 
+        public void Handle(StartEventPuller message)
+        {
+            base.Start();
+        }
+
         public void Handle(StopEventPuller message)
         {
             base.Stop();
         }
 
-        public void Handle(StartEventPuller message)
+        public void Handle(IncomingEventHasBeenProcessed message)
         {
-            base.Start();
+            var subscription = this.subscriptions.Where(s => s.StreamId == message.StreamId).Single();
+            subscription.UpdateVersion(message.UpdatedVersion);
+            subscription.ExitBusy();
+        }
+
+        public void Handle(NewSubscriptionAcquired message)
+        {
+            var url = this.subscriptions
+                          .Where(s => message.StreamId == s.StreamId && message.StreamType == s.StreamType)
+                          .Single()
+                          .Url;
+
+            var newSubscription = new Subscription(message.StreamType, message.StreamId, url, 0, false);
+
+            this.subscriptions.Add(newSubscription);
+        }
+
+        public void Handle(IncomingEventIsPoisoned message)
+        {
+            this.subscriptions
+                .Where(s => s.StreamId == message.StreamId && s.StreamType == message.StreamType)
+                .Single()
+                .MarkAsPoisoned();
         }
 
         protected override void OnStarting()
@@ -58,7 +89,7 @@ namespace EventCentric.Pulling
             this.bus.Publish(new EventPullerStopped());
         }
 
-        public void CountinuoslyPullEvents()
+        private void CountinuoslyPullEvents()
         {
             while (!this.stop)
             {
@@ -70,19 +101,20 @@ namespace EventCentric.Pulling
                 {
                     // Build request.
                     var batchSizeCount = 0;
-                    var dtos = new List<PollEventsDto>();
+                    var dtos = new List<PollRemoteEndpointDto>();
                     foreach (var subscription in pendingSubscriptions)
                     {
                         // Mark subscription as busy
                         batchSizeCount += 1;
-                        subscription.IsBusy = true;
+                        subscription.EnterBusy();
 
-                        // Group by streamType, asuming that stream types lives in the same url
+                        // Group by Event Sources, asuming that stream types lives in the same url
                         var queryForStreamType = dtos.Where(d => d.StreamType == subscription.StreamType);
+
                         if (queryForStreamType.Any())
                             queryForStreamType.First().Add(subscription.StreamId, subscription.Version);
                         else
-                            dtos.Add(new PollEventsDto(subscription.StreamType, subscription.Url, subscription.StreamId, subscription.Version));
+                            dtos.Add(new PollRemoteEndpointDto(subscription.StreamType, subscription.Url, subscription.StreamId, subscription.Version));
 
                         if (batchSizeCount == 5)
                         {
@@ -90,20 +122,34 @@ namespace EventCentric.Pulling
                             dtos.ForEach(dto => Task.Factory.StartNewLongRunning(() => PollEvents(dto)));
 
                             batchSizeCount = 0;
-                            dtos = new List<PollEventsDto>();
+                            dtos = new List<PollRemoteEndpointDto>();
                         }
                     }
+
+                    // Send requests async for the last ones
+                    dtos.ForEach(dto => Task.Factory.StartNewLongRunning(() => PollEvents(dto)));
                 }
             }
         }
 
-        private void PollEvents(PollEventsDto dto)
+        private void PollEvents(PollRemoteEndpointDto dto)
         {
             var serializedResponse = string.Empty;
+
+            // Fill the request with the formatter
+            var uri = dto.Url;
+
+            dto.ProcessedStreams.ForEach(s =>
+                uri = $"{uri}/{s.Key.ToString()}/{s.Value.ToString()}");
+
+            // There is 5 (five) slots for Streams
+            var freeSlots = 5 - dto.ProcessedStreams.Count;
+
+            for (int i = 0; i < freeSlots; i++)
+                uri = $"{uri}/{default(string).EncodedEmptyString()}/0";
+
             using (var http = this.httpClientFactory.Invoke())
             {
-                // Fill the request with the formatter
-                var uri = string.Empty;
                 serializedResponse = http.GetStringAsync(uri).Result;
             }
 
@@ -112,17 +158,13 @@ namespace EventCentric.Pulling
             response.Events.ForEach(e =>
             {
                 if (e.IsNewEvent)
-
-
+                    this.bus.Publish(new NewIncomingEvent(this.serializer.Deserialize<IEvent>(e.Payload)));
+                else
+                    this.subscriptions
+                        .Where(s => s.StreamType == e.StreamType && s.StreamId == e.StreamId)
+                        .Single()
+                        .ExitBusy();
             });
-
-            // If failure or no new event, the subscription is not busy anymore
-            var failedId = Guid.Empty;
-            this.subscriptions.Where(s => s.StreamId == failedId).First().IsBusy = false;
-
-            // If success, then we publish to the bus that a new message was found;
-            // The processor will notify that the message was processed an will update the version, or notify that is poisoned after
-            //  a few retries. 
         }
     }
 }
