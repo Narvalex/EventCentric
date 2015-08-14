@@ -48,7 +48,7 @@ namespace EventCentric.Pulling
         public void Handle(IncomingEventHasBeenProcessed message)
         {
             var subscription = this.subscriptions.Where(s => s.StreamId == message.StreamId).Single();
-            subscription.UpdateVersion(message.UpdatedVersion);
+            subscription.UpdateVersion(message.StreamVersion);
             subscription.ExitBusy();
         }
 
@@ -83,8 +83,6 @@ namespace EventCentric.Pulling
 
         protected override void OnStopping()
         {
-            this.subscriptions = null;
-
             // Ensure to stop everything;
             this.bus.Publish(new EventPullerStopped());
         }

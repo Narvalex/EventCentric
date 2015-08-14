@@ -4,13 +4,13 @@ namespace EventCentric.Messaging.Events
 {
     public class IncomingEventHasBeenProcessed : IMessage
     {
-        public IncomingEventHasBeenProcessed(Guid streamId, int updatedVersion)
+        public IncomingEventHasBeenProcessed(Guid streamId, int streamVersion)
         {
             this.StreamId = streamId;
-            this.UpdatedVersion = updatedVersion;
+            this.StreamVersion = streamVersion;
         }
 
         public Guid StreamId { get; private set; }
-        public int UpdatedVersion { get; private set; }
+        public int StreamVersion { get; private set; }
     }
 }

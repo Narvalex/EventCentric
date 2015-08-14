@@ -57,9 +57,12 @@
     <Compile Include="Database\SqlClientLite.cs" />
     <Compile Include="EntityFramework\ReadOnlyStreamDbContext.cs" />
     <Compile Include="EntityFramework\ReadOnlySubscriptionDbContext.cs" />
+    <Compile Include="EventSourcing\AppendToStreamResult.cs" />
     <Compile Include="EventSourcing\IEvent.cs" />
     <Compile Include="Database\EventStoreDbInitializer.cs" />
     <Compile Include="EventSourcing\IEventSourced.cs" />
+    <Compile Include="EventSourcing\IEventStore.cs" />
+    <Compile Include="EventSourcing\StreamNotFoundException.cs" />
     <Compile Include="FSM.cs" />
     <Compile Include="INode.cs" />
     <Compile Include="Messaging\Bus.cs" />

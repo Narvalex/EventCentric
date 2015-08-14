@@ -73,7 +73,6 @@ namespace EventCentric.Publishing
 
         protected override void OnStopping()
         {
-            this.streamVersionsById = null;
             this.bus.Publish(new EventPublisherStopped());
         }
     }
