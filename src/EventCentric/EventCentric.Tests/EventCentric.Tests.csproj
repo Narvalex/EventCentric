@@ -68,6 +68,7 @@
     <Compile Include="Playground\HttpClientCapabilities.cs" />
     <Compile Include="Playground\InMemoryObjectsPerformance.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Publishing\EventPublisherFixture.cs" />
     <Compile Include="Pulling\EventPullerFixture.cs" />
     <Compile Include="Pulling\Helpers\TestBus.cs" />
     <Compile Include="Pulling\Helpers\TestEvents.cs" />
@@ -84,7 +85,9 @@
       <Name>EventCentric</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="Publishing\Helpers\" />
+  </ItemGroup>
   <Choose>
     <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">
       <ItemGroup>

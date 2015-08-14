@@ -31,8 +31,18 @@ namespace EventCentric.Tests.Pulling.Helpers
         private string GetSerializedPayload()
         {
             Thread.Sleep(1000);
-            var payload = this.serializer.Serialize(new TestEvent1());
-            var list = new List<EventData> { new EventData(this.NewEventToBeFound, "Clients", this.streamId, payload) };
+
+            var list = new List<PolledEventData>();
+
+            if (this.NewEventToBeFound)
+            {
+                var payload = this.serializer.Serialize(new TestEvent1());
+                list.Add(new PolledEventData("Clients", this.streamId, true, payload));
+            }
+            else
+                list.Add(new PolledEventData("Clients", this.streamId, false, string.Empty));
+
+
             var response = new PollResponse(list);
             return this.serializer.Serialize(response);
         }

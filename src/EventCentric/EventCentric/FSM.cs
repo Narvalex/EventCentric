@@ -6,7 +6,7 @@ using System.Threading;
 
 namespace EventCentric
 {
-    public class FSM : Worker, IDisposable,
+    public class FSM : Worker, INode, IDisposable,
         IMessageHandler<EventPublisherStarted>,
         IMessageHandler<EventProcessorStarted>,
         IMessageHandler<EventPullerStarted>,

@@ -10,9 +10,9 @@
             return "empty";
         }
 
-        public static bool IsAnEncodedEmptyString(this string stringObject, string textToCompare)
+        public static bool IsEncodedEmptyString(this string stringObject)
         {
-            return textToCompare == "empty" ? true : false;
+            return stringObject == "empty" ? true : false;
         }
     }
 }

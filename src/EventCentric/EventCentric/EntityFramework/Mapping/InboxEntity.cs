@@ -1,11 +1,23 @@
-using System.ComponentModel.DataAnnotations.Schema;
+using System;
 using System.Data.Entity.ModelConfiguration;
 
 namespace EventCentric.EntityFramework.Mapping
 {
-    public class InboxMap : EntityTypeConfiguration<Inbox>
+    public class InboxEntity
     {
-        public InboxMap()
+        public long InboxId { get; set; }
+        public Guid EventId { get; set; }
+        public string StreamType { get; set; }
+        public Guid StreamId { get; set; }
+        public int Version { get; set; }
+        public string EventType { get; set; }
+        public DateTime CreationDate { get; set; }
+        public string Payload { get; set; }
+    }
+
+    public class InboxEntityMap : EntityTypeConfiguration<InboxEntity>
+    {
+        public InboxEntityMap()
         {
             // Primary Key
             this.HasKey(t => t.InboxId);

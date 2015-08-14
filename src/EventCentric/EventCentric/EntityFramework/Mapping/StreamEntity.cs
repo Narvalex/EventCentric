@@ -1,11 +1,19 @@
-using System.ComponentModel.DataAnnotations.Schema;
+using System;
 using System.Data.Entity.ModelConfiguration;
 
 namespace EventCentric.EntityFramework.Mapping
 {
-    public class StreamMap : EntityTypeConfiguration<Stream>
+    public partial class StreamEntity
     {
-        public StreamMap()
+        public Guid StreamId { get; set; }
+        public int Version { get; set; }
+        public string Memento { get; set; }
+        public DateTime CreationDate { get; set; }
+    }
+
+    public class StreamEntityMap : EntityTypeConfiguration<StreamEntity>
+    {
+        public StreamEntityMap()
         {
             // Primary Key
             this.HasKey(t => t.StreamId);
@@ -22,4 +30,5 @@ namespace EventCentric.EntityFramework.Mapping
             this.Property(t => t.CreationDate).HasColumnName("CreationDate");
         }
     }
+
 }

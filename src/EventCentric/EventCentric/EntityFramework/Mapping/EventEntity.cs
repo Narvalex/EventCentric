@@ -1,11 +1,23 @@
+using System;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Data.Entity.ModelConfiguration;
 
 namespace EventCentric.EntityFramework.Mapping
 {
-    public class EventMap : EntityTypeConfiguration<Event>
+    public class EventEntity
     {
-        public EventMap()
+        public Guid StreamId { get; set; }
+        public int Version { get; set; }
+        public Guid EventId { get; set; }
+        public string EventType { get; set; }
+        public Guid CorrelationId { get; set; }
+        public DateTime CreationDate { get; set; }
+        public string Payload { get; set; }
+    }
+
+    public class EventEntityMap : EntityTypeConfiguration<EventEntity>
+    {
+        public EventEntityMap()
         {
             // Primary Key
             this.HasKey(t => new { t.StreamId, t.Version });

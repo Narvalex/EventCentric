@@ -1,7 +1,7 @@
 ﻿using System.Data.SqlClient;
 using System.Globalization;
 
-namespace EventCentric
+namespace EventCentric.Database
 {
     public class EventStoreDbInitializer
     {

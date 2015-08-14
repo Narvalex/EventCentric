@@ -4,11 +4,11 @@ namespace EventCentric.Transport
 {
     public class PollResponse
     {
-        public PollResponse(List<EventData> events)
+        public PollResponse(List<PolledEventData> events)
         {
             this.Events = events;
         }
 
-        public List<EventData> Events { get; private set; }
+        public List<PolledEventData> Events { get; private set; }
     }
 }

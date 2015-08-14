@@ -14,16 +14,16 @@ namespace EventCentric.EntityFramework
             : base(nameOrconnectionString)
         { }
 
-        public IDbSet<Event> Events { get; set; }
-        public IDbSet<Inbox> Inbox { get; set; }
-        public IDbSet<Stream> Streams { get; set; }
+        public IDbSet<EventEntity> Events { get; set; }
+        public IDbSet<InboxEntity> Inbox { get; set; }
+        public IDbSet<StreamEntity> Streams { get; set; }
         public IDbSet<SubscriptionEntity> Subscriptions { get; set; }
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
-            modelBuilder.Configurations.Add(new EventMap());
-            modelBuilder.Configurations.Add(new InboxMap());
-            modelBuilder.Configurations.Add(new StreamMap());
+            modelBuilder.Configurations.Add(new EventEntityMap());
+            modelBuilder.Configurations.Add(new InboxEntityMap());
+            modelBuilder.Configurations.Add(new StreamEntityMap());
             modelBuilder.Configurations.Add(new SubscriptionEntityMap());
         }
     }

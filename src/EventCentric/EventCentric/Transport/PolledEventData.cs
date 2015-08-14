@@ -2,13 +2,13 @@
 
 namespace EventCentric.Transport
 {
-    public class EventData
+    public class PolledEventData
     {
-        public EventData(bool isNewEvent, string streamType, Guid streamId, string payload)
+        public PolledEventData(string streamType, Guid streamId, bool isNewEvent, string payload)
         {
-            this.IsNewEvent = isNewEvent;
             this.StreamType = streamType;
             this.StreamId = streamId;
+            this.IsNewEvent = isNewEvent;
             this.Payload = payload;
         }
 
