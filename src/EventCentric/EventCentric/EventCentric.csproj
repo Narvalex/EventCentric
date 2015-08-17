@@ -57,7 +57,6 @@
     <Compile Include="Database\DataReaderExtensions.cs" />
     <Compile Include="Database\SqlClientLite.cs" />
     <Compile Include="EntityFramework\DbContextExtensions.cs" />
-    <Compile Include="EntityFramework\SubscriptionDbContext.cs" />
     <Compile Include="EntityFramework\ReadOnlyStreamDbContext.cs" />
     <Compile Include="EntityFramework\ReadOnlySubscriptionDbContext.cs" />
     <Compile Include="EventSourcing\EventStore.cs" />
@@ -67,7 +66,7 @@
     <Compile Include="EventSourcing\IEventSourced.cs" />
     <Compile Include="EventSourcing\IEventStore.cs" />
     <Compile Include="EventSourcing\IMementoOriginator.cs" />
-    <Compile Include="Processing\ISubscriptionWriter.cs" />
+    <Compile Include="EventSourcing\ISubscriptionWriter.cs" />
     <Compile Include="EventSourcing\StreamNotFoundException.cs" />
     <Compile Include="FSM.cs" />
     <Compile Include="INode.cs" />
@@ -88,7 +87,7 @@
     <Compile Include="EntityFramework\EventStoreDbContext.cs" />
     <Compile Include="EntityFramework\Mapping\StreamEntity.cs" />
     <Compile Include="EntityFramework\Mapping\SubscriptionEntity.cs" />
-    <Compile Include="Processing\SubscriptionWriter.cs" />
+    <Compile Include="EventSourcing\SubscriptionWriter.cs" />
     <Compile Include="Publishing\IEventSource.cs" />
     <Compile Include="Publishing\IStreamDao.cs" />
     <Compile Include="Publishing\StreamDao.cs" />

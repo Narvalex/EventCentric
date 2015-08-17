@@ -48,7 +48,14 @@ namespace EventCentric.Processing
 
         public void Handle(NewIncomingEvent message)
         {
-            ((dynamic)this).Handle((dynamic)message.Event);
+            try
+            {
+                ((dynamic)this).Handle((dynamic)message.Event);
+            }
+            catch (Exception)
+            {
+                this.bus.Publish(new IncomingEventIsPoisoned(message.Event.StreamType, message.Event.StreamId));
+            }
         }
 
         public void Handle(StartEventProcessor message)
@@ -100,15 +107,8 @@ namespace EventCentric.Processing
         /// <param name="@event">The <see cref="IEvent"/> to be igonred.</param>
         protected void IgnoreEvent(IEvent @event)
         {
-            try
-            {
-                this.inboxWriter.LogIncomingEventAsReceivedAndIgnored(@event);
-                this.bus.Publish(new IncomingEventHasBeenProcessed(@event.StreamId, @event.StreamType, @event.Version));
-            }
-            catch (Exception)
-            {
-                this.bus.Publish(new IncomingEventIsPoisoned(@event.StreamType, @event.StreamId));
-            }
+            this.inboxWriter.LogIncomingEventAsIgnored(@event);
+            this.PublishIncomingEventHasBeenProcessed(@event);
         }
 
         /// <summary>
@@ -119,17 +119,10 @@ namespace EventCentric.Processing
         /// <returns>The updated stream version.</returns>
         private void HandleEventAndAppendToStore(T aggregate, IEvent @event)
         {
-            try
-            {
-                ((dynamic)aggregate).Handle((dynamic)@event);
-                this.store.Save(aggregate, @event);
-                this.bus.Publish(new EventStoreHasBeenUpdated(aggregate.Id, aggregate.Version));
-                this.bus.Publish(new IncomingEventHasBeenProcessed(@event.StreamId, @event.StreamType, @event.Version));
-            }
-            catch (Exception)
-            {
-                this.bus.Publish(new IncomingEventIsPoisoned(@event.StreamType, @event.StreamId));
-            }
+            ((dynamic)aggregate).Handle((dynamic)@event);
+            this.store.Save(aggregate, @event);
+            this.bus.Publish(new EventStoreHasBeenUpdated(aggregate.Id, aggregate.Version));
+            this.PublishIncomingEventHasBeenProcessed(@event);
         }
 
         /// <summary>
@@ -144,6 +137,11 @@ namespace EventCentric.Processing
             {
                 handle();
             }
+        }
+
+        private void PublishIncomingEventHasBeenProcessed(IEvent @event)
+        {
+            this.bus.Publish(new IncomingEventHasBeenProcessed(@event.StreamId, @event.StreamType, @event.Version));
         }
     }
 }

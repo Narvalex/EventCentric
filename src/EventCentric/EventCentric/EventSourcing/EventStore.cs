@@ -25,16 +25,19 @@ namespace EventCentric.EventSourcing
         private readonly Action<Guid> markCacheAsStale;
 
         private readonly Func<EventStoreDbContext> contextFactory;
+        private readonly ISubscriptionWriter subscriptionWriter;
 
-        public EventStore(ITextSerializer serializer, Func<EventStoreDbContext> contextFactory, ITimeProvider time)
+        public EventStore(ITextSerializer serializer, Func<EventStoreDbContext> contextFactory, ISubscriptionWriter subscriptionWriter, ITimeProvider time)
         {
             Ensure.NotNull(serializer, "serializer");
             Ensure.NotNull(contextFactory, "contextFactory");
             Ensure.NotNull(time, "time");
+            Ensure.NotNull(subscriptionWriter, "subscriptionWriter");
 
             this.serializer = serializer;
             this.contextFactory = contextFactory;
             this.time = time;
+            this.subscriptionWriter = subscriptionWriter;
 
             /// TODO: could be replaced with a compiled lambda to make it more performant.
             // Aggregate Factory
@@ -151,20 +154,19 @@ namespace EventCentric.EventSourcing
                         });
                 }
 
-                context.Inbox.Add(
-                    new InboxEntity
-                    {
-                        EventId = correlatedEvent.EventId,
-                        StreamType = correlatedEvent.StreamType,
-                        StreamId = correlatedEvent.StreamId,
-                        Version = correlatedEvent.Version,
-                        EventType = correlatedEvent.GetType().Name,
-                        CreationDate = this.time.Now,
-                        Ignored = false,
-                        Payload = this.serializer.Serialize(correlatedEvent)
-                    });
+                this.subscriptionWriter.LogIncomingEvent(correlatedEvent, context);
 
-                this.cacheMementoAndPublishStream(eventSourced, context);
+                try
+                {
+                    this.cacheMementoAndPublishStream(eventSourced, context);
+
+                    context.SaveChanges();
+                }
+                catch
+                {
+                    this.markCacheAsStale(eventSourced.Id);
+                    throw;
+                }
             }
         }
     }
