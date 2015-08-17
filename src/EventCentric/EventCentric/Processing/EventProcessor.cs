@@ -2,7 +2,6 @@
 using EventCentric.Messaging;
 using EventCentric.Messaging.Commands;
 using EventCentric.Messaging.Events;
-using EventCentric.Serialization;
 using EventCentric.Utils;
 using System;
 using System.Collections.Concurrent;
@@ -24,24 +23,26 @@ namespace EventCentric.Processing
         IMessageHandler<NewIncomingEvent>
             where T : IEventSourced
     {
-        private readonly ITextSerializer serializer;
         private readonly IEventStore<T> store;
-        private readonly IInboxWriter inboxWriter;
+        private readonly ISubscriptionWriter inboxWriter;
         private readonly Func<Guid, T> newAggregateFactory;
         protected ConcurrentDictionary<Guid, object> streamLocksById;
 
-        public EventProcessor(IBus bus, ITextSerializer serializer, IEventStore<T> store, IInboxWriter inboxWriter)
+        public EventProcessor(IBus bus, IEventStore<T> store, ISubscriptionWriter inboxWriter)
             : base(bus)
         {
-            this.streamLocksById = new ConcurrentDictionary<Guid, object>();
+            Ensure.NotNull(store, "store");
+            Ensure.NotNull(inboxWriter, "inboxWriter");
+
             this.store = store;
             this.inboxWriter = inboxWriter;
 
+            this.streamLocksById = new ConcurrentDictionary<Guid, object>();
+
             // New aggregate
             var constructor = typeof(T).GetConstructor(new[] { typeof(Guid) });
-            if (constructor == null)
-                throw new InvalidCastException(
-                    "Type T must have a constructor with the following signature: .ctor(Guid)");
+            Ensure.CastIsValid(constructor, "Type T must have a constructor with the following signature: .ctor(Guid)");
+
             this.newAggregateFactory = (id) => (T)constructor.Invoke(new object[] { id });
         }
 

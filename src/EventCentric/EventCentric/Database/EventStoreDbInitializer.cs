@@ -88,7 +88,7 @@ CREATE TABLE [EventStore].[Subscriptions](
     [StreamId] [uniqueidentifier] NOT NULL,
     [Url] [nvarchar] (500) NOT NULL,
     [LastProcessedVersion] [int] NOT NULL,
-	[LasProcessedEventId] [uniqueidentifier] NOT NULL,
+	[LastProcessedEventId] [uniqueidentifier] NOT NULL,
 	[CreationDate] [datetime] NOT NULL,
 	[IsPoisoned] [bit] NOT NULL,
 	[ExceptionMessage] [nvarchar] (max) NULL
@@ -110,6 +110,7 @@ CREATE TABLE [EventStore].[Inbox](
 	[Version] [int] NOT NULL,
 	[EventType] [nvarchar] (255) NOT NULL,
 	[CreationDate] [datetime] NOT NULL,
+    [Ignored] [bit] NULL,
 	[Payload] [nvarchar] (max) NOT NULL
 
 PRIMARY KEY CLUSTERED 

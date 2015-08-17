@@ -9,7 +9,7 @@ namespace EventCentric.EntityFramework
         public Guid StreamId { get; set; }
         public string Url { get; set; }
         public int LastProcessedVersion { get; set; }
-        public Guid LasProcessedEventId { get; set; }
+        public Guid LastProcessedEventId { get; set; }
         public DateTime CreationDate { get; set; }
         public bool IsPoisoned { get; set; }
         public string ExceptionMessage { get; set; }
@@ -37,7 +37,7 @@ namespace EventCentric.EntityFramework
             this.Property(t => t.StreamId).HasColumnName("StreamId");
             this.Property(t => t.Url).HasColumnName("Url");
             this.Property(t => t.LastProcessedVersion).HasColumnName("LastProcessedVersion");
-            this.Property(t => t.LasProcessedEventId).HasColumnName("LasProcessedEventId");
+            this.Property(t => t.LastProcessedEventId).HasColumnName("LasProcessedEventId");
             this.Property(t => t.CreationDate).HasColumnName("CreationDate");
             this.Property(t => t.IsPoisoned).HasColumnName("IsPoisoned");
             this.Property(t => t.ExceptionMessage).HasColumnName("ExceptionMessage");

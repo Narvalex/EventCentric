@@ -1,4 +1,6 @@
-﻿namespace EventCentric.Messaging
+﻿using EventCentric.Utils;
+
+namespace EventCentric.Messaging
 {
     public abstract class Worker : IWorker
     {
@@ -7,6 +9,8 @@
 
         protected Worker(IBus bus)
         {
+            Ensure.NotNull(bus, "bus");
+
             this.bus = bus;
         }
 

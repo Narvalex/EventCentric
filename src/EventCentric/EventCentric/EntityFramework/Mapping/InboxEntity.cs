@@ -12,6 +12,7 @@ namespace EventCentric.EntityFramework.Mapping
         public int Version { get; set; }
         public string EventType { get; set; }
         public DateTime CreationDate { get; set; }
+        public bool Ignored { get; set; }
         public string Payload { get; set; }
     }
 
@@ -43,6 +44,7 @@ namespace EventCentric.EntityFramework.Mapping
             this.Property(t => t.Version).HasColumnName("Version");
             this.Property(t => t.EventType).HasColumnName("EventType");
             this.Property(t => t.CreationDate).HasColumnName("CreationDate");
+            this.Property(t => t.Ignored).HasColumnName("Ignored");
             this.Property(t => t.Payload).HasColumnName("Payload");
         }
     }

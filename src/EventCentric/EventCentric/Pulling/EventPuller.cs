@@ -30,6 +30,10 @@ namespace EventCentric.Pulling
         public EventPuller(IBus bus, ISubscriptionDao dao, Func<IHttpClient> httpClientFactory, ITextSerializer serializer)
             : base(bus)
         {
+            Ensure.NotNull(dao, "dao");
+            Ensure.NotNull(httpClientFactory, "httpClientFactory");
+            Ensure.NotNull(serializer, "serializer");
+
             this.dao = dao;
             this.httpClientFactory = httpClientFactory;
             this.serializer = serializer;

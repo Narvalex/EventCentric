@@ -24,6 +24,8 @@ namespace EventCentric.Publishing
         public EventPublisher(IBus bus, IStreamDao dao)
             : base(bus)
         {
+            Ensure.NotNull(dao, "dao");
+
             this.dao = dao;
         }
 

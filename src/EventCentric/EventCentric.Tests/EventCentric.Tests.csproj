@@ -86,7 +86,6 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Processing\" />
     <Folder Include="Publishing\Helpers\" />
   </ItemGroup>
   <Choose>
