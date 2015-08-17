@@ -38,6 +38,7 @@ namespace EventCentric.EventSourcing
             this.contextFactory = contextFactory;
             this.time = time;
             this.subscriptionWriter = subscriptionWriter;
+            this.cache = new MemoryCache(_streamType);
 
             /// TODO: could be replaced with a compiled lambda to make it more performant.
             // Aggregate Factory

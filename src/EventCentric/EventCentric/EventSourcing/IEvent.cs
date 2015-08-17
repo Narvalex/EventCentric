@@ -17,7 +17,5 @@ namespace EventCentric.EventSourcing
         string StreamType { get; }
 
         Guid StreamId { get; }
-
-
     }
 }

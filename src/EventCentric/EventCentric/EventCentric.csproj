@@ -59,6 +59,7 @@
     <Compile Include="EntityFramework\DbContextExtensions.cs" />
     <Compile Include="EntityFramework\ReadOnlyStreamDbContext.cs" />
     <Compile Include="EntityFramework\ReadOnlySubscriptionDbContext.cs" />
+    <Compile Include="EventSourcing\Event.cs" />
     <Compile Include="EventSourcing\EventStore.cs" />
     <Compile Include="EventSourcing\EventStoreConcurrencyException.cs" />
     <Compile Include="EventSourcing\IEvent.cs" />
