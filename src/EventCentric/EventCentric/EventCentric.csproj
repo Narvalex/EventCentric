@@ -62,6 +62,7 @@
     <Compile Include="Database\EventStoreDbInitializer.cs" />
     <Compile Include="EventSourcing\IEventSourced.cs" />
     <Compile Include="EventSourcing\IEventStore.cs" />
+    <Compile Include="EventSourcing\IInboxWriter.cs" />
     <Compile Include="EventSourcing\StreamNotFoundException.cs" />
     <Compile Include="FSM.cs" />
     <Compile Include="INode.cs" />

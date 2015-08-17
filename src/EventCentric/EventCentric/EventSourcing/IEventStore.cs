@@ -2,7 +2,7 @@
 
 namespace EventCentric.EventSourcing
 {
-    public interface IEventStore<T> where T : class, IEventSourced
+    public interface IEventStore<T> where T : IEventSourced
     {
         /// <summary>
         /// Retrieves the event sourced entity.
@@ -17,7 +17,6 @@ namespace EventCentric.EventSourcing
         /// </summary>
         /// <param name="eventSourced">The event sourced entity.</param>
         /// <param name="correlatedEvent">The correlated <see cref="IEvent"/></param>
-        /// <returns>The new version of the stream</returns>
-        int Save(T eventSourced, IEvent correlatedEvent);
+        void Save(T eventSourced, IEvent correlatedEvent);
     }
 }

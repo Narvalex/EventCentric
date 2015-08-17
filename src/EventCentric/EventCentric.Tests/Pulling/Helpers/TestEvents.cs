@@ -7,6 +7,8 @@ namespace EventCentric.Tests.Pulling.Helpers
     {
         public Guid StreamId { get; set; }
 
+        public int Version { get; set; }
+
         public string StreamType
         {
             get { return "Clients"; }
