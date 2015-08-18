@@ -1,4 +1,4 @@
-﻿using EventCentric.EntityFramework;
+﻿using EventCentric.Repository;
 
 namespace EventCentric.EventSourcing
 {

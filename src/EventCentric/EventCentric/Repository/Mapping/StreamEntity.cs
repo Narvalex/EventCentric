@@ -1,7 +1,7 @@
 using System;
 using System.Data.Entity.ModelConfiguration;
 
-namespace EventCentric.EntityFramework.Mapping
+namespace EventCentric.Repository.Mapping
 {
     public partial class StreamEntity
     {

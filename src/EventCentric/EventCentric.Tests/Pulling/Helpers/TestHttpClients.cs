@@ -28,6 +28,11 @@ namespace EventCentric.Tests.Pulling.Helpers
             return Task<string>.Factory.StartNew(() => this.GetSerializedPayload());
         }
 
+        public string GetString(string requestUri)
+        {
+            return this.GetStringAsync(requestUri).Result;
+        }
+
         private string GetSerializedPayload()
         {
             Thread.Sleep(1000);

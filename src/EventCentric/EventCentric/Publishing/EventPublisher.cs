@@ -39,12 +39,12 @@ namespace EventCentric.Publishing
 
         public void Handle(StopEventPublisher message)
         {
-            base.Start();
+            base.Stop();
         }
 
         public void Handle(StartEventPublisher message)
         {
-            base.Stop();
+            base.Start();
         }
 
         public PollResponse PollEvents(PollRequest request)

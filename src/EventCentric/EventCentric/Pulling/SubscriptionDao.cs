@@ -1,4 +1,4 @@
-﻿using EventCentric.EntityFramework;
+﻿using EventCentric.Repository;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,13 +16,21 @@ namespace EventCentric.Pulling
 
         public IEnumerable<Subscription> GetSubscriptionsOrderedByStreamName()
         {
-            using (var context = this.contextFactory.Invoke())
+            try
             {
-                return context
-                        .Subscriptions
-                        .OrderBy(s => s.StreamType)
-                        .Select(s => new Subscription(s.StreamType, s.StreamId, s.Url, s.LastProcessedVersion, s.IsPoisoned))
-                        .AsEnumerable();
+                using (var context = this.contextFactory.Invoke())
+                {
+                    return context
+                            .Subscriptions
+                            .OrderBy(s => s.StreamType)
+                            .Select(s => new Subscription(s.StreamType, s.StreamId, s.Url, s.LastProcessedVersion, s.IsPoisoned))
+                            .AsEnumerable();
+                }
+            }
+            catch (Exception)
+            {
+
+                throw;
             }
         }
     }

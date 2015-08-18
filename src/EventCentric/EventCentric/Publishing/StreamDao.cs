@@ -1,4 +1,4 @@
-﻿using EventCentric.EntityFramework;
+﻿using EventCentric.Repository;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -29,13 +29,22 @@ namespace EventCentric.Publishing
 
         public IEnumerable<KeyValuePair<Guid, int>> GetStreamsVersionsById()
         {
+
             using (var context = this.contextFactory())
             {
-                return context
-                        .Streams
-                        .Select(s => new KeyValuePair<Guid, int>(s.StreamId, s.Version))
-                        .AsEnumerable();
+                try
+                {
+                    return context
+                            .Streams
+                            .Select(s => new KeyValuePair<Guid, int>(s.StreamId, s.Version))
+                            .ToList();
+                }
+                catch (Exception ex)
+                {
+                    throw;
+                }
             }
         }
     }
 }
+

@@ -38,12 +38,25 @@
       <HintPath>..\packages\EntityFramework.6.1.3\lib\net45\EntityFramework.SqlServer.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="Microsoft.Practices.Unity, Version=3.5.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Unity.3.5.1404.0\lib\net45\Microsoft.Practices.Unity.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Microsoft.Practices.Unity.Configuration, Version=3.5.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Unity.3.5.1404.0\lib\net45\Microsoft.Practices.Unity.Configuration.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Microsoft.Practices.Unity.RegistrationByConvention, Version=3.5.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Unity.3.5.1404.0\lib\net45\Microsoft.Practices.Unity.RegistrationByConvention.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="Newtonsoft.Json, Version=7.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.7.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Runtime.Caching" />
     <Reference Include="System.Xml.Linq" />
@@ -54,11 +67,15 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Database\ConnectionProvider.cs" />
     <Compile Include="Database\DataReaderExtensions.cs" />
+    <Compile Include="Database\IConnectionProvider.cs" />
     <Compile Include="Database\SqlClientLite.cs" />
-    <Compile Include="EntityFramework\DbContextExtensions.cs" />
-    <Compile Include="EntityFramework\ReadOnlyStreamDbContext.cs" />
-    <Compile Include="EntityFramework\ReadOnlySubscriptionDbContext.cs" />
+    <Compile Include="Database\TransientFaultHandlingDbConfiguration.cs" />
+    <Compile Include="NodeFactory.cs" />
+    <Compile Include="Repository\DbContextExtensions.cs" />
+    <Compile Include="Repository\ReadOnlyStreamDbContext.cs" />
+    <Compile Include="Repository\ReadOnlySubscriptionDbContext.cs" />
     <Compile Include="EventSourcing\Event.cs" />
     <Compile Include="EventSourcing\EventSourced.cs" />
     <Compile Include="EventSourcing\EventStore.cs" />
@@ -87,11 +104,11 @@
     <Compile Include="Messaging\Events\NewSubscriptionAcquired.cs" />
     <Compile Include="Messaging\Events\EventStoreHasBeenUpdated.cs" />
     <Compile Include="Messaging\IBus.cs" />
-    <Compile Include="EntityFramework\Mapping\EventEntity.cs" />
-    <Compile Include="EntityFramework\Mapping\InboxEntity.cs" />
-    <Compile Include="EntityFramework\EventStoreDbContext.cs" />
-    <Compile Include="EntityFramework\Mapping\StreamEntity.cs" />
-    <Compile Include="EntityFramework\Mapping\SubscriptionEntity.cs" />
+    <Compile Include="Repository\Mapping\EventEntity.cs" />
+    <Compile Include="Repository\Mapping\InboxEntity.cs" />
+    <Compile Include="Repository\EventStoreDbContext.cs" />
+    <Compile Include="Repository\Mapping\StreamEntity.cs" />
+    <Compile Include="Repository\Mapping\SubscriptionEntity.cs" />
     <Compile Include="EventSourcing\SubscriptionWriter.cs" />
     <Compile Include="Messaging\IClientBus.cs" />
     <Compile Include="Processing\ClientCommand.cs" />
@@ -106,6 +123,7 @@
     <Compile Include="Serialization\ITextSerializer.cs" />
     <Compile Include="Serialization\JsonTextSerializer.cs" />
     <Compile Include="Serialization\TextSerializerExtensions.cs" />
+    <Compile Include="Transport\SynchronousHttpClient.cs" />
     <Compile Include="Transport\PolledEventData.cs" />
     <Compile Include="Transport\IHttpClient.cs" />
     <Compile Include="Transport\PollRequest.cs" />

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Data.Entity;
 
-namespace EventCentric.EntityFramework
+namespace EventCentric.Repository
 {
     public static class DbContextExtensions
     {

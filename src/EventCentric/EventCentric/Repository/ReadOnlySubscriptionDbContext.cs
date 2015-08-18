@@ -1,7 +1,7 @@
-﻿using EventCentric.EntityFramework.Mapping;
+﻿using EventCentric.Repository.Mapping;
 using System.Data.Entity;
 
-namespace EventCentric.EntityFramework
+namespace EventCentric.Repository
 {
     public class ReadOnlySubscriptionDbContext : DbContext
     {

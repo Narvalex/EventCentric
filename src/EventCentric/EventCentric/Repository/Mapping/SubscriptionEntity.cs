@@ -1,7 +1,7 @@
 using System;
 using System.Data.Entity.ModelConfiguration;
 
-namespace EventCentric.EntityFramework
+namespace EventCentric.Repository
 {
     public partial class SubscriptionEntity
     {

@@ -152,7 +152,7 @@ namespace EventCentric.Pulling
 
             using (var http = this.httpClientFactory.Invoke())
             {
-                serializedResponse = http.GetStringAsync(uri).Result;
+                serializedResponse = http.GetString(uri);
             }
 
             var response = this.serializer.Deserialize<PollResponse>(serializedResponse);

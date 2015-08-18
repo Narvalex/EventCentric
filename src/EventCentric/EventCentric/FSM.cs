@@ -57,18 +57,18 @@ namespace EventCentric
             if (this.State == NodeState.UpAndRunning)
                 return;
 
-            if (this.State == NodeState.Starting || this.State == NodeState.ShuttingDown)
-            {
-                Thread.Sleep(100);
-                this.Start();
-            }
-
             if (this.State == NodeState.Down)
             {
                 this.State = NodeState.Starting;
                 base.Start();
 
                 // Check if is started to release thread.
+                this.Start();
+            }
+
+            if (this.State == NodeState.Starting || this.State == NodeState.ShuttingDown)
+            {
+                Thread.Sleep(100);
                 this.Start();
             }
         }

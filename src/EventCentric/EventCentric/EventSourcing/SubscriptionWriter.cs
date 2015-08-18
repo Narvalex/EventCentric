@@ -1,5 +1,5 @@
-﻿using EventCentric.EntityFramework;
-using EventCentric.EntityFramework.Mapping;
+﻿using EventCentric.Repository;
+using EventCentric.Repository.Mapping;
 using EventCentric.Serialization;
 using EventCentric.Utils;
 using System;

@@ -13,11 +13,11 @@ namespace Clientes.CommandProcessor.Processor
     {
         public int saldo = 0;
 
-        protected ClientesYSaldos(Guid id)
+        public ClientesYSaldos(Guid id)
             : base(id)
         { }
 
-        protected ClientesYSaldos(Guid id, IMemento memento)
+        public ClientesYSaldos(Guid id, IMemento memento)
             : base(id, memento)
         { }
 

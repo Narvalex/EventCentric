@@ -107,5 +107,11 @@ namespace EventCentric.Messaging
                 foreach (var handler in handlers)
                     Task.Factory.StartNewLongRunning(() => handler.Item2(envelope));
         }
+
+        public void Register(params IWorker[] workers)
+        {
+            foreach (var worker in workers)
+                this.Register(worker);
+        }
     }
 }

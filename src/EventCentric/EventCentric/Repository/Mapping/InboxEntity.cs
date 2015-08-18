@@ -1,30 +1,32 @@
 using System;
-using System.ComponentModel.DataAnnotations.Schema;
 using System.Data.Entity.ModelConfiguration;
 
-namespace EventCentric.EntityFramework.Mapping
+namespace EventCentric.Repository.Mapping
 {
-    public class EventEntity
+    public class InboxEntity
     {
+        public long InboxId { get; set; }
+        public Guid EventId { get; set; }
+        public string StreamType { get; set; }
         public Guid StreamId { get; set; }
         public int Version { get; set; }
-        public Guid EventId { get; set; }
         public string EventType { get; set; }
-        public Guid CorrelationId { get; set; }
         public DateTime CreationDate { get; set; }
+        public bool Ignored { get; set; }
         public string Payload { get; set; }
     }
 
-    public class EventEntityMap : EntityTypeConfiguration<EventEntity>
+    public class InboxEntityMap : EntityTypeConfiguration<InboxEntity>
     {
-        public EventEntityMap()
+        public InboxEntityMap()
         {
             // Primary Key
-            this.HasKey(t => new { t.StreamId, t.Version });
+            this.HasKey(t => t.InboxId);
 
             // Properties
-            this.Property(t => t.Version)
-                .HasDatabaseGeneratedOption(DatabaseGeneratedOption.None);
+            this.Property(t => t.StreamType)
+                .IsRequired()
+                .HasMaxLength(255);
 
             this.Property(t => t.EventType)
                 .IsRequired()
@@ -34,13 +36,15 @@ namespace EventCentric.EntityFramework.Mapping
                 .IsRequired();
 
             // Table & Column Mappings
-            this.ToTable("Events", "EventStore");
+            this.ToTable("Inbox", "EventStore");
+            this.Property(t => t.InboxId).HasColumnName("InboxId");
+            this.Property(t => t.EventId).HasColumnName("EventId");
+            this.Property(t => t.StreamType).HasColumnName("StreamType");
             this.Property(t => t.StreamId).HasColumnName("StreamId");
             this.Property(t => t.Version).HasColumnName("Version");
-            this.Property(t => t.EventId).HasColumnName("EventId");
             this.Property(t => t.EventType).HasColumnName("EventType");
-            this.Property(t => t.CorrelationId).HasColumnName("CorrelationId");
             this.Property(t => t.CreationDate).HasColumnName("CreationDate");
+            this.Property(t => t.Ignored).HasColumnName("Ignored");
             this.Property(t => t.Payload).HasColumnName("Payload");
         }
     }

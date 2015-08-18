@@ -21,21 +21,21 @@ namespace EventCentric.Processing
         IMessageHandler<StartEventProcessor>,
         IMessageHandler<StopEventProcessor>,
         IMessageHandler<NewIncomingEvent>
-            where T : IEventSourced
+            where T : class, IEventSourced
     {
         private readonly IEventStore<T> store;
         private readonly ISubscriptionWriter inboxWriter;
         private readonly Func<Guid, T> newAggregateFactory;
         protected ConcurrentDictionary<Guid, object> streamLocksById;
 
-        public EventProcessor(IBus bus, IEventStore<T> store, ISubscriptionWriter inboxWriter)
+        public EventProcessor(IBus bus, IEventStore<T> store, ISubscriptionWriter subscriptionWriter)
             : base(bus)
         {
             Ensure.NotNull(store, "store");
-            Ensure.NotNull(inboxWriter, "inboxWriter");
+            Ensure.NotNull(subscriptionWriter, "inboxWriter");
 
             this.store = store;
-            this.inboxWriter = inboxWriter;
+            this.inboxWriter = subscriptionWriter;
 
             this.streamLocksById = new ConcurrentDictionary<Guid, object>();
 

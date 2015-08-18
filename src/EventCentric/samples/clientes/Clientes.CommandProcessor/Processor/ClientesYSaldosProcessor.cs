@@ -13,8 +13,8 @@ namespace Clientes.CommandProcessor.Processor
         ICommandHandler<QuitarSaldo>,
         IEventHandler<ClienteRegistrado>
     {
-        public ClientesYSaldosProcessor(IGuidProvider guidProvider, IBus bus, IEventStore<ClientesYSaldos> store, ISubscriptionWriter inboxWriter)
-            : base(bus, store, inboxWriter)
+        public ClientesYSaldosProcessor(IBus bus, IEventStore<ClientesYSaldos> store, ISubscriptionWriter subsriptionWriter)
+            : base(bus, store, subsriptionWriter)
         { }
 
         public void Handle(AgregarCliente command)
