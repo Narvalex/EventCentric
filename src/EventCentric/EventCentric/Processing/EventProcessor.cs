@@ -70,12 +70,23 @@ namespace EventCentric.Processing
             this.bus.Publish(new EventProcessorStopped());
         }
 
+        protected void CreateNewStream(IEvent @event)
+        {
+            this.HandleSafelyWithStreamLocking(Guid.Empty, () =>
+            {
+                var aggregate = this.store.Find(Guid.Empty);
+                if (aggregate == null)
+                    aggregate = this.newAggregateFactory(Guid.Empty);
+                this.HandleEventAndAppendToStore(aggregate, @event);
+            });
+        }
+
         /// <summary>
         /// Creates a new stream in the store.
         /// </summary>
         /// <param name="id">The id of the new stream. A brand new computed <see cref="Guid"/>.</param>
         /// <param name="@event">The first message that the new aggregate will process.</param>
-        protected void CreateNewStreamAndHandle(Guid id, IEvent @event)
+        protected void HandleFirstEvent(Guid id, IEvent @event)
         {
             this.HandleSafelyWithStreamLocking(id, () =>
             {
@@ -90,7 +101,7 @@ namespace EventCentric.Processing
         /// </summary>
         /// <param name="id">The id of the stream.</param>
         /// <param name="@event">The event to be handled by the aggregate of <see cref="T"/>.</param>
-        protected void GetStreamAndHandle(Guid id, IEvent @event)
+        protected void Handle(Guid id, IEvent @event)
         {
             this.HandleSafelyWithStreamLocking(id, () =>
             {
@@ -105,7 +116,7 @@ namespace EventCentric.Processing
         /// happened in the source.
         /// </summary>
         /// <param name="@event">The <see cref="IEvent"/> to be igonred.</param>
-        protected void IgnoreEvent(IEvent @event)
+        protected void Ignore(IEvent @event)
         {
             this.inboxWriter.LogIncomingEventAsIgnored(@event);
             this.PublishIncomingEventHasBeenProcessed(@event);

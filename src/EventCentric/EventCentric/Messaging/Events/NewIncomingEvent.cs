@@ -10,6 +10,5 @@ namespace EventCentric.Messaging.Events
         }
 
         public IEvent Event { get; private set; }
-
     }
 }

@@ -41,7 +41,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ClienteAgregado.cs" />
+    <Compile Include="ClienteRegistrado.cs" />
+    <Compile Include="CuentaCreadaANuevoCliente.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SaldoCargado.cs" />
     <Compile Include="SaldoGastado.cs" />

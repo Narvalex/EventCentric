@@ -19,6 +19,6 @@
         /// <summary>
         /// The version of the <see cref="IEventSourced"/>
         /// </summary>
-        long Version { get; }
+        int Version { get; }
     }
 }

@@ -5,6 +5,13 @@ namespace EventCentric.EventSourcing
     public interface IEventStore<T> where T : IEventSourced
     {
         /// <summary>
+        /// Tries to retrieve the event sourced entity.
+        /// </summary>
+        /// <param name="id">The id of the entity</param>
+        /// <returns>The hydrated entity, or null if it does not exist.</returns>
+        T Find(Guid id);
+
+        /// <summary>
         /// Retrieves the event sourced entity.
         /// </summary>
         /// <param name="id">The id of the entity</param>

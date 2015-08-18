@@ -3,7 +3,6 @@ using EventCentric.EntityFramework.Mapping;
 using EventCentric.Serialization;
 using EventCentric.Utils;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Caching;
 
@@ -17,7 +16,6 @@ namespace EventCentric.EventSourcing
         private readonly ITimeProvider time;
         private readonly ObjectCache cache;
 
-        private readonly Func<Guid, IEnumerable<IEvent>, T> aggregateFactory;
         private readonly Func<Guid, IMemento, T> originatorAggregateFactory;
 
         private readonly Action<T, EventStoreDbContext> cacheMementoAndPublishStream;
@@ -41,13 +39,6 @@ namespace EventCentric.EventSourcing
             this.cache = new MemoryCache(_streamType);
 
             /// TODO: could be replaced with a compiled lambda to make it more performant.
-            // Aggregate Factory
-            var constructor = typeof(T).GetConstructor(new[] { typeof(Guid), typeof(IEnumerable<IEvent>) });
-            Ensure.CastIsValid(constructor, "Type T must have a constructor with the following signature: .ctor(Guid, IEnumerable<IEvent>)");
-            this.aggregateFactory = (id, stream) => (T)constructor.Invoke(new object[] { id, stream });
-
-            // Snapshotting
-
             var mementoConstructor = typeof(T).GetConstructor(new[] { typeof(Guid), typeof(IMemento) });
             Ensure.CastIsValid(mementoConstructor, "Type T must have a constructor with the following signature: .ctor(Guid, IMemento)");
 
@@ -169,6 +160,15 @@ namespace EventCentric.EventSourcing
                     throw;
                 }
             }
+        }
+
+        public T Find(Guid id)
+        {
+            var cachedMemento = this.getMementoFromCache(id);
+            if (cachedMemento != null && cachedMemento.Item1 != null)
+                return this.originatorAggregateFactory.Invoke(id, cachedMemento.Item1);
+            else
+                return null;
         }
     }
 }

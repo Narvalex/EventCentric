@@ -2,6 +2,14 @@
 
 namespace EventCentric.Utils
 {
+    public static class GuidManager
+    {
+        public static IGuidProvider GetGuidProvider()
+        {
+            return new SequentialGuid();
+        }
+    }
+
     public interface IGuidProvider
     {
         Guid NewGuid { get; }
@@ -29,7 +37,12 @@ namespace EventCentric.Utils
     /// </remarks>
     public class SequentialGuid : IGuidProvider
     {
-        // <summary>
+        public static Guid CreateNew()
+        {
+            return new SequentialGuid().NewGuid;
+        }
+
+        /// <summary>
         /// Generate a new <see cref="Guid"/> using the comb algorithm.
         /// </summary>
         public Guid NewGuid
