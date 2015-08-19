@@ -18,24 +18,24 @@ namespace EventCentric.Pulling
         IMessageHandler<StartEventPuller>,
         IMessageHandler<StopEventPuller>,
         IMessageHandler<IncomingEventHasBeenProcessed>,
-        IMessageHandler<IncomingEventIsPoisoned>,
+        IMessageHandler<IncomingMessageIsPoisoned>,
         IMessageHandler<NewSubscriptionAcquired>
     {
         private readonly ISubscriptionDao dao;
-        private readonly Func<IHttpClient> httpClientFactory;
+        private readonly IHttpPoller poller;
         private readonly ITextSerializer serializer;
 
         private ConcurrentBag<Subscription> subscriptions;
 
-        public EventPuller(IBus bus, ISubscriptionDao dao, Func<IHttpClient> httpClientFactory, ITextSerializer serializer)
+        public EventPuller(IBus bus, ISubscriptionDao dao, IHttpPoller poller, ITextSerializer serializer)
             : base(bus)
         {
             Ensure.NotNull(dao, "dao");
-            Ensure.NotNull(httpClientFactory, "httpClientFactory");
+            Ensure.NotNull(poller, "poller");
             Ensure.NotNull(serializer, "serializer");
 
             this.dao = dao;
-            this.httpClientFactory = httpClientFactory;
+            this.poller = poller;
             this.serializer = serializer;
         }
 
@@ -68,7 +68,7 @@ namespace EventCentric.Pulling
             this.subscriptions.Add(newSubscription);
         }
 
-        public void Handle(IncomingEventIsPoisoned message)
+        public void Handle(IncomingMessageIsPoisoned message)
         {
             this.subscriptions
                 .Where(s => s.StreamId == message.StreamId && s.StreamType == message.StreamType)
@@ -78,7 +78,7 @@ namespace EventCentric.Pulling
 
         protected override void OnStarting()
         {
-            this.subscriptions = new ConcurrentBag<Subscription>(this.dao.GetSubscriptionsOrderedByStreamName());
+            this.subscriptions = this.dao.GetSubscriptionsOrderedByStreamName();
             Task.Factory.StartNewLongRunning(() => this.CountinuoslyPullEvents());
 
             // Ensure to start everything;
@@ -93,7 +93,7 @@ namespace EventCentric.Pulling
 
         private void CountinuoslyPullEvents()
         {
-            while (!this.stop)
+            while (!this.stopping)
             {
                 var pendingSubscriptions = subscriptions.Where(s => !s.IsBusy && !s.IsPoisoned);
 
@@ -136,8 +136,6 @@ namespace EventCentric.Pulling
 
         private void PollEvents(PollRemoteEndpointDto dto)
         {
-            var serializedResponse = string.Empty;
-
             // Fill the request with the formatter
             var uri = dto.Url;
 
@@ -150,23 +148,27 @@ namespace EventCentric.Pulling
             for (int i = 0; i < freeSlots; i++)
                 uri = $"{uri}/{default(string).EncodedEmptyString()}/0";
 
-            using (var http = this.httpClientFactory.Invoke())
+            try
             {
-                serializedResponse = http.GetString(uri);
+                var response = this.poller.Poll(uri);
+
+                response.Events.ForEach(e =>
+                {
+                    if (e.IsNewEvent)
+                        this.bus.Publish(new NewIncomingEvent(this.serializer.Deserialize<IEvent>(e.Payload)));
+                    else
+                        this.subscriptions
+                            .Where(s => s.StreamType == e.StreamType && s.StreamId == e.StreamId)
+                            .Single()
+                            .ExitBusy();
+                });
             }
-
-            var response = this.serializer.Deserialize<PollResponse>(serializedResponse);
-
-            response.Events.ForEach(e =>
+            catch (Exception ex)
             {
-                if (e.IsNewEvent)
-                    this.bus.Publish(new NewIncomingEvent(this.serializer.Deserialize<IEvent>(e.Payload)));
-                else
-                    this.subscriptions
-                        .Where(s => s.StreamType == e.StreamType && s.StreamId == e.StreamId)
-                        .Single()
-                        .ExitBusy();
-            });
+                foreach (var sub in dto.ProcessedStreams)
+                    this.bus.Publish(new IncomingMessageIsPoisoned(dto.StreamType, sub.Key, new PoisonMessageException("Poisoned message detected in Event Puller.", ex)));
+                return;
+            }
         }
     }
 }

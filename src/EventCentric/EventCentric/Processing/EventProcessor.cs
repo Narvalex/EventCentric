@@ -20,11 +20,12 @@ namespace EventCentric.Processing
     public class EventProcessor<T> : Worker,
         IMessageHandler<StartEventProcessor>,
         IMessageHandler<StopEventProcessor>,
-        IMessageHandler<NewIncomingEvent>
+        IMessageHandler<NewIncomingEvent>,
+        IMessageHandler<IncomingMessageIsPoisoned>
             where T : class, IEventSourced
     {
         private readonly IEventStore<T> store;
-        private readonly ISubscriptionWriter inboxWriter;
+        private readonly ISubscriptionWriter subscriptionWriter;
         private readonly Func<Guid, T> newAggregateFactory;
         protected ConcurrentDictionary<Guid, object> streamLocksById;
 
@@ -35,7 +36,7 @@ namespace EventCentric.Processing
             Ensure.NotNull(subscriptionWriter, "inboxWriter");
 
             this.store = store;
-            this.inboxWriter = subscriptionWriter;
+            this.subscriptionWriter = subscriptionWriter;
 
             this.streamLocksById = new ConcurrentDictionary<Guid, object>();
 
@@ -52,9 +53,9 @@ namespace EventCentric.Processing
             {
                 ((dynamic)this).Handle((dynamic)message.Event);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                this.bus.Publish(new IncomingEventIsPoisoned(message.Event.StreamType, message.Event.StreamId));
+                this.bus.Publish(new IncomingMessageIsPoisoned(message.Event.StreamType, message.Event.StreamId, new PoisonMessageException("Poison message detected in Event Processor", ex)));
             }
         }
 
@@ -110,6 +111,11 @@ namespace EventCentric.Processing
             });
         }
 
+        public void Handle(IncomingMessageIsPoisoned message)
+        {
+            this.subscriptionWriter.LogPosisonedMessage(message.StreamType, message.StreamId, message.Exception);
+        }
+
         /// <summary>
         /// Mark as ignored in the inbox table and in the subscription table. 
         /// This node is not subscribed to this event, but is interested in other events that
@@ -118,7 +124,7 @@ namespace EventCentric.Processing
         /// <param name="@event">The <see cref="IEvent"/> to be igonred.</param>
         protected void Ignore(IEvent @event)
         {
-            this.inboxWriter.LogIncomingEventAsIgnored(@event);
+            this.subscriptionWriter.LogIncomingEventAsIgnored(@event);
             this.PublishIncomingEventHasBeenProcessed(@event);
         }
 

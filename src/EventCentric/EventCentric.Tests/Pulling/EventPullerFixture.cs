@@ -1,10 +1,13 @@
-﻿using EventCentric.Messaging.Commands;
+﻿using EventCentric.Database;
+using EventCentric.Messaging.Commands;
 using EventCentric.Messaging.Events;
 using EventCentric.Pulling;
+using EventCentric.Repository;
 using EventCentric.Serialization;
 using EventCentric.Tests.Pulling.Helpers;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
+using System.Configuration;
 using System.Linq;
 using System.Threading;
 
@@ -17,7 +20,7 @@ namespace EventCentric.Tests.Pulling.EventPullerFixture
         protected TestBus bus;
         protected EventPuller sut;
         protected TestSubscriptionDaoWithSingleResult dao;
-        protected Func<TestHttpClientWithSingleResult> httpFactory;
+        protected TestHttpClientWithSingleResult httpFactory;
         protected JsonTextSerializer serializer;
 
         public GIVEN_event_puller()
@@ -26,7 +29,7 @@ namespace EventCentric.Tests.Pulling.EventPullerFixture
             this.serializer = new JsonTextSerializer();
             this.bus = new TestBus();
             this.dao = new TestSubscriptionDaoWithSingleResult(this.streamId1);
-            this.httpFactory = () => new TestHttpClientWithSingleResult(this.streamId1);
+            this.httpFactory = new TestHttpClientWithSingleResult(this.streamId1);
             this.sut = new EventPuller(this.bus, this.dao, this.httpFactory, this.serializer);
         }
 
@@ -57,7 +60,7 @@ namespace EventCentric.Tests.Pulling.EventPullerFixture
         [TestMethod]
         public void WHEN_response_has_no_new_events_THEN_sets_subscriptions_to_not_busy()
         {
-            this.httpFactory = () => new TestHttpClientWithSingleResult(this.streamId1, false);
+            this.httpFactory = new TestHttpClientWithSingleResult(this.streamId1, false);
             this.sut = new EventPuller(this.bus, this.dao, this.httpFactory, this.serializer);
 
             Assert.IsFalse(TestSubscriptionDaoWithSingleResult.Subscriptions.Single().IsBusy);
@@ -103,6 +106,45 @@ namespace EventCentric.Tests.Pulling.EventPullerFixture
         public void WHEN_new_subscription_was_performed_THEN_adds_new_subscription_for_polling()
         {
             // TODO
+        }
+    }
+
+    [TestClass]
+    public class GIVEN_event_puller_with_db : IDisposable
+    {
+        protected string connectionString;
+        protected Guid streamId1;
+        protected TestBus bus;
+        protected TestHttpClientWithSingleResult httpFactory;
+        protected SubscriptionDao dao;
+        protected JsonTextSerializer serializer = new JsonTextSerializer();
+
+        protected EventPuller sut;
+
+        public GIVEN_event_puller_with_db()
+        {
+            this.connectionString = ConfigurationManager.AppSettings["defaultConnection"];
+            EventStoreDbInitializer.CreateDatabaseObjects(connectionString, true);
+
+            this.streamId1 = Guid.NewGuid();
+            this.bus = new TestBus();
+            this.httpFactory = new TestHttpClientWithSingleResult(this.streamId1);
+            this.dao = new SubscriptionDao(() => new ReadOnlySubscriptionDbContext(this.connectionString));
+            this.sut = new EventPuller(this.bus, this.dao, this.httpFactory, this.serializer);
+        }
+
+        public void Dispose()
+        {
+            SqlClientLite.DropDatabase(this.connectionString);
+        }
+
+        [TestMethod]
+        public void WHEN_starting_and_no_subscription_found_THEN_continues()
+        {
+            Assert.AreEqual(0, this.bus.Messages.Count);
+            this.sut.Handle(new StartEventPuller());
+            Assert.AreEqual(1, this.bus.Messages.Count);
+            Assert.AreEqual(typeof(EventPullerStarted), this.bus.Messages.Single().GetType());
         }
     }
 }

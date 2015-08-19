@@ -1,13 +1,10 @@
 ﻿using EventCentric.Messaging;
 using System;
-using System.Collections.Generic;
 
-namespace EventCentric.Tests.Pulling.Helpers
+namespace EventCentric.Tests.FiniteStateMachine.Helpers
 {
-    public class TestBus : IBus
+    public class FakeBus : IBus
     {
-        public List<IMessage> Messages { get; set; } = new List<IMessage>();
-
         public void Publish(params IMessage[] messages)
         {
             throw new NotImplementedException();
@@ -15,7 +12,7 @@ namespace EventCentric.Tests.Pulling.Helpers
 
         public void Publish(IMessage message)
         {
-            this.Messages.Add(message);
+
         }
     }
 }

@@ -5,7 +5,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace EventCentric.Tests.Helpers
 {
-    public class TestWorkerContainer :
+    public class TestLazyWorkersContainer :
         IMessageHandler<StartEventPublisher>,
         IMessageHandler<StartEventProcessor>,
         IMessageHandler<StartEventPuller>,
@@ -15,13 +15,14 @@ namespace EventCentric.Tests.Helpers
     {
         private readonly IBus bus;
 
+        public bool ThrowErrorOnStartup { get; set; } = false;
         public bool PublisherIsRunning { get; private set; }
         public bool ProcessorIsRunning { get; private set; }
         public bool PullerIsRunning { get; private set; }
 
         public IMessage NextMessage { get; private set; }
 
-        public TestWorkerContainer(IBus bus)
+        public TestLazyWorkersContainer(IBus bus)
         {
             this.bus = bus;
             this.NextMessage = null;
@@ -43,7 +44,11 @@ namespace EventCentric.Tests.Helpers
             Assert.IsFalse(this.PullerIsRunning);
 
             this.PublisherIsRunning = true;
-            this.NextMessage = new EventPublisherStarted();
+
+            if (this.ThrowErrorOnStartup)
+                this.bus.Publish(new FatalErrorOcurred(new FatalErrorException()));
+            else
+                this.NextMessage = new EventPublisherStarted();
         }
 
         public void Handle(StartEventProcessor message)

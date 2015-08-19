@@ -1,6 +1,7 @@
 ﻿using EventCentric.Repository;
+using EventCentric.Utils;
 using System;
-using System.Collections.Generic;
+using System.Collections.Concurrent;
 using System.Linq;
 
 namespace EventCentric.Publishing
@@ -27,22 +28,22 @@ namespace EventCentric.Publishing
             }
         }
 
-        public IEnumerable<KeyValuePair<Guid, int>> GetStreamsVersionsById()
+        public ConcurrentDictionary<Guid, int> GetStreamsVersionsById()
         {
-
+            var streamsVersionById = new ConcurrentDictionary<Guid, int>();
             using (var context = this.contextFactory())
             {
-                try
+                var streams = context
+                                .Streams
+                                .AsCachedAnyEnumerable();
+
+                if (streams.Any())
                 {
-                    return context
-                            .Streams
-                            .Select(s => new KeyValuePair<Guid, int>(s.StreamId, s.Version))
-                            .ToList();
+                    foreach (var stream in streams)
+                        streamsVersionById.TryAdd(stream.StreamId, stream.Version);
                 }
-                catch (Exception ex)
-                {
-                    throw;
-                }
+
+                return streamsVersionById;
             }
         }
     }

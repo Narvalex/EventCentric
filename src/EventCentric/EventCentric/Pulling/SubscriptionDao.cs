@@ -1,6 +1,7 @@
 ﻿using EventCentric.Repository;
+using EventCentric.Utils;
 using System;
-using System.Collections.Generic;
+using System.Collections.Concurrent;
 using System.Linq;
 
 namespace EventCentric.Pulling
@@ -14,23 +15,23 @@ namespace EventCentric.Pulling
             this.contextFactory = contextFactory;
         }
 
-        public IEnumerable<Subscription> GetSubscriptionsOrderedByStreamName()
+        public ConcurrentBag<Subscription> GetSubscriptionsOrderedByStreamName()
         {
-            try
+            var subscriptionsInBag = new ConcurrentBag<Subscription>();
+            using (var context = this.contextFactory.Invoke())
             {
-                using (var context = this.contextFactory.Invoke())
-                {
-                    return context
-                            .Subscriptions
-                            .OrderBy(s => s.StreamType)
-                            .Select(s => new Subscription(s.StreamType, s.StreamId, s.Url, s.LastProcessedVersion, s.IsPoisoned))
-                            .AsEnumerable();
-                }
-            }
-            catch (Exception)
-            {
+                var subscriptions = context
+                                     .Subscriptions
+                                     .OrderBy(s => s.StreamType)
+                                     .AsCachedAnyEnumerable();
 
-                throw;
+                if (subscriptions.Any())
+                {
+                    foreach (var s in subscriptions)
+                        subscriptionsInBag.Add(new Subscription(s.StreamType, s.StreamId, s.Url, s.LastProcessedVersion, s.IsPoisoned));
+                }
+
+                return subscriptionsInBag;
             }
         }
     }

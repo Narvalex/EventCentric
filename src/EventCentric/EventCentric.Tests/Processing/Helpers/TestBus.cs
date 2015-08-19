@@ -1,16 +1,15 @@
 ﻿using EventCentric.Messaging;
-using System;
 using System.Collections.Generic;
 
-namespace EventCentric.Tests.Pulling.Helpers
+namespace EventCentric.Tests.Processing.Helpers
 {
     public class TestBus : IBus
     {
-        public List<IMessage> Messages { get; set; } = new List<IMessage>();
+        public List<IMessage> Messages { get; } = new List<IMessage>();
 
         public void Publish(params IMessage[] messages)
         {
-            throw new NotImplementedException();
+
         }
 
         public void Publish(IMessage message)

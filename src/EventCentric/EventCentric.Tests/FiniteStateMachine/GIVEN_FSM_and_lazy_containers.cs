@@ -1,21 +1,22 @@
 ﻿using EventCentric.Messaging;
 using EventCentric.Tests.Helpers;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
 using System.Threading;
 
-namespace EventCentric.Tests.FsmFixture
+namespace EventCentric.Tests.FiniteStateMachine
 {
     [TestClass]
-    public class GIVEN_FSM
+    public class GIVEN_FSM_and_lazy_containers
     {
         protected Bus bus;
-        protected TestWorkerContainer workers;
+        protected TestLazyWorkersContainer workers;
         protected FSM sut;
 
-        public GIVEN_FSM()
+        public GIVEN_FSM_and_lazy_containers()
         {
             this.bus = new Bus();
-            this.workers = new TestWorkerContainer(this.bus);
+            this.workers = new TestLazyWorkersContainer(this.bus);
             this.sut = new FSM(this.bus);
 
             this.bus.Register(this.workers);
@@ -29,7 +30,7 @@ namespace EventCentric.Tests.FsmFixture
 
             Thread.Sleep(1000);
 
-            Assert.AreEqual(FSM.NodeState.Starting, this.sut.State);
+            Assert.AreEqual(NodeState.Starting, this.sut.State);
 
             Thread.Sleep(1000);
 
@@ -47,7 +48,24 @@ namespace EventCentric.Tests.FsmFixture
 
 
             Thread.Sleep(1000);
-            Assert.AreEqual(FSM.NodeState.UpAndRunning, this.sut.State);
+            Assert.AreEqual(NodeState.UpAndRunning, this.sut.State);
+        }
+
+        [TestMethod]
+        public void WHEN_starting_and_fatal_error_occurs_THEN_stops_and_throws()
+        {
+            try
+            {
+                this.workers.ThrowErrorOnStartup = true;
+                this.sut.Start();
+            }
+            catch (FatalErrorException ex)
+            {
+                Console.WriteLine("Expected error throwed");
+                return;
+            }
+
+            Assert.IsFalse(false, "Should throw error");
         }
 
         [TestMethod]
@@ -58,26 +76,7 @@ namespace EventCentric.Tests.FsmFixture
             ThreadPool.QueueUserWorkItem(_ => this.sut.Stop());
 
             Thread.Sleep(1000);
-
-            Assert.AreEqual(FSM.NodeState.ShuttingDown, this.sut.State);
-
-            Thread.Sleep(1000);
-
-            Assert.IsFalse(workers.PullerIsRunning);
-            this.workers.Continue();
-
-            Thread.Sleep(1000);
-
-            Assert.IsFalse(workers.ProcessorIsRunning);
-            this.workers.Continue();
-
-            Thread.Sleep(1000);
-            Assert.IsFalse(workers.PublisherIsRunning);
-            this.workers.Continue();
-
-
-            Thread.Sleep(1000);
-            Assert.AreEqual(FSM.NodeState.Down, this.sut.State);
+            Assert.AreEqual(NodeState.Down, this.sut.State);
         }
     }
 }

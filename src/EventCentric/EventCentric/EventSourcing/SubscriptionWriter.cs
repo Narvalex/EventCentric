@@ -1,4 +1,5 @@
-﻿using EventCentric.Repository;
+﻿using EventCentric.Messaging;
+using EventCentric.Repository;
 using EventCentric.Repository.Mapping;
 using EventCentric.Serialization;
 using EventCentric.Utils;
@@ -53,6 +54,7 @@ namespace EventCentric.EventSourcing
                 {
                     StreamType = @event.StreamType,
                     StreamId = @event.StreamId,
+                    // There must be at least one subscription in order to perform correctly.
                     Url = context.Subscriptions.Where(s => s.StreamType == @event.StreamType).First().Url,
                     LastProcessedVersion = @event.Version,
                     LastProcessedEventId = @event.EventId,
@@ -63,26 +65,23 @@ namespace EventCentric.EventSourcing
                 {
                     subscription.LastProcessedVersion = @event.Version;
                     subscription.LastProcessedEventId = @event.EventId;
-                    return subscription;
                 });
         }
 
-        public void MarkEventAsPosisoned(IEvent @event)
+        public void LogPosisonedMessage(string streamType, Guid streamId, PoisonMessageException exception)
         {
             using (var context = this.contextFactory.Invoke())
             {
                 context.AddOrUpdate(
                     entityFinder: () => context
-                                        .Subscriptions
-                                        .Where(s => s.StreamType == @event.StreamType && s.StreamId == @event.StreamId)
-                                        .Single(),
+                                    .Subscriptions
+                                    .Where(s => s.StreamType == streamType && s.StreamId == streamId)
+                                    .Single(),
                     newEntityToAdd: null,
                     updateEntity: subscription =>
                     {
-                        subscription.LastProcessedEventId = @event.EventId;
-                        subscription.LastProcessedVersion = @event.Version;
                         subscription.IsPoisoned = true;
-                        return subscription;
+                        subscription.ExceptionMessage = this.serializer.Serialize(exception);
                     });
 
                 context.SaveChanges();

@@ -3,11 +3,10 @@ using EventCentric.Transport;
 using System;
 using System.Collections.Generic;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace EventCentric.Tests.Pulling.Helpers
 {
-    public class TestHttpClientWithSingleResult : IHttpClient
+    public class TestHttpClientWithSingleResult : IHttpPoller
     {
         private readonly JsonTextSerializer serializer = new JsonTextSerializer();
         private Guid streamId;
@@ -20,20 +19,7 @@ namespace EventCentric.Tests.Pulling.Helpers
             this.streamId = streamId;
         }
 
-        public void Dispose()
-        { }
-
-        public Task<string> GetStringAsync(string requestUri)
-        {
-            return Task<string>.Factory.StartNew(() => this.GetSerializedPayload());
-        }
-
-        public string GetString(string requestUri)
-        {
-            return this.GetStringAsync(requestUri).Result;
-        }
-
-        private string GetSerializedPayload()
+        public PollResponse Poll(string url)
         {
             Thread.Sleep(1000);
 
@@ -48,8 +34,7 @@ namespace EventCentric.Tests.Pulling.Helpers
                 list.Add(new PolledEventData("Clients", this.streamId, false, string.Empty));
 
 
-            var response = new PollResponse(list);
-            return this.serializer.Serialize(response);
+            return new PollResponse(list);
         }
     }
 }

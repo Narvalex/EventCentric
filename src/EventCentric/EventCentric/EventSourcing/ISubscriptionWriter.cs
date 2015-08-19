@@ -1,4 +1,6 @@
-﻿using EventCentric.Repository;
+﻿using EventCentric.Messaging;
+using EventCentric.Repository;
+using System;
 
 namespace EventCentric.EventSourcing
 {
@@ -7,5 +9,7 @@ namespace EventCentric.EventSourcing
         void LogIncomingEventAsIgnored(IEvent @event);
 
         void LogIncomingEvent(IEvent @event, EventStoreDbContext context, bool ignored = false);
+
+        void LogPosisonedMessage(string streamType, Guid streamId, PoisonMessageException exception);
     }
 }

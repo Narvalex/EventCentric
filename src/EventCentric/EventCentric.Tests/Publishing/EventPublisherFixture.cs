@@ -1,10 +1,71 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using EventCentric.Database;
+using EventCentric.Messaging.Commands;
+using EventCentric.Messaging.Events;
+using EventCentric.Publishing;
+using EventCentric.Repository;
+using EventCentric.Serialization;
+using EventCentric.Tests.Publishing.Helpers;
+using EventCentric.Transport;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
+using System.Configuration;
+using System.Linq;
 
 namespace EventCentric.Tests.Publishing.EventPublisherFixture
 {
     [TestClass]
-    public class GIVEN_event_publisher
+    public class GIVEN_event_publisher : IDisposable
     {
+        protected string connectionString;
+        protected TestBus bus;
+        protected StreamDao dao;
+        protected EventPublisher<TestAggregate> sut;
+
+        public GIVEN_event_publisher()
+        {
+            this.connectionString = ConfigurationManager.AppSettings["defaultConnection"];
+            EventStoreDbInitializer.CreateDatabaseObjects(connectionString, true);
+            this.bus = new TestBus();
+            this.dao = new StreamDao(() => new ReadOnlyStreamDbContext(this.connectionString));
+            this.sut = new EventPublisher<TestAggregate>(this.bus, this.dao, new JsonTextSerializer());
+        }
+
+        public void Dispose()
+        {
+            SqlClientLite.DropDatabase(this.connectionString);
+        }
+
+        [TestMethod]
+        public void THEN_can_create_db_for_stream_dao()
+        {
+            using (var context = new ReadOnlyStreamDbContext(this.connectionString))
+            {
+            }
+
+            // If got this far means that is was a successfull operation.
+        }
+
+        [TestMethod]
+        public void WHEN_starting_and_no_stream_is_found_THEN_continues()
+        {
+            Assert.AreEqual(0, this.bus.Messages.Count);
+            this.sut.Handle(new StartEventPublisher());
+            Assert.AreEqual(1, this.bus.Messages.Count);
+            Assert.AreEqual(typeof(EventPublisherStarted), this.bus.Messages.Single().GetType());
+        }
+
+        [TestMethod]
+        public void WHEN_no_stream_to_publish_and_poll_occurs_THEN_replies_with_no_new_event_found()
+        {
+            var encondedEmptyGuid = Guid.Empty.ToString();
+
+            this.sut.Handle(new StartEventPublisher());
+            var response = this.sut.PollEvents(new PollRequest(encondedEmptyGuid, 1, encondedEmptyGuid, 2, encondedEmptyGuid, 3, encondedEmptyGuid, 4, encondedEmptyGuid, 5));
+
+            Assert.IsNotNull(response);
+            Assert.IsFalse(response.Events.Where(e => e.IsNewEvent).Any());
+        }
+
         [TestMethod]
         public void WHEN_starting_THEN_retrieves_all_streams_status_to_notify_that_it_started()
         {

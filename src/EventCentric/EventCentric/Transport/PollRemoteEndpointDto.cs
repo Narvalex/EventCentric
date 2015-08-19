@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace EventCentric.Pulling
+namespace EventCentric.Transport
 {
     public class PollRemoteEndpointDto
     {

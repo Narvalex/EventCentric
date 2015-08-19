@@ -1,5 +1,6 @@
 ﻿using EventCentric.Pulling;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 
 namespace EventCentric.Tests.Pulling.Helpers
@@ -21,9 +22,9 @@ namespace EventCentric.Tests.Pulling.Helpers
             };
         }
 
-        public IEnumerable<Subscription> GetSubscriptionsOrderedByStreamName()
+        ConcurrentBag<Subscription> ISubscriptionDao.GetSubscriptionsOrderedByStreamName()
         {
-            return Subscriptions;
+            return new ConcurrentBag<Subscription>(Subscriptions);
         }
     }
 }

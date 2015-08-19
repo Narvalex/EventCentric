@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections.Concurrent;
 
 namespace EventCentric.Pulling
 {
@@ -8,6 +8,6 @@ namespace EventCentric.Pulling
         /// Returns an enumeration of <see cref="Subscription"/> ordered by StreamName.
         /// </summary>
         /// <returns>The enumeration of <see cref="Subscription"/></returns>
-        IEnumerable<Subscription> GetSubscriptionsOrderedByStreamName();
+        ConcurrentBag<Subscription> GetSubscriptionsOrderedByStreamName();
     }
 }

@@ -2,6 +2,7 @@
 using EventCentric.Messaging;
 using EventCentric.Messaging.Commands;
 using EventCentric.Messaging.Events;
+using EventCentric.Serialization;
 using EventCentric.Transport;
 using EventCentric.Utils;
 using System;
@@ -19,14 +20,18 @@ namespace EventCentric.Publishing
         private readonly static string _streamType = typeof(T).Name;
         private readonly IStreamDao dao;
 
+        private readonly ITextSerializer serializer;
+
         private ConcurrentDictionary<Guid, int> streamVersionsById;
 
-        public EventPublisher(IBus bus, IStreamDao dao)
+        public EventPublisher(IBus bus, IStreamDao dao, ITextSerializer serializer)
             : base(bus)
         {
             Ensure.NotNull(dao, "dao");
+            Ensure.NotNull(serializer, "serializer");
 
             this.dao = dao;
+            this.serializer = serializer;
         }
 
         public void Handle(EventStoreHasBeenUpdated message)
@@ -69,7 +74,7 @@ namespace EventCentric.Publishing
 
         protected override void OnStarting()
         {
-            this.streamVersionsById = new ConcurrentDictionary<Guid, int>(this.dao.GetStreamsVersionsById());
+            this.streamVersionsById = this.dao.GetStreamsVersionsById();
             this.bus.Publish(new EventPublisherStarted());
         }
 

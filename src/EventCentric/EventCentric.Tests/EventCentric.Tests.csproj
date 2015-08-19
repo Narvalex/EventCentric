@@ -27,12 +27,13 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
+    <DebugType>full</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <DebugSymbols>true</DebugSymbols>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
@@ -62,13 +63,20 @@
   </Choose>
   <ItemGroup>
     <Compile Include="EventStoreDbInitializerFixture.cs" />
-    <Compile Include="FsmFixture.cs" />
-    <Compile Include="Helpers\TestWorkerContainer.cs" />
+    <Compile Include="FiniteStateMachine\GIVEN_FSM_and_lazy_containers.cs" />
+    <Compile Include="FiniteStateMachine\Helpers\FakeBus.cs" />
+    <Compile Include="FiniteStateMachine\Helpers\TestLazyWorkersContainer.cs" />
+    <Compile Include="Playground\AreOrUpdateFixture.cs" />
     <Compile Include="Playground\Helpers\TestActor.cs" />
     <Compile Include="Playground\HttpClientCapabilities.cs" />
     <Compile Include="Playground\InMemoryObjectsPerformance.cs" />
+    <Compile Include="Processing\Helpers\TestAggregate.cs" />
+    <Compile Include="Processing\Helpers\TestBus.cs" />
+    <Compile Include="Processing\ProcessorFixture.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Publishing\EventPublisherFixture.cs" />
+    <Compile Include="Publishing\Helpers\TestAggregate.cs" />
+    <Compile Include="Publishing\Helpers\TestBus.cs" />
     <Compile Include="Pulling\EventPullerFixture.cs" />
     <Compile Include="Pulling\Helpers\TestBus.cs" />
     <Compile Include="Pulling\Helpers\TestEvents.cs" />
@@ -85,9 +93,7 @@
       <Name>EventCentric</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Publishing\Helpers\" />
-  </ItemGroup>
+  <ItemGroup />
   <Choose>
     <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">
       <ItemGroup>

@@ -37,7 +37,7 @@ namespace EventCentric.Repository
             this.Property(t => t.StreamId).HasColumnName("StreamId");
             this.Property(t => t.Url).HasColumnName("Url");
             this.Property(t => t.LastProcessedVersion).HasColumnName("LastProcessedVersion");
-            this.Property(t => t.LastProcessedEventId).HasColumnName("LasProcessedEventId");
+            this.Property(t => t.LastProcessedEventId).HasColumnName("LastProcessedEventId");
             this.Property(t => t.CreationDate).HasColumnName("CreationDate");
             this.Property(t => t.IsPoisoned).HasColumnName("IsPoisoned");
             this.Property(t => t.ExceptionMessage).HasColumnName("ExceptionMessage");

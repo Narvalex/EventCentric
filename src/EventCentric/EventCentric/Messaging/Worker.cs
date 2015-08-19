@@ -1,11 +1,16 @@
-﻿using EventCentric.Utils;
+﻿using EventCentric.Messaging.Events;
+using EventCentric.Utils;
 
 namespace EventCentric.Messaging
 {
-    public abstract class Worker : IWorker
+    public abstract class Worker : IWorker,
+        IMessageHandler<FatalErrorOcurred>
     {
-        protected volatile bool stop;
+        protected volatile bool stopping;
         protected readonly IBus bus;
+
+        protected volatile bool systemHaltRequested = false;
+        protected FatalErrorException fatalException = null;
 
         protected Worker(IBus bus)
         {
@@ -16,18 +21,25 @@ namespace EventCentric.Messaging
 
         protected void Start()
         {
-            this.stop = false;
+            this.stopping = false;
             this.OnStarting();
         }
 
         protected void Stop()
         {
-            this.stop = true;
+            this.stopping = true;
             this.OnStopping();
         }
 
         protected virtual void OnStarting() { }
 
         protected virtual void OnStopping() { }
+
+        public void Handle(FatalErrorOcurred message)
+        {
+            this.fatalException = message.Exception;
+            this.systemHaltRequested = true;
+            this.Stop();
+        }
     }
 }

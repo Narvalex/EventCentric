@@ -1,11 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Collections.Concurrent;
 
 namespace EventCentric.Publishing
 {
     public interface IStreamDao
     {
-        IEnumerable<KeyValuePair<Guid, int>> GetStreamsVersionsById();
+        ConcurrentDictionary<Guid, int> GetStreamsVersionsById();
 
         string GetNextEventPayload(Guid streamId, int previousVersion);
     }

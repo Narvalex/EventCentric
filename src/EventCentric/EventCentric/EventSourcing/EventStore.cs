@@ -67,7 +67,6 @@ namespace EventCentric.EventSourcing
                         stream.Version = originator.Version;
                         stream.Memento = serializedMemento;
                         stream.CreationDate = now;
-                        return stream;
                     });
 
                 // Cache in memory
@@ -87,8 +86,12 @@ namespace EventCentric.EventSourcing
                     // Return from SQL Server;
                     using (var context = this.contextFactory.Invoke())
                     {
-                        var stream = context.Streams.Where(s => s.StreamId == id).Single();
-                        return new Tuple<IMemento, DateTime?>(this.serializer.Deserialize<IMemento>(stream.Memento), null);
+                        var stream = context.Streams.Where(s => s.StreamId == id).SingleOrDefault();
+
+                        if (stream != null)
+                            return new Tuple<IMemento, DateTime?>(this.serializer.Deserialize<IMemento>(stream.Memento), null);
+                        else
+                            return null;
                     }
                 }
             };
@@ -110,7 +113,7 @@ namespace EventCentric.EventSourcing
         public T Get(Guid id)
         {
             var cachedMemento = this.getMementoFromCache(id);
-            if (cachedMemento != null && cachedMemento.Item1 != null)
+            if (cachedMemento != null)
                 return this.originatorAggregateFactory.Invoke(id, cachedMemento.Item1);
             else
                 throw new StreamNotFoundException(id, _streamType);
@@ -124,9 +127,13 @@ namespace EventCentric.EventSourcing
 
             using (var context = this.contextFactory.Invoke())
             {
-                var currentVersion = context.Events
+                var versions = context.Events
                                             .Where(e => e.StreamId == eventSourced.Id)
-                                            .Max(e => e.Version);
+                                            .AsCachedAnyEnumerable();
+
+                var currentVersion = 0;
+                if (versions.Any())
+                    currentVersion = versions.Max(e => e.Version);
 
                 if (currentVersion + 1 != pendingEvents[0].Version)
                     throw new EventStoreConcurrencyException();
@@ -165,7 +172,7 @@ namespace EventCentric.EventSourcing
         public T Find(Guid id)
         {
             var cachedMemento = this.getMementoFromCache(id);
-            if (cachedMemento != null && cachedMemento.Item1 != null)
+            if (cachedMemento != null)
                 return this.originatorAggregateFactory.Invoke(id, cachedMemento.Item1);
             else
                 return null;

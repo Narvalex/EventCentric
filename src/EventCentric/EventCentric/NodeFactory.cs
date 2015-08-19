@@ -31,16 +31,18 @@ namespace EventCentric
 
             var bus = new Bus();
 
-            var publisher = new EventPublisher<T>(bus, streamDao);
-            var puller = new EventPuller(bus, subscriptionDao, () => new SynchronousHttpClient(), serializer);
+            var publisher = new EventPublisher<T>(bus, streamDao, serializer);
+            var puller = new EventPuller(bus, subscriptionDao, new HttpPoller(), serializer);
             var fsm = new FSM(bus);
 
-            // Register Processor Dependencies
+            // Register processor dependencies
             container.RegisterInstance<IBus>(bus);
             container.RegisterInstance<IEventStore<T>>(eventStore);
             container.RegisterInstance<ISubscriptionWriter>(subscriptionWriter);
-            // Register processor
             var processor = processorFactory.Invoke(container);
+
+            // Register publisher dependencies
+            container.RegisterInstance<IEventSource>(publisher);
 
             // Register all in bus
             bus.Register(publisher, puller, processor, fsm);

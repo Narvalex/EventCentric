@@ -17,7 +17,7 @@ namespace EventCentric.Pulling
             this.StreamId = streamId;
             this.Url = url;
             this.Version = version;
-            this.IsPoisoned = IsPoisoned;
+            this.IsPoisoned = isPoisoned;
             this.IsBusy = false;
         }
 

@@ -7,7 +7,7 @@ namespace EventCentric.Messaging.Events
         public IncomingEventHasBeenProcessed(Guid streamId, string streamType, int streamVersion)
         {
             this.StreamId = streamId;
-            this.StreamType = StreamType;
+            this.StreamType = streamType;
             this.StreamVersion = streamVersion;
         }
 
