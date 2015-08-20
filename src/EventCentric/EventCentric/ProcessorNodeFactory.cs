@@ -33,7 +33,7 @@ namespace EventCentric
 
             var publisher = new EventPublisher<T>(bus, streamDao, serializer);
             var puller = new EventPuller(bus, subscriptionDao, new HttpPoller(), serializer);
-            var fsm = new FSM(bus);
+            var fsm = new ProcessorNode(bus);
 
             // Register processor dependencies
             container.RegisterInstance<IBus>(bus);

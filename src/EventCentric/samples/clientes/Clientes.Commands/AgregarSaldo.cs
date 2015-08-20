@@ -1,11 +1,11 @@
 ﻿using EventCentric.Processing;
 using System;
 
-namespace Clientes.CommandProcessor.Commands
+namespace Clientes.Commands
 {
-    public class QuitarSaldo : ClientCommand
+    public class AgregarSaldo : ClientCommand
     {
-        public QuitarSaldo(int monto, Guid idCliente, Guid eventId, string streamType)
+        public AgregarSaldo(int monto, Guid idCliente, Guid eventId, string streamType)
             : base(eventId, streamType)
         {
             this.IdCliente = idCliente;

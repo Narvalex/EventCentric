@@ -1,4 +1,4 @@
-﻿using Clientes.CommandProcessor.Commands;
+﻿using Clientes.Commands;
 using Clientes.Events;
 using EventCentric.EventSourcing;
 using System;
@@ -6,8 +6,7 @@ using System;
 namespace Clientes.CommandProcessor.Processor
 {
     public class ClientesYSaldos : EventSourced,
-        IHandle<AgregarCliente>,
-        IHandle<ClienteRegistrado>,
+        IHandle<RegistrarNuevoCliente>,
         IUpdateOn<ClienteRegistrado>,
         IUpdateOn<CuentaCreadaANuevoCliente>
     {
@@ -21,18 +20,9 @@ namespace Clientes.CommandProcessor.Processor
             : base(id, memento)
         { }
 
-        public void Handle(AgregarCliente e)
+        public void Handle(RegistrarNuevoCliente e)
         {
             base.Publish(new ClienteRegistrado
-            {
-                IdCliente = e.EventId,
-                Nombre = e.Nombre
-            });
-        }
-
-        public void Handle(ClienteRegistrado e)
-        {
-            base.Publish(new CuentaCreadaANuevoCliente
             {
                 IdCliente = e.EventId,
                 Nombre = e.Nombre

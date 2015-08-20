@@ -17,7 +17,7 @@ namespace EventCentric.Processing
     /// a custum made container, with a generic injection for dependency resolution. It should be best 
     /// initialiezed lazyly, as the logger of Greg Young's Event Store.
     /// </remarks>
-    public class EventProcessor<T> : Worker,
+    public class EventProcessor<T> : FSM,
         IMessageHandler<StartEventProcessor>,
         IMessageHandler<StopEventProcessor>,
         IMessageHandler<NewIncomingEvent>,
@@ -71,23 +71,12 @@ namespace EventCentric.Processing
             this.bus.Publish(new EventProcessorStopped());
         }
 
-        protected void CreateNewStream(IEvent @event)
-        {
-            this.HandleSafelyWithStreamLocking(Guid.Empty, () =>
-            {
-                var aggregate = this.store.Find(Guid.Empty);
-                if (aggregate == null)
-                    aggregate = this.newAggregateFactory(Guid.Empty);
-                this.HandleEventAndAppendToStore(aggregate, @event);
-            });
-        }
-
         /// <summary>
         /// Creates a new stream in the store.
         /// </summary>
         /// <param name="id">The id of the new stream. A brand new computed <see cref="Guid"/>.</param>
         /// <param name="@event">The first message that the new aggregate will process.</param>
-        protected void HandleFirstEvent(Guid id, IEvent @event)
+        protected void CreateNewStream(Guid id, IEvent @event)
         {
             this.HandleSafelyWithStreamLocking(id, () =>
             {

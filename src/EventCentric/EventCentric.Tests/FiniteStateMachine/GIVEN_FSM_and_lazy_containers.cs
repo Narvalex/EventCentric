@@ -11,13 +11,13 @@ namespace EventCentric.Tests.FiniteStateMachine
     {
         protected Bus bus;
         protected TestLazyWorkersContainer workers;
-        protected FSM sut;
+        protected ProcessorNode sut;
 
         public GIVEN_FSM_and_lazy_containers()
         {
             this.bus = new Bus();
             this.workers = new TestLazyWorkersContainer(this.bus);
-            this.sut = new FSM(this.bus);
+            this.sut = new ProcessorNode(this.bus);
 
             this.bus.Register(this.workers);
             this.bus.Register(this.sut);
@@ -59,7 +59,7 @@ namespace EventCentric.Tests.FiniteStateMachine
                 this.workers.ThrowErrorOnStartup = true;
                 this.sut.Start();
             }
-            catch (FatalErrorException ex)
+            catch (FatalErrorException)
             {
                 Console.WriteLine("Expected error throwed");
                 return;

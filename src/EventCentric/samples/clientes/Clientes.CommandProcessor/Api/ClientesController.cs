@@ -1,5 +1,5 @@
-﻿using Clientes.CommandProcessor.Commands;
-using Clientes.CommandProcessor.Processor;
+﻿using Clientes.CommandProcessor.Processor;
+using Clientes.Commands;
 using EventCentric.Messaging;
 using EventCentric.Utils;
 using System;
@@ -21,7 +21,7 @@ namespace Clientes.CommandProcessor.Api
         public IHttpActionResult AgregarCliente(string nombre)
         {
             var command =
-                new AgregarCliente(
+                new RegistrarNuevoCliente(
                     nombre,
                     SequentialGuid.CreateNew(),
                     typeof(ClientesYSaldos).Name);

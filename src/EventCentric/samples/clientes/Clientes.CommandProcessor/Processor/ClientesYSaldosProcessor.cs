@@ -1,30 +1,22 @@
-﻿using Clientes.CommandProcessor.Commands;
-using Clientes.Events;
+﻿using Clientes.Commands;
 using EventCentric.EventSourcing;
 using EventCentric.Messaging;
 using EventCentric.Processing;
-using EventCentric.Utils;
 
 namespace Clientes.CommandProcessor.Processor
 {
     public class ClientesYSaldosProcessor : EventProcessor<ClientesYSaldos>,
+        ICommandHandler<RegistrarNuevoCliente>,
         ICommandHandler<AgregarSaldo>,
-        ICommandHandler<AgregarCliente>,
-        ICommandHandler<QuitarSaldo>,
-        IEventHandler<ClienteRegistrado>
+        ICommandHandler<QuitarSaldo>
     {
         public ClientesYSaldosProcessor(IBus bus, IEventStore<ClientesYSaldos> store, ISubscriptionWriter subsriptionWriter)
             : base(bus, store, subsriptionWriter)
         { }
 
-        public void Handle(AgregarCliente command)
+        public void Handle(RegistrarNuevoCliente command)
         {
-            base.CreateNewStream(command);
-        }
-
-        public void Handle(ClienteRegistrado @event)
-        {
-            base.HandleFirstEvent(@event.IdCliente, @event);
+            base.CreateNewStream(command.EventId, command);
         }
 
         public void Handle(QuitarSaldo command)

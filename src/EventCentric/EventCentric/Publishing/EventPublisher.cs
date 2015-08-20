@@ -11,7 +11,7 @@ using System.Collections.Generic;
 
 namespace EventCentric.Publishing
 {
-    public class EventPublisher<T> : Worker, IEventSource,
+    public class EventPublisher<T> : FSM, IEventSource,
         IMessageHandler<StartEventPublisher>,
         IMessageHandler<StopEventPublisher>,
         IMessageHandler<EventStoreHasBeenUpdated>

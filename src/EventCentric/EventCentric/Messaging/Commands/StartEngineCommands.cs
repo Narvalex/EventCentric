@@ -5,4 +5,6 @@
     public class StartEventProcessor : IMessage { }
 
     public class StartEventPuller : IMessage { }
+
+    public class StartMessageQueue : IMessage { }
 }

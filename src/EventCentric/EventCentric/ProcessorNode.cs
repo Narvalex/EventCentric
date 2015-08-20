@@ -6,7 +6,7 @@ using System.Threading;
 
 namespace EventCentric
 {
-    public class FSM : Worker, INode, IDisposable,
+    public class ProcessorNode : FSM, INode, IDisposable,
         IMessageHandler<EventPublisherStarted>,
         IMessageHandler<EventProcessorStarted>,
         IMessageHandler<EventPullerStarted>,
@@ -14,7 +14,7 @@ namespace EventCentric
         IMessageHandler<EventProcessorStopped>,
         IMessageHandler<EventPublisherStopped>
     {
-        public FSM(IBus bus)
+        public ProcessorNode(IBus bus)
             : base(bus)
         {
             this.State = NodeState.Down;

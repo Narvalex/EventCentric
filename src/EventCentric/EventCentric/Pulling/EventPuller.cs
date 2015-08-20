@@ -14,7 +14,7 @@ using System.Threading.Tasks;
 
 namespace EventCentric.Pulling
 {
-    public class EventPuller : Worker,
+    public class EventPuller : FSM,
         IMessageHandler<StartEventPuller>,
         IMessageHandler<StopEventPuller>,
         IMessageHandler<IncomingEventHasBeenProcessed>,

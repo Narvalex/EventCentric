@@ -154,9 +154,6 @@
     <Compile Include="UnityConfig.cs" />
     <Compile Include="App_Start\UnityWebApiActivator.cs" />
     <Compile Include="App_Start\WebApiConfig.cs" />
-    <Compile Include="Commands\AgregarCliente.cs" />
-    <Compile Include="Commands\AgregarSaldo.cs" />
-    <Compile Include="Commands\QuitarSaldo.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
@@ -217,6 +214,10 @@
     <ProjectReference Include="..\..\..\EventCentric\EventCentric.csproj">
       <Project>{4b00e8dd-813c-4abb-8c87-c664d188f62c}</Project>
       <Name>EventCentric</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Clientes.Commands\Clientes.Commands.csproj">
+      <Project>{7e83ebb3-0f31-4aa2-a3d0-6eeaa421f3e5}</Project>
+      <Name>Clientes.Commands</Name>
     </ProjectReference>
     <ProjectReference Include="..\Clientes.Events\Clientes.Events.csproj">
       <Project>{46f49232-a590-4374-ba07-674860d05bf4}</Project>

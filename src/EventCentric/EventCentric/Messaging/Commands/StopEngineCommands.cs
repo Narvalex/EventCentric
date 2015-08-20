@@ -5,4 +5,6 @@
     public class StopEventProcessor : IMessage { }
 
     public class StopEventPublisher : IMessage { }
+
+    public class StopMessageQueue : IMessage { }
 }

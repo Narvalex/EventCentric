@@ -82,6 +82,7 @@
     <Compile Include="Pulling\Helpers\TestEvents.cs" />
     <Compile Include="Pulling\Helpers\TestHttpClients.cs" />
     <Compile Include="Pulling\Helpers\TestSubscriptionDaos.cs" />
+    <Compile Include="Queueing\MessageQueueFixture.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

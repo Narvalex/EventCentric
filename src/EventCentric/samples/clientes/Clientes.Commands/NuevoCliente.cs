@@ -1,11 +1,11 @@
 ﻿using EventCentric.Processing;
 using System;
 
-namespace Clientes.CommandProcessor.Commands
+namespace Clientes.Commands
 {
-    public class AgregarCliente : ClientCommand
+    public class RegistrarNuevoCliente : ClientCommand
     {
-        public AgregarCliente(string nombre, Guid eventId, string streamType)
+        public RegistrarNuevoCliente(string nombre, Guid eventId, string streamType)
             : base(eventId, streamType)
         {
             this.Nombre = nombre;
