@@ -13,7 +13,7 @@ using System;
 
 namespace EventCentric
 {
-    public class NodeFactory<T> where T : class, IEventSourced
+    public class ProcessorNodeFactory<T> where T : class, IEventSourced
     {
         public static void CreateNode(IUnityContainer container, Func<IUnityContainer, EventProcessor<T>> processorFactory, bool setLocalTime = true, bool startNow = true)
         {
@@ -49,10 +49,6 @@ namespace EventCentric
 
             if (startNow)
                 fsm.Start();
-
-            // Register client bus
-            var clientBus = new ClientBus(container.Resolve<IBus>());
-            container.RegisterInstance<IClientBus>(clientBus);
         }
     }
 }

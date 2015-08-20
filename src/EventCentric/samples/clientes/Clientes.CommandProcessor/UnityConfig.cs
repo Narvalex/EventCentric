@@ -45,7 +45,7 @@ namespace Clientes.CommandProcessor.App_Start
                     subsriptionWriter: cont.Resolve<ISubscriptionWriter>());
             };
 
-            NodeFactory<ClientesYSaldos>.CreateNode(container, processorFactory);
+            ProcessorNodeFactory<ClientesYSaldos>.CreateNode(container, processorFactory);
         }
     }
 }

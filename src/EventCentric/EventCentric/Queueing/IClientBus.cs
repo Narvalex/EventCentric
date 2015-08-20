@@ -1,7 +1,7 @@
 ﻿using EventCentric.EventSourcing;
 using EventCentric.Processing;
 
-namespace EventCentric.Messaging
+namespace EventCentric.Queueing
 {
     public interface IClientBus
     {

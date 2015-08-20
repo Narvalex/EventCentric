@@ -2,9 +2,9 @@
 
 namespace EventCentric.Messaging.Events
 {
-    public class EventStoreHasBeenUpdated : IMessage
+    public class StreamHasBeenUpdated : IMessage
     {
-        public EventStoreHasBeenUpdated(Guid streamId, int updatedStreamVersion)
+        public StreamHasBeenUpdated(Guid streamId, int updatedStreamVersion)
         {
             this.StreamId = streamId;
             this.UpdatedStreamVersion = updatedStreamVersion;

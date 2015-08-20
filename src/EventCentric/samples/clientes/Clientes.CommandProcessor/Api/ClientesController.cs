@@ -1,6 +1,6 @@
 ﻿using Clientes.CommandProcessor.Processor;
 using Clientes.Commands;
-using EventCentric.Messaging;
+using EventCentric.Queueing;
 using EventCentric.Utils;
 using System;
 using System.Web.Http;

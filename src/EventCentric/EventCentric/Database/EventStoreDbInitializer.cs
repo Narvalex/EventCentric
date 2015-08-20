@@ -57,7 +57,7 @@ CREATE TABLE [EventStore].[Events](
 	[EventId] [uniqueidentifier] NOT NULL,
 	CONSTRAINT EventStore_Events_EventId UNIQUE(EventId),
 	[EventType] [nvarchar] (255) NOT NULL,
-	[CorrelationId] [uniqueidentifier] NOT NULL,
+	[CorrelationId] [uniqueidentifier] NULL,
 	[CreationDate] [datetime] NOT NULL,
 	[Payload] [nvarchar] (max) NOT NULL
 
@@ -73,7 +73,7 @@ IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[EventSto
 CREATE TABLE [EventStore].[Streams](
     [StreamId] [uniqueidentifier] NOT NULL,
     [Version] [int] NOT NULL,
-    [Memento] [nvarchar](max) NOT NULL,
+    [Memento] [nvarchar](max) NULL,
     [CreationDate] [datetime] NOT NULL
 PRIMARY KEY CLUSTERED 
 (

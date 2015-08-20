@@ -62,7 +62,7 @@ namespace EventCentric.EventSourcing
                         Memento = serializedMemento,
                         CreationDate = now
                     },
-                    updateEntity: (stream) =>
+                    updateEntity: stream =>
                     {
                         stream.Version = originator.Version;
                         stream.Memento = serializedMemento;
@@ -128,8 +128,8 @@ namespace EventCentric.EventSourcing
             using (var context = this.contextFactory.Invoke())
             {
                 var versions = context.Events
-                                            .Where(e => e.StreamId == eventSourced.Id)
-                                            .AsCachedAnyEnumerable();
+                                      .Where(e => e.StreamId == eventSourced.Id)
+                                      .AsCachedAnyEnumerable();
 
                 var currentVersion = 0;
                 if (versions.Any())

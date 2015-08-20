@@ -82,11 +82,14 @@
     <Compile Include="Database\SqlClientLite.cs" />
     <Compile Include="Database\TransientFaultHandlingDbConfiguration.cs" />
     <Compile Include="Messaging\Events\FatalErrorOcurred.cs" />
+    <Compile Include="Messaging\Events\MessageHasBeenQueued.cs" />
     <Compile Include="Messaging\FatalErrorException.cs" />
     <Compile Include="ProcessorNodeFactory.cs" />
     <Compile Include="Messaging\PoisonMessageException.cs" />
     <Compile Include="Publishing\StreamsController.cs" />
+    <Compile Include="Queueing\IQueueWriter.cs" />
     <Compile Include="Queueing\MessageQueue.cs" />
+    <Compile Include="Queueing\QueueWriter.cs" />
     <Compile Include="Repository\DbContextExtensions.cs" />
     <Compile Include="Repository\ReadOnlyStreamDbContext.cs" />
     <Compile Include="Repository\ReadOnlySubscriptionDbContext.cs" />
@@ -106,7 +109,6 @@
     <Compile Include="ProcessorNode.cs" />
     <Compile Include="INode.cs" />
     <Compile Include="Messaging\Bus.cs" />
-    <Compile Include="Messaging\ClientBus.cs" />
     <Compile Include="Messaging\Commands\StartEngineCommands.cs" />
     <Compile Include="Messaging\Commands\StopEngineCommands.cs" />
     <Compile Include="Messaging\Envelope.cs" />
@@ -116,7 +118,7 @@
     <Compile Include="Messaging\Events\IncomingMessageIsPoisoned.cs" />
     <Compile Include="Messaging\Events\NewIncomingEvent.cs" />
     <Compile Include="Messaging\Events\NewSubscriptionAcquired.cs" />
-    <Compile Include="Messaging\Events\EventStoreHasBeenUpdated.cs" />
+    <Compile Include="Messaging\Events\StreamHasBeenUpdated.cs" />
     <Compile Include="Messaging\IBus.cs" />
     <Compile Include="Repository\Mapping\EventEntity.cs" />
     <Compile Include="Repository\Mapping\InboxEntity.cs" />
@@ -124,7 +126,7 @@
     <Compile Include="Repository\Mapping\StreamEntity.cs" />
     <Compile Include="Repository\Mapping\SubscriptionEntity.cs" />
     <Compile Include="EventSourcing\SubscriptionWriter.cs" />
-    <Compile Include="Messaging\IClientBus.cs" />
+    <Compile Include="Queueing\IClientBus.cs" />
     <Compile Include="Processing\ClientCommand.cs" />
     <Compile Include="Processing\ICommand.cs" />
     <Compile Include="Processing\ICommandHandler.cs" />
@@ -134,6 +136,7 @@
     <Compile Include="Publishing\IStreamDao.cs" />
     <Compile Include="Publishing\StreamDao.cs" />
     <Compile Include="Pulling\SubscriptionDao.cs" />
+    <Compile Include="Repository\StreamDbContext.cs" />
     <Compile Include="Serialization\ITextSerializer.cs" />
     <Compile Include="Serialization\JsonTextSerializer.cs" />
     <Compile Include="Serialization\TextSerializerExtensions.cs" />

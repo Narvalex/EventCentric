@@ -18,10 +18,6 @@ namespace EventCentric.Repository.Mapping
             // Primary Key
             this.HasKey(t => t.StreamId);
 
-            // Properties
-            this.Property(t => t.Memento)
-                .IsRequired();
-
             // Table & Column Mappings
             this.ToTable("Streams", "EventStore");
             this.Property(t => t.StreamId).HasColumnName("StreamId");

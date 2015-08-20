@@ -127,7 +127,7 @@ namespace EventCentric.Processing
         {
             ((dynamic)aggregate).Handle((dynamic)@event);
             this.store.Save(aggregate, @event);
-            this.bus.Publish(new EventStoreHasBeenUpdated(aggregate.Id, aggregate.Version));
+            this.bus.Publish(new StreamHasBeenUpdated(aggregate.Id, aggregate.Version));
             this.PublishIncomingEventHasBeenProcessed(@event);
         }
 

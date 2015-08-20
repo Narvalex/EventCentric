@@ -14,7 +14,7 @@ namespace EventCentric.Publishing
     public class EventPublisher<T> : FSM, IEventSource,
         IMessageHandler<StartEventPublisher>,
         IMessageHandler<StopEventPublisher>,
-        IMessageHandler<EventStoreHasBeenUpdated>
+        IMessageHandler<StreamHasBeenUpdated>
             where T : class, IEventSourced
     {
         private readonly static string _streamType = typeof(T).Name;
@@ -34,7 +34,7 @@ namespace EventCentric.Publishing
             this.serializer = serializer;
         }
 
-        public void Handle(EventStoreHasBeenUpdated message)
+        public void Handle(StreamHasBeenUpdated message)
         {
             this.streamVersionsById.AddOrUpdate(
                 key: message.StreamId,
