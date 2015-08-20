@@ -1,4 +1,5 @@
-﻿using EventCentric.EventSourcing;
+﻿using EventCentric.Database;
+using EventCentric.EventSourcing;
 using EventCentric.Repository;
 using EventCentric.Repository.Mapping;
 using EventCentric.Serialization;
@@ -8,28 +9,33 @@ using System.Linq;
 
 namespace EventCentric.Queueing
 {
-    public class QueueWriter : IQueueWriter
+    public class QueueWriter<T> : IQueueWriter
     {
+        private static readonly string _streamType = typeof(T).Name;
         private readonly Func<StreamDbContext> contextFactory;
         private readonly ITextSerializer serializer;
         private readonly ITimeProvider time;
+        private readonly IGuidProvider guid;
 
-        public QueueWriter(Func<StreamDbContext> contextFactory, ITextSerializer serializer, ITimeProvider time)
+        public QueueWriter(Func<StreamDbContext> contextFactory, ITextSerializer serializer, ITimeProvider time, IGuidProvider guid)
         {
             Ensure.NotNull(contextFactory, "contextFactory");
             Ensure.NotNull(serializer, "serializer");
             Ensure.NotNull(time, "time");
+            Ensure.NotNull(guid, "guid");
 
             this.contextFactory = contextFactory;
             this.serializer = serializer;
+            this.time = time;
+            this.guid = guid;
         }
 
-        public int EnqueueMessage(IEvent message)
+        public int Enqueue(IEvent @event)
         {
             using (var context = this.contextFactory())
             {
                 var versions = context.Events
-                                      .Where(e => e.StreamId == message.StreamId)
+                                      .Where(e => e.StreamId == @event.StreamId)
                                       .AsCachedAnyEnumerable();
 
                 var currentVersion = 0;
@@ -39,28 +45,31 @@ namespace EventCentric.Queueing
                 var updatedVersion = currentVersion + 1;
 
                 var now = this.time.Now;
+
+                ((Event)@event).StreamType = _streamType;
+
                 context.Events.Add(
                     new EventEntity
                     {
-                        StreamId = message.EventId,
+                        StreamId = @event.StreamId,
                         Version = updatedVersion,
-                        EventId = message.EventId,
-                        EventType = message.GetType().Name,
+                        EventId = this.guid.NewGuid,
+                        EventType = @event.GetType().Name,
                         CreationDate = now,
-                        Payload = this.serializer.Serialize(message)
+                        Payload = this.serializer.Serialize(@event)
                     });
 
                 context.AddOrUpdate(
-                    entityFinder: () => context.Streams.Where(s => s.StreamId == message.StreamId).SingleOrDefault(),
-                    newEntityToAdd: new StreamEntity
+                    finder: () => context.Streams.Where(s => s.StreamId == @event.StreamId).SingleOrDefault(),
+                    add: () => new StreamEntity
                     {
-                        StreamId = message.StreamId,
-                        Version = message.Version,
+                        StreamId = @event.StreamId,
+                        Version = @event.Version,
                         CreationDate = now
                     },
-                    updateEntity: stream =>
+                    update: stream =>
                     {
-                        stream.Version = message.Version;
+                        stream.Version = @event.Version;
                         stream.CreationDate = now;
                     });
 

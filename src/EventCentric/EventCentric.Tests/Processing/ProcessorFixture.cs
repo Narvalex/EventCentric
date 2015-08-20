@@ -2,7 +2,6 @@
 using EventCentric.EventSourcing;
 using EventCentric.Messaging.Commands;
 using EventCentric.Messaging.Events;
-using EventCentric.Processing;
 using EventCentric.Repository;
 using EventCentric.Serialization;
 using EventCentric.Tests.Processing.Helpers;
@@ -11,6 +10,8 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Configuration;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace EventCentric.Tests.Processing.ProcessorFixture
 {
@@ -23,7 +24,7 @@ namespace EventCentric.Tests.Processing.ProcessorFixture
         protected LocalTimeProvider time = new LocalTimeProvider();
         protected JsonTextSerializer serializer = new JsonTextSerializer();
         protected EventStore<TestAggregate> store;
-        protected EventProcessor<TestAggregate> sut;
+        protected TestEventProcessor sut;
 
         public GIVEN_processor()
         {
@@ -31,8 +32,8 @@ namespace EventCentric.Tests.Processing.ProcessorFixture
             EventStoreDbInitializer.CreateDatabaseObjects(connectionString, true);
             this.bus = new TestBus();
             this.subWriter = new SubscriptionWriter(() => new EventStoreDbContext(this.connectionString), this.time, this.serializer);
-            this.store = new EventStore<TestAggregate>(this.serializer, () => new EventStoreDbContext(this.connectionString), this.subWriter, this.time);
-            this.sut = new EventProcessor<TestAggregate>(this.bus, this.store, this.subWriter);
+            this.store = new EventStore<TestAggregate>(this.serializer, () => new EventStoreDbContext(this.connectionString), this.subWriter, this.time, new SequentialGuid());
+            this.sut = new TestEventProcessor(this.bus, this.store, this.subWriter);
         }
 
         public void Dispose()
@@ -47,6 +48,34 @@ namespace EventCentric.Tests.Processing.ProcessorFixture
             this.sut.Handle(new StartEventProcessor());
             Assert.AreEqual(1, this.bus.Messages.Count);
             Assert.AreEqual(typeof(EventProcessorStarted), this.bus.Messages.Single().GetType());
+        }
+
+        [TestMethod]
+        public void WHEN_multiple_events_arrives_to_update_the_same_stream_THEN_locks_and_handles_graciously()
+        {
+            using (var context = new EventStoreDbContext(this.connectionString))
+            {
+                context.Subscriptions.Add(new SubscriptionEntity
+                {
+                    StreamType = "TestSubscription",
+                    Url = "http://www.bing.com",
+                    CreationDate = DateTime.Now
+                });
+
+                context.SaveChanges();
+            }
+
+            this.sut.Handle(new StartEventProcessor());
+
+            for (int i = 0; i < 3; i++)
+            {
+                Task.Factory.StartNewLongRunning(() =>
+                    this.sut.Handle(
+                        new NewIncomingEvent(
+                            new TestQueuedEvent($"Loop number {i}", Guid.Empty, "TestSubscription"))));
+            }
+
+            Thread.Sleep(TimeSpan.FromHours(1));
         }
     }
 }

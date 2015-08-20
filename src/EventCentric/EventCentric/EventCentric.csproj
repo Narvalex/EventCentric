@@ -84,13 +84,15 @@
     <Compile Include="Messaging\Events\FatalErrorOcurred.cs" />
     <Compile Include="Messaging\Events\MessageHasBeenQueued.cs" />
     <Compile Include="Messaging\FatalErrorException.cs" />
+    <Compile Include="Messaging\BusExtensions.cs" />
     <Compile Include="ProcessorNodeFactory.cs" />
     <Compile Include="Messaging\PoisonMessageException.cs" />
     <Compile Include="Publishing\StreamsController.cs" />
     <Compile Include="Queueing\IQueueWriter.cs" />
-    <Compile Include="Queueing\MessageQueue.cs" />
+    <Compile Include="Queueing\EventQueue.cs" />
+    <Compile Include="Queueing\QueuedEvent.cs" />
     <Compile Include="Queueing\QueueWriter.cs" />
-    <Compile Include="Repository\DbContextExtensions.cs" />
+    <Compile Include="Database\DbContextExtensions.cs" />
     <Compile Include="Repository\ReadOnlyStreamDbContext.cs" />
     <Compile Include="Repository\ReadOnlySubscriptionDbContext.cs" />
     <Compile Include="EventSourcing\Event.cs" />

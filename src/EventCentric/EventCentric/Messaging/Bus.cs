@@ -113,11 +113,5 @@ namespace EventCentric.Messaging
             foreach (var worker in workers)
                 this.Register(worker);
         }
-
-        public void Publish(params IMessage[] messages)
-        {
-            foreach (var message in messages)
-                this.Publish(message);
-        }
     }
 }

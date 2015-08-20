@@ -22,12 +22,13 @@ namespace EventCentric
 
             var serializer = new JsonTextSerializer();
             var time = setLocalTime ? new LocalTimeProvider() as ITimeProvider : new UtcTimeProvider() as ITimeProvider;
+            var guid = new SequentialGuid();
 
             var streamDao = new StreamDao(() => new ReadOnlyStreamDbContext(connectionString));
             var subscriptionDao = new SubscriptionDao(() => new ReadOnlySubscriptionDbContext(connectionString));
             var subscriptionWriter = new SubscriptionWriter(() => new EventStoreDbContext(connectionString), time, serializer);
 
-            var eventStore = new EventStore<T>(serializer, () => new EventStoreDbContext(connectionString), subscriptionWriter, time);
+            var eventStore = new EventStore<T>(serializer, () => new EventStoreDbContext(connectionString), subscriptionWriter, time, guid);
 
             var bus = new Bus();
 

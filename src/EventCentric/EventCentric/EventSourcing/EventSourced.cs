@@ -1,5 +1,4 @@
 ﻿using EventCentric.Processing;
-using EventCentric.Utils;
 using System;
 using System.Collections.Generic;
 
@@ -10,7 +9,6 @@ namespace EventCentric.EventSourcing
         private readonly Guid id;
         private int version = 0;
         private List<IEvent> pendingEvents = new List<IEvent>();
-        private IGuidProvider guid = GuidManager.GetGuidProvider();
 
         protected EventSourced(Guid id)
         {
@@ -42,7 +40,6 @@ namespace EventCentric.EventSourcing
         {
             @event.StreamId = this.id;
             @event.Version = this.version + 1;
-            @event.EventId = this.guid.NewGuid;
             ((dynamic)this).On((dynamic)@event);
             this.version = @event.Version;
             this.pendingEvents.Add(@event);

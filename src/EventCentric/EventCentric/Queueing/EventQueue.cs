@@ -9,14 +9,14 @@ using System.Collections.Concurrent;
 
 namespace EventCentric.Queueing
 {
-    public class MessageQueue : FSM, IClientBus,
-        IMessageHandler<StartMessageQueue>,
-        IMessageHandler<StopMessageQueue>
+    public class EventQueue : FSM, IClientBus,
+        IMessageHandler<StartEventQueue>,
+        IMessageHandler<StopEventQueue>
     {
         private readonly IQueueWriter writer;
         protected ConcurrentDictionary<Guid, object> streamLocksById;
 
-        public MessageQueue(IBus bus, IQueueWriter writer)
+        public EventQueue(IBus bus, IQueueWriter writer)
             : base(bus)
         {
             Ensure.NotNull(writer, "writer");
@@ -35,22 +35,22 @@ namespace EventCentric.Queueing
             this.Enqueue(@event);
         }
 
-        private void Enqueue(IEvent message)
+        private void Enqueue(IEvent @event)
         {
-            this.streamLocksById.TryAdd(message.StreamId, new object());
-            lock (this.streamLocksById.TryGetValue(message.StreamId))
+            this.streamLocksById.TryAdd(@event.StreamId, new object());
+            lock (this.streamLocksById.TryGetValue(@event.StreamId))
             {
-                var updatedStreamVersion = this.writer.EnqueueMessage(message);
-                this.bus.Publish(new StreamHasBeenUpdated(message.StreamId, updatedStreamVersion));
+                var updatedStreamVersion = this.writer.Enqueue(@event);
+                this.bus.Publish(new StreamHasBeenUpdated(@event.StreamId, updatedStreamVersion));
             }
         }
 
-        public void Handle(StartMessageQueue message)
+        public void Handle(StartEventQueue message)
         {
             base.Start();
         }
 
-        public void Handle(StopMessageQueue message)
+        public void Handle(StopEventQueue message)
         {
             base.Stop();
         }

@@ -6,5 +6,5 @@
 
     public class StartEventPuller : IMessage { }
 
-    public class StartMessageQueue : IMessage { }
+    public class StartEventQueue : IMessage { }
 }

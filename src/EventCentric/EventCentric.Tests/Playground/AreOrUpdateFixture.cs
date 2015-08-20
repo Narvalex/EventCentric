@@ -32,7 +32,7 @@ namespace EventCentric.Tests.Playground
             {
                 context.AddOrUpdate(
                     () => context.Subscriptions.Where(s => s.StreamId == Guid.Empty && s.StreamType == "TestAggregate").SingleOrDefault(),
-                    new SubscriptionEntity
+                    () => new SubscriptionEntity
                     {
                         CreationDate = DateTime.Now,
                         IsPoisoned = false,

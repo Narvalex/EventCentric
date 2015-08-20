@@ -1,4 +1,5 @@
-﻿using EventCentric.Repository;
+﻿using EventCentric.Database;
+using EventCentric.Repository;
 using EventCentric.Repository.Mapping;
 using EventCentric.Serialization;
 using EventCentric.Utils;
@@ -14,6 +15,7 @@ namespace EventCentric.EventSourcing
 
         private readonly ITextSerializer serializer;
         private readonly ITimeProvider time;
+        private readonly IGuidProvider guid;
         private readonly ObjectCache cache;
 
         private readonly Func<Guid, IMemento, T> originatorAggregateFactory;
@@ -25,17 +27,19 @@ namespace EventCentric.EventSourcing
         private readonly Func<EventStoreDbContext> contextFactory;
         private readonly ISubscriptionWriter subscriptionWriter;
 
-        public EventStore(ITextSerializer serializer, Func<EventStoreDbContext> contextFactory, ISubscriptionWriter subscriptionWriter, ITimeProvider time)
+        public EventStore(ITextSerializer serializer, Func<EventStoreDbContext> contextFactory, ISubscriptionWriter subscriptionWriter, ITimeProvider time, IGuidProvider guid)
         {
             Ensure.NotNull(serializer, "serializer");
             Ensure.NotNull(contextFactory, "contextFactory");
             Ensure.NotNull(time, "time");
             Ensure.NotNull(subscriptionWriter, "subscriptionWriter");
+            Ensure.NotNull(guid, "guid");
 
             this.serializer = serializer;
             this.contextFactory = contextFactory;
             this.time = time;
             this.subscriptionWriter = subscriptionWriter;
+            this.guid = guid;
             this.cache = new MemoryCache(_streamType);
 
             /// TODO: could be replaced with a compiled lambda to make it more performant.
@@ -54,15 +58,15 @@ namespace EventCentric.EventSourcing
                 var serializedMemento = this.serializer.Serialize(memento);
 
                 context.AddOrUpdate(
-                    entityFinder: () => context.Streams.Where(s => s.StreamId == originator.Id).SingleOrDefault(),
-                    newEntityToAdd: new StreamEntity
+                    finder: () => context.Streams.Where(s => s.StreamId == originator.Id).SingleOrDefault(),
+                    add: () => new StreamEntity
                     {
                         StreamId = originator.Id,
                         Version = originator.Version,
                         Memento = serializedMemento,
                         CreationDate = now
                     },
-                    updateEntity: stream =>
+                    update: stream =>
                     {
                         stream.Version = originator.Version;
                         stream.Memento = serializedMemento;
@@ -145,7 +149,7 @@ namespace EventCentric.EventSourcing
                         {
                             StreamId = eventSourced.Id,
                             Version = eventSourced.Version,
-                            EventId = @event.EventId,
+                            EventId = this.guid.NewGuid,
                             EventType = @event.GetType().Name,
                             CorrelationId = correlatedEvent.EventId,
                             CreationDate = this.time.Now,

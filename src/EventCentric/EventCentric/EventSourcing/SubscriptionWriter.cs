@@ -1,4 +1,5 @@
-﻿using EventCentric.Messaging;
+﻿using EventCentric.Database;
+using EventCentric.Messaging;
 using EventCentric.Repository;
 using EventCentric.Repository.Mapping;
 using EventCentric.Serialization;
@@ -46,11 +47,11 @@ namespace EventCentric.EventSourcing
             context.Inbox.Add(message);
 
             context.AddOrUpdate(
-                entityFinder: () => context
+                finder: () => context
                                     .Subscriptions
                                     .Where(s => s.StreamId == @event.StreamId && s.StreamType == @event.StreamType)
                                     .SingleOrDefault(),
-                newEntityToAdd: new SubscriptionEntity
+                add: () => new SubscriptionEntity
                 {
                     StreamType = @event.StreamType,
                     StreamId = @event.StreamId,
@@ -61,7 +62,7 @@ namespace EventCentric.EventSourcing
                     CreationDate = this.time.Now,
                     IsPoisoned = false
                 },
-                updateEntity: (subscription) =>
+                update: (subscription) =>
                 {
                     subscription.LastProcessedVersion = @event.Version;
                     subscription.LastProcessedEventId = @event.EventId;
@@ -73,12 +74,12 @@ namespace EventCentric.EventSourcing
             using (var context = this.contextFactory.Invoke())
             {
                 context.AddOrUpdate(
-                    entityFinder: () => context
+                    finder: () => context
                                     .Subscriptions
                                     .Where(s => s.StreamType == streamType && s.StreamId == streamId)
                                     .Single(),
-                    newEntityToAdd: null,
-                    updateEntity: subscription =>
+                    add: null,
+                    update: subscription =>
                     {
                         subscription.IsPoisoned = true;
                         subscription.ExceptionMessage = this.serializer.Serialize(exception);

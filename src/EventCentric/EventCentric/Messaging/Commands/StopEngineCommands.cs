@@ -6,5 +6,5 @@
 
     public class StopEventPublisher : IMessage { }
 
-    public class StopMessageQueue : IMessage { }
+    public class StopEventQueue : IMessage { }
 }

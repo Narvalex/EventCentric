@@ -10,7 +10,7 @@ namespace EventCentric.Repository.Mapping
         public int Version { get; set; }
         public Guid EventId { get; set; }
         public string EventType { get; set; }
-        public Guid CorrelationId { get; set; }
+        public Guid? CorrelationId { get; set; }
         public DateTime CreationDate { get; set; }
         public string Payload { get; set; }
     }

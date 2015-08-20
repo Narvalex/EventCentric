@@ -17,7 +17,7 @@ namespace EventCentric.Processing
     /// a custum made container, with a generic injection for dependency resolution. It should be best 
     /// initialiezed lazyly, as the logger of Greg Young's Event Store.
     /// </remarks>
-    public class EventProcessor<T> : FSM,
+    public abstract class EventProcessor<T> : FSM,
         IMessageHandler<StartEventProcessor>,
         IMessageHandler<StopEventProcessor>,
         IMessageHandler<NewIncomingEvent>,
