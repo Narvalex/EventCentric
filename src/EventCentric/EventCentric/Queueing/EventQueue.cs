@@ -2,14 +2,13 @@
 using EventCentric.Messaging;
 using EventCentric.Messaging.Commands;
 using EventCentric.Messaging.Events;
-using EventCentric.Processing;
 using EventCentric.Utils;
 using System;
 using System.Collections.Concurrent;
 
 namespace EventCentric.Queueing
 {
-    public class EventQueue : FSM, IClientBus,
+    public class EventQueue : FSM, IEventBus,
         IMessageHandler<StartEventQueue>,
         IMessageHandler<StopEventQueue>
     {
@@ -25,17 +24,7 @@ namespace EventCentric.Queueing
             this.streamLocksById = new ConcurrentDictionary<Guid, object>();
         }
 
-        public void Send(ICommand command)
-        {
-            this.Enqueue(command);
-        }
-
-        public void Publish(IEvent @event)
-        {
-            this.Enqueue(@event);
-        }
-
-        private void Enqueue(IEvent @event)
+        public void Send(IEvent @event)
         {
             this.streamLocksById.TryAdd(@event.StreamId, new object());
             lock (this.streamLocksById.TryGetValue(@event.StreamId))

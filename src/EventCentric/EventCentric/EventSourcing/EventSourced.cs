@@ -1,5 +1,4 @@
-﻿using EventCentric.Processing;
-using System;
+﻿using System;
 using System.Collections.Generic;
 
 namespace EventCentric.EventSourcing
@@ -49,16 +48,6 @@ namespace EventCentric.EventSourcing
         {
             foreach (var @event in events)
                 this.Publish(@event);
-        }
-
-        protected void Send(Command command)
-        {
-            this.Publish(command);
-        }
-
-        protected void Send(params Command[] commands)
-        {
-            this.Publish(commands);
         }
 
         public virtual IMemento SaveToMemento()

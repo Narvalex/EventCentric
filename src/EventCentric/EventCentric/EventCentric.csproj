@@ -76,17 +76,21 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ClientNode.cs" />
+    <Compile Include="ClientNodeFactory.cs" />
     <Compile Include="Database\ConnectionProvider.cs" />
     <Compile Include="Database\DataReaderExtensions.cs" />
     <Compile Include="Database\IConnectionProvider.cs" />
     <Compile Include="Database\SqlClientLite.cs" />
     <Compile Include="Database\TransientFaultHandlingDbConfiguration.cs" />
+    <Compile Include="INode.cs" />
     <Compile Include="Messaging\Events\FatalErrorOcurred.cs" />
     <Compile Include="Messaging\Events\MessageHasBeenQueued.cs" />
     <Compile Include="Messaging\FatalErrorException.cs" />
     <Compile Include="Messaging\BusExtensions.cs" />
-    <Compile Include="ProcessorNodeFactory.cs" />
+    <Compile Include="NodeFactory.cs" />
     <Compile Include="Messaging\PoisonMessageException.cs" />
+    <Compile Include="NodeState.cs" />
     <Compile Include="Publishing\StreamsController.cs" />
     <Compile Include="Queueing\IQueueWriter.cs" />
     <Compile Include="Queueing\EventQueue.cs" />
@@ -108,8 +112,7 @@
     <Compile Include="EventSourcing\ISubscriptionWriter.cs" />
     <Compile Include="EventSourcing\IUpdateOn.cs" />
     <Compile Include="EventSourcing\StreamNotFoundException.cs" />
-    <Compile Include="ProcessorNode.cs" />
-    <Compile Include="INode.cs" />
+    <Compile Include="Node.cs" />
     <Compile Include="Messaging\Bus.cs" />
     <Compile Include="Messaging\Commands\StartEngineCommands.cs" />
     <Compile Include="Messaging\Commands\StopEngineCommands.cs" />
@@ -128,12 +131,8 @@
     <Compile Include="Repository\Mapping\StreamEntity.cs" />
     <Compile Include="Repository\Mapping\SubscriptionEntity.cs" />
     <Compile Include="EventSourcing\SubscriptionWriter.cs" />
-    <Compile Include="Queueing\IClientBus.cs" />
-    <Compile Include="Processing\ClientCommand.cs" />
-    <Compile Include="Processing\ICommand.cs" />
-    <Compile Include="Processing\ICommandHandler.cs" />
+    <Compile Include="Messaging\IEventBus.cs" />
     <Compile Include="Processing\IEventHandler.cs" />
-    <Compile Include="Processing\Command.cs" />
     <Compile Include="Publishing\IEventSource.cs" />
     <Compile Include="Publishing\IStreamDao.cs" />
     <Compile Include="Publishing\StreamDao.cs" />

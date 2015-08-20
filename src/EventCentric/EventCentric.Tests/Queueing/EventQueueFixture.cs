@@ -29,7 +29,7 @@ namespace EventCentric.Tests.Queueing
         {
             Assert.AreEqual(0, this.bus.Messages.Count);
 
-            this.sut.Publish(new TestEvent
+            this.sut.Send(new TestEvent
             {
                 Fact = "Test succeded!",
                 StreamId = Guid.Empty
@@ -43,7 +43,7 @@ namespace EventCentric.Tests.Queueing
         {
             this.WHEN_queue_is_empty_THEN_can_enqueue();
 
-            this.sut.Publish(new TestEvent
+            this.sut.Send(new TestEvent
             {
                 Fact = "Test succeded! 2",
                 StreamId = Guid.Empty,
@@ -59,13 +59,13 @@ namespace EventCentric.Tests.Queueing
 
             var newStreamId = Guid.NewGuid();
 
-            this.sut.Publish(new TestEvent
+            this.sut.Send(new TestEvent
             {
                 Fact = "Test succeded! 2",
                 StreamId = newStreamId,
             });
 
-            this.sut.Publish(new TestEvent
+            this.sut.Send(new TestEvent
             {
                 Fact = "Test succeded! 2",
                 StreamId = newStreamId,
@@ -81,7 +81,7 @@ namespace EventCentric.Tests.Queueing
             {
                 Task.Factory.StartNewLongRunning(() =>
                 {
-                    this.sut.Publish(new TestEvent
+                    this.sut.Send(new TestEvent
                     {
                         Fact = $"Test succeded for {i}th time",
                         StreamId = Guid.Empty

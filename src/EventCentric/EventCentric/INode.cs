@@ -5,5 +5,7 @@
         void Start();
 
         void Stop();
+
+        NodeState State { get; }
     }
 }

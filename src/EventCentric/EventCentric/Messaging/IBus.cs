@@ -17,7 +17,5 @@
     public interface IBusRegistry
     {
         void Register(IWorker worker);
-
-        void Register(params IWorker[] workers);
     }
 }

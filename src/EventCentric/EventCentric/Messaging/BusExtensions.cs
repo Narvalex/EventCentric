@@ -17,5 +17,11 @@
             foreach (var message in messages)
                 bus.Publish(message);
         }
+
+        public static void Register(this IBusRegistry registry, params IWorker[] workers)
+        {
+            foreach (var worker in workers)
+                registry.Register(worker);
+        }
     }
 }

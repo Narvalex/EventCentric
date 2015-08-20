@@ -11,13 +11,13 @@ namespace EventCentric.Tests.FiniteStateMachine
     {
         protected Bus bus;
         protected TestLazyWorkersContainer workers;
-        protected ProcessorNode sut;
+        protected Node sut;
 
         public GIVEN_FSM_and_lazy_containers()
         {
             this.bus = new Bus();
             this.workers = new TestLazyWorkersContainer(this.bus);
-            this.sut = new ProcessorNode(this.bus);
+            this.sut = new Node(this.bus);
 
             this.bus.Register(this.workers);
             this.bus.Register(this.sut);
