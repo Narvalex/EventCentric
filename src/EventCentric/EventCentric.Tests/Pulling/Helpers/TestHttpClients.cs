@@ -19,7 +19,7 @@ namespace EventCentric.Tests.Pulling.Helpers
             this.streamId = streamId;
         }
 
-        public PollResponse Poll(string url)
+        public PollEventsResponse PollEvents(string url)
         {
             Thread.Sleep(1000);
 
@@ -34,7 +34,12 @@ namespace EventCentric.Tests.Pulling.Helpers
                 list.Add(new PolledEventData("Clients", this.streamId, false, string.Empty));
 
 
-            return new PollResponse(list);
+            return new PollEventsResponse(list);
+        }
+
+        public PollStreamsResponse PollStreams(string url)
+        {
+            throw new NotImplementedException();
         }
     }
 }

@@ -25,11 +25,11 @@ namespace EventCentric.Processing
             where T : class, IEventSourced
     {
         private readonly IEventStore<T> store;
-        private readonly ISubscriptionWriter subscriptionWriter;
+        private readonly ISubscriptionInboxWriter subscriptionWriter;
         private readonly Func<Guid, T> newAggregateFactory;
         protected ConcurrentDictionary<Guid, object> streamLocksById;
 
-        public EventProcessor(IBus bus, IEventStore<T> store, ISubscriptionWriter subscriptionWriter)
+        public EventProcessor(IBus bus, IEventStore<T> store, ISubscriptionInboxWriter subscriptionWriter)
             : base(bus)
         {
             Ensure.NotNull(store, "store");
@@ -82,7 +82,6 @@ namespace EventCentric.Processing
             {
                 var aggregate = this.newAggregateFactory(id);
                 this.HandleEventAndAppendToStore(aggregate, @event);
-                this.bus.Publish(new NewSubscriptionAcquired(@event.StreamType, id));
             });
         }
 
@@ -126,8 +125,8 @@ namespace EventCentric.Processing
         private void HandleEventAndAppendToStore(T aggregate, IEvent @event)
         {
             ((dynamic)aggregate).Handle((dynamic)@event);
-            this.store.Save(aggregate, @event);
-            this.bus.Publish(new StreamHasBeenUpdated(aggregate.Id, aggregate.Version));
+            var streamCollectionVersion = this.store.Save(aggregate, @event);
+            this.bus.Publish(new StreamHasBeenUpdated(aggregate.Id, aggregate.Version, streamCollectionVersion));
             this.PublishIncomingEventHasBeenProcessed(@event);
         }
 

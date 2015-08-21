@@ -4,6 +4,8 @@ namespace EventCentric.Publishing
 {
     public interface IEventSource
     {
-        PollResponse PollEvents(PollRequest request);
+        PollEventsResponse PollEvents(PollEventsRequest request);
+
+        PollStreamsResponse PollStreams(PollStreamsRequest request);
     }
 }

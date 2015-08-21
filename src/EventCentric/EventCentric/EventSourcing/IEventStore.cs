@@ -24,6 +24,7 @@ namespace EventCentric.EventSourcing
         /// </summary>
         /// <param name="eventSourced">The event sourced entity.</param>
         /// <param name="correlatedEvent">The correlated <see cref="IEvent"/></param>
-        void Save(T eventSourced, IEvent correlatedEvent);
+        /// <returns>The stream collection version.</returns>
+        int Save(T eventSourced, IEvent correlatedEvent);
     }
 }

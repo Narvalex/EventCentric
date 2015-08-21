@@ -4,9 +4,9 @@ using System.Collections.Generic;
 
 namespace EventCentric.Transport
 {
-    public class PollRequest
+    public class PollEventsRequest
     {
-        public PollRequest(string id1, int v1, string id2, int v2, string id3, int v3, string id4, int v4, string id5, int v5)
+        public PollEventsRequest(string id1, int v1, string id2, int v2, string id3, int v3, string id4, int v4, string id5, int v5)
         {
             this.StreamVersionsFromSubscriber = new List<KeyValuePair<Guid, int>>(5);
 
@@ -26,7 +26,6 @@ namespace EventCentric.Transport
                 this.StreamVersionsFromSubscriber.Add(new KeyValuePair<Guid, int>(new Guid(id5), v5));
 
         }
-
         public List<KeyValuePair<Guid, int>> StreamVersionsFromSubscriber { get; private set; }
     }
 }

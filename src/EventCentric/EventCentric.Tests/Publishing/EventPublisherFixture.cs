@@ -60,7 +60,7 @@ namespace EventCentric.Tests.Publishing.EventPublisherFixture
             var encondedEmptyGuid = Guid.Empty.ToString();
 
             this.sut.Handle(new StartEventPublisher());
-            var response = this.sut.PollEvents(new PollRequest(encondedEmptyGuid, 1, encondedEmptyGuid, 2, encondedEmptyGuid, 3, encondedEmptyGuid, 4, encondedEmptyGuid, 5));
+            var response = this.sut.PollEvents(new PollEventsRequest(encondedEmptyGuid, 1, encondedEmptyGuid, 2, encondedEmptyGuid, 3, encondedEmptyGuid, 4, encondedEmptyGuid, 5));
 
             Assert.IsNotNull(response);
             Assert.IsFalse(response.Events.Where(e => e.IsNewEvent).Any());

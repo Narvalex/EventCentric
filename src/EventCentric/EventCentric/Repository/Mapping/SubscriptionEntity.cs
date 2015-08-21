@@ -7,7 +7,6 @@ namespace EventCentric.Repository
     {
         public string StreamType { get; set; }
         public Guid StreamId { get; set; }
-        public string Url { get; set; }
         public int LastProcessedVersion { get; set; }
         public Guid LastProcessedEventId { get; set; }
         public DateTime CreationDate { get; set; }
@@ -27,15 +26,10 @@ namespace EventCentric.Repository
                 .IsRequired()
                 .HasMaxLength(255);
 
-            this.Property(t => t.Url)
-                .IsRequired()
-                .HasMaxLength(255);
-
             // Table & Column Mappings
             this.ToTable("Subscriptions", "EventStore");
             this.Property(t => t.StreamType).HasColumnName("StreamType");
             this.Property(t => t.StreamId).HasColumnName("StreamId");
-            this.Property(t => t.Url).HasColumnName("Url");
             this.Property(t => t.LastProcessedVersion).HasColumnName("LastProcessedVersion");
             this.Property(t => t.LastProcessedEventId).HasColumnName("LastProcessedEventId");
             this.Property(t => t.CreationDate).HasColumnName("CreationDate");

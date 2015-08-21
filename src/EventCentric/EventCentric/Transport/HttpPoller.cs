@@ -4,12 +4,21 @@ namespace EventCentric.Transport
 {
     public class HttpPoller : IHttpPoller
     {
-        public PollResponse Poll(string url)
+        public PollEventsResponse PollEvents(string url)
         {
             using (var client = new HttpClient())
             {
                 var response = client.GetAsync(url).Result;
-                return response.Content.ReadAsAsync<PollResponse>().Result;
+                return response.Content.ReadAsAsync<PollEventsResponse>().Result;
+            }
+        }
+
+        public PollStreamsResponse PollStreams(string url)
+        {
+            using (var client = new HttpClient())
+            {
+                var response = client.GetAsync(url).Result;
+                return response.Content.ReadAsAsync<PollStreamsResponse>().Result;
             }
         }
     }

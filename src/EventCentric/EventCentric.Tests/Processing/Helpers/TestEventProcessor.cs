@@ -7,7 +7,7 @@ namespace EventCentric.Tests.Processing.Helpers
     public class TestEventProcessor : EventProcessor<TestAggregate>,
         IEventHandler<TestQueuedEvent>
     {
-        public TestEventProcessor(IBus bus, IEventStore<TestAggregate> store, ISubscriptionWriter subscriptionWriter)
+        public TestEventProcessor(IBus bus, IEventStore<TestAggregate> store, ISubscriptionInboxWriter subscriptionWriter)
             : base(bus, store, subscriptionWriter)
         { }
 

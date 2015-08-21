@@ -28,7 +28,7 @@ namespace EventCentric.Database
             context.TrackEntity(entity);
         }
 
-        public static void TrackEntity<T>(this DbContext context, T entity) where T : class
+        private static void TrackEntity<T>(this DbContext context, T entity) where T : class
         {
             var entry = context.Entry(entity);
 

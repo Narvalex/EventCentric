@@ -39,8 +39,7 @@ namespace EventCentric.Tests.Playground
                         LastProcessedEventId = Guid.Empty,
                         LastProcessedVersion = 1,
                         StreamId = Guid.Empty,
-                        StreamType = "TestAggregate",
-                        Url = "http://wwww.google.com"
+                        StreamType = "TestAggregate"
                     },
                     s =>
                     {

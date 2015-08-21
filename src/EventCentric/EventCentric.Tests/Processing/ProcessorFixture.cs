@@ -20,7 +20,7 @@ namespace EventCentric.Tests.Processing.ProcessorFixture
     {
         protected string connectionString;
         protected TestBus bus;
-        protected SubscriptionWriter subWriter;
+        protected SubscriptionInboxWriter subWriter;
         protected LocalTimeProvider time = new LocalTimeProvider();
         protected JsonTextSerializer serializer = new JsonTextSerializer();
         protected EventStore<TestAggregate> store;
@@ -31,7 +31,7 @@ namespace EventCentric.Tests.Processing.ProcessorFixture
             this.connectionString = ConfigurationManager.AppSettings["defaultConnection"];
             EventStoreDbInitializer.CreateDatabaseObjects(connectionString, true);
             this.bus = new TestBus();
-            this.subWriter = new SubscriptionWriter(() => new EventStoreDbContext(this.connectionString), this.time, this.serializer);
+            this.subWriter = new SubscriptionInboxWriter(() => new EventStoreDbContext(this.connectionString), this.time, this.serializer);
             this.store = new EventStore<TestAggregate>(this.serializer, () => new EventStoreDbContext(this.connectionString), this.subWriter, this.time, new SequentialGuid());
             this.sut = new TestEventProcessor(this.bus, this.store, this.subWriter);
         }
@@ -58,7 +58,6 @@ namespace EventCentric.Tests.Processing.ProcessorFixture
                 context.Subscriptions.Add(new SubscriptionEntity
                 {
                     StreamType = "TestSubscription",
-                    Url = "http://www.bing.com",
                     CreationDate = DateTime.Now
                 });
 

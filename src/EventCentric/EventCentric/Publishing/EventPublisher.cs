@@ -23,6 +23,7 @@ namespace EventCentric.Publishing
         private readonly ITextSerializer serializer;
 
         private ConcurrentDictionary<Guid, int> streamVersionsById;
+        private volatile int streamCollectionVersion;
 
         public EventPublisher(IBus bus, IStreamDao dao, ITextSerializer serializer)
             : base(bus)
@@ -52,9 +53,10 @@ namespace EventCentric.Publishing
             base.Start();
         }
 
-        public PollResponse PollEvents(PollRequest request)
+        public PollEventsResponse PollEvents(PollEventsRequest request)
         {
             var responseList = new List<PolledEventData>(5);
+
             request.StreamVersionsFromSubscriber.ForEach(pollerVersion =>
             {
                 var currentVersion = this.streamVersionsById.TryGetValue(pollerVersion.Key);
@@ -69,12 +71,27 @@ namespace EventCentric.Publishing
                 }
             });
 
-            return new PollResponse(responseList);
+            return new PollEventsResponse(responseList);
+        }
+
+        public PollStreamsResponse PollStreams(PollStreamsRequest request)
+        {
+            PollStreamsResponse response;
+            if (this.streamCollectionVersion > request.StreamCollectionVersion)
+            {
+                var newStream = this.dao.GetNextStreamIdAndStreamCollectionVersion(request.StreamCollectionVersion);
+                response = new PollStreamsResponse(true, newStream.Item1, newStream.Item2);
+            }
+            else
+                response = new PollStreamsResponse(false, null, null);
+
+            return response;
         }
 
         protected override void OnStarting()
         {
             this.streamVersionsById = this.dao.GetStreamsVersionsById();
+            this.streamCollectionVersion = this.dao.GetStreamCollectionVersion();
             this.bus.Publish(new EventPublisherStarted());
         }
 

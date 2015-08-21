@@ -2,6 +2,8 @@
 {
     public interface IHttpPoller
     {
-        PollResponse Poll(string url);
+        PollEventsResponse PollEvents(string url);
+
+        PollStreamsResponse PollStreams(string url);
     }
 }

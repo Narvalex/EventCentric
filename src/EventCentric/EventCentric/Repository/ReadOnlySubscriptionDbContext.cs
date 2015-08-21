@@ -10,7 +10,7 @@ namespace EventCentric.Repository
             System.Data.Entity.Database.SetInitializer<ReadOnlySubscriptionDbContext>(null);
         }
 
-        public ReadOnlySubscriptionDbContext(string nameOrconnectionString = "Name=EventStoreDbContext")
+        public ReadOnlySubscriptionDbContext(string nameOrconnectionString)
             : base(nameOrconnectionString)
         {
             this.Configuration.AutoDetectChangesEnabled = false;
@@ -19,10 +19,12 @@ namespace EventCentric.Repository
         }
 
         public IDbSet<SubscriptionEntity> Subscriptions { get; set; }
+        public IDbSet<SubscribedSourceEntity> SubscribedSources { get; set; }
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
             modelBuilder.Configurations.Add(new SubscriptionEntityMap());
+            modelBuilder.Configurations.Add(new SubscribedSourceEntityMap());
         }
     }
 }

@@ -30,7 +30,7 @@ namespace EventCentric.Tests.Pulling.EventPullerFixture
             this.bus = new TestBus();
             this.dao = new TestSubscriptionDaoWithSingleResult(this.streamId1);
             this.httpFactory = new TestHttpClientWithSingleResult(this.streamId1);
-            this.sut = new EventPuller(this.bus, this.dao, this.httpFactory, this.serializer);
+            this.sut = new EventPuller(this.bus, this.dao, null, this.httpFactory, this.serializer);
         }
 
         [TestMethod]
@@ -61,7 +61,7 @@ namespace EventCentric.Tests.Pulling.EventPullerFixture
         public void WHEN_response_has_no_new_events_THEN_sets_subscriptions_to_not_busy()
         {
             this.httpFactory = new TestHttpClientWithSingleResult(this.streamId1, false);
-            this.sut = new EventPuller(this.bus, this.dao, this.httpFactory, this.serializer);
+            this.sut = new EventPuller(this.bus, this.dao, null, this.httpFactory, this.serializer);
 
             Assert.IsFalse(TestSubscriptionDaoWithSingleResult.Subscriptions.Single().IsBusy);
 
@@ -130,7 +130,7 @@ namespace EventCentric.Tests.Pulling.EventPullerFixture
             this.bus = new TestBus();
             this.httpFactory = new TestHttpClientWithSingleResult(this.streamId1);
             this.dao = new SubscriptionDao(() => new ReadOnlySubscriptionDbContext(this.connectionString));
-            this.sut = new EventPuller(this.bus, this.dao, this.httpFactory, this.serializer);
+            this.sut = new EventPuller(this.bus, this.dao, null, this.httpFactory, this.serializer);
         }
 
         public void Dispose()

@@ -29,8 +29,8 @@ namespace EventCentric.Queueing
             this.streamLocksById.TryAdd(@event.StreamId, new object());
             lock (this.streamLocksById.TryGetValue(@event.StreamId))
             {
-                var updatedStreamVersion = this.writer.Enqueue(@event);
-                this.bus.Publish(new StreamHasBeenUpdated(@event.StreamId, updatedStreamVersion));
+                var versions = this.writer.Enqueue(@event);
+                this.bus.Publish(new StreamHasBeenUpdated(@event.StreamId, versions.Item1, versions.Item2));
             }
         }
 

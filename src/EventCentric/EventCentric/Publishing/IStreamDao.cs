@@ -7,6 +7,10 @@ namespace EventCentric.Publishing
     {
         ConcurrentDictionary<Guid, int> GetStreamsVersionsById();
 
+        int GetStreamCollectionVersion();
+
         string GetNextEventPayload(Guid streamId, int previousVersion);
+
+        Tuple<Guid, int> GetNextStreamIdAndStreamCollectionVersion(int previousStreamCollectionVersion);
     }
 }

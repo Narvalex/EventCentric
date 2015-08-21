@@ -30,7 +30,7 @@ namespace EventCentric.Queueing
             this.guid = guid;
         }
 
-        public int Enqueue(IEvent @event)
+        public Tuple<int, int> Enqueue(IEvent @event)
         {
             using (var context = this.contextFactory())
             {
@@ -75,7 +75,9 @@ namespace EventCentric.Queueing
 
                 context.SaveChanges();
 
-                return updatedVersion;
+                var updatedStreamCollectionVersion = context.Streams.Max(s => s.StreamCollectionVersion);
+
+                return new Tuple<int, int>(updatedVersion, updatedStreamCollectionVersion);
             }
         }
     }

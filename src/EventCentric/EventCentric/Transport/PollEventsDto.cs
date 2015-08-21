@@ -3,9 +3,9 @@ using System.Collections.Generic;
 
 namespace EventCentric.Transport
 {
-    public class PollRemoteEndpointDto
+    public class PollEventsDto
     {
-        public PollRemoteEndpointDto(string streamType, string url, Guid streamId, int version)
+        public PollEventsDto(string streamType, string url, Guid streamId, int version)
         {
             this.StreamType = streamType;
             this.Url = url;

@@ -25,9 +25,9 @@ namespace EventCentric.EventSourcing
         private readonly Action<Guid> markCacheAsStale;
 
         private readonly Func<EventStoreDbContext> contextFactory;
-        private readonly ISubscriptionWriter subscriptionWriter;
+        private readonly ISubscriptionInboxWriter subscriptionWriter;
 
-        public EventStore(ITextSerializer serializer, Func<EventStoreDbContext> contextFactory, ISubscriptionWriter subscriptionWriter, ITimeProvider time, IGuidProvider guid)
+        public EventStore(ITextSerializer serializer, Func<EventStoreDbContext> contextFactory, ISubscriptionInboxWriter subscriptionWriter, ITimeProvider time, IGuidProvider guid)
         {
             Ensure.NotNull(serializer, "serializer");
             Ensure.NotNull(contextFactory, "contextFactory");
@@ -123,7 +123,7 @@ namespace EventCentric.EventSourcing
                 throw new StreamNotFoundException(id, _streamType);
         }
 
-        public void Save(T eventSourced, IEvent correlatedEvent)
+        public int Save(T eventSourced, IEvent correlatedEvent)
         {
             var pendingEvents = eventSourced.PendingEvents;
             if (pendingEvents.Length == 0)
@@ -164,6 +164,8 @@ namespace EventCentric.EventSourcing
                     this.cacheMementoAndPublishStream(eventSourced, context);
 
                     context.SaveChanges();
+
+                    return context.Streams.Max(s => s.StreamCollectionVersion);
                 }
                 catch
                 {

@@ -74,7 +74,8 @@ CREATE TABLE [EventStore].[Streams](
     [StreamId] [uniqueidentifier] NOT NULL,
     [Version] [int] NOT NULL,
     [Memento] [nvarchar](max) NULL,
-    [CreationDate] [datetime] NOT NULL
+    [CreationDate] [datetime] NOT NULL,
+    [StreamCollectionVersion] [int] IDENTITY(1,1) NOT NULL
 PRIMARY KEY CLUSTERED 
 (
 	[StreamId] ASC
@@ -86,7 +87,6 @@ IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[EventSto
 CREATE TABLE [EventStore].[Subscriptions](
 	[StreamType] [nvarchar] (255) NOT NULL,
     [StreamId] [uniqueidentifier] NOT NULL,
-    [Url] [nvarchar] (500) NOT NULL,
     [LastProcessedVersion] [int] NOT NULL,
 	[LastProcessedEventId] [uniqueidentifier] NOT NULL,
 	[CreationDate] [datetime] NOT NULL,
@@ -96,6 +96,18 @@ PRIMARY KEY CLUSTERED
 (
 	[StreamType] ASC,
 	[StreamId] ASC
+)WITH (PAD_INDEX  = OFF, STATISTICS_NORECOMPUTE  = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS  = ON, ALLOW_PAGE_LOCKS  = ON) ON [PRIMARY]
+) ON [PRIMARY];
+
+-- Subscribed sources
+IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[EventStore].[SubscribedSources]') AND type in (N'U'))
+CREATE TABLE [EventStore].[SubscribedSources](
+	[StreamType] [nvarchar] (255) NOT NULL,
+    [Url] [nvarchar] (500) NOT NULL,
+    [StreamCollectionVersion] [int] NOT NULL
+PRIMARY KEY CLUSTERED 
+(
+	[StreamType] ASC
 )WITH (PAD_INDEX  = OFF, STATISTICS_NORECOMPUTE  = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS  = ON, ALLOW_PAGE_LOCKS  = ON) ON [PRIMARY]
 ) ON [PRIMARY];
 

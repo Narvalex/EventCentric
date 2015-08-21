@@ -7,24 +7,28 @@ namespace EventCentric.Tests.Pulling.Helpers
 {
     public class TestSubscriptionDaoWithSingleResult : ISubscriptionDao
     {
-        public static List<Subscription> Subscriptions;
+        public static List<SubscribedStream> Subscriptions;
 
         public TestSubscriptionDaoWithSingleResult(Guid streamId)
         {
-            Subscriptions = new List<Subscription>
+            Subscriptions = new List<SubscribedStream>
             {
-                new Subscription(
+                new SubscribedStream(
                     isPoisoned: false,
                     streamId: streamId,
                     streamType: "Clients",
-                    url: "http://www.google.com",
                     version: 0)
             };
         }
 
-        ConcurrentBag<Subscription> ISubscriptionDao.GetSubscriptionsOrderedByStreamName()
+        public ConcurrentBag<SubscribedSource> GetSubscribedSources()
         {
-            return new ConcurrentBag<Subscription>(Subscriptions);
+            throw new NotImplementedException();
+        }
+
+        ConcurrentBag<SubscribedStream> ISubscriptionDao.GetSubscribedStreamsOrderedByStreamName()
+        {
+            return new ConcurrentBag<SubscribedStream>(Subscriptions);
         }
     }
 }

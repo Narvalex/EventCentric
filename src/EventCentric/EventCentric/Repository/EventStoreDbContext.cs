@@ -18,6 +18,7 @@ namespace EventCentric.Repository
         public IDbSet<InboxEntity> Inbox { get; set; }
         public IDbSet<StreamEntity> Streams { get; set; }
         public IDbSet<SubscriptionEntity> Subscriptions { get; set; }
+        public IDbSet<SubscribedSourceEntity> SubscribedSources { get; set; }
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
@@ -25,6 +26,7 @@ namespace EventCentric.Repository
             modelBuilder.Configurations.Add(new InboxEntityMap());
             modelBuilder.Configurations.Add(new StreamEntityMap());
             modelBuilder.Configurations.Add(new SubscriptionEntityMap());
+            modelBuilder.Configurations.Add(new SubscribedSourceEntityMap());
         }
     }
 }

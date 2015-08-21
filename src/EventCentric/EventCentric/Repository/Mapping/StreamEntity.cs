@@ -1,4 +1,5 @@
 using System;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Data.Entity.ModelConfiguration;
 
 namespace EventCentric.Repository.Mapping
@@ -9,6 +10,7 @@ namespace EventCentric.Repository.Mapping
         public int Version { get; set; }
         public string Memento { get; set; }
         public DateTime CreationDate { get; set; }
+        public int StreamCollectionVersion { get; set; }
     }
 
     public class StreamEntityMap : EntityTypeConfiguration<StreamEntity>
@@ -17,6 +19,10 @@ namespace EventCentric.Repository.Mapping
         {
             // Primary Key
             this.HasKey(t => t.StreamId);
+
+            // Properties
+            this.Property(t => t.StreamCollectionVersion)
+                .HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
 
             // Table & Column Mappings
             this.ToTable("Streams", "EventStore");

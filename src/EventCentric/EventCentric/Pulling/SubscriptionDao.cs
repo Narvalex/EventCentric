@@ -1,5 +1,4 @@
 ﻿using EventCentric.Repository;
-using EventCentric.Utils;
 using System;
 using System.Collections.Concurrent;
 using System.Linq;
@@ -15,21 +14,33 @@ namespace EventCentric.Pulling
             this.contextFactory = contextFactory;
         }
 
-        public ConcurrentBag<Subscription> GetSubscriptionsOrderedByStreamName()
+        public ConcurrentBag<SubscribedSource> GetSubscribedSources()
         {
-            var subscriptionsInBag = new ConcurrentBag<Subscription>();
+            var subscribedSources = new ConcurrentBag<SubscribedSource>();
+            using (var context = contextFactory())
+            {
+                var sources = context.SubscribedSources;
+
+                if (sources.Any())
+                    foreach (var s in sources)
+                        subscribedSources.Add(new SubscribedSource(s.StreamType, s.Url, s.StreamCollectionVersion));
+
+                return subscribedSources;
+            }
+        }
+
+        public ConcurrentBag<SubscribedStream> GetSubscribedStreamsOrderedByStreamName()
+        {
+            var subscriptionsInBag = new ConcurrentBag<SubscribedStream>();
             using (var context = this.contextFactory.Invoke())
             {
-                var subscriptions = context
-                                     .Subscriptions
-                                     .OrderBy(s => s.StreamType)
-                                     .AsCachedAnyEnumerable();
+                var subscriptions = context.Subscriptions;
 
                 if (subscriptions.Any())
-                {
-                    foreach (var s in subscriptions)
-                        subscriptionsInBag.Add(new Subscription(s.StreamType, s.StreamId, s.Url, s.LastProcessedVersion, s.IsPoisoned));
-                }
+                    // Subscripion for existing streams
+                    foreach (var s in subscriptions.OrderBy(s => s.StreamType))
+                        subscriptionsInBag.Add(
+                            new SubscribedStream(s.StreamType, s.StreamId, s.LastProcessedVersion, s.IsPoisoned));
 
                 return subscriptionsInBag;
             }

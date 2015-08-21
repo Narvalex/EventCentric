@@ -18,25 +18,28 @@ namespace EventCentric.Pulling
         IMessageHandler<StartEventPuller>,
         IMessageHandler<StopEventPuller>,
         IMessageHandler<IncomingEventHasBeenProcessed>,
-        IMessageHandler<IncomingMessageIsPoisoned>,
-        IMessageHandler<NewSubscriptionAcquired>
+        IMessageHandler<IncomingMessageIsPoisoned>
     {
         private readonly ISubscriptionDao dao;
         private readonly IHttpPoller poller;
         private readonly ITextSerializer serializer;
+        private readonly ISubscriptionInboxWriter writer;
 
-        private ConcurrentBag<Subscription> subscriptions;
+        private ConcurrentBag<SubscribedStream> subscribedStreams;
+        private ConcurrentBag<SubscribedSource> subscribedSources;
 
-        public EventPuller(IBus bus, ISubscriptionDao dao, IHttpPoller poller, ITextSerializer serializer)
+        public EventPuller(IBus bus, ISubscriptionDao dao, ISubscriptionInboxWriter writer, IHttpPoller poller, ITextSerializer serializer)
             : base(bus)
         {
             Ensure.NotNull(dao, "dao");
             Ensure.NotNull(poller, "poller");
             Ensure.NotNull(serializer, "serializer");
+            Ensure.NotNull(writer, "writer");
 
             this.dao = dao;
             this.poller = poller;
             this.serializer = serializer;
+            this.writer = writer;
         }
 
         public void Handle(StartEventPuller message)
@@ -51,26 +54,14 @@ namespace EventCentric.Pulling
 
         public void Handle(IncomingEventHasBeenProcessed message)
         {
-            var subscription = this.subscriptions.Where(s => s.StreamId == message.StreamId).Single();
-            subscription.UpdateVersion(message.StreamVersion);
+            var subscription = this.subscribedStreams.Where(s => s.StreamId == message.StreamId).Single();
+            subscription.TryUpdateVersion(message.StreamVersion);
             subscription.ExitBusy();
-        }
-
-        public void Handle(NewSubscriptionAcquired message)
-        {
-            var url = this.subscriptions
-                          .Where(s => message.StreamId == s.StreamId && message.StreamType == s.StreamType)
-                          .Single()
-                          .Url;
-
-            var newSubscription = new Subscription(message.StreamType, message.StreamId, url, 0, false);
-
-            this.subscriptions.Add(newSubscription);
         }
 
         public void Handle(IncomingMessageIsPoisoned message)
         {
-            this.subscriptions
+            this.subscribedStreams
                 .Where(s => s.StreamId == message.StreamId && s.StreamType == message.StreamType)
                 .Single()
                 .MarkAsPoisoned();
@@ -78,8 +69,9 @@ namespace EventCentric.Pulling
 
         protected override void OnStarting()
         {
-            this.subscriptions = this.dao.GetSubscriptionsOrderedByStreamName();
-            Task.Factory.StartNewLongRunning(() => this.CountinuoslyPullEvents());
+            this.subscribedStreams = this.dao.GetSubscribedStreamsOrderedByStreamName();
+            this.subscribedSources = this.dao.GetSubscribedSources();
+            Task.Factory.StartNewLongRunning(() => this.PollEventSources());
 
             // Ensure to start everything;
             this.bus.Publish(new EventPullerStarted());
@@ -91,20 +83,23 @@ namespace EventCentric.Pulling
             this.bus.Publish(new EventPullerStopped());
         }
 
-        private void CountinuoslyPullEvents()
+        private void PollEventSources()
         {
             while (!this.stopping)
             {
-                var pendingSubscriptions = subscriptions.Where(s => !s.IsBusy && !s.IsPoisoned);
+                var pollerIsbusy = new Tuple<bool, bool>(false, false);
 
-                if (pendingSubscriptions.Count() == 0)
-                    Thread.Sleep(100);
+                var pendingStreamSubscriptions = subscribedStreams.Where(s => !s.IsBusy && !s.IsPoisoned);
+
+                // Poll subscriptions
+                if (!pendingStreamSubscriptions.Any())
+                    pollerIsbusy = new Tuple<bool, bool>(true, pollerIsbusy.Item2);
                 else
                 {
                     // Build request.
                     var batchSizeCount = 0;
-                    var dtos = new List<PollRemoteEndpointDto>();
-                    foreach (var subscription in pendingSubscriptions)
+                    var dtos = new List<PollEventsDto>();
+                    foreach (var subscription in pendingStreamSubscriptions)
                     {
                         // Mark subscription as busy
                         batchSizeCount += 1;
@@ -116,7 +111,10 @@ namespace EventCentric.Pulling
                         if (queryForStreamType.Any())
                             queryForStreamType.First().Add(subscription.StreamId, subscription.Version);
                         else
-                            dtos.Add(new PollRemoteEndpointDto(subscription.StreamType, subscription.Url, subscription.StreamId, subscription.Version));
+                        {
+                            var url = this.subscribedSources.Where(s => s.StreamType == subscription.StreamType).Single().Url;
+                            dtos.Add(new PollEventsDto(subscription.StreamType, url, subscription.StreamId, subscription.Version));
+                        }
 
                         if (batchSizeCount == 5)
                         {
@@ -124,17 +122,34 @@ namespace EventCentric.Pulling
                             dtos.ForEach(dto => Task.Factory.StartNewLongRunning(() => PollEvents(dto)));
 
                             batchSizeCount = 0;
-                            dtos = new List<PollRemoteEndpointDto>();
+                            dtos = new List<PollEventsDto>();
                         }
                     }
 
                     // Send requests async for the last ones
                     dtos.ForEach(dto => Task.Factory.StartNewLongRunning(() => PollEvents(dto)));
                 }
+
+                // Poll sources
+                var pendingSourceSubscriptions = subscribedSources.Where(s => !s.IsBusy);
+
+                if (!pendingSourceSubscriptions.Any())
+                    pollerIsbusy = new Tuple<bool, bool>(pollerIsbusy.Item1, true);
+                else
+                {
+                    foreach (var subscription in pendingSourceSubscriptions)
+                    {
+                        subscription.EnterBusy();
+                        Task.Factory.StartNewLongRunning(() => PollStreams(subscription));
+                    }
+                }
+
+                if (pollerIsbusy.Item1 && pollerIsbusy.Item2)
+                    Thread.Sleep(100);
             }
         }
 
-        private void PollEvents(PollRemoteEndpointDto dto)
+        private void PollEvents(PollEventsDto dto)
         {
             // Fill the request with the formatter
             var uri = dto.Url;
@@ -150,14 +165,14 @@ namespace EventCentric.Pulling
 
             try
             {
-                var response = this.poller.Poll(uri);
+                var response = this.poller.PollEvents(uri);
 
                 response.Events.ForEach(e =>
                 {
                     if (e.IsNewEvent)
                         this.bus.Publish(new NewIncomingEvent(this.serializer.Deserialize<IEvent>(e.Payload)));
                     else
-                        this.subscriptions
+                        this.subscribedStreams
                             .Where(s => s.StreamType == e.StreamType && s.StreamId == e.StreamId)
                             .Single()
                             .ExitBusy();
@@ -169,6 +184,25 @@ namespace EventCentric.Pulling
                     this.bus.Publish(new IncomingMessageIsPoisoned(dto.StreamType, sub.Key, new PoisonMessageException("Poisoned message detected in Event Puller.", ex)));
                 return;
             }
+        }
+
+        private void PollStreams(SubscribedSource source)
+        {
+            var response = this.poller.PollStreams($"{source.Url}/{source.StreamCollectionVersion}");
+            if (response.NewStreamWasFound)
+            {
+                this.writer.CreateNewSubscription(source.StreamType, response.NewStreamId.Value, response.UpdatedStreamCollectionVersion.Value);
+
+                // Updating source stream collection version, hoping reference type works
+                source.TryUpdateStreamCollectionVersion(response.UpdatedStreamCollectionVersion.Value);
+                // Adding a new subscription
+                this.subscribedStreams.Add(new SubscribedStream(source.StreamType, response.NewStreamId.Value, 0, false));
+            }
+            else
+                this.subscribedSources
+                    .Where(s => s.StreamType == source.StreamType)
+                    .Single()
+                    .ExitBusy();
         }
     }
 }

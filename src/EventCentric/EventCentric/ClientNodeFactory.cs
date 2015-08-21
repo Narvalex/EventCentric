@@ -5,6 +5,7 @@ using EventCentric.Repository;
 using EventCentric.Serialization;
 using EventCentric.Utils;
 using Microsoft.Practices.Unity;
+using System.Data.Entity;
 
 namespace EventCentric
 {
@@ -12,6 +13,8 @@ namespace EventCentric
     {
         public static INode CreateNode(IUnityContainer container, bool setLocalTime = true, bool setSequentialGuid = true)
         {
+            DbConfiguration.SetConfiguration(new TransientFaultHandlingDbConfiguration());
+
             var connectionProvider = ConnectionManager.GetConnectionProvider();
             var connectionString = connectionProvider.ConnectionString;
 
