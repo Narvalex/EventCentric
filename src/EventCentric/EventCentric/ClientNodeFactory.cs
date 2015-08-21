@@ -36,6 +36,7 @@ namespace EventCentric
 
             // Register for DI
             container.RegisterInstance<IEventBus>(eventBus);
+            container.RegisterInstance<IEventSource>(eventPublisher);
 
             return node;
         }

@@ -47,13 +47,15 @@ namespace EventCentric.Queueing
                 var now = this.time.Now;
 
                 ((Event)@event).StreamType = _streamType;
+                ((Event)@event).EventId = this.guid.NewGuid;
+                ((Event)@event).Version = updatedVersion;
 
                 context.Events.Add(
                     new EventEntity
                     {
                         StreamId = @event.StreamId,
-                        Version = updatedVersion,
-                        EventId = this.guid.NewGuid,
+                        Version = @event.Version,
+                        EventId = @event.EventId,
                         EventType = @event.GetType().Name,
                         CreationDate = now,
                         Payload = this.serializer.Serialize(@event)

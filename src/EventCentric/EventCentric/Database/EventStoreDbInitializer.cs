@@ -5,7 +5,7 @@ namespace EventCentric.Database
 {
     public class EventStoreDbInitializer
     {
-        public static void CreateDatabaseObjects(string connectionString, bool createDatabase = false)
+        public static void CreateDatabaseObjects(string connectionString, bool createDatabase = false, bool isForclientNode = false)
         {
             if (createDatabase)
             {
@@ -44,12 +44,20 @@ IF NOT EXISTS (SELECT name FROM sys.databases WHERE name = N'{0}') CREATE DATABA
 
                 using (var command = connection.CreateCommand())
                 {
-                    command.CommandText =
-@"
+                    command.CommandText = isForclientNode ? EventsCreateTableScript + StreamsCreateTableScript
+                                                          : EventsCreateTableScript + StreamsCreateTableScript
+                                                            + SubscriptionsCreateTableScript + SubscribedSourcesCreateTableScript
+                                                            + InboxCreateTableScript;
+                    command.ExecuteNonQuery();
+                }
+            }
+        }
+
+        private const string EventsCreateTableScript =
+@"-- Events
 IF NOT EXISTS (SELECT * FROM sys.schemas WHERE name = N'EventStore')
 EXECUTE sp_executesql N'CREATE SCHEMA [EventStore] AUTHORIZATION [dbo]';
 
--- Events
 IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[EventStore].[Events]') AND type in (N'U'))
 CREATE TABLE [EventStore].[Events](
 	[StreamId] [uniqueidentifier] NOT NULL,
@@ -66,74 +74,77 @@ PRIMARY KEY CLUSTERED
 	[StreamId] ASC, 
     [Version] ASC
 )WITH (PAD_INDEX  = OFF, STATISTICS_NORECOMPUTE  = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS  = ON, ALLOW_PAGE_LOCKS  = ON) ON [PRIMARY]
-) ON [PRIMARY];
+) ON [PRIMARY];";
 
--- Streams
-IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[EventStore].[Streams]') AND type in (N'U'))
-CREATE TABLE [EventStore].[Streams](
-    [StreamId] [uniqueidentifier] NOT NULL,
+        private const string StreamsCreateTableScript =
+@"--Streams
+IF NOT EXISTS(SELECT* FROM sys.objects WHERE object_id = OBJECT_ID(N'[EventStore].[Streams]') AND type in (N'U'))
+CREATE TABLE[EventStore].[Streams](
+    [StreamId]
+    [uniqueidentifier] NOT NULL,
     [Version] [int] NOT NULL,
     [Memento] [nvarchar](max) NULL,
     [CreationDate] [datetime] NOT NULL,
     [StreamCollectionVersion] [int] IDENTITY(1,1) NOT NULL
-PRIMARY KEY CLUSTERED 
+PRIMARY KEY CLUSTERED
 (
-	[StreamId] ASC
-)WITH (PAD_INDEX  = OFF, STATISTICS_NORECOMPUTE  = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS  = ON, ALLOW_PAGE_LOCKS  = ON) ON [PRIMARY]
-) ON [PRIMARY];
+    [StreamId] ASC
+)WITH(PAD_INDEX  = OFF, STATISTICS_NORECOMPUTE  = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS  = ON, ALLOW_PAGE_LOCKS  = ON) ON[PRIMARY]
+) ON[PRIMARY];";
 
--- Subscriptions
-IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[EventStore].[Subscriptions]') AND type in (N'U'))
-CREATE TABLE [EventStore].[Subscriptions](
+        private const string SubscriptionsCreateTableScript =
+@"-- Subscriptions
+IF NOT EXISTS(SELECT* FROM sys.objects WHERE object_id = OBJECT_ID(N'[EventStore].[Subscriptions]') AND type in (N'U'))
+CREATE TABLE[EventStore].[Subscriptions](
 	[StreamType] [nvarchar] (255) NOT NULL,
     [StreamId] [uniqueidentifier] NOT NULL,
     [LastProcessedVersion] [int] NOT NULL,
-	[LastProcessedEventId] [uniqueidentifier] NOT NULL,
-	[CreationDate] [datetime] NOT NULL,
-	[IsPoisoned] [bit] NOT NULL,
-	[ExceptionMessage] [nvarchar] (max) NULL
-PRIMARY KEY CLUSTERED 
+    [LastProcessedEventId] [uniqueidentifier] NOT NULL,
+    [CreationDate] [datetime] NOT NULL,
+    [IsPoisoned] [bit] NOT NULL,
+    [ExceptionMessage] [nvarchar] (max) NULL
+PRIMARY KEY CLUSTERED
 (
-	[StreamType] ASC,
-	[StreamId] ASC
-)WITH (PAD_INDEX  = OFF, STATISTICS_NORECOMPUTE  = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS  = ON, ALLOW_PAGE_LOCKS  = ON) ON [PRIMARY]
-) ON [PRIMARY];
+    [StreamType] ASC,
+    [StreamId] ASC
+)WITH(PAD_INDEX  = OFF, STATISTICS_NORECOMPUTE  = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS  = ON, ALLOW_PAGE_LOCKS  = ON) ON[PRIMARY]
+) ON[PRIMARY];";
 
--- Subscribed sources
-IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[EventStore].[SubscribedSources]') AND type in (N'U'))
-CREATE TABLE [EventStore].[SubscribedSources](
+        private const string SubscribedSourcesCreateTableScript =
+@"-- Subscribed sources
+IF NOT EXISTS(SELECT* FROM sys.objects WHERE object_id = OBJECT_ID(N'[EventStore].[SubscribedSources]') AND type in (N'U'))
+CREATE TABLE[EventStore].[SubscribedSources](
 	[StreamType] [nvarchar] (255) NOT NULL,
     [Url] [nvarchar] (500) NOT NULL,
     [StreamCollectionVersion] [int] NOT NULL
-PRIMARY KEY CLUSTERED 
+PRIMARY KEY CLUSTERED
 (
-	[StreamType] ASC
-)WITH (PAD_INDEX  = OFF, STATISTICS_NORECOMPUTE  = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS  = ON, ALLOW_PAGE_LOCKS  = ON) ON [PRIMARY]
-) ON [PRIMARY];
+    [StreamType] ASC
+)WITH(PAD_INDEX  = OFF, STATISTICS_NORECOMPUTE  = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS  = ON, ALLOW_PAGE_LOCKS  = ON) ON[PRIMARY]
+) ON[PRIMARY];";
 
--- Inbox
-IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[EventStore].[Inbox]') AND type in (N'U'))
-CREATE TABLE [EventStore].[Inbox](
+
+        private const string InboxCreateTableScript =
+@"-- Inbox
+IF NOT EXISTS(SELECT* FROM sys.objects WHERE object_id = OBJECT_ID(N'[EventStore].[Inbox]') AND type in (N'U'))
+CREATE TABLE[EventStore].[Inbox](
 	[InboxId] [bigint] IDENTITY(1,1) NOT NULL,
-	[EventId] [uniqueidentifier] NOT NULL,
-	CONSTRAINT EventStore_Inbox_EventId UNIQUE(EventId),
+    [EventId] [uniqueidentifier] NOT NULL,
+CONSTRAINT EventStore_Inbox_EventId UNIQUE(EventId),
 	[StreamType] [nvarchar] (255) NOT NULL,
-	[StreamId] [uniqueidentifier] NOT NULL,
-	[Version] [int] NOT NULL,
-	[EventType] [nvarchar] (255) NOT NULL,
-	[CreationDate] [datetime] NOT NULL,
+    [StreamId] [uniqueidentifier] NOT NULL,
+    [Version] [int] NOT NULL,
+    [EventType] [nvarchar] (255) NOT NULL,
+    [CreationDate] [datetime] NOT NULL,
     [Ignored] [bit] NULL,
 	[Payload] [nvarchar] (max) NOT NULL
 
-PRIMARY KEY CLUSTERED 
+PRIMARY KEY CLUSTERED
 (
-	[InboxId] ASC 
-)WITH (PAD_INDEX  = OFF, STATISTICS_NORECOMPUTE  = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS  = ON, ALLOW_PAGE_LOCKS  = ON) ON [PRIMARY]
-) ON [PRIMARY];
+    [InboxId] ASC
+)WITH(PAD_INDEX  = OFF, STATISTICS_NORECOMPUTE  = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS  = ON, ALLOW_PAGE_LOCKS  = ON) ON[PRIMARY]
+) ON[PRIMARY];
 ";
-                    command.ExecuteNonQuery();
-                }
-            }
-        }
+
     }
 }

@@ -6,6 +6,7 @@ namespace Clientes.Events
     public class ClienteAbonoPorSaldo : QueuedEvent
     {
         public ClienteAbonoPorSaldo(int monto, Guid idCliente)
+            : base(idCliente)
         {
             this.IdCliente = idCliente;
             this.Monto = monto;

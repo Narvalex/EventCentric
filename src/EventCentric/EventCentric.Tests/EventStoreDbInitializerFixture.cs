@@ -9,20 +9,22 @@ namespace EventCentric.Tests
     public class EventStoreDbInitializerFixture : IDisposable
     {
         protected string connectionString;
-        protected bool dbWasCreated = false;
 
         public EventStoreDbInitializerFixture()
         {
             this.connectionString = ConfigurationManager.AppSettings["defaultConnection"];
-
+        }
+        
+        [TestMethod]
+        public void Processor_node_db_can_be_created()
+        {
             EventStoreDbInitializer.CreateDatabaseObjects(this.connectionString, true);
-            this.dbWasCreated = true;
         }
 
         [TestMethod]
-        public void Db_can_be_created()
+        public void Client_node_db_can_be_created()
         {
-            Assert.IsTrue(this.dbWasCreated);
+            EventStoreDbInitializer.CreateDatabaseObjects(this.connectionString, true, true);
         }
 
         public void Dispose()

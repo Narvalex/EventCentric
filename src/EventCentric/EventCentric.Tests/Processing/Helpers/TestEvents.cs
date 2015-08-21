@@ -7,9 +7,9 @@ namespace EventCentric.Tests.Processing.Helpers
     public class TestQueuedEvent : QueuedEvent
     {
         public TestQueuedEvent(string message, Guid streamId, string streamType)
+            : base(streamId)
         {
             this.Message = message;
-            base.StreamId = streamId;
             base.StreamType = streamType;
         }
 
