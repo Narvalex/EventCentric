@@ -1,5 +1,4 @@
-﻿using EventCentric.EventSourcing;
-using EventCentric.Messaging;
+﻿using EventCentric.Messaging;
 using EventCentric.Messaging.Commands;
 using EventCentric.Messaging.Events;
 using EventCentric.Serialization;
@@ -15,7 +14,6 @@ namespace EventCentric.Publishing
         IMessageHandler<StartEventPublisher>,
         IMessageHandler<StopEventPublisher>,
         IMessageHandler<StreamHasBeenUpdated>
-            where T : class, IEventSourced
     {
         private readonly static string _streamType = typeof(T).Name;
         private readonly IStreamDao dao;
@@ -41,6 +39,8 @@ namespace EventCentric.Publishing
                 key: message.StreamId,
                 addValue: message.UpdatedStreamVersion,
                 updateValueFactory: (streamId, currentVersion) => message.UpdatedStreamVersion > currentVersion ? message.UpdatedStreamVersion : currentVersion);
+
+            this.streamCollectionVersion = message.UpdatedStreamCollectionVersion > this.streamCollectionVersion ? message.UpdatedStreamCollectionVersion : this.streamCollectionVersion;
         }
 
         public void Handle(StopEventPublisher message)

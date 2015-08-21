@@ -10,7 +10,7 @@ namespace EventCentric.Repository
             System.Data.Entity.Database.SetInitializer<ReadOnlyStreamDbContext>(null);
         }
 
-        public ReadOnlyStreamDbContext(string nameOrconnectionString = "Name=ReadOnlyStreamDbContext")
+        public ReadOnlyStreamDbContext(string nameOrconnectionString)
             : base(nameOrconnectionString)
         {
             this.Configuration.AutoDetectChangesEnabled = false;
