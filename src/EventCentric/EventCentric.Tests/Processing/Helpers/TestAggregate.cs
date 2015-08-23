@@ -4,8 +4,8 @@ using System;
 namespace EventCentric.Tests.Processing.Helpers
 {
     public class TestAggregate : EventSourced,
-        IHandle<TestQueuedEvent>,
-        IUpdateOn<TestEventHandled>
+        IHandles<TestQueuedEvent>,
+        IUpdatesOn<TestEventHandled>
     {
         public TestAggregate(Guid id) : base(id)
         { }

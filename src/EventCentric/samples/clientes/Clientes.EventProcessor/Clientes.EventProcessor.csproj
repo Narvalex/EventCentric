@@ -65,6 +65,10 @@
       <HintPath>..\..\..\packages\Unity.AspNet.WebApi.3.5.1404.0\lib\net45\Microsoft.Practices.Unity.WebApi.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="Newtonsoft.Json, Version=7.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\..\..\packages\Newtonsoft.Json.7.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
@@ -132,9 +136,6 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="Newtonsoft.Json">
-      <HintPath>..\..\..\packages\Newtonsoft.Json.6.0.4\lib\net45\Newtonsoft.Json.dll</HintPath>
-    </Reference>
     <Reference Include="System.Net.Http.Formatting">
       <HintPath>..\..\..\packages\Microsoft.AspNet.WebApi.Client.5.2.3\lib\net45\System.Net.Http.Formatting.dll</HintPath>
     </Reference>
@@ -149,7 +150,9 @@
     <Compile Include="App_Start\BundleConfig.cs" />
     <Compile Include="App_Start\FilterConfig.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
-    <Compile Include="App_Start\UnityConfig.cs" />
+    <Compile Include="Clientes.cs" />
+    <Compile Include="ClientesHandler.cs" />
+    <Compile Include="UnityConfig.cs" />
     <Compile Include="App_Start\UnityWebApiActivator.cs" />
     <Compile Include="App_Start\WebApiConfig.cs" />
     <Compile Include="Controllers\HomeController.cs" />
@@ -210,6 +213,10 @@
     <ProjectReference Include="..\..\..\EventCentric\EventCentric.csproj">
       <Project>{4b00e8dd-813c-4abb-8c87-c664d188f62c}</Project>
       <Name>EventCentric</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Clientes.Events\Clientes.Events.csproj">
+      <Project>{46f49232-a590-4374-ba07-674860d05bf4}</Project>
+      <Name>Clientes.Events</Name>
     </ProjectReference>
   </ItemGroup>
   <PropertyGroup>

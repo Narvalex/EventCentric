@@ -1,12 +1,12 @@
 ﻿using EventCentric.Database;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
 using System.Configuration;
 
 namespace EventCentric.Tests
 {
     [TestClass]
-    public class EventStoreDbInitializerFixture : IDisposable
+    public class EventStoreDbInitializerFixture
+    //: IDisposable
     {
         protected string connectionString;
 
@@ -14,7 +14,7 @@ namespace EventCentric.Tests
         {
             this.connectionString = ConfigurationManager.AppSettings["defaultConnection"];
         }
-        
+
         [TestMethod]
         public void Processor_node_db_can_be_created()
         {
@@ -27,9 +27,9 @@ namespace EventCentric.Tests
             EventStoreDbInitializer.CreateDatabaseObjects(this.connectionString, true, true);
         }
 
-        public void Dispose()
-        {
-            SqlClientLite.DropDatabase(this.connectionString);
-        }
+        //public void Dispose()
+        //{
+        //    SqlClientLite.DropDatabase(this.connectionString);
+        //}
     }
 }

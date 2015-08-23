@@ -1,4 +1,5 @@
-﻿using System.Net.Http;
+﻿using System;
+using System.Net.Http;
 
 namespace EventCentric.Transport
 {
@@ -17,8 +18,16 @@ namespace EventCentric.Transport
         {
             using (var client = new HttpClient())
             {
-                var response = client.GetAsync(url).Result;
-                return response.Content.ReadAsAsync<PollStreamsResponse>().Result;
+                try
+                {
+                    var response = client.GetAsync(url).Result;
+                    return response.Content.ReadAsAsync<PollStreamsResponse>().Result;
+                }
+                catch (Exception)
+                {
+                    return new PollStreamsResponse(false, null, null);
+                }
+
             }
         }
     }

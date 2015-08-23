@@ -110,10 +110,10 @@
     <Compile Include="Database\EventStoreDbInitializer.cs" />
     <Compile Include="EventSourcing\IEventSourced.cs" />
     <Compile Include="EventSourcing\IEventStore.cs" />
-    <Compile Include="EventSourcing\IHandle.cs" />
+    <Compile Include="EventSourcing\IHandles.cs" />
     <Compile Include="EventSourcing\IMementoOriginator.cs" />
     <Compile Include="EventSourcing\ISubscriptionInboxWriter.cs" />
-    <Compile Include="EventSourcing\IUpdateOn.cs" />
+    <Compile Include="EventSourcing\IUpdatesOn.cs" />
     <Compile Include="EventSourcing\StreamNotFoundException.cs" />
     <Compile Include="Node.cs" />
     <Compile Include="Messaging\Bus.cs" />

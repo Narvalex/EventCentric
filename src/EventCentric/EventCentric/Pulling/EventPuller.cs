@@ -152,7 +152,7 @@ namespace EventCentric.Pulling
         private void PollEvents(PollEventsDto dto)
         {
             // Fill the request with the formatter
-            var uri = dto.Url;
+            var uri = dto.Url + "/eventsource/streams";
 
             dto.ProcessedStreams.ForEach(s =>
                 uri = $"{uri}/{s.Key.ToString()}/{s.Value.ToString()}");
@@ -188,7 +188,7 @@ namespace EventCentric.Pulling
 
         private void PollStreams(SubscribedSource source)
         {
-            var response = this.poller.PollStreams($"{source.Url}/{source.StreamCollectionVersion}");
+            var response = this.poller.PollStreams($"{source.Url}/eventsource/events/{source.StreamCollectionVersion}");
             if (response.NewStreamWasFound)
             {
                 this.writer.CreateNewSubscription(source.StreamType, response.NewStreamId.Value, response.UpdatedStreamCollectionVersion.Value);
