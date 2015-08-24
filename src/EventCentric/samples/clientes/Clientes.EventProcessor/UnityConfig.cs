@@ -1,6 +1,4 @@
 using EventCentric;
-using EventCentric.EventSourcing;
-using EventCentric.Messaging;
 using Microsoft.Practices.Unity;
 using System;
 
@@ -34,12 +32,9 @@ namespace Clientes.EventProcessor.App_Start
         /// change the defaults), as Unity allows resolving a concrete type even if it was not previously registered.</remarks>
         public static void RegisterTypes(IUnityContainer container)
         {
-            Func<IUnityContainer, ClientesHandler> processorFactory = (unity) =>
-                { return new ClientesHandler(unity.Resolve<IBus>(), unity.Resolve<IEventStore<Clientes>>(), unity.Resolve<ISubscriptionInboxWriter>()); };
-
-            var node = NodeFactory<Clientes>.CreateNode(container, processorFactory);
-
-            node.Start();
+            NodeFactory<Clientes, ClientesHandler>
+            .CreateNode(container)
+            .Start();
         }
     }
 }

@@ -14,9 +14,11 @@ using System.Data.Entity;
 
 namespace EventCentric
 {
-    public class NodeFactory<T> where T : class, IEventSourced
+    public class NodeFactory<TAggregate, THandler>
+        where TAggregate : class, IEventSourced
+        where THandler : EventProcessor<TAggregate>
     {
-        public static INode CreateNode(IUnityContainer container, Func<IUnityContainer, EventProcessor<T>> processorFactory, bool setLocalTime = true, bool setSequentialGuid = true)
+        public static INode CreateNode(IUnityContainer container, bool setLocalTime = true, bool setSequentialGuid = true)
         {
             DbConfiguration.SetConfiguration(new TransientFaultHandlingDbConfiguration());
 
@@ -31,19 +33,22 @@ namespace EventCentric
             var subscriptionDao = new SubscriptionDao(() => new ReadOnlySubscriptionDbContext(connectionString));
             var subscriptionWriter = new SubscriptionInboxWriter(() => new EventStoreDbContext(connectionString), time, serializer);
 
-            var eventStore = new EventStore<T>(serializer, () => new EventStoreDbContext(connectionString), subscriptionWriter, time, guid);
+            var eventStore = new EventStore<TAggregate>(serializer, () => new EventStoreDbContext(connectionString), subscriptionWriter, time, guid);
 
             var bus = new Bus();
 
-            var publisher = new EventPublisher<T>(bus, streamDao, serializer);
+            var publisher = new EventPublisher<TAggregate>(bus, streamDao, serializer);
             var puller = new EventPuller(bus, subscriptionDao, subscriptionWriter, new HttpPoller(), serializer);
             var fsm = new Node(bus);
 
             // Register processor dependencies
             container.RegisterInstance<IBus>(bus);
-            container.RegisterInstance<IEventStore<T>>(eventStore);
+            container.RegisterInstance<IEventStore<TAggregate>>(eventStore);
             container.RegisterInstance<ISubscriptionInboxWriter>(subscriptionWriter);
-            var processor = processorFactory.Invoke(container);
+
+            var constructor = typeof(THandler).GetConstructor(new[] { typeof(IBus), typeof(IEventStore<TAggregate>), typeof(ISubscriptionInboxWriter) });
+            Ensure.CastIsValid(constructor, "Type THandler must have a valid constructor with the following signature: .ctor(IBus, IEventStore<T>, ISubscriptionInboxWriter)");
+            var processor = (THandler)constructor.Invoke(new object[] { bus, eventStore, subscriptionWriter });
 
             // Register all in bus
             bus.Register(publisher, puller, processor, fsm);
@@ -54,7 +59,7 @@ namespace EventCentric
             return fsm;
         }
 
-        public static INode CreateNode(IUnityContainer container, Func<IUnityContainer, EventProcessor<T>> processorFactory, Func<string, IEventStoreDbContext> storeContextFactory, bool setLocalTime = true, bool setSequentialGuid = true)
+        public static INode CreateDenormalizerNode<TDbContext>(IUnityContainer container, bool setLocalTime = true, bool setSequentialGuid = true) where TDbContext : IEventStoreDbContext
         {
             DbConfiguration.SetConfiguration(new TransientFaultHandlingDbConfiguration());
 
@@ -69,19 +74,25 @@ namespace EventCentric
             var subscriptionDao = new SubscriptionDao(() => new ReadOnlySubscriptionDbContext(connectionString));
             var subscriptionWriter = new SubscriptionInboxWriter(() => new EventStoreDbContext(connectionString), time, serializer);
 
-            var eventStore = new EventStore<T>(serializer, () => storeContextFactory.Invoke(connectionString), subscriptionWriter, time, guid);
+            var dbContextConstructor = typeof(TDbContext).GetConstructor(new[] { typeof(string) });
+            Ensure.CastIsValid(dbContextConstructor, "Type TDbContext must have a constructor with the following signature: ctor(string)");
+            Func<IEventStoreDbContext> dbContextFactory = () => (TDbContext)dbContextConstructor.Invoke(new object[] { connectionString });
+            var eventStore = new EventStore<TAggregate>(serializer, dbContextFactory, subscriptionWriter, time, guid);
 
             var bus = new Bus();
 
-            var publisher = new EventPublisher<T>(bus, streamDao, serializer);
+            var publisher = new EventPublisher<TAggregate>(bus, streamDao, serializer);
             var puller = new EventPuller(bus, subscriptionDao, subscriptionWriter, new HttpPoller(), serializer);
             var fsm = new Node(bus);
 
             // Register processor dependencies
             container.RegisterInstance<IBus>(bus);
-            container.RegisterInstance<IEventStore<T>>(eventStore);
+            container.RegisterInstance<IEventStore<TAggregate>>(eventStore);
             container.RegisterInstance<ISubscriptionInboxWriter>(subscriptionWriter);
-            var processor = processorFactory.Invoke(container);
+
+            var processorConstructor = typeof(THandler).GetConstructor(new[] { typeof(IBus), typeof(IEventStore<TAggregate>), typeof(ISubscriptionInboxWriter) });
+            Ensure.CastIsValid(processorConstructor, "Type THandler must have a valid constructor with the following signature: .ctor(IBus, IEventStore<T>, ISubscriptionInboxWriter)");
+            var processor = (THandler)processorConstructor.Invoke(new object[] { bus, eventStore, subscriptionWriter });
 
             // Register all in bus
             bus.Register(publisher, puller, processor, fsm);

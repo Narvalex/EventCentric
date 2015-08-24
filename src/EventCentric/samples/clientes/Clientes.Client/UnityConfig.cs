@@ -33,9 +33,9 @@ namespace Clientes.Client.App_Start
         /// change the defaults), as Unity allows resolving a concrete type even if it was not previously registered.</remarks>
         public static void RegisterTypes(IUnityContainer container)
         {
-            var node = ClientNodeFactory<TelefonicaAdminClient>.CreateNode(container);
-
-            node.Start();
+            ClientNodeFactory<TelefonicaAdminClient>
+                .CreateNode(container)
+                .Start();
 
             var app = new TelefonicaAdminClient(container.Resolve<IEventBus>());
             container.RegisterInstance<ITelefonicaAdminClient>(app);

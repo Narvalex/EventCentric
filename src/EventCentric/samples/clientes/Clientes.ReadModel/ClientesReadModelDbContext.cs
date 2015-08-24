@@ -14,7 +14,7 @@ namespace Clientes.ReadModel
             : base("Name=defaultConnection")
         { }
 
-        IDbSet<Cliente> Clientes { get; set; }
+        public IDbSet<Cliente> Clientes { get; set; }
     }
 
     public class Cliente

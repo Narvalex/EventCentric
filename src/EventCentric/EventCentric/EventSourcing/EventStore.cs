@@ -44,6 +44,28 @@ namespace EventCentric.EventSourcing
             this.originatorAggregateFactory = (id, memento) => (T)mementoConstructor.Invoke(new object[] { id, memento });
         }
 
+        public T Find(Guid id)
+        {
+            // get memento from cache
+            var cachedMemento = (Tuple<IMemento, DateTime?>)this.cache.Get(id.ToString());
+            if (cachedMemento == null || !cachedMemento.Item2.HasValue)
+            {
+                // Return from SQL Server;
+                using (var context = this.contextFactory.Invoke())
+                {
+                    var stream = context.Streams.Where(s => s.StreamId == id).SingleOrDefault();
+
+                    if (stream != null)
+                        cachedMemento = new Tuple<IMemento, DateTime?>(this.serializer.Deserialize<IMemento>(stream.Memento), null);
+                    else
+                        return null;
+                }
+            }
+
+            return this.originatorAggregateFactory.Invoke(id, cachedMemento.Item1);
+        }
+
+
         public T Get(Guid id)
         {
             // get memento from cache

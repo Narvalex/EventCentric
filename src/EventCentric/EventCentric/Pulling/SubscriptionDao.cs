@@ -23,7 +23,7 @@ namespace EventCentric.Pulling
 
                 if (sources.Any())
                     foreach (var s in sources)
-                        subscribedSources.Add(new SubscribedSource(s.StreamType, s.Url, s.StreamCollectionVersion));
+                        subscribedSources.Add(new SubscribedSource(s.StreamType.Trim(), s.Url.Trim(), s.StreamCollectionVersion));
 
                 return subscribedSources;
             }

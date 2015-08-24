@@ -85,12 +85,36 @@ namespace EventCentric.Processing
             });
         }
 
+        protected void CreateNewStreamIfNotExists(Guid id, IEvent @event)
+        {
+            this.HandleSafelyWithStreamLocking(id, () =>
+            {
+                var aggregate = this.store.Find(id);
+                if (aggregate == null)
+                    aggregate = this.newAggregateFactory(id);
+
+                this.HandleEventAndAppendToStore(aggregate, @event);
+            });
+        }
+
         protected void CreateNewStreamAndDenormalize(Guid id, IEvent @event)
         {
             this.HandleSafelyWithStreamLocking(id, () =>
             {
                 var aggregate = this.newAggregateFactory(id);
-                this.Denormalize(aggregate, @event);
+                this.DenormalizeEventAndSave(aggregate, @event);
+            });
+        }
+
+        protected void CreateNewStreamIfNotExistsAndDenormalize(Guid id, IEvent @event)
+        {
+            this.HandleSafelyWithStreamLocking(id, () =>
+            {
+                var aggregate = this.store.Find(id);
+                if (aggregate == null)
+                    aggregate = this.newAggregateFactory(id);
+
+                this.DenormalizeEventAndSave(aggregate, @event);
             });
         }
 
@@ -113,10 +137,15 @@ namespace EventCentric.Processing
             this.HandleSafelyWithStreamLocking(id, () =>
             {
                 var aggregate = this.store.Get(id);
-                this.Denormalize(aggregate, @event);
+                this.DenormalizeEventAndSave(aggregate, @event);
             });
         }
 
+        /// <summary>
+        /// The event processor owns this responsibility, since it is responsible to defent itself from 
+        /// poisonous messages. Also, the puller could notify that the event that is trying to pull is poisoned.
+        /// </summary>
+        /// <param name="message"></param>
         public void Handle(IncomingEventIsPoisoned message)
         {
             this.subscriptionWriter.LogPosisonedMessage(message.StreamType, message.StreamId, message.Exception);
@@ -148,7 +177,7 @@ namespace EventCentric.Processing
             this.PublishIncomingEventHasBeenProcessed(@event);
         }
 
-        private void Denormalize(T aggregate, IEvent @event)
+        private void DenormalizeEventAndSave(T aggregate, IEvent @event)
         {
             ((dynamic)aggregate).Handle((dynamic)@event);
             var streamCollectionVersion = this.store.Denormalize(aggregate, @event);

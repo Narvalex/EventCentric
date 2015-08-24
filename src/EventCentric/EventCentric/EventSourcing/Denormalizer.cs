@@ -3,9 +3,10 @@ using System;
 
 namespace EventCentric.EventSourcing
 {
-    public abstract class Denormalizer : EventSourced, IDenormalizer
+    public abstract class Denormalizer<T> : EventSourced, IDenormalizer
+        where T : IEventStoreDbContext
     {
-        protected Action<IEventStoreDbContext> denormalize = context => { };
+        private Action<T> denormalize = context => { };
 
         protected Denormalizer(Guid id)
             : base(id)
@@ -17,7 +18,16 @@ namespace EventCentric.EventSourcing
 
         public void Denormalize(IEventStoreDbContext context)
         {
-            this.denormalize(context);
+            this.denormalize((T)context);
         }
+
+        public void UpdateReadModel(Action<T> denormalize)
+        {
+            this.denormalize = denormalize;
+            base.Update(new ReadModelUpdated());
+        }
+
+        public void On(ReadModelUpdated e)
+        { }
     }
 }

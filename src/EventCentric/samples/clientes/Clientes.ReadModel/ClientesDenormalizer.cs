@@ -4,7 +4,7 @@ using System;
 
 namespace Clientes.ReadModel
 {
-    public class ClientesDenormalizer : Denormalizer,
+    public class ClientesDenormalizer : Denormalizer<ClientesReadModelDbContext>,
         IHandles<CuentaCreadaANuevoCliente>
     {
         public ClientesDenormalizer(Guid id)
@@ -17,7 +17,16 @@ namespace Clientes.ReadModel
 
         public void Handle(CuentaCreadaANuevoCliente e)
         {
-
+            base.UpdateReadModel(context =>
+            {
+                context.Clientes.Add(new Cliente
+                {
+                    Id = e.IdCliente,
+                    Nombre = e.Nombre,
+                    // This is a bad practice
+                    FechaIngreso = DateTime.Now
+                });
+            });
         }
     }
 }
