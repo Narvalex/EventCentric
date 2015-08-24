@@ -15,7 +15,7 @@ namespace EventCentric.Tests.Processing.Helpers
 
         public void Handle(TestQueuedEvent e)
         {
-            base.Publish(new TestEventHandled(e.Message));
+            base.Update(new TestEventHandled(e.Message));
         }
 
         public void On(TestEventHandled e)

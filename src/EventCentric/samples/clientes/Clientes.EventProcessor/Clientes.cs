@@ -18,7 +18,7 @@ namespace Clientes.EventProcessor
 
         public void Handle(SolicitudNuevoClienteRecibida e)
         {
-            base.Publish(new CuentaCreadaANuevoCliente
+            base.Update(new CuentaCreadaANuevoCliente
             {
                 Nombre = e.Nombre,
                 IdCliente = e.IdCliente

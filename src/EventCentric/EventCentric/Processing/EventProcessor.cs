@@ -85,6 +85,15 @@ namespace EventCentric.Processing
             });
         }
 
+        protected void CreateNewStreamAndDenormalize(Guid id, IEvent @event)
+        {
+            this.HandleSafelyWithStreamLocking(id, () =>
+            {
+                var aggregate = this.newAggregateFactory(id);
+                this.Denormalize(aggregate, @event);
+            });
+        }
+
         /// <summary>
         /// Gets a stream from the store to hydrate the event sourced aggregate of <see cref="T"/>.
         /// </summary>
@@ -96,6 +105,15 @@ namespace EventCentric.Processing
             {
                 var aggregate = this.store.Get(id);
                 this.HandleEventAndAppendToStore(aggregate, @event);
+            });
+        }
+
+        protected void Denormalize(Guid id, IEvent @event)
+        {
+            this.HandleSafelyWithStreamLocking(id, () =>
+            {
+                var aggregate = this.store.Get(id);
+                this.Denormalize(aggregate, @event);
             });
         }
 
@@ -126,6 +144,14 @@ namespace EventCentric.Processing
         {
             ((dynamic)aggregate).Handle((dynamic)@event);
             var streamCollectionVersion = this.store.Save(aggregate, @event);
+            this.bus.Publish(new StreamHasBeenUpdated(aggregate.Id, aggregate.Version, streamCollectionVersion));
+            this.PublishIncomingEventHasBeenProcessed(@event);
+        }
+
+        private void Denormalize(T aggregate, IEvent @event)
+        {
+            ((dynamic)aggregate).Handle((dynamic)@event);
+            var streamCollectionVersion = this.store.Denormalize(aggregate, @event);
             this.bus.Publish(new StreamHasBeenUpdated(aggregate.Id, aggregate.Version, streamCollectionVersion));
             this.PublishIncomingEventHasBeenProcessed(@event);
         }

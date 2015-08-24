@@ -35,7 +35,7 @@ namespace EventCentric.EventSourcing
             get { return this.pendingEvents.ToArray(); }
         }
 
-        protected void Publish(Event @event)
+        protected void Update(Event @event)
         {
             @event.StreamId = this.id;
             @event.Version = this.version + 1;
@@ -44,10 +44,10 @@ namespace EventCentric.EventSourcing
             this.pendingEvents.Add(@event);
         }
 
-        protected void Publish(params Event[] events)
+        protected void Update(params Event[] events)
         {
             foreach (var @event in events)
-                this.Publish(@event);
+                this.Update(@event);
         }
 
         public virtual IMemento SaveToMemento()
