@@ -19,12 +19,20 @@ namespace EventCentric.Publishing
         {
             using (var context = this.contextFactory())
             {
-                return context
-                        .Events
-                        .Where(e => e.StreamId == streamId && e.Version > previousVersion)
-                        .OrderBy(e => e.Version)
-                        .First()
-                        .Payload;
+                try
+                {
+                    return context
+                            .Events
+                            .Where(e => e.StreamId == streamId && e.Version > previousVersion)
+                            .OrderBy(e => e.Version)
+                            .First()
+                            .Payload;
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex);
+                    throw;
+                }
             }
         }
 

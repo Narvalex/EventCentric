@@ -18,7 +18,7 @@ namespace EventCentric.Pulling
         IMessageHandler<StartEventPuller>,
         IMessageHandler<StopEventPuller>,
         IMessageHandler<IncomingEventHasBeenProcessed>,
-        IMessageHandler<IncomingMessageIsPoisoned>
+        IMessageHandler<IncomingEventIsPoisoned>
     {
         private readonly ISubscriptionDao dao;
         private readonly IHttpPoller poller;
@@ -59,7 +59,7 @@ namespace EventCentric.Pulling
             subscription.ExitBusy();
         }
 
-        public void Handle(IncomingMessageIsPoisoned message)
+        public void Handle(IncomingEventIsPoisoned message)
         {
             this.subscribedStreams
                 .Where(s => s.StreamId == message.StreamId && s.StreamType == message.StreamType)
@@ -152,7 +152,7 @@ namespace EventCentric.Pulling
         private void PollEvents(PollEventsDto dto)
         {
             // Fill the request with the formatter
-            var uri = dto.Url + "/eventsource/streams";
+            var uri = dto.Url + "/eventsource/events";
 
             dto.ProcessedStreams.ForEach(s =>
                 uri = $"{uri}/{s.Key.ToString()}/{s.Value.ToString()}");
@@ -163,46 +163,52 @@ namespace EventCentric.Pulling
             for (int i = 0; i < freeSlots; i++)
                 uri = $"{uri}/{default(string).EncodedEmptyString()}/0";
 
-            try
-            {
-                var response = this.poller.PollEvents(uri);
+            var response = this.poller.PollEvents(uri);
 
-                response.Events.ForEach(e =>
-                {
-                    if (e.IsNewEvent)
-                        this.bus.Publish(new NewIncomingEvent(this.serializer.Deserialize<IEvent>(e.Payload)));
-                    else
-                        this.subscribedStreams
-                            .Where(s => s.StreamType == e.StreamType && s.StreamId == e.StreamId)
-                            .Single()
-                            .ExitBusy();
-                });
-            }
-            catch (Exception ex)
+            response.Events.ForEach(e =>
             {
-                foreach (var sub in dto.ProcessedStreams)
-                    this.bus.Publish(new IncomingMessageIsPoisoned(dto.StreamType, sub.Key, new PoisonMessageException("Poisoned message detected in Event Puller.", ex)));
-                return;
-            }
+                if (e.IsNewEvent)
+                    try
+                    {
+                        // Make a retry logic to avoid mark every error to as a poisoned message.
+                        this.bus.Publish(new NewIncomingEvent(this.serializer.Deserialize<IEvent>(e.Payload)));
+                    }
+                    catch (Exception ex)
+                    {
+                        foreach (var sub in dto.ProcessedStreams)
+                            this.bus.Publish(new IncomingEventIsPoisoned(dto.StreamType, sub.Key, new PoisonMessageException("Poisoned message detected in Event Puller.", ex)));
+                    }
+                else
+                    this.subscribedStreams
+                        .Where(s => s.StreamType == e.StreamType && s.StreamId == e.StreamId)
+                        .Single()
+                        .ExitBusy();
+            });
+
         }
 
         private void PollStreams(SubscribedSource source)
         {
-            var response = this.poller.PollStreams($"{source.Url}/eventsource/events/{source.StreamCollectionVersion}");
+            var response = this.poller.PollStreams($"{source.Url}/eventsource/streams/{source.StreamCollectionVersion}");
             if (response.NewStreamWasFound)
             {
-                this.writer.CreateNewSubscription(source.StreamType, response.NewStreamId.Value, response.UpdatedStreamCollectionVersion.Value);
+                try
+                {
+                    this.writer.CreateNewSubscription(source.StreamType, response.NewStreamId.Value, response.UpdatedStreamCollectionVersion.Value);
 
-                // Updating source stream collection version, hoping reference type works
-                source.TryUpdateStreamCollectionVersion(response.UpdatedStreamCollectionVersion.Value);
-                // Adding a new subscription
-                this.subscribedStreams.Add(new SubscribedStream(source.StreamType, response.NewStreamId.Value, 0, false));
+                    // Updating source stream collection version, hoping reference type works
+                    source.TryUpdateStreamCollectionVersion(response.UpdatedStreamCollectionVersion.Value);
+                    // Adding a new subscription
+                    this.subscribedStreams.Add(new SubscribedStream(source.StreamType, response.NewStreamId.Value, 0, false));
+                }
+                catch (Exception)
+                { }
             }
-            else
-                this.subscribedSources
-                    .Where(s => s.StreamType == source.StreamType)
-                    .Single()
-                    .ExitBusy();
+
+            this.subscribedSources
+                .Where(s => s.StreamType == source.StreamType)
+                .Single()
+                .ExitBusy();
         }
     }
 }

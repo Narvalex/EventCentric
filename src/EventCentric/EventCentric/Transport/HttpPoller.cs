@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Net.Http;
 
 namespace EventCentric.Transport
@@ -9,8 +10,19 @@ namespace EventCentric.Transport
         {
             using (var client = new HttpClient())
             {
-                var response = client.GetAsync(url).Result;
-                return response.Content.ReadAsAsync<PollEventsResponse>().Result;
+                try
+                {
+                    var response = client.GetAsync(url).Result;
+                    if (response.IsSuccessStatusCode)
+                        return response.Content.ReadAsAsync<PollEventsResponse>().Result;
+                    else
+                        return new PollEventsResponse(new List<PolledEventData> { new PolledEventData("", Guid.Empty, false, "") });
+                }
+                catch (Exception)
+                {
+                    return new PollEventsResponse(new List<PolledEventData> { new PolledEventData("", Guid.Empty, false, "") });
+                }
+
             }
         }
 
@@ -21,7 +33,10 @@ namespace EventCentric.Transport
                 try
                 {
                     var response = client.GetAsync(url).Result;
-                    return response.Content.ReadAsAsync<PollStreamsResponse>().Result;
+                    if (response.IsSuccessStatusCode)
+                        return response.Content.ReadAsAsync<PollStreamsResponse>().Result;
+                    else
+                        return new PollStreamsResponse(false, null, null);
                 }
                 catch (Exception)
                 {

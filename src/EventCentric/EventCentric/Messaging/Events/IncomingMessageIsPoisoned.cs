@@ -3,9 +3,9 @@ using System;
 
 namespace EventCentric.Messaging.Events
 {
-    public class IncomingMessageIsPoisoned : IMessage
+    public class IncomingEventIsPoisoned : IMessage
     {
-        public IncomingMessageIsPoisoned(string streamType, Guid streamId, PoisonMessageException exception)
+        public IncomingEventIsPoisoned(string streamType, Guid streamId, PoisonMessageException exception)
         {
             this.StreamType = streamType;
             this.StreamId = streamId;

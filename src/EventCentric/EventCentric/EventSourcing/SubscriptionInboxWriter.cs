@@ -82,6 +82,10 @@ namespace EventCentric.EventSourcing
                     CreationDate = now,
                     IsPoisoned = false
                 };
+
+                context.Subscriptions.Add(subscription);
+
+                context.SaveChanges();
             }
         }
 

@@ -21,7 +21,7 @@ namespace EventCentric.Processing
         IMessageHandler<StartEventProcessor>,
         IMessageHandler<StopEventProcessor>,
         IMessageHandler<NewIncomingEvent>,
-        IMessageHandler<IncomingMessageIsPoisoned>
+        IMessageHandler<IncomingEventIsPoisoned>
             where T : class, IEventSourced
     {
         private readonly IEventStore<T> store;
@@ -55,7 +55,7 @@ namespace EventCentric.Processing
             }
             catch (Exception ex)
             {
-                this.bus.Publish(new IncomingMessageIsPoisoned(message.Event.StreamType, message.Event.StreamId, new PoisonMessageException("Poison message detected in Event Processor", ex)));
+                this.bus.Publish(new IncomingEventIsPoisoned(message.Event.StreamType, message.Event.StreamId, new PoisonMessageException("Poison message detected in Event Processor", ex)));
             }
         }
 
@@ -99,7 +99,7 @@ namespace EventCentric.Processing
             });
         }
 
-        public void Handle(IncomingMessageIsPoisoned message)
+        public void Handle(IncomingEventIsPoisoned message)
         {
             this.subscriptionWriter.LogPosisonedMessage(message.StreamType, message.StreamId, message.Exception);
         }
