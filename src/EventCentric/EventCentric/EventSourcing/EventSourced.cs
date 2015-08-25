@@ -55,9 +55,9 @@ namespace EventCentric.EventSourcing
             return new Memento { Version = this.version };
         }
 
-        internal class Memento : IMemento
+        public class Memento : IMemento
         {
-            public int Version { get; internal set; }
+            public int Version { get; set; }
         }
     }
 }

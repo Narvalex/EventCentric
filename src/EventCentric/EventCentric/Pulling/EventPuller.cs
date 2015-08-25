@@ -75,7 +75,12 @@ namespace EventCentric.Pulling
             this.subscribedSources = this.dao.GetSubscribedSources();
             Task.Factory.StartNewLongRunning(
                 // This could be a source of troubles....
-                () => this.PollEventSources()
+                () => this.PollNewEvents()
+            );
+
+            Task.Factory.StartNewLongRunning(
+                // This could be a source of troubles....
+                () => this.PollNewStreams()
             );
 
             // Ensure to start everything;
@@ -88,17 +93,35 @@ namespace EventCentric.Pulling
             this.bus.Publish(new EventPullerStopped());
         }
 
-        private void PollEventSources()
+        private void PollNewStreams()
         {
             while (!this.stopping)
             {
-                var pollerIsbusy = new Tuple<bool, bool>(false, false);
+                // Poll sources
+                var pendingSourceSubscriptions = subscribedSources.Where(s => !s.IsBusy);
 
+                if (!pendingSourceSubscriptions.Any())
+                    Thread.Sleep(100);
+                else
+                {
+                    foreach (var subscription in pendingSourceSubscriptions)
+                    {
+                        subscription.EnterBusy();
+                        Task.Factory.StartNewLongRunning(() => PollStreams(subscription));
+                    }
+                }
+            }
+        }
+
+        private void PollNewEvents()
+        {
+            while (!this.stopping)
+            {
                 var pendingStreamSubscriptions = subscribedStreams.Where(s => !s.IsBusy && !s.IsPoisoned);
 
                 // Poll subscriptions
                 if (!pendingStreamSubscriptions.Any())
-                    pollerIsbusy = new Tuple<bool, bool>(true, pollerIsbusy.Item2);
+                    Thread.Sleep(100);
                 else
                 {
                     // Build request.
@@ -134,23 +157,6 @@ namespace EventCentric.Pulling
                     // Send requests async for the last ones
                     dtos.ForEach(dto => Task.Factory.StartNewLongRunning(() => PollEvents(dto)));
                 }
-
-                // Poll sources
-                var pendingSourceSubscriptions = subscribedSources.Where(s => !s.IsBusy);
-
-                if (!pendingSourceSubscriptions.Any())
-                    pollerIsbusy = new Tuple<bool, bool>(pollerIsbusy.Item1, true);
-                else
-                {
-                    foreach (var subscription in pendingSourceSubscriptions)
-                    {
-                        subscription.EnterBusy();
-                        Task.Factory.StartNewLongRunning(() => PollStreams(subscription));
-                    }
-                }
-
-                if (pollerIsbusy.Item1 && pollerIsbusy.Item2)
-                    Thread.Sleep(100);
             }
         }
 
