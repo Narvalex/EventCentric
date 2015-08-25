@@ -24,6 +24,12 @@ namespace Clientes.Tests
             this.CreateStreams(100);
         }
 
+        [TestMethod]
+        public void Can_create_500_streams()
+        {
+            this.CreateStreams(500);
+        }
+
         private void CreateStreams(int quantity)
         {
             using (var http = new HttpClient())

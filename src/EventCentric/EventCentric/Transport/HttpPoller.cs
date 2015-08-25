@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Net.Http;
 
 namespace EventCentric.Transport
@@ -16,11 +15,11 @@ namespace EventCentric.Transport
                     if (response.IsSuccessStatusCode)
                         return response.Content.ReadAsAsync<PollEventsResponse>().Result;
                     else
-                        return new PollEventsResponse(new List<PolledEventData> { new PolledEventData("", Guid.Empty, false, "") });
+                        return new PollEventsResponse(false, null);
                 }
-                catch (Exception)
+                catch
                 {
-                    return new PollEventsResponse(new List<PolledEventData> { new PolledEventData("", Guid.Empty, false, "") });
+                    return new PollEventsResponse(false, null);
                 }
 
             }
@@ -38,7 +37,7 @@ namespace EventCentric.Transport
                     else
                         return new PollStreamsResponse(false, null, null);
                 }
-                catch (Exception)
+                catch
                 {
                     return new PollStreamsResponse(false, null, null);
                 }

@@ -5,10 +5,10 @@ namespace EventCentric.Transport
 {
     public class PollEventsDto
     {
-        public PollEventsDto(string streamType, string url, Guid streamId, int version)
+        public PollEventsDto(string streamType, string baseUrl, Guid streamId, int version)
         {
             this.StreamType = streamType;
-            this.Url = url;
+            this.BaseUrlForPolling = baseUrl;
             this.ProcessedStreams = new List<KeyValuePair<Guid, int>>(5);
             this.Add(streamId, version);
         }
@@ -19,7 +19,7 @@ namespace EventCentric.Transport
         }
 
         public string StreamType { get; private set; }
-        public string Url { get; private set; }
+        public string BaseUrlForPolling { get; private set; }
         public List<KeyValuePair<Guid, int>> ProcessedStreams { get; private set; }
     }
 }

@@ -34,7 +34,7 @@ namespace EventCentric.Tests.Pulling.Helpers
                 list.Add(new PolledEventData("Clients", this.streamId, false, string.Empty));
 
 
-            return new PollEventsResponse(list);
+            return new PollEventsResponse(true, list);
         }
 
         public PollStreamsResponse PollStreams(string url)

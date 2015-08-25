@@ -71,7 +71,7 @@ namespace EventCentric.Publishing
                 }
             });
 
-            return new PollEventsResponse(responseList);
+            return new PollEventsResponse(true, responseList);
         }
 
         public PollStreamsResponse PollStreams(PollStreamsRequest request)

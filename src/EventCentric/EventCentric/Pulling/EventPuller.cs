@@ -157,7 +157,7 @@ namespace EventCentric.Pulling
         private void PollEvents(PollEventsDto dto)
         {
             // Fill the request with the formatter
-            var uri = dto.Url + "/eventsource/events";
+            var uri = dto.BaseUrlForPolling + "/eventsource/events";
 
             dto.ProcessedStreams.ForEach(s =>
                 uri = $"{uri}/{s.Key.ToString()}/{s.Value.ToString()}");
@@ -169,6 +169,17 @@ namespace EventCentric.Pulling
                 uri = $"{uri}/{default(string).EncodedEmptyString()}/0";
 
             var response = this.poller.PollEvents(uri);
+
+            if (!response.PollingWasSuccessful)
+            {
+                dto.ProcessedStreams.ForEach(s =>
+                this.subscribedStreams
+                    .Where(subscribedStream => subscribedStream.StreamType == dto.StreamType && s.Key == subscribedStream.StreamId)
+                    .Single()
+                    .ExitBusy());
+
+                return;
+            }
 
             response.Events.ForEach(e =>
             {
@@ -184,18 +195,10 @@ namespace EventCentric.Pulling
                             this.bus.Publish(new IncomingEventIsPoisoned(dto.StreamType, sub.Key, new PoisonMessageException("Poisoned message detected in Event Puller.", ex)));
                     }
                 else
-                    try
-                    {
-                        this.subscribedStreams
-                                       .Where(s => s.StreamType == e.StreamType && s.StreamId == e.StreamId)
-                                       .Single()
-                                       .ExitBusy();
-                    }
-                    catch (Exception ex)
-                    {
-
-                        throw;
-                    }
+                    this.subscribedStreams
+                                   .Where(s => s.StreamType == e.StreamType && s.StreamId == e.StreamId)
+                                   .Single()
+                                   .ExitBusy();
             });
 
         }
@@ -217,19 +220,10 @@ namespace EventCentric.Pulling
                 catch (Exception)
                 { }
             }
-
-            try
-            {
-                this.subscribedSources
-                        .Where(s => s.StreamType == source.StreamType)
-                        .Single()
-                        .ExitBusy();
-            }
-            catch (Exception ex)
-            {
-
-                throw;
-            }
+            this.subscribedSources
+                    .Where(s => s.StreamType == source.StreamType)
+                    .Single()
+                    .ExitBusy();
         }
     }
 }
