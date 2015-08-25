@@ -8,11 +8,10 @@ namespace EventCentric.Transport
     {
         public PollEventsResponse PollEvents(string url)
         {
-            using (var client = new HttpClient())
+            using (var client = this.CreateHttpClient())
             {
                 try
                 {
-                    var timeout = client.Timeout;
                     var response = client.GetAsync(url).Result;
                     if (response.IsSuccessStatusCode)
                         return response.Content.ReadAsAsync<PollEventsResponse>().Result;
@@ -29,11 +28,10 @@ namespace EventCentric.Transport
 
         public PollStreamsResponse PollStreams(string url)
         {
-            using (var client = new HttpClient())
+            using (var client = this.CreateHttpClient())
             {
                 try
                 {
-                    var timeout = client.Timeout;
                     var response = client.GetAsync(url).Result;
                     if (response.IsSuccessStatusCode)
                         return response.Content.ReadAsAsync<PollStreamsResponse>().Result;
@@ -46,6 +44,13 @@ namespace EventCentric.Transport
                 }
 
             }
+        }
+
+        private HttpClient CreateHttpClient()
+        {
+            var client = new HttpClient();
+            client.Timeout = new TimeSpan(0, 0, 30);
+            return client;
         }
     }
 }

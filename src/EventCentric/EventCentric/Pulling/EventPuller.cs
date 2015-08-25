@@ -73,7 +73,10 @@ namespace EventCentric.Pulling
         {
             this.subscribedStreams = this.dao.GetSubscribedStreamsOrderedByStreamName();
             this.subscribedSources = this.dao.GetSubscribedSources();
-            Task.Factory.StartNewLongRunning(() => this.PollEventSources());
+            Task.Factory.StartNewLongRunning(
+                // This could be a source of troubles....
+                () => this.PollEventSources()
+            );
 
             // Ensure to start everything;
             this.bus.Publish(new EventPullerStarted());
@@ -181,10 +184,18 @@ namespace EventCentric.Pulling
                             this.bus.Publish(new IncomingEventIsPoisoned(dto.StreamType, sub.Key, new PoisonMessageException("Poisoned message detected in Event Puller.", ex)));
                     }
                 else
-                    this.subscribedStreams
-                        .Where(s => s.StreamType == e.StreamType && s.StreamId == e.StreamId)
-                        .Single()
-                        .ExitBusy();
+                    try
+                    {
+                        this.subscribedStreams
+                                       .Where(s => s.StreamType == e.StreamType && s.StreamId == e.StreamId)
+                                       .Single()
+                                       .ExitBusy();
+                    }
+                    catch (Exception ex)
+                    {
+
+                        throw;
+                    }
             });
 
         }
@@ -207,10 +218,18 @@ namespace EventCentric.Pulling
                 { }
             }
 
-            this.subscribedSources
-                .Where(s => s.StreamType == source.StreamType)
-                .Single()
-                .ExitBusy();
+            try
+            {
+                this.subscribedSources
+                        .Where(s => s.StreamType == source.StreamType)
+                        .Single()
+                        .ExitBusy();
+            }
+            catch (Exception ex)
+            {
+
+                throw;
+            }
         }
     }
 }
