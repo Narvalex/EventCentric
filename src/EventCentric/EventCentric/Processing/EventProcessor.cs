@@ -20,8 +20,7 @@ namespace EventCentric.Processing
     public abstract class EventProcessor<T> : FSM,
         IMessageHandler<StartEventProcessor>,
         IMessageHandler<StopEventProcessor>,
-        IMessageHandler<NewIncomingEvent>,
-        IMessageHandler<IncomingEventIsPoisoned>
+        IMessageHandler<NewIncomingEvent>
             where T : class, IEventSourced
     {
         private readonly IEventStore<T> store;
@@ -97,27 +96,6 @@ namespace EventCentric.Processing
             });
         }
 
-        protected void CreateNewStreamAndDenormalize(Guid id, IEvent @event)
-        {
-            this.HandleSafelyWithStreamLocking(id, () =>
-            {
-                var aggregate = this.newAggregateFactory(id);
-                this.DenormalizeEventAndSave(aggregate, @event);
-            });
-        }
-
-        protected void CreateNewStreamIfNotExistsAndDenormalize(Guid id, IEvent @event)
-        {
-            this.HandleSafelyWithStreamLocking(id, () =>
-            {
-                var aggregate = this.store.Find(id);
-                if (aggregate == null)
-                    aggregate = this.newAggregateFactory(id);
-
-                this.DenormalizeEventAndSave(aggregate, @event);
-            });
-        }
-
         /// <summary>
         /// Gets a stream from the store to hydrate the event sourced aggregate of <see cref="T"/>.
         /// </summary>
@@ -130,25 +108,6 @@ namespace EventCentric.Processing
                 var aggregate = this.store.Get(id);
                 this.HandleEventAndAppendToStore(aggregate, @event);
             });
-        }
-
-        protected void Denormalize(Guid id, IEvent @event)
-        {
-            this.HandleSafelyWithStreamLocking(id, () =>
-            {
-                var aggregate = this.store.Get(id);
-                this.DenormalizeEventAndSave(aggregate, @event);
-            });
-        }
-
-        /// <summary>
-        /// The event processor owns this responsibility, since it is responsible to defent itself from 
-        /// poisonous messages. Also, the puller could notify that the event that is trying to pull is poisoned.
-        /// </summary>
-        /// <param name="message"></param>
-        public void Handle(IncomingEventIsPoisoned message)
-        {
-            this.subscriptionWriter.LogPosisonedMessage(message.StreamType, message.StreamId, message.Exception);
         }
 
         /// <summary>
@@ -173,14 +132,6 @@ namespace EventCentric.Processing
         {
             ((dynamic)aggregate).Handle((dynamic)@event);
             var streamCollectionVersion = this.store.Save(aggregate, @event);
-            this.bus.Publish(new StreamHasBeenUpdated(aggregate.Id, aggregate.Version, streamCollectionVersion));
-            this.PublishIncomingEventHasBeenProcessed(@event);
-        }
-
-        private void DenormalizeEventAndSave(T aggregate, IEvent @event)
-        {
-            ((dynamic)aggregate).Handle((dynamic)@event);
-            var streamCollectionVersion = this.store.Denormalize(aggregate, @event);
             this.bus.Publish(new StreamHasBeenUpdated(aggregate.Id, aggregate.Version, streamCollectionVersion));
             this.PublishIncomingEventHasBeenProcessed(@event);
         }

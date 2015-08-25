@@ -33,7 +33,7 @@ namespace Clientes.ReadModel.App_Start
         public static void RegisterTypes(IUnityContainer container)
         {
             NodeFactory<ClientesDenormalizer, ClientesDenormalizerHandler>
-                .CreateNode(container)
+                .CreateDenormalizerNode<ClientesReadModelDbContext>(container)
                 .Start();
         }
     }

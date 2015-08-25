@@ -15,7 +15,7 @@ namespace Clientes.ReadModel
 
         public void Handle(CuentaCreadaANuevoCliente @event)
         {
-            base.CreateNewStreamIfNotExistsAndDenormalize(Guid.Empty, @event);
+            base.CreateNewStreamIfNotExists(Guid.Empty, @event);
         }
     }
 }

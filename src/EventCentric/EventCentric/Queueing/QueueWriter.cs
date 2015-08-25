@@ -62,7 +62,7 @@ namespace EventCentric.Queueing
                     });
 
                 context.AddOrUpdate(
-                    finder: () => context.Streams.Where(s => s.StreamId == @event.StreamId).SingleOrDefault(),
+                    find: () => context.Streams.Where(s => s.StreamId == @event.StreamId).SingleOrDefault(),
                     add: () => new StreamEntity
                     {
                         StreamId = @event.StreamId,

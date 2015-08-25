@@ -1,5 +1,4 @@
 using EventCentric.Repository.Mapping;
-using System;
 using System.Data.Entity;
 
 namespace EventCentric.Repository
@@ -28,19 +27,6 @@ namespace EventCentric.Repository
             modelBuilder.Configurations.Add(new StreamEntityMap());
             modelBuilder.Configurations.Add(new SubscriptionEntityMap());
             modelBuilder.Configurations.Add(new SubscribedSourceEntityMap());
-        }
-
-        public void AddOrUpdate<T>(Func<T> finder, Func<T> add, Action<T> update) where T : class
-        {
-            var entity = finder.Invoke();
-
-            if (entity == null)
-            {
-                entity = add.Invoke();
-                this.Set<T>().Add(entity);
-            }
-            else
-                update.Invoke(entity);
         }
     }
 }

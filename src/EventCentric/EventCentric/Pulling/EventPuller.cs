@@ -61,6 +61,8 @@ namespace EventCentric.Pulling
 
         public void Handle(IncomingEventIsPoisoned message)
         {
+            this.writer.LogPosisonedMessage(message.StreamType, message.StreamId, message.Exception);
+
             this.subscribedStreams
                 .Where(s => s.StreamId == message.StreamId && s.StreamType == message.StreamType)
                 .Single()

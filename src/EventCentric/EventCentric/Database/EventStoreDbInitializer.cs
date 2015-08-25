@@ -53,6 +53,7 @@ IF NOT EXISTS (SELECT name FROM sys.databases WHERE name = N'{0}') CREATE DATABA
             }
         }
 
+        #region EventStore.Events
         private const string EventsCreateTableScript =
 @"-- Events
 IF NOT EXISTS (SELECT * FROM sys.schemas WHERE name = N'EventStore')
@@ -75,7 +76,9 @@ PRIMARY KEY CLUSTERED
     [Version] ASC
 )WITH (PAD_INDEX  = OFF, STATISTICS_NORECOMPUTE  = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS  = ON, ALLOW_PAGE_LOCKS  = ON) ON [PRIMARY]
 ) ON [PRIMARY];";
+        #endregion
 
+        #region EventStore.Streams
         private const string StreamsCreateTableScript =
 @"--Streams
 IF NOT EXISTS(SELECT* FROM sys.objects WHERE object_id = OBJECT_ID(N'[EventStore].[Streams]') AND type in (N'U'))
@@ -91,7 +94,9 @@ PRIMARY KEY CLUSTERED
     [StreamId] ASC
 )WITH(PAD_INDEX  = OFF, STATISTICS_NORECOMPUTE  = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS  = ON, ALLOW_PAGE_LOCKS  = ON) ON[PRIMARY]
 ) ON[PRIMARY];";
+        #endregion
 
+        #region EventStore.Subscriptions
         private const string SubscriptionsCreateTableScript =
 @"-- Subscriptions
 IF NOT EXISTS(SELECT* FROM sys.objects WHERE object_id = OBJECT_ID(N'[EventStore].[Subscriptions]') AND type in (N'U'))
@@ -109,7 +114,9 @@ PRIMARY KEY CLUSTERED
     [StreamId] ASC
 )WITH(PAD_INDEX  = OFF, STATISTICS_NORECOMPUTE  = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS  = ON, ALLOW_PAGE_LOCKS  = ON) ON[PRIMARY]
 ) ON[PRIMARY];";
+        #endregion
 
+        #region EventStore.SubscribedSources
         private const string SubscribedSourcesCreateTableScript =
 @"-- Subscribed sources
 IF NOT EXISTS(SELECT* FROM sys.objects WHERE object_id = OBJECT_ID(N'[EventStore].[SubscribedSources]') AND type in (N'U'))
@@ -122,8 +129,9 @@ PRIMARY KEY CLUSTERED
     [StreamType] ASC
 )WITH(PAD_INDEX  = OFF, STATISTICS_NORECOMPUTE  = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS  = ON, ALLOW_PAGE_LOCKS  = ON) ON[PRIMARY]
 ) ON[PRIMARY];";
+        #endregion
 
-
+        #region EventStore.Inbox
         private const string InboxCreateTableScript =
 @"-- Inbox
 IF NOT EXISTS(SELECT* FROM sys.objects WHERE object_id = OBJECT_ID(N'[EventStore].[Inbox]') AND type in (N'U'))
@@ -145,6 +153,6 @@ PRIMARY KEY CLUSTERED
 )WITH(PAD_INDEX  = OFF, STATISTICS_NORECOMPUTE  = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS  = ON, ALLOW_PAGE_LOCKS  = ON) ON[PRIMARY]
 ) ON[PRIMARY];
 ";
-
+        #endregion
     }
 }

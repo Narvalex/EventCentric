@@ -26,7 +26,5 @@ namespace EventCentric.EventSourcing
         /// <param name="correlatedEvent">The correlated <see cref="IEvent"/></param>
         /// <returns>The stream collection version.</returns>
         int Save(T eventSourced, IEvent correlatedEvent);
-
-        int Denormalize(T eventSourced, IEvent correlatedEvent);
     }
 }

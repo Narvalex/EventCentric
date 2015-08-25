@@ -47,7 +47,7 @@ namespace EventCentric.EventSourcing
             context.Inbox.Add(message);
 
             context.AddOrUpdate(
-                finder: () => context
+                find: () => context
                                     .Subscriptions
                                     .Where(s => s.StreamId == @event.StreamId && s.StreamType == @event.StreamType)
                                     .SingleOrDefault(),
@@ -68,7 +68,7 @@ namespace EventCentric.EventSourcing
                 // Updating the source table
                 context.AddOrUpdate(
                     // there must be a subscribed source to create a subscription
-                    finder: () => context.SubscribedSources.Where(s => s.StreamType == streamType).Single(),
+                    find: () => context.SubscribedSources.Where(s => s.StreamType == streamType).Single(),
                     add: () => { throw new InvalidOperationException("Subscribed source does not exist!"); },
                     update: source => source.StreamCollectionVersion = updatedStreamCollectionVersion > source.StreamCollectionVersion ? updatedStreamCollectionVersion : source.StreamCollectionVersion);
 
@@ -94,7 +94,7 @@ namespace EventCentric.EventSourcing
             using (var context = this.contextFactory.Invoke())
             {
                 context.AddOrUpdate(
-                    finder: () => context
+                    find: () => context
                                     .Subscriptions
                                     .Where(s => s.StreamType == streamType && s.StreamId == streamId)
                                     .Single(),

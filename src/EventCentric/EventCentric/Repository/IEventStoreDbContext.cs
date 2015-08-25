@@ -14,8 +14,6 @@ namespace EventCentric.Repository
 
         IDbSet<InboxEntity> Inbox { get; }
 
-        void AddOrUpdate<T>(Func<T> finder, Func<T> add, Action<T> update) where T : class;
-
         int SaveChanges();
     }
 }

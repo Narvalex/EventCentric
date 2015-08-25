@@ -12,6 +12,7 @@ namespace EventCentric.Transport
             {
                 try
                 {
+                    var timeout = client.Timeout;
                     var response = client.GetAsync(url).Result;
                     if (response.IsSuccessStatusCode)
                         return response.Content.ReadAsAsync<PollEventsResponse>().Result;
@@ -32,6 +33,7 @@ namespace EventCentric.Transport
             {
                 try
                 {
+                    var timeout = client.Timeout;
                     var response = client.GetAsync(url).Result;
                     if (response.IsSuccessStatusCode)
                         return response.Content.ReadAsAsync<PollStreamsResponse>().Result;
