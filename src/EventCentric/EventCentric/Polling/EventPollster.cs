@@ -10,15 +10,15 @@ using System.Threading.Tasks;
 namespace EventCentric.Pulling
 {
     public class EventPollster : FSM,
-        IMessageHandler<StartEventPuller>,
-        IMessageHandler<StopEventPuller>,
+        IMessageHandler<StartEventPollster>,
+        IMessageHandler<StopEventPollster>,
         IMessageHandler<IncomingEventHasBeenProcessed>,
         IMessageHandler<IncomingEventIsPoisoned>
     {
         private readonly EventBuffer buffer;
         private readonly ProcessorProxy proxy;
 
-        protected EventPollster(IBus bus, EventBuffer buffer, ProcessorProxy proxy)
+        public EventPollster(IBus bus, EventBuffer buffer, ProcessorProxy proxy)
             : base(bus)
         {
             Ensure.NotNull(buffer, "buffer");
@@ -28,12 +28,12 @@ namespace EventCentric.Pulling
             this.proxy = proxy;
         }
 
-        public void Handle(StopEventPuller message)
+        public void Handle(StopEventPollster message)
         {
             base.Stop();
         }
 
-        public void Handle(StartEventPuller message)
+        public void Handle(StartEventPollster message)
         {
             base.Start();
         }

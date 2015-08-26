@@ -1,6 +1,6 @@
 ﻿namespace EventCentric.Messaging.Commands
 {
-    public class StopEventPuller : IMessage { }
+    public class StopEventPollster : IMessage { }
 
     public class StopEventProcessor : IMessage { }
 

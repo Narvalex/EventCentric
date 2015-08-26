@@ -1,19 +1,13 @@
 ﻿using EventCentric.Messaging;
-using EventCentric.Utils;
 using System;
 
 namespace EventCentric.Polling
 {
-    public class ProcessorProxy
+    public class ProcessorProxy : Worker
     {
-        private readonly IBus bus;
-
         public ProcessorProxy(IBus bus)
-        {
-            Ensure.NotNull(bus, "bus");
-
-            this.bus = bus;
-        }
+            : base(bus)
+        { }
 
         public bool TryPushEvents()
         {

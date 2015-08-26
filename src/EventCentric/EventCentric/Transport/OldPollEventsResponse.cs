@@ -2,9 +2,9 @@
 
 namespace EventCentric.Transport
 {
-    public class PollEventsResponse
+    public class OldPollEventsResponse
     {
-        public PollEventsResponse(bool pollingWasSuccessful, List<PolledEventData> events)
+        public OldPollEventsResponse(bool pollingWasSuccessful, List<OldPolledEventData> events)
         {
             this.PollingWasSuccessful = pollingWasSuccessful;
             this.Events = events;
@@ -12,6 +12,6 @@ namespace EventCentric.Transport
 
         public bool PollingWasSuccessful { get; private set; }
 
-        public List<PolledEventData> Events { get; private set; }
+        public List<OldPolledEventData> Events { get; private set; }
     }
 }

@@ -3,7 +3,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Linq;
 
-namespace EventCentric.Pulling
+namespace EventCentric.Polling
 {
     public class SubscriptionRepository : ISubscriptionRepository
     {
@@ -22,7 +22,7 @@ namespace EventCentric.Pulling
                 var subscriptionsQuery = context.Subscriptions.Where(s => !s.IsPoisoned);
                 if (subscriptionsQuery.Any())
                     foreach (var s in subscriptionsQuery)
-                        subscriptions.Add(new Subscription(s.StreamType, s.Url, s.EventsInProcessorVersion));
+                        subscriptions.Add(new Subscription(s.StreamType, s.Url, s.EventsInProcessorVersion, s.EventCollectionVersion));
 
                 return subscriptions;
             }

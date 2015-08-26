@@ -1,6 +1,6 @@
 ﻿using System.Collections.Concurrent;
 
-namespace EventCentric.Pulling
+namespace EventCentric.Polling
 {
     public interface ISubscriptionRepository
     {

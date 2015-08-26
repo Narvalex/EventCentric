@@ -6,11 +6,11 @@ using System.Linq;
 
 namespace EventCentric.Publishing
 {
-    public class StreamDao : IStreamDao
+    public class OldStreamDao : IOldStreamDao
     {
         private readonly Func<EventQueueDbContext> contextFactory;
 
-        public StreamDao(Func<EventQueueDbContext> contextFactory)
+        public OldStreamDao(Func<EventQueueDbContext> contextFactory)
         {
             this.contextFactory = contextFactory;
         }

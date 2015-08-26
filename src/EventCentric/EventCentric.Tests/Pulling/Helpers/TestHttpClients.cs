@@ -19,22 +19,22 @@ namespace EventCentric.Tests.Pulling.Helpers
             this.streamId = streamId;
         }
 
-        public PollEventsResponse PollEvents(string url)
+        public OldPollEventsResponse PollEvents(string url)
         {
             Thread.Sleep(1000);
 
-            var list = new List<PolledEventData>();
+            var list = new List<OldPolledEventData>();
 
             if (this.NewEventToBeFound)
             {
                 var payload = this.serializer.Serialize(new TestEvent1());
-                list.Add(new PolledEventData("Clients", this.streamId, true, payload));
+                list.Add(new OldPolledEventData("Clients", this.streamId, true, payload));
             }
             else
-                list.Add(new PolledEventData("Clients", this.streamId, false, string.Empty));
+                list.Add(new OldPolledEventData("Clients", this.streamId, false, string.Empty));
 
 
-            return new PollEventsResponse(true, list);
+            return new OldPollEventsResponse(true, list);
         }
 
         public PollStreamsResponse PollStreams(string url)

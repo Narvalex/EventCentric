@@ -80,7 +80,7 @@ namespace EventCentric
             {
                 this.State = NodeState.ShuttingDown;
 
-                this.bus.Publish(new StopEventProcessor(), new StopEventPublisher(), new StopEventPuller());
+                this.bus.Publish(new StopEventProcessor(), new StopEventPublisher(), new StopEventPollster());
                 this.State = NodeState.Down;
                 this.OnStopping();
             }
@@ -98,7 +98,7 @@ namespace EventCentric
 
         public void Handle(EventProcessorStarted message)
         {
-            this.bus.Publish(new StartEventPuller());
+            this.bus.Publish(new StartEventPollster());
         }
 
         public void Handle(EventPullerStopped message)

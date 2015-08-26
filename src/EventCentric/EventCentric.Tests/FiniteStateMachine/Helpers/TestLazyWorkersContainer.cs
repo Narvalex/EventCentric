@@ -8,8 +8,8 @@ namespace EventCentric.Tests.Helpers
     public class TestLazyWorkersContainer :
         IMessageHandler<StartEventPublisher>,
         IMessageHandler<StartEventProcessor>,
-        IMessageHandler<StartEventPuller>,
-        IMessageHandler<StopEventPuller>,
+        IMessageHandler<StartEventPollster>,
+        IMessageHandler<StopEventPollster>,
         IMessageHandler<StopEventProcessor>,
         IMessageHandler<StopEventPublisher>
     {
@@ -61,7 +61,7 @@ namespace EventCentric.Tests.Helpers
             this.NextMessage = new EventProcessorStarted();
         }
 
-        public void Handle(StartEventPuller message)
+        public void Handle(StartEventPollster message)
         {
             Assert.IsTrue(this.PublisherIsRunning);
             Assert.IsTrue(this.ProcessorIsRunning);
@@ -72,7 +72,7 @@ namespace EventCentric.Tests.Helpers
         }
 
         // Stopping
-        public void Handle(StopEventPuller message)
+        public void Handle(StopEventPollster message)
         {
             Assert.IsTrue(this.PublisherIsRunning);
             Assert.IsTrue(this.ProcessorIsRunning);

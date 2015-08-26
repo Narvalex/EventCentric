@@ -1,4 +1,5 @@
-﻿using EventCentric.Pulling;
+﻿using EventCentric.Messaging;
+using EventCentric.Messaging.Events;
 using EventCentric.Transport;
 using EventCentric.Utils;
 using System.Collections.Concurrent;
@@ -7,7 +8,8 @@ using System.Threading.Tasks;
 
 namespace EventCentric.Polling
 {
-    public class EventBuffer
+    public class EventBuffer : Worker,
+        IMessageHandler<PollResponseWasReceived>
     {
         private readonly ISubscriptionRepository repository;
         private readonly IHttpPoller http;
@@ -16,9 +18,10 @@ namespace EventCentric.Polling
         private const int bufferMaxThreshold = 100;
         private const int bufferMinThreshold = 50;
         private ConcurrentBag<Subscription> subscriptionsBag;
-        private ConcurrentQueue<object> bufferedEventsQueue;
+        private ConcurrentQueue<NewEvent> bufferedEventsQueue;
 
-        public EventBuffer(ISubscriptionRepository repository, IHttpPoller http)
+        public EventBuffer(IBus bus, ISubscriptionRepository repository, IHttpPoller http)
+            : base(bus)
         {
             Ensure.NotNull(repository, "repository");
             Ensure.NotNull(http, "http");
@@ -32,7 +35,7 @@ namespace EventCentric.Polling
         /// </summary>
         public void Initialize()
         {
-            this.bufferedEventsQueue = new ConcurrentQueue<object>();
+            this.bufferedEventsQueue = new ConcurrentQueue<NewEvent>();
             this.subscriptionsBag = this.repository.GetSubscriptions();
         }
 
@@ -55,6 +58,20 @@ namespace EventCentric.Polling
 
             // there are subscriptions that are being polled
             return true;
+        }
+
+        public void Handle(PollResponseWasReceived message)
+        {
+            var response = message.Response;
+            if (response.NewEventsWereFound)
+            {
+                var orderedEvents = response.NewEvents.OrderBy(e => e.EventCollectionVersion).ToArray();
+
+                foreach (var e in orderedEvents)
+                    this.bufferedEventsQueue.Enqueue(e);
+            }
+
+            this.subscriptionsBag.Where(s => s.StreamType == response.StreamType).Single().IsPolling = false;
         }
     }
 }

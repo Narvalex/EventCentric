@@ -3,7 +3,7 @@ using System.Collections.Concurrent;
 
 namespace EventCentric.Publishing
 {
-    public interface IStreamDao
+    public interface IOldStreamDao
     {
         ConcurrentDictionary<Guid, int> GetStreamsVersionsById();
 

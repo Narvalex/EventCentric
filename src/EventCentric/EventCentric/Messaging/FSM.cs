@@ -1,23 +1,18 @@
 ﻿using EventCentric.Messaging.Events;
-using EventCentric.Utils;
 
 namespace EventCentric.Messaging
 {
-    public abstract class FSM : IWorker,
+    public abstract class FSM : Worker,
         IMessageHandler<FatalErrorOcurred>
     {
         protected volatile bool stopping;
-        protected readonly IBus bus;
 
         protected volatile bool systemHaltRequested = false;
         protected FatalErrorException fatalException = null;
 
         protected FSM(IBus bus)
-        {
-            Ensure.NotNull(bus, "bus");
-
-            this.bus = bus;
-        }
+            : base(bus)
+        { }
 
         protected void Start()
         {

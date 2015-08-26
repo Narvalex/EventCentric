@@ -4,7 +4,7 @@
 
     public class StartEventProcessor : IMessage { }
 
-    public class StartEventPuller : IMessage { }
+    public class StartEventPollster : IMessage { }
 
     public class StartEventQueue : IMessage { }
 }

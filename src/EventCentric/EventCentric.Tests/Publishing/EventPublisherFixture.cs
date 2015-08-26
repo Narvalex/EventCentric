@@ -3,7 +3,6 @@ using EventCentric.Messaging.Commands;
 using EventCentric.Messaging.Events;
 using EventCentric.Publishing;
 using EventCentric.Repository;
-using EventCentric.Serialization;
 using EventCentric.Tests.Publishing.Helpers;
 using EventCentric.Transport;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -18,16 +17,16 @@ namespace EventCentric.Tests.Publishing.EventPublisherFixture
     {
         protected string connectionString;
         protected TestBus bus;
-        protected StreamDao dao;
-        protected EventPublisher<TestAggregate> sut;
+        protected OldStreamDao dao;
+        protected EventPublisher sut;
 
         public GIVEN_event_publisher()
         {
             this.connectionString = ConfigurationManager.AppSettings["defaultConnection"];
             EventStoreWithSubPerStreamDbInitializer.CreateDatabaseObjects(connectionString, true);
             this.bus = new TestBus();
-            this.dao = new StreamDao(() => new EventQueueDbContext(this.connectionString));
-            this.sut = new EventPublisher<TestAggregate>(this.bus, this.dao, new JsonTextSerializer());
+            this.dao = new OldStreamDao(() => new EventQueueDbContext(this.connectionString));
+            //this.sut = new EventPublisher(this.bus, this.dao, new JsonTextSerializer());
         }
 
         public void Dispose()

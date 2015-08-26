@@ -1,6 +1,7 @@
 ﻿using EventCentric.Database;
 using EventCentric.EventSourcing;
 using EventCentric.Messaging;
+using EventCentric.Polling;
 using EventCentric.Processing;
 using EventCentric.Publishing;
 using EventCentric.Pulling;
@@ -29,16 +30,23 @@ namespace EventCentric
             var time = setLocalTime ? new LocalTimeProvider() as ITimeProvider : new UtcTimeProvider() as ITimeProvider;
             var guid = setSequentialGuid ? new SequentialGuid() as IGuidProvider : new DefaultGuidProvider() as IGuidProvider;
 
-            var streamDao = new StreamDao(() => new EventQueueDbContext(connectionString));
+            var streamDao = new OldStreamDao(() => new EventQueueDbContext(connectionString));
             var subscriptionDao = new SubscriptionDao(() => new EventQueueDbContext(connectionString));
             var subscriptionWriter = new SubscriptionInboxWriter(() => new EventStoreDbContext(connectionString), time, serializer);
+            var subscriptionRepository = new SubscriptionRepository(() => new EventStoreDbContext(connectionString));
+            var eventDao = new EventDao(() => new EventStoreDbContext(connectionString));
 
             var eventStore = new EventStore<TAggregate>(serializer, () => new EventStoreDbContext(connectionString), subscriptionWriter, time, guid);
 
             var bus = new Bus();
 
-            var publisher = new EventPublisher<TAggregate>(bus, streamDao, serializer);
-            var puller = new EventPullerPerStream(bus, subscriptionDao, subscriptionWriter, new OldHttpPoller(), serializer);
+            var http = new HttpPoller(bus);
+
+            var buffer = new EventBuffer(subscriptionRepository, http);
+            var proxy = new ProcessorProxy(bus);
+
+            var publisher = new EventPublisher(bus, eventDao);
+            var pollster = new EventPollster(bus, buffer, proxy);
             var fsm = new Node(bus);
 
             // Register processor dependencies
@@ -49,9 +57,6 @@ namespace EventCentric
             var constructor = typeof(THandler).GetConstructor(new[] { typeof(IBus), typeof(IEventStore<TAggregate>), typeof(ISubscriptionInboxWriter) });
             Ensure.CastIsValid(constructor, "Type THandler must have a valid constructor with the following signature: .ctor(IBus, IEventStore<T>, ISubscriptionInboxWriter)");
             var processor = (THandler)constructor.Invoke(new object[] { bus, eventStore, subscriptionWriter });
-
-            // Register all in bus
-            bus.Register(publisher, puller, processor, fsm);
 
             // Register for DI
             container.RegisterInstance<IEventSource>(publisher);
@@ -70,9 +75,10 @@ namespace EventCentric
             var time = setLocalTime ? new LocalTimeProvider() as ITimeProvider : new UtcTimeProvider() as ITimeProvider;
             var guid = setSequentialGuid ? new SequentialGuid() as IGuidProvider : new DefaultGuidProvider() as IGuidProvider;
 
-            var streamDao = new StreamDao(() => new EventQueueDbContext(connectionString));
+            var streamDao = new OldStreamDao(() => new EventQueueDbContext(connectionString));
             var subscriptionDao = new SubscriptionDao(() => new EventQueueDbContext(connectionString));
             var subscriptionWriter = new SubscriptionInboxWriter(() => new EventStoreDbContext(connectionString), time, serializer);
+            var eventDao = new EventDao(() => new EventStoreDbContext(connectionString));
 
             var dbContextConstructor = typeof(TDbContext).GetConstructor(new[] { typeof(string) });
             Ensure.CastIsValid(dbContextConstructor, "Type TDbContext must have a constructor with the following signature: ctor(string)");
@@ -81,7 +87,7 @@ namespace EventCentric
 
             var bus = new Bus();
 
-            var publisher = new EventPublisher<TAggregate>(bus, streamDao, serializer);
+            var publisher = new EventPublisher(bus, eventDao);
             var puller = new EventPullerPerStream(bus, subscriptionDao, subscriptionWriter, new OldHttpPoller(), serializer);
             var fsm = new Node(bus);
 
@@ -93,9 +99,6 @@ namespace EventCentric
             var processorConstructor = typeof(THandler).GetConstructor(new[] { typeof(IBus), typeof(IEventStore<TAggregate>), typeof(ISubscriptionInboxWriter) });
             Ensure.CastIsValid(processorConstructor, "Type THandler must have a valid constructor with the following signature: .ctor(IBus, IEventStore<T>, ISubscriptionInboxWriter)");
             var processor = (THandler)processorConstructor.Invoke(new object[] { bus, eventStore, subscriptionWriter });
-
-            // Register all in bus
-            bus.Register(publisher, puller, processor, fsm);
 
             // Register for DI
             container.RegisterInstance<IEventSource>(publisher);

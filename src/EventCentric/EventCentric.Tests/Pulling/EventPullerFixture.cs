@@ -36,7 +36,7 @@ namespace EventCentric.Tests.Pulling.EventPullerFixture
         [TestMethod]
         public void WHEN_there_is_a_single_subscription_with_pending_event_THEN_enters_busy_state_and_pulls()
         {
-            this.sut.Handle(new StartEventPuller());
+            this.sut.Handle(new StartEventPollster());
 
             for (int i = 0; i < 100; i++)
             {
@@ -65,7 +65,7 @@ namespace EventCentric.Tests.Pulling.EventPullerFixture
 
             Assert.IsFalse(TestSubscriptionDaoWithSingleResult.Subscriptions.Single().IsBusy);
 
-            this.sut.Handle(new StartEventPuller());
+            this.sut.Handle(new StartEventPollster());
 
             for (int i = 0; i < 100; i++)
             {
@@ -142,7 +142,7 @@ namespace EventCentric.Tests.Pulling.EventPullerFixture
         public void WHEN_starting_and_no_subscription_found_THEN_continues()
         {
             Assert.AreEqual(0, this.bus.Messages.Count);
-            this.sut.Handle(new StartEventPuller());
+            this.sut.Handle(new StartEventPollster());
             Assert.AreEqual(1, this.bus.Messages.Count);
             Assert.AreEqual(typeof(EventPullerStarted), this.bus.Messages.Single().GetType());
         }

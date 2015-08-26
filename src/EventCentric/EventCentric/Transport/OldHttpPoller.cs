@@ -5,7 +5,7 @@ namespace EventCentric.Transport
 {
     public class OldHttpPoller : IOldHttpPoller
     {
-        public PollEventsResponse PollEvents(string url)
+        public OldPollEventsResponse PollEvents(string url)
         {
             using (var client = this.CreateHttpClient())
             {
@@ -13,13 +13,13 @@ namespace EventCentric.Transport
                 {
                     var response = client.GetAsync(url).Result;
                     if (response.IsSuccessStatusCode)
-                        return response.Content.ReadAsAsync<PollEventsResponse>().Result;
+                        return response.Content.ReadAsAsync<OldPollEventsResponse>().Result;
                     else
-                        return new PollEventsResponse(false, null);
+                        return new OldPollEventsResponse(false, null);
                 }
                 catch
                 {
-                    return new PollEventsResponse(false, null);
+                    return new OldPollEventsResponse(false, null);
                 }
 
             }

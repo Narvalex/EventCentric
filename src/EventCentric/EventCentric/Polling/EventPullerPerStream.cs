@@ -15,8 +15,8 @@ using System.Threading.Tasks;
 namespace EventCentric.Pulling
 {
     public class EventPullerPerStream : FSM,
-        IMessageHandler<StartEventPuller>,
-        IMessageHandler<StopEventPuller>,
+        IMessageHandler<StartEventPollster>,
+        IMessageHandler<StopEventPollster>,
         IMessageHandler<IncomingEventHasBeenProcessed>,
         IMessageHandler<IncomingEventIsPoisoned>
     {
@@ -42,12 +42,12 @@ namespace EventCentric.Pulling
             this.writer = writer;
         }
 
-        public void Handle(StartEventPuller message)
+        public void Handle(StartEventPollster message)
         {
             base.Start();
         }
 
-        public void Handle(StopEventPuller message)
+        public void Handle(StopEventPollster message)
         {
             base.Stop();
         }

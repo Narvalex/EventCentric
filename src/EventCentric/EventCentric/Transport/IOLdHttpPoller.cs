@@ -2,7 +2,7 @@
 {
     public interface IOldHttpPoller
     {
-        PollEventsResponse PollEvents(string url);
+        OldPollEventsResponse PollEvents(string url);
 
         PollStreamsResponse PollStreams(string url);
     }
