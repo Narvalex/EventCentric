@@ -1,6 +1,6 @@
 ﻿namespace EventCentric.Pulling
 {
-    public class SubscribedSource : Subscription
+    public class SubscribedSource : OldSubscription
     {
         private volatile int streamCollectionVersion;
 

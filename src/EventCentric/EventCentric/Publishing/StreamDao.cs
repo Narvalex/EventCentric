@@ -8,9 +8,9 @@ namespace EventCentric.Publishing
 {
     public class StreamDao : IStreamDao
     {
-        private readonly Func<ReadOnlyStreamDbContext> contextFactory;
+        private readonly Func<EventQueueDbContext> contextFactory;
 
-        public StreamDao(Func<ReadOnlyStreamDbContext> contextFactory)
+        public StreamDao(Func<EventQueueDbContext> contextFactory)
         {
             this.contextFactory = contextFactory;
         }

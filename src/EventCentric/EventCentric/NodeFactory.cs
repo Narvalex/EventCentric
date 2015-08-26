@@ -29,8 +29,8 @@ namespace EventCentric
             var time = setLocalTime ? new LocalTimeProvider() as ITimeProvider : new UtcTimeProvider() as ITimeProvider;
             var guid = setSequentialGuid ? new SequentialGuid() as IGuidProvider : new DefaultGuidProvider() as IGuidProvider;
 
-            var streamDao = new StreamDao(() => new ReadOnlyStreamDbContext(connectionString));
-            var subscriptionDao = new SubscriptionDao(() => new ReadOnlySubscriptionDbContext(connectionString));
+            var streamDao = new StreamDao(() => new EventQueueDbContext(connectionString));
+            var subscriptionDao = new SubscriptionDao(() => new EventQueueDbContext(connectionString));
             var subscriptionWriter = new SubscriptionInboxWriter(() => new EventStoreDbContext(connectionString), time, serializer);
 
             var eventStore = new EventStore<TAggregate>(serializer, () => new EventStoreDbContext(connectionString), subscriptionWriter, time, guid);
@@ -38,7 +38,7 @@ namespace EventCentric
             var bus = new Bus();
 
             var publisher = new EventPublisher<TAggregate>(bus, streamDao, serializer);
-            var puller = new EventPuller(bus, subscriptionDao, subscriptionWriter, new HttpPoller(), serializer);
+            var puller = new EventPullerPerStream(bus, subscriptionDao, subscriptionWriter, new OldHttpPoller(), serializer);
             var fsm = new Node(bus);
 
             // Register processor dependencies
@@ -70,8 +70,8 @@ namespace EventCentric
             var time = setLocalTime ? new LocalTimeProvider() as ITimeProvider : new UtcTimeProvider() as ITimeProvider;
             var guid = setSequentialGuid ? new SequentialGuid() as IGuidProvider : new DefaultGuidProvider() as IGuidProvider;
 
-            var streamDao = new StreamDao(() => new ReadOnlyStreamDbContext(connectionString));
-            var subscriptionDao = new SubscriptionDao(() => new ReadOnlySubscriptionDbContext(connectionString));
+            var streamDao = new StreamDao(() => new EventQueueDbContext(connectionString));
+            var subscriptionDao = new SubscriptionDao(() => new EventQueueDbContext(connectionString));
             var subscriptionWriter = new SubscriptionInboxWriter(() => new EventStoreDbContext(connectionString), time, serializer);
 
             var dbContextConstructor = typeof(TDbContext).GetConstructor(new[] { typeof(string) });
@@ -82,7 +82,7 @@ namespace EventCentric
             var bus = new Bus();
 
             var publisher = new EventPublisher<TAggregate>(bus, streamDao, serializer);
-            var puller = new EventPuller(bus, subscriptionDao, subscriptionWriter, new HttpPoller(), serializer);
+            var puller = new EventPullerPerStream(bus, subscriptionDao, subscriptionWriter, new OldHttpPoller(), serializer);
             var fsm = new Node(bus);
 
             // Register processor dependencies

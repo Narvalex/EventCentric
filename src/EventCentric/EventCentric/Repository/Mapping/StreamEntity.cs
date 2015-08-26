@@ -9,8 +9,9 @@ namespace EventCentric.Repository.Mapping
         public Guid StreamId { get; set; }
         public int Version { get; set; }
         public string Memento { get; set; }
-        public DateTime CreationDate { get; set; }
         public int StreamCollectionVersion { get; set; }
+        public DateTime CreationDate { get; set; }
+        public DateTime UpdateTime { get; set; }
     }
 
     public class StreamEntityMap : EntityTypeConfiguration<StreamEntity>
@@ -29,7 +30,9 @@ namespace EventCentric.Repository.Mapping
             this.Property(t => t.StreamId).HasColumnName("StreamId");
             this.Property(t => t.Version).HasColumnName("Version");
             this.Property(t => t.Memento).HasColumnName("Memento");
+            this.Property(t => t.StreamCollectionVersion).HasColumnName("StreamCollectionVersion");
             this.Property(t => t.CreationDate).HasColumnName("CreationDate");
+            this.Property(t => t.UpdateTime).HasColumnName("UpdateTime");
         }
     }
 

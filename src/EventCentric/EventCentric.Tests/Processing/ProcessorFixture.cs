@@ -29,7 +29,7 @@ namespace EventCentric.Tests.Processing.ProcessorFixture
         public GIVEN_processor()
         {
             this.connectionString = ConfigurationManager.AppSettings["defaultConnection"];
-            EventStoreDbInitializer.CreateDatabaseObjects(connectionString, true);
+            EventStoreWithSubPerStreamDbInitializer.CreateDatabaseObjects(connectionString, true);
             this.bus = new TestBus();
             this.subWriter = new SubscriptionInboxWriter(() => new EventStoreDbContext(this.connectionString), this.time, this.serializer);
             this.store = new EventStore<TestAggregate>(this.serializer, () => new EventStoreDbContext(this.connectionString), this.subWriter, this.time, new SequentialGuid());
@@ -55,7 +55,7 @@ namespace EventCentric.Tests.Processing.ProcessorFixture
         {
             using (var context = new EventStoreDbContext(this.connectionString))
             {
-                context.Subscriptions.Add(new SubscriptionEntity
+                context.Subscriptions.Add(new Repository.Mapping.SubscriptionEntity
                 {
                     StreamType = "TestSubscription",
                     CreationDate = DateTime.Now

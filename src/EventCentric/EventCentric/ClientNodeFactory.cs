@@ -26,8 +26,8 @@ namespace EventCentric
             var bus = new Bus();
             var node = new ClientNode(bus);
 
-            var queueWriter = new QueueWriter<T>(() => new StreamDbContext(connectionString), serializer, time, guid);
-            var streamDao = new StreamDao(() => new ReadOnlyStreamDbContext(connectionString));
+            var queueWriter = new QueueWriter<T>(() => new EventQueueDbContext(connectionString), serializer, time, guid);
+            var streamDao = new StreamDao(() => new EventQueueDbContext(connectionString));
             var eventBus = new EventQueue(bus, queueWriter);
             var eventPublisher = new EventPublisher<T>(bus, streamDao, serializer);
 

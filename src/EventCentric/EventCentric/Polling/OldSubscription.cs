@@ -1,8 +1,8 @@
 ﻿namespace EventCentric.Pulling
 {
-    public abstract class Subscription
+    public abstract class OldSubscription
     {
-        public Subscription()
+        public OldSubscription()
         {
             this.IsBusy = false;
         }

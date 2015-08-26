@@ -150,17 +150,18 @@ namespace EventCentric.EventSourcing
                     };
                     context.Inbox.Add(message);
 
-                    ((DbContext)context).AddOrUpdate(
-                        find: () => context
-                                            .Subscriptions
-                                            .Where(s => s.StreamId == correlatedEvent.StreamId && s.StreamType == correlatedEvent.StreamType)
-                                            .SingleOrDefault(),
-                        add: () => { throw new InvalidOperationException("Subscription does not exist!"); },
-                        update: subscription =>
-                        {
-                            subscription.LastProcessedVersion = correlatedEvent.Version;
-                            subscription.LastProcessedEventId = correlatedEvent.EventId;
-                        });
+                    throw new NotImplementedException("Need to implement subscription update");
+                    //((DbContext)context).AddOrUpdate(
+                    //    find: () => context
+                    //                        .Subscriptions
+                    //                        .Where(s => s.StreamId == correlatedEvent.StreamId && s.StreamType == correlatedEvent.StreamType)
+                    //                        .SingleOrDefault(),
+                    //    add: () => { throw new InvalidOperationException("Subscription does not exist!"); },
+                    //    update: subscription =>
+                    //    {
+                    //        subscription.LastProcessedVersion = correlatedEvent.Version;
+                    //        subscription.LastProcessedEventId = correlatedEvent.EventId;
+                    //    });
 
 
                     // Cache Memento And Publish Stream

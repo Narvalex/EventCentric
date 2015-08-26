@@ -6,7 +6,7 @@ using System.Threading;
 
 namespace EventCentric.Tests.Pulling.Helpers
 {
-    public class TestHttpClientWithSingleResult : IHttpPoller
+    public class TestHttpClientWithSingleResult : IOldHttpPoller
     {
         private readonly JsonTextSerializer serializer = new JsonTextSerializer();
         private Guid streamId;

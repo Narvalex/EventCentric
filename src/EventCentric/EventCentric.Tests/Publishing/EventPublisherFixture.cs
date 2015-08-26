@@ -24,9 +24,9 @@ namespace EventCentric.Tests.Publishing.EventPublisherFixture
         public GIVEN_event_publisher()
         {
             this.connectionString = ConfigurationManager.AppSettings["defaultConnection"];
-            EventStoreDbInitializer.CreateDatabaseObjects(connectionString, true);
+            EventStoreWithSubPerStreamDbInitializer.CreateDatabaseObjects(connectionString, true);
             this.bus = new TestBus();
-            this.dao = new StreamDao(() => new ReadOnlyStreamDbContext(this.connectionString));
+            this.dao = new StreamDao(() => new EventQueueDbContext(this.connectionString));
             this.sut = new EventPublisher<TestAggregate>(this.bus, this.dao, new JsonTextSerializer());
         }
 
@@ -38,7 +38,7 @@ namespace EventCentric.Tests.Publishing.EventPublisherFixture
         [TestMethod]
         public void THEN_can_create_db_for_stream_dao()
         {
-            using (var context = new ReadOnlyStreamDbContext(this.connectionString))
+            using (var context = new EventQueueDbContext(this.connectionString))
             {
             }
 

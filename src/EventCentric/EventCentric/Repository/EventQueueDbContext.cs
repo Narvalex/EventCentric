@@ -3,14 +3,17 @@ using System.Data.Entity;
 
 namespace EventCentric.Repository
 {
-    public class StreamDbContext : DbContext
+    /// <summary>
+    /// There could be an optimization just for reads..., maybe with an extension method.
+    /// </summary>
+    public class EventQueueDbContext : DbContext
     {
-        static StreamDbContext()
+        static EventQueueDbContext()
         {
-            System.Data.Entity.Database.SetInitializer<StreamDbContext>(null);
+            System.Data.Entity.Database.SetInitializer<EventQueueDbContext>(null);
         }
 
-        public StreamDbContext(string nameOrconnectionString)
+        public EventQueueDbContext(string nameOrconnectionString)
             : base(nameOrconnectionString)
         { }
 

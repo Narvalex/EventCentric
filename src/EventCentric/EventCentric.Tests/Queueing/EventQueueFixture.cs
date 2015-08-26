@@ -19,7 +19,7 @@ namespace EventCentric.Tests.Queueing
 
         public EventQueueFixture()
         {
-            this.writer = new QueueWriter<EventQueueFixture>(() => new StreamDbContext(base.connectionString), new JsonTextSerializer(), new LocalTimeProvider(), new SequentialGuid());
+            this.writer = new QueueWriter<EventQueueFixture>(() => new EventQueueDbContext(base.connectionString), new JsonTextSerializer(), new LocalTimeProvider(), new SequentialGuid());
             this.bus = new GenericTestBus();
             this.sut = new EventQueue(this.bus, this.writer);
         }

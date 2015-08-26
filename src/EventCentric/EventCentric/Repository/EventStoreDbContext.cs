@@ -3,6 +3,9 @@ using System.Data.Entity;
 
 namespace EventCentric.Repository
 {
+    /// <summary>
+    /// There could be an optimization just for reads..., maybe with an extension method.
+    /// </summary>
     public class EventStoreDbContext : DbContext, IEventStoreDbContext
     {
         static EventStoreDbContext()
@@ -18,7 +21,6 @@ namespace EventCentric.Repository
         public IDbSet<InboxEntity> Inbox { get; set; }
         public IDbSet<StreamEntity> Streams { get; set; }
         public IDbSet<SubscriptionEntity> Subscriptions { get; set; }
-        public IDbSet<SubscribedSourceEntity> SubscribedSources { get; set; }
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
@@ -26,7 +28,6 @@ namespace EventCentric.Repository
             modelBuilder.Configurations.Add(new InboxEntityMap());
             modelBuilder.Configurations.Add(new StreamEntityMap());
             modelBuilder.Configurations.Add(new SubscriptionEntityMap());
-            modelBuilder.Configurations.Add(new SubscribedSourceEntityMap());
         }
     }
 }

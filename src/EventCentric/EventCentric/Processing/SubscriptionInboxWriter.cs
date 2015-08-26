@@ -1,11 +1,9 @@
-﻿using EventCentric.Database;
-using EventCentric.Messaging;
+﻿using EventCentric.Messaging;
 using EventCentric.Repository;
 using EventCentric.Repository.Mapping;
 using EventCentric.Serialization;
 using EventCentric.Utils;
 using System;
-using System.Linq;
 
 namespace EventCentric.EventSourcing
 {
@@ -46,17 +44,18 @@ namespace EventCentric.EventSourcing
             };
             context.Inbox.Add(message);
 
-            context.AddOrUpdate(
-                find: () => context
-                                    .Subscriptions
-                                    .Where(s => s.StreamId == @event.StreamId && s.StreamType == @event.StreamType)
-                                    .SingleOrDefault(),
-                add: () => { throw new InvalidOperationException("Subscription does not exist!"); },
-                update: subscription =>
-                {
-                    subscription.LastProcessedVersion = @event.Version;
-                    subscription.LastProcessedEventId = @event.EventId;
-                });
+            throw new NotImplementedException();
+            //context.AddOrUpdate(
+            //    find: () => context
+            //                        .Subscriptions
+            //                        .Where(s => s.StreamId == @event.StreamId && s.StreamType == @event.StreamType)
+            //                        .SingleOrDefault(),
+            //    add: () => { throw new InvalidOperationException("Subscription does not exist!"); },
+            //    update: subscription =>
+            //    {
+            //        subscription.LastProcessedVersion = @event.Version;
+            //        subscription.LastProcessedEventId = @event.EventId;
+            //    });
         }
 
         public void CreateNewSubscription(string streamType, Guid streamId, int updatedStreamCollectionVersion)
@@ -65,25 +64,27 @@ namespace EventCentric.EventSourcing
             {
                 var now = this.time.Now;
 
-                // Updating the source table
-                context.AddOrUpdate(
-                    // there must be a subscribed source to create a subscription
-                    find: () => context.SubscribedSources.Where(s => s.StreamType == streamType).Single(),
-                    add: () => { throw new InvalidOperationException("Subscribed source does not exist!"); },
-                    update: source => source.StreamCollectionVersion = updatedStreamCollectionVersion > source.StreamCollectionVersion ? updatedStreamCollectionVersion : source.StreamCollectionVersion);
 
-                // Creating a new entry in the subscription table
-                var subscription = new SubscriptionEntity
-                {
-                    StreamType = streamType,
-                    StreamId = streamId,
-                    LastProcessedEventId = Guid.Empty,
-                    LastProcessedVersion = 0,
-                    CreationDate = now,
-                    IsPoisoned = false
-                };
+                throw new NotImplementedException();
+                //// Updating the source table
+                //context.AddOrUpdate(
+                //    // there must be a subscribed source to create a subscription
+                //    find: () => context.SubscribedSources.Where(s => s.StreamType == streamType).Single(),
+                //    add: () => { throw new InvalidOperationException("Subscribed source does not exist!"); },
+                //    update: source => source.StreamCollectionVersion = updatedStreamCollectionVersion > source.StreamCollectionVersion ? updatedStreamCollectionVersion : source.StreamCollectionVersion);
 
-                context.Subscriptions.Add(subscription);
+                //// Creating a new entry in the subscription table
+                //var subscription = new SubscriptionEntity
+                //{
+                //    StreamType = streamType,
+                //    StreamId = streamId,
+                //    LastProcessedEventId = Guid.Empty,
+                //    LastProcessedVersion = 0,
+                //    CreationDate = now,
+                //    IsPoisoned = false
+                //};
+
+                //context.Subscriptions.Add(subscription);
 
                 context.SaveChanges();
             }
@@ -93,17 +94,19 @@ namespace EventCentric.EventSourcing
         {
             using (var context = this.contextFactory.Invoke())
             {
-                context.AddOrUpdate(
-                    find: () => context
-                                    .Subscriptions
-                                    .Where(s => s.StreamType == streamType && s.StreamId == streamId)
-                                    .Single(),
-                    add: null,
-                    update: subscription =>
-                    {
-                        subscription.IsPoisoned = true;
-                        subscription.ExceptionMessage = this.serializer.Serialize(exception);
-                    });
+                //context.AddOrUpdate(
+                //    find: () => context
+                //                    .Subscriptions
+                //                    .Where(s => s.StreamType == streamType && s.StreamId == streamId)
+                //                    .Single(),
+                //    add: null,
+                //    update: subscription =>
+                //    {
+                //        subscription.IsPoisoned = true;
+                //        subscription.ExceptionMessage = this.serializer.Serialize(exception);
+                //    });
+
+                throw new NotImplementedException();
 
                 context.SaveChanges();
             }

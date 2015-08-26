@@ -1,55 +1,31 @@
-﻿using System;
-using System.Net.Http;
+﻿using EventCentric.Messaging;
+using EventCentric.Pulling;
+using EventCentric.Utils;
+using System;
 
 namespace EventCentric.Transport
 {
     public class HttpPoller : IHttpPoller
     {
-        public PollEventsResponse PollEvents(string url)
-        {
-            using (var client = this.CreateHttpClient())
-            {
-                try
-                {
-                    var response = client.GetAsync(url).Result;
-                    if (response.IsSuccessStatusCode)
-                        return response.Content.ReadAsAsync<PollEventsResponse>().Result;
-                    else
-                        return new PollEventsResponse(false, null);
-                }
-                catch
-                {
-                    return new PollEventsResponse(false, null);
-                }
+        private readonly IBus bus;
 
-            }
+        public HttpPoller(IBus bus)
+        {
+            Ensure.NotNull(bus, "bus");
+
+            this.bus = bus;
         }
 
-        public PollStreamsResponse PollStreams(string url)
+        public void PollSubscription(Subscription subscription)
         {
-            using (var client = this.CreateHttpClient())
-            {
-                try
-                {
-                    var response = client.GetAsync(url).Result;
-                    if (response.IsSuccessStatusCode)
-                        return response.Content.ReadAsAsync<PollStreamsResponse>().Result;
-                    else
-                        return new PollStreamsResponse(false, null, null);
-                }
-                catch
-                {
-                    return new PollStreamsResponse(false, null, null);
-                }
+            // when poll arives, publish in bus.
 
-            }
+            throw new NotImplementedException();
         }
+    }
 
-        private HttpClient CreateHttpClient()
-        {
-            var client = new HttpClient();
-            client.Timeout = new TimeSpan(0, 0, 30);
-            return client;
-        }
+    public interface IHttpPoller
+    {
+        void PollSubscription(Subscription subscription);
     }
 }

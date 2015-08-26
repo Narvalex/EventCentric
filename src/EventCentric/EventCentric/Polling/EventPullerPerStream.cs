@@ -14,21 +14,21 @@ using System.Threading.Tasks;
 
 namespace EventCentric.Pulling
 {
-    public class EventPuller : FSM,
+    public class EventPullerPerStream : FSM,
         IMessageHandler<StartEventPuller>,
         IMessageHandler<StopEventPuller>,
         IMessageHandler<IncomingEventHasBeenProcessed>,
         IMessageHandler<IncomingEventIsPoisoned>
     {
         private readonly ISubscriptionDao dao;
-        private readonly IHttpPoller poller;
+        private readonly IOldHttpPoller poller;
         private readonly ITextSerializer serializer;
         private readonly ISubscriptionInboxWriter writer;
 
         private ConcurrentBag<SubscribedStream> subscribedStreams;
         private ConcurrentBag<SubscribedSource> subscribedSources;
 
-        public EventPuller(IBus bus, ISubscriptionDao dao, ISubscriptionInboxWriter writer, IHttpPoller poller, ITextSerializer serializer)
+        public EventPullerPerStream(IBus bus, ISubscriptionDao dao, ISubscriptionInboxWriter writer, IOldHttpPoller poller, ITextSerializer serializer)
             : base(bus)
         {
             Ensure.NotNull(dao, "dao");

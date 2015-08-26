@@ -5,6 +5,7 @@ using EventCentric.Repository.Mapping;
 using EventCentric.Serialization;
 using EventCentric.Utils;
 using System;
+using System.Data.Entity;
 using System.Linq;
 
 namespace EventCentric.Queueing
@@ -12,12 +13,12 @@ namespace EventCentric.Queueing
     public class QueueWriter<T> : IQueueWriter
     {
         private static readonly string _streamType = typeof(T).Name;
-        private readonly Func<StreamDbContext> contextFactory;
+        private readonly Func<EventQueueDbContext> contextFactory;
         private readonly ITextSerializer serializer;
         private readonly ITimeProvider time;
         private readonly IGuidProvider guid;
 
-        public QueueWriter(Func<StreamDbContext> contextFactory, ITextSerializer serializer, ITimeProvider time, IGuidProvider guid)
+        public QueueWriter(Func<EventQueueDbContext> contextFactory, ITextSerializer serializer, ITimeProvider time, IGuidProvider guid)
         {
             Ensure.NotNull(contextFactory, "contextFactory");
             Ensure.NotNull(serializer, "serializer");
@@ -61,7 +62,7 @@ namespace EventCentric.Queueing
                         Payload = this.serializer.Serialize(@event)
                     });
 
-                context.AddOrUpdate(
+                ((DbContext)context).AddOrUpdate(
                     find: () => context.Streams.Where(s => s.StreamId == @event.StreamId).SingleOrDefault(),
                     add: () => new StreamEntity
                     {

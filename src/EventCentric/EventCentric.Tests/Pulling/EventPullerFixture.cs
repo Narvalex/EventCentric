@@ -18,7 +18,7 @@ namespace EventCentric.Tests.Pulling.EventPullerFixture
     {
         protected Guid streamId1;
         protected TestBus bus;
-        protected EventPuller sut;
+        protected EventPullerPerStream sut;
         protected TestSubscriptionDaoWithSingleResult dao;
         protected TestHttpClientWithSingleResult httpFactory;
         protected JsonTextSerializer serializer;
@@ -30,7 +30,7 @@ namespace EventCentric.Tests.Pulling.EventPullerFixture
             this.bus = new TestBus();
             this.dao = new TestSubscriptionDaoWithSingleResult(this.streamId1);
             this.httpFactory = new TestHttpClientWithSingleResult(this.streamId1);
-            this.sut = new EventPuller(this.bus, this.dao, null, this.httpFactory, this.serializer);
+            this.sut = new EventPullerPerStream(this.bus, this.dao, null, this.httpFactory, this.serializer);
         }
 
         [TestMethod]
@@ -61,7 +61,7 @@ namespace EventCentric.Tests.Pulling.EventPullerFixture
         public void WHEN_response_has_no_new_events_THEN_sets_subscriptions_to_not_busy()
         {
             this.httpFactory = new TestHttpClientWithSingleResult(this.streamId1, false);
-            this.sut = new EventPuller(this.bus, this.dao, null, this.httpFactory, this.serializer);
+            this.sut = new EventPullerPerStream(this.bus, this.dao, null, this.httpFactory, this.serializer);
 
             Assert.IsFalse(TestSubscriptionDaoWithSingleResult.Subscriptions.Single().IsBusy);
 
@@ -119,18 +119,18 @@ namespace EventCentric.Tests.Pulling.EventPullerFixture
         protected SubscriptionDao dao;
         protected JsonTextSerializer serializer = new JsonTextSerializer();
 
-        protected EventPuller sut;
+        protected EventPullerPerStream sut;
 
         public GIVEN_event_puller_with_db()
         {
             this.connectionString = ConfigurationManager.AppSettings["defaultConnection"];
-            EventStoreDbInitializer.CreateDatabaseObjects(connectionString, true);
+            EventStoreWithSubPerStreamDbInitializer.CreateDatabaseObjects(connectionString, true);
 
             this.streamId1 = Guid.NewGuid();
             this.bus = new TestBus();
             this.httpFactory = new TestHttpClientWithSingleResult(this.streamId1);
-            this.dao = new SubscriptionDao(() => new ReadOnlySubscriptionDbContext(this.connectionString));
-            this.sut = new EventPuller(this.bus, this.dao, null, this.httpFactory, this.serializer);
+            this.dao = new SubscriptionDao(() => new EventQueueDbContext(this.connectionString));
+            this.sut = new EventPullerPerStream(this.bus, this.dao, null, this.httpFactory, this.serializer);
         }
 
         public void Dispose()

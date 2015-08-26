@@ -11,7 +11,7 @@ namespace EventCentric.Tests.Helpers
         public GIVEN_db()
         {
             this.connectionString = ConfigurationManager.AppSettings["defaultConnection"];
-            EventStoreDbInitializer.CreateDatabaseObjects(connectionString, true);
+            EventStoreWithSubPerStreamDbInitializer.CreateDatabaseObjects(connectionString, true);
         }
 
         public void Dispose()

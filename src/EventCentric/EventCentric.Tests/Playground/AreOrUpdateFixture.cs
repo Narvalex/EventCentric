@@ -1,5 +1,6 @@
 ﻿using EventCentric.Database;
 using EventCentric.Repository;
+using EventCentric.Repository.Mapping;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Configuration;
@@ -16,7 +17,7 @@ namespace EventCentric.Tests.Playground
         public AreOrUpdateFixture()
         {
             this.connectionString = ConfigurationManager.AppSettings["defaultConnection"];
-            EventStoreDbInitializer.CreateDatabaseObjects(connectionString, true);
+            EventStoreWithSubPerStreamDbInitializer.CreateDatabaseObjects(connectionString, true);
             this.contextFactory = () => new EventStoreDbContext(this.connectionString);
         }
 
@@ -31,19 +32,15 @@ namespace EventCentric.Tests.Playground
             using (var context = contextFactory())
             {
                 context.AddOrUpdate(
-                    () => context.Subscriptions.Where(s => s.StreamId == Guid.Empty && s.StreamType == "TestAggregate").SingleOrDefault(),
+                    () => context.Subscriptions.Where(s => s.StreamType == "TestAggregate").SingleOrDefault(),
                     () => new SubscriptionEntity
                     {
                         CreationDate = DateTime.Now,
                         IsPoisoned = false,
-                        LastProcessedEventId = Guid.Empty,
-                        LastProcessedVersion = 1,
-                        StreamId = Guid.Empty,
                         StreamType = "TestAggregate"
                     },
                     s =>
                     {
-                        s.LastProcessedVersion = 2;
                     });
 
                 context.SaveChanges();

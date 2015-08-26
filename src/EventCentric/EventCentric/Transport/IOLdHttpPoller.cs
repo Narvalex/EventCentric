@@ -1,6 +1,6 @@
 ﻿namespace EventCentric.Transport
 {
-    public interface IHttpPoller
+    public interface IOldHttpPoller
     {
         PollEventsResponse PollEvents(string url);
 

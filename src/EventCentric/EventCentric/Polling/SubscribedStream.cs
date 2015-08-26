@@ -2,7 +2,7 @@
 
 namespace EventCentric.Pulling
 {
-    public class SubscribedStream : Subscription
+    public class SubscribedStream : OldSubscription
     {
         public string StreamType { get; private set; }
         public Guid StreamId { get; private set; }
