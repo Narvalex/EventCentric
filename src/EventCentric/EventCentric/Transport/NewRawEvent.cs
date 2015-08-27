@@ -1,8 +1,8 @@
 ﻿namespace EventCentric.Transport
 {
-    public class NewEvent
+    public class NewRawEvent
     {
-        public NewEvent(int eventCollectionVersion, string payload)
+        public NewRawEvent(int eventCollectionVersion, string payload)
         {
             this.EventCollectionVersion = eventCollectionVersion;
             this.Payload = payload;

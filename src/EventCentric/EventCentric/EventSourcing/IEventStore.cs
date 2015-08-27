@@ -1,4 +1,5 @@
-﻿using System;
+﻿using EventCentric.Transport;
+using System;
 
 namespace EventCentric.EventSourcing
 {
@@ -23,8 +24,8 @@ namespace EventCentric.EventSourcing
         /// Saves the event sourced entity.
         /// </summary>
         /// <param name="eventSourced">The event sourced entity.</param>
-        /// <param name="correlatedEvent">The correlated <see cref="IEvent"/></param>
+        /// <param name="envelopedIncomingEvent">The correlated <see cref="IEvent"/></param>
         /// <returns>The stream collection version.</returns>
-        int Save(T eventSourced, IEvent correlatedEvent);
+        int Save(T eventSourced, IncomingEvent<IEvent> envelopedIncomingEvent);
     }
 }

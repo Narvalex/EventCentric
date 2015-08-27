@@ -50,7 +50,7 @@ namespace EventCentric.Publishing
         public PollResponse PollEvents(int lastReceivedVersion)
         {
             bool newEventsWereFound = false;
-            var newEvents = new List<NewEvent>();
+            var newEvents = new List<NewRawEvent>();
             var attemps = 0;
             while (!this.stopping && attemps <= 100)
             {

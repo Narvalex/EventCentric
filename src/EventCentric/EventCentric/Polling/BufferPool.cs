@@ -1,31 +1,39 @@
-﻿using EventCentric.Messaging;
+﻿using EventCentric.EventSourcing;
+using EventCentric.Messaging;
 using EventCentric.Messaging.Events;
+using EventCentric.Serialization;
 using EventCentric.Transport;
 using EventCentric.Utils;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
 namespace EventCentric.Polling
 {
     public class BufferPool : Worker,
-        IMessageHandler<PollResponseWasReceived>
+        IMessageHandler<PollResponseWasReceived>,
+        IMessageHandler<IncomingEventHasBeenProcessed>
     {
         private readonly ISubscriptionRepository repository;
         private readonly IHttpPoller http;
+        private readonly ITextSerializer serializer;
 
         // Sets the threshold where there is need
-        private const int bufferMinThreshold = 50;
+        private const int queueMaxThreshold = 100;
+        private const int eventsToFlushMaxCount = 50;
         private ConcurrentBag<BufferedSubscription> subscriptionsBag;
 
-        public BufferPool(IBus bus, ISubscriptionRepository repository, IHttpPoller http)
+        public BufferPool(IBus bus, ISubscriptionRepository repository, IHttpPoller http, ITextSerializer serializer)
             : base(bus)
         {
             Ensure.NotNull(repository, "repository");
             Ensure.NotNull(http, "http");
+            Ensure.NotNull(serializer, "serializer");
 
             this.repository = repository;
             this.http = http;
+            this.serializer = serializer;
         }
 
         /// <summary>
@@ -39,7 +47,7 @@ namespace EventCentric.Polling
         public bool TryFill()
         {
             var subscriptonsReadyForPolling = this.subscriptionsBag
-                                                  .Where(s => !s.IsPolling && s.NewEventsQueue.Count < 50)
+                                                  .Where(s => !s.IsPolling && s.NewEventsQueue.Count < queueMaxThreshold)
                                                   .ToArray();
 
             if (!subscriptonsReadyForPolling.Any())
@@ -59,7 +67,41 @@ namespace EventCentric.Polling
 
         public bool TryFlush()
         {
-            return false;
+            var subscriptionsReadyToFlush =
+                this.subscriptionsBag.Where(s => s.NewEventsQueue.Count > 0 && s.EventsInProcessorBag.IsEmpty)
+                                     .ToArray();
+
+            if (!subscriptionsReadyToFlush.Any())
+                return false;
+
+            foreach (var subscription in subscriptionsReadyToFlush)
+            {
+                var rawEvents = new List<NewRawEvent>();
+                for (int i = 0; i < eventsToFlushMaxCount; i++)
+                {
+                    NewRawEvent rawEvent = null;
+                    if (!subscription.NewEventsQueue.TryDequeue(out rawEvent))
+                        break;
+
+                    rawEvents.Add(rawEvent);
+                }
+
+                var processorBufferVersion = rawEvents.Min(e => e.EventCollectionVersion);
+                rawEvents.ForEach(raw =>
+                {
+                    var incomingEvent =
+                        new IncomingEvent<IEvent>(
+                            raw.EventCollectionVersion,
+                            processorBufferVersion,
+                            this.serializer.Deserialize<IEvent>(raw.Payload));
+
+                    subscription.EventsInProcessorBag.Add(incomingEvent);
+
+                    this.bus.Publish(new NewIncomingEvent(incomingEvent));
+                });
+            }
+
+            return true;
         }
 
         public void Handle(PollResponseWasReceived message)
@@ -78,6 +120,11 @@ namespace EventCentric.Polling
             }
 
             subscription.IsPolling = false;
+        }
+
+        public void Handle(IncomingEventHasBeenProcessed message)
+        {
+
         }
     }
 }

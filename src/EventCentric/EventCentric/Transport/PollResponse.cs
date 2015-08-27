@@ -4,7 +4,7 @@ namespace EventCentric.Transport
 {
     public class PollResponse
     {
-        public PollResponse(bool newEventsWereFound, string streamType, List<NewEvent> newEvents)
+        public PollResponse(bool newEventsWereFound, string streamType, List<NewRawEvent> newEvents)
         {
             this.NewEventsWereFound = newEventsWereFound;
             this.StreamType = streamType;
@@ -13,6 +13,6 @@ namespace EventCentric.Transport
 
         public bool NewEventsWereFound { get; private set; }
         public string StreamType { get; private set; }
-        public List<NewEvent> NewEvents { get; private set; }
+        public List<NewRawEvent> NewEvents { get; private set; }
     }
 }

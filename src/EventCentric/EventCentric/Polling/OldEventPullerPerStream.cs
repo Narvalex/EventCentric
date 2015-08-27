@@ -14,7 +14,7 @@ using System.Threading.Tasks;
 
 namespace EventCentric.Pulling
 {
-    public class EventPullerPerStream : FSM,
+    public class OldEventPullerPerStream : FSM,
         IMessageHandler<StartEventPollster>,
         IMessageHandler<StopEventPollster>,
         IMessageHandler<IncomingEventHasBeenProcessed>,
@@ -28,7 +28,7 @@ namespace EventCentric.Pulling
         private ConcurrentBag<SubscribedStream> subscribedStreams;
         private ConcurrentBag<SubscribedSource> subscribedSources;
 
-        public EventPullerPerStream(IBus bus, ISubscriptionDao dao, ISubscriptionInboxWriter writer, IOldHttpPoller poller, ITextSerializer serializer)
+        public OldEventPullerPerStream(IBus bus, ISubscriptionDao dao, ISubscriptionInboxWriter writer, IOldHttpPoller poller, ITextSerializer serializer)
             : base(bus)
         {
             Ensure.NotNull(dao, "dao");
@@ -193,7 +193,7 @@ namespace EventCentric.Pulling
                     try
                     {
                         // Make a retry logic to avoid mark every error to as a poisoned message.
-                        this.bus.Publish(new NewIncomingEvent(this.serializer.Deserialize<IEvent>(e.Payload)));
+                        //this.bus.Publish(new NewIncomingEvent(this.serializer.Deserialize<IEvent>(e.Payload)));
                     }
                     catch (Exception ex)
                     {

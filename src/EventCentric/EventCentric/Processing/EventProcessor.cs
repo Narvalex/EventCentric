@@ -2,6 +2,7 @@
 using EventCentric.Messaging;
 using EventCentric.Messaging.Commands;
 using EventCentric.Messaging.Events;
+using EventCentric.Transport;
 using EventCentric.Utils;
 using System;
 using System.Collections.Concurrent;
@@ -50,11 +51,15 @@ namespace EventCentric.Processing
         {
             try
             {
-                ((dynamic)this).Handle((dynamic)message.Event);
+                ((dynamic)this).Handle((dynamic)message.IncomingEvent);
             }
             catch (Exception ex)
             {
-                this.bus.Publish(new IncomingEventIsPoisoned(message.Event.StreamType, message.Event.StreamId, new PoisonMessageException("Poison message detected in Event Processor", ex)));
+                this.bus.Publish(
+                    new IncomingEventIsPoisoned(
+                        message.IncomingEvent.Event.StreamType,
+                        message.IncomingEvent.Event.StreamId,
+                        new PoisonMessageException("Poison message detected in Event Processor", ex)));
             }
         }
 
@@ -75,16 +80,16 @@ namespace EventCentric.Processing
         /// </summary>
         /// <param name="id">The id of the new stream. A brand new computed <see cref="Guid"/>.</param>
         /// <param name="@event">The first message that the new aggregate will process.</param>
-        protected void CreateNewStream(Guid id, IEvent @event)
+        protected void CreateNewStream(Guid id, IncomingEvent<IEvent> incomingEvent)
         {
             this.HandleSafelyWithStreamLocking(id, () =>
             {
                 var aggregate = this.newAggregateFactory(id);
-                this.HandleEventAndAppendToStore(aggregate, @event);
+                this.HandleEventAndAppendToStore(aggregate, incomingEvent);
             });
         }
 
-        protected void CreateNewStreamIfNotExists(Guid id, IEvent @event)
+        protected void CreateNewStreamIfNotExists(Guid id, IncomingEvent<IEvent> incomingEvent)
         {
             this.HandleSafelyWithStreamLocking(id, () =>
             {
@@ -92,7 +97,7 @@ namespace EventCentric.Processing
                 if (aggregate == null)
                     aggregate = this.newAggregateFactory(id);
 
-                this.HandleEventAndAppendToStore(aggregate, @event);
+                this.HandleEventAndAppendToStore(aggregate, incomingEvent);
             });
         }
 
@@ -101,12 +106,12 @@ namespace EventCentric.Processing
         /// </summary>
         /// <param name="id">The id of the stream.</param>
         /// <param name="@event">The event to be handled by the aggregate of <see cref="T"/>.</param>
-        protected void Handle(Guid id, IEvent @event)
+        protected void Handle(Guid id, IncomingEvent<IEvent> incomingEvent)
         {
             this.HandleSafelyWithStreamLocking(id, () =>
             {
                 var aggregate = this.store.Get(id);
-                this.HandleEventAndAppendToStore(aggregate, @event);
+                this.HandleEventAndAppendToStore(aggregate, incomingEvent);
             });
         }
 
@@ -116,10 +121,10 @@ namespace EventCentric.Processing
         /// happened in the source.
         /// </summary>
         /// <param name="@event">The <see cref="IEvent"/> to be igonred.</param>
-        protected void Ignore(IEvent @event)
+        protected void Ignore(IncomingEvent<IEvent> incomingEvent)
         {
-            this.subscriptionWriter.LogIncomingEventAsIgnored(@event);
-            this.PublishIncomingEventHasBeenProcessed(@event);
+            this.subscriptionWriter.LogIncomingEventAsIgnored(incomingEvent.Event);
+            this.PublishIncomingEventHasBeenProcessed(incomingEvent);
         }
 
         /// <summary>
@@ -128,12 +133,12 @@ namespace EventCentric.Processing
         /// <param name="aggregate">The aggregate.</param>
         /// <param name="@event">The event.</param>
         /// <returns>The updated stream version.</returns>
-        private void HandleEventAndAppendToStore(T aggregate, IEvent @event)
+        private void HandleEventAndAppendToStore(T aggregate, IncomingEvent<IEvent> incomingEvent)
         {
-            ((dynamic)aggregate).Handle((dynamic)@event);
-            var version = this.store.Save(aggregate, @event);
+            ((dynamic)aggregate).Handle((dynamic)incomingEvent.Event);
+            var version = this.store.Save(aggregate, incomingEvent);
             this.bus.Publish(new EventStoreHasBeenUpdated(version));
-            this.PublishIncomingEventHasBeenProcessed(@event);
+            this.PublishIncomingEventHasBeenProcessed(incomingEvent);
         }
 
         /// <summary>
@@ -150,9 +155,8 @@ namespace EventCentric.Processing
             }
         }
 
-        private void PublishIncomingEventHasBeenProcessed(IEvent @event)
+        private void PublishIncomingEventHasBeenProcessed(IncomingEvent<IEvent> incomingEvent)
         {
-            this.bus.Publish(new IncomingEventHasBeenProcessed(@event.StreamId, @event.StreamType, @event.Version));
+            this.bus.Publish(new IncomingEventHasBeenProcessed(incomingEvent.Event.StreamType, incomingEvent.EventCollectionVersion));
         }
     }
-}

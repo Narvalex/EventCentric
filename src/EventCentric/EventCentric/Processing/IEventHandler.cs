@@ -1,12 +1,13 @@
 ﻿using EventCentric.EventSourcing;
+using EventCentric.Transport;
 
 namespace EventCentric.Processing
 {
     public interface IEventHandler
     { }
 
-    public interface IEventHandler<T> where T : IEvent
+    public interface IEventHandler<T> where T : IncomingEvent<IEvent>
     {
-        void Handle(T @event);
+        void Handle(T incomingEvent);
     }
 }

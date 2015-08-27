@@ -19,11 +19,11 @@ namespace EventCentric.Publishing
         /// FindEvents
         /// </summary>
         /// <returns>Events if found, otherwise return empty list.</returns>
-        public List<NewEvent> FindEvents(int lastReceivedVersion, int quantity)
+        public List<NewRawEvent> FindEvents(int lastReceivedVersion, int quantity)
         {
             using (var context = this.contextFactory())
             {
-                var events = new List<NewEvent>();
+                var events = new List<NewRawEvent>();
                 try
                 {
 
@@ -34,7 +34,7 @@ namespace EventCentric.Publishing
                                 .Take(quantity);
 
                     foreach (var e in eventsQuery)
-                        events.Add(new NewEvent(e.EventCollectionVersion, e.Payload));
+                        events.Add(new NewRawEvent(e.EventCollectionVersion, e.Payload));
 
                     return events;
                 }
@@ -57,7 +57,7 @@ namespace EventCentric.Publishing
 
     public interface IEventDao
     {
-        List<NewEvent> FindEvents(int fromEventCollectionVersion, int quantity);
+        List<NewRawEvent> FindEvents(int fromEventCollectionVersion, int quantity);
 
         int GetEventCollectionVersion();
     }

@@ -2,6 +2,7 @@
 using EventCentric.Repository;
 using EventCentric.Repository.Mapping;
 using EventCentric.Serialization;
+using EventCentric.Transport;
 using EventCentric.Utils;
 using System;
 using System.Data.Entity;
@@ -94,8 +95,9 @@ namespace EventCentric.EventSourcing
             return this.originatorAggregateFactory.Invoke(id, cachedMemento.Item1);
         }
 
-        public int Save(T eventSourced, IEvent correlatedEvent)
+        public int Save(T eventSourced, IncomingEvent<IEvent> envelopedIncomingEvent)
         {
+            var incomingEvent = envelopedIncomingEvent.Event;
             var pendingEvents = eventSourced.PendingEvents;
             if (pendingEvents.Length == 0)
                 throw new ArgumentOutOfRangeException("pendingEvents");
@@ -130,7 +132,7 @@ namespace EventCentric.EventSourcing
                                 Version = @event.Version,
                                 EventId = @event.EventId,
                                 EventType = @event.GetType().Name,
-                                CorrelationId = correlatedEvent.EventId,
+                                CorrelationId = incomingEvent.EventId,
                                 CreationDate = now,
                                 Payload = this.serializer.Serialize(@event)
                             });
@@ -139,14 +141,14 @@ namespace EventCentric.EventSourcing
                     // Log incoming event in the subscription table
                     var message = new InboxEntity
                     {
-                        EventId = correlatedEvent.EventId,
-                        StreamType = correlatedEvent.StreamType,
-                        StreamId = correlatedEvent.StreamId,
-                        Version = correlatedEvent.Version,
-                        EventType = correlatedEvent.GetType().Name,
+                        EventId = incomingEvent.EventId,
+                        StreamType = incomingEvent.StreamType,
+                        StreamId = incomingEvent.StreamId,
+                        Version = incomingEvent.Version,
+                        EventType = incomingEvent.GetType().Name,
                         CreationDate = now,
                         Ignored = false,
-                        Payload = this.serializer.Serialize(correlatedEvent)
+                        Payload = this.serializer.Serialize(incomingEvent)
                     };
                     context.Inbox.Add(message);
 

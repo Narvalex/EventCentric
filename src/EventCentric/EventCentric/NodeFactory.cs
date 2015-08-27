@@ -86,7 +86,7 @@ namespace EventCentric
             var bus = new Bus();
 
             var publisher = new EventPublisher<TAggregate>(bus, eventDao);
-            var puller = new EventPullerPerStream(bus, subscriptionDao, subscriptionWriter, new OldHttpPoller(), serializer);
+            var puller = new OldEventPullerPerStream(bus, subscriptionDao, subscriptionWriter, new OldHttpPoller(), serializer);
             var fsm = new Node(bus);
 
             // Register processor dependencies

@@ -1,18 +1,14 @@
-﻿using System;
-
-namespace EventCentric.Messaging.Events
+﻿namespace EventCentric.Messaging.Events
 {
     public class IncomingEventHasBeenProcessed : IMessage
     {
-        public IncomingEventHasBeenProcessed(Guid streamId, string streamType, int streamVersion)
+        public IncomingEventHasBeenProcessed(string streamType, int eventCollectionVersion)
         {
-            this.StreamId = streamId;
             this.StreamType = streamType;
-            this.StreamVersion = streamVersion;
+            this.EventCollectionVersion = eventCollectionVersion;
         }
 
-        public Guid StreamId { get; private set; }
         public string StreamType { get; private set; }
-        public int StreamVersion { get; private set; }
+        public int EventCollectionVersion { get; private set; }
     }
 }

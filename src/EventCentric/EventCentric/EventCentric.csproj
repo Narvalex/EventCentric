@@ -154,7 +154,8 @@
     <Compile Include="Serialization\TextSerializerExtensions.cs" />
     <Compile Include="Transport\HttpPoller.cs" />
     <Compile Include="Transport\IHttpPoller.cs" />
-    <Compile Include="Transport\NewEvent.cs" />
+    <Compile Include="Transport\IncomingEvent.cs" />
+    <Compile Include="Transport\NewRawEvent.cs" />
     <Compile Include="Transport\OldHttpPoller.cs" />
     <Compile Include="Transport\OldPolledEventData.cs" />
     <Compile Include="Transport\IOldHttpPoller.cs" />
@@ -164,7 +165,7 @@
     <Compile Include="Processing\EventProcessor.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Publishing\EventPublisher.cs" />
-    <Compile Include="Polling\EventPullerPerStream.cs" />
+    <Compile Include="Polling\OldEventPullerPerStream.cs" />
     <Compile Include="Polling\ISubscriptionDao.cs" />
     <Compile Include="Transport\PollEventsDto.cs" />
     <Compile Include="Polling\SubscribedStream.cs" />

@@ -1,14 +1,15 @@
 ﻿using EventCentric.EventSourcing;
+using EventCentric.Transport;
 
 namespace EventCentric.Messaging.Events
 {
     public class NewIncomingEvent : IMessage
     {
-        public NewIncomingEvent(IEvent @event)
+        public NewIncomingEvent(IncomingEvent<IEvent> incomingEvent)
         {
-            this.Event = @event;
+            this.IncomingEvent = incomingEvent;
         }
 
-        public IEvent Event { get; private set; }
+        public IncomingEvent<IEvent> IncomingEvent { get; private set; }
     }
 }
