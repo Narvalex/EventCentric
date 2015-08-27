@@ -1,4 +1,5 @@
 ﻿using EventCentric.Database;
+using EventCentric.Respository;
 using System;
 using System.Configuration;
 
@@ -11,7 +12,7 @@ namespace EventCentric.Tests.Helpers
         public GIVEN_db()
         {
             this.connectionString = ConfigurationManager.AppSettings["defaultConnection"];
-            EventStoreWithSubPerStreamDbInitializer.CreateDatabaseObjects(connectionString, true);
+            DbInitializer.CreateDatabaseObjects(connectionString, true);
         }
 
         public void Dispose()

@@ -16,16 +16,13 @@ namespace EventCentric.Pulling
         IMessageHandler<IncomingEventIsPoisoned>
     {
         private readonly EventBuffer buffer;
-        private readonly ProcessorProxy proxy;
 
-        public EventPollster(IBus bus, EventBuffer buffer, ProcessorProxy proxy)
+        public EventPollster(IBus bus, EventBuffer buffer)
             : base(bus)
         {
             Ensure.NotNull(buffer, "buffer");
-            Ensure.NotNull(proxy, "proxy");
 
             this.buffer = buffer;
-            this.proxy = proxy;
         }
 
         public void Handle(StopEventPollster message)
@@ -72,11 +69,11 @@ namespace EventCentric.Pulling
 
             while (!base.stopping)
             {
-                var areBusy = new Tuple<bool, bool>(
-                    this.buffer.TryFill(),
-                    this.proxy.TryPushEvents());
+                var isStarving = new Tuple<bool, bool>(
+                    !this.buffer.TryFill(),
+                    !this.buffer.TryFlush());
 
-                if (!areBusy.Item1 && !areBusy.Item2)
+                if (isStarving.Item1 && isStarving.Item2)
                     Thread.Sleep(100);
             }
         }

@@ -3,6 +3,7 @@ using EventCentric.EventSourcing;
 using EventCentric.Messaging.Commands;
 using EventCentric.Messaging.Events;
 using EventCentric.Repository;
+using EventCentric.Respository;
 using EventCentric.Serialization;
 using EventCentric.Tests.Processing.Helpers;
 using EventCentric.Utils;
@@ -29,7 +30,7 @@ namespace EventCentric.Tests.Processing.ProcessorFixture
         public GIVEN_processor()
         {
             this.connectionString = ConfigurationManager.AppSettings["defaultConnection"];
-            EventStoreWithSubPerStreamDbInitializer.CreateDatabaseObjects(connectionString, true);
+            DbInitializer.CreateDatabaseObjects(connectionString, true);
             this.bus = new TestBus();
             this.subWriter = new SubscriptionInboxWriter(() => new EventStoreDbContext(this.connectionString), this.time, this.serializer);
             this.store = new EventStore<TestAggregate>(this.serializer, () => new EventStoreDbContext(this.connectionString), this.subWriter, this.time, new SequentialGuid());

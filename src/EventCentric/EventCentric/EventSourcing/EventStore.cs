@@ -197,7 +197,8 @@ namespace EventCentric.EventSourcing
 
                     context.SaveChanges();
 
-                    return streamEntity.StreamCollectionVersion;
+                    //return streamEntity.StreamCollectionVersion;
+                    throw new NotImplementedException();
                 }
             }
             catch

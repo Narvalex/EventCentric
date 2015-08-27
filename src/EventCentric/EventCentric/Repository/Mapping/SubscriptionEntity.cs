@@ -7,8 +7,7 @@ namespace EventCentric.Repository.Mapping
     {
         public string StreamType { get; set; }
         public string Url { get; set; }
-        public int EventsInProcessorVersion { get; set; }
-        public int EventCollectionVersion { get; set; }
+        public int ProcessorBufferVersion { get; set; }
         public bool IsPoisoned { get; set; }
         public string DeadLetterPayload { get; set; }
         public string ExceptionMessage { get; set; }
@@ -28,11 +27,8 @@ namespace EventCentric.Repository.Mapping
                 .IsRequired()
                 .HasMaxLength(500);
 
-            this.Property(t => t.EventsInProcessorVersion)
+            this.Property(t => t.ProcessorBufferVersion)
                .IsRequired();
-
-            this.Property(t => t.EventCollectionVersion)
-                .IsRequired();
 
             this.Property(t => t.IsPoisoned)
                 .IsRequired();
@@ -41,8 +37,7 @@ namespace EventCentric.Repository.Mapping
             this.ToTable("Subscriptions", "EventStore");
             this.Property(t => t.StreamType).HasColumnName("StreamType");
             this.Property(t => t.Url).HasColumnName("Url");
-            this.Property(t => t.EventsInProcessorVersion).HasColumnName("EventsInProcessorVersion");
-            this.Property(t => t.EventCollectionVersion).HasColumnName("EventCollectionVersion");
+            this.Property(t => t.ProcessorBufferVersion).HasColumnName("ProcessorBufferVersion");
             this.Property(t => t.IsPoisoned).HasColumnName("IsPoisoned");
             this.Property(t => t.DeadLetterPayload).HasColumnName("DeadLetterPayload");
             this.Property(t => t.ExceptionMessage).HasColumnName("ExceptionMessage");

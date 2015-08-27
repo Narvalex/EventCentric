@@ -18,7 +18,7 @@ namespace EventCentric.Polling
         private const int bufferMaxThreshold = 100;
         private const int bufferMinThreshold = 50;
         private ConcurrentBag<Subscription> subscriptionsBag;
-        private ConcurrentQueue<NewEvent> bufferedEventsQueue;
+        private ConcurrentQueue<NewEvent> queue;
 
         public EventBuffer(IBus bus, ISubscriptionRepository repository, IHttpPoller http)
             : base(bus)
@@ -35,13 +35,13 @@ namespace EventCentric.Polling
         /// </summary>
         public void Initialize()
         {
-            this.bufferedEventsQueue = new ConcurrentQueue<NewEvent>();
+            this.queue = new ConcurrentQueue<NewEvent>();
             this.subscriptionsBag = this.repository.GetSubscriptions();
         }
 
         public bool TryFill()
         {
-            if (!(bufferedEventsQueue.Count > bufferMinThreshold) && !(bufferedEventsQueue.Count < bufferMinThreshold))
+            if (!(queue.Count > bufferMinThreshold) && !(queue.Count < bufferMinThreshold))
                 // The queue if full
                 return false;
 
@@ -60,6 +60,11 @@ namespace EventCentric.Polling
             return true;
         }
 
+        public bool TryFlush()
+        {
+            return false;
+        }
+
         public void Handle(PollResponseWasReceived message)
         {
             var response = message.Response;
@@ -68,7 +73,7 @@ namespace EventCentric.Polling
                 var orderedEvents = response.NewEvents.OrderBy(e => e.EventCollectionVersion).ToArray();
 
                 foreach (var e in orderedEvents)
-                    this.bufferedEventsQueue.Enqueue(e);
+                    this.queue.Enqueue(e);
             }
 
             this.subscriptionsBag.Where(s => s.StreamType == response.StreamType).Single().IsPolling = false;

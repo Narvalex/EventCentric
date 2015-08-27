@@ -22,7 +22,7 @@ namespace EventCentric.Transport
             {
                 try
                 {
-                    var getResult = client.GetAsync($"{subscription.Url}/events/{subscription.}").Result;
+                    var getResult = client.GetAsync($"{subscription.Url}/events/{subscription.ProcessorBufferVersion}").Result;
                     if (!getResult.IsSuccessStatusCode)
                         throw new InvalidOperationException($"The status code was: {getResult.StatusCode.ToString()}");
 

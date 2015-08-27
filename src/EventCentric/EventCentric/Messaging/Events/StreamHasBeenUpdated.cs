@@ -1,18 +1,12 @@
-﻿using System;
-
-namespace EventCentric.Messaging.Events
+﻿namespace EventCentric.Messaging.Events
 {
     public class StreamHasBeenUpdated : IMessage
     {
-        public StreamHasBeenUpdated(Guid streamId, int updatedStreamVersion, int updatedStreamCollectionVersion)
+        public StreamHasBeenUpdated(int eventCollectionVersion)
         {
-            this.StreamId = streamId;
-            this.UpdatedStreamVersion = updatedStreamVersion;
-            this.UpdatedStreamCollectionVersion = updatedStreamCollectionVersion;
+            this.EventCollectionVersion = eventCollectionVersion;
         }
 
-        public Guid StreamId { get; private set; }
-        public int UpdatedStreamVersion { get; private set; }
-        public int UpdatedStreamCollectionVersion { get; set; }
+        public int EventCollectionVersion { get; private set; }
     }
 }

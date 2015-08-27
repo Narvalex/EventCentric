@@ -11,8 +11,9 @@ namespace EventCentric.Repository.Mapping
         public Guid StreamId { get; set; }
         public int Version { get; set; }
         public string EventType { get; set; }
-        public DateTime CreationDate { get; set; }
+        public int EventCollectionVersion { get; set; }
         public bool Ignored { get; set; }
+        public DateTime CreationDate { get; set; }
         public string Payload { get; set; }
     }
 
@@ -35,6 +36,9 @@ namespace EventCentric.Repository.Mapping
             this.Property(t => t.Payload)
                 .IsRequired();
 
+            this.Property(t => t.EventCollectionVersion)
+                .IsRequired();
+
             // Table & Column Mappings
             this.ToTable("Inbox", "EventStore");
             this.Property(t => t.InboxId).HasColumnName("InboxId");
@@ -43,8 +47,9 @@ namespace EventCentric.Repository.Mapping
             this.Property(t => t.StreamId).HasColumnName("StreamId");
             this.Property(t => t.Version).HasColumnName("Version");
             this.Property(t => t.EventType).HasColumnName("EventType");
-            this.Property(t => t.CreationDate).HasColumnName("CreationDate");
+            this.Property(t => t.EventCollectionVersion).HasColumnName("EventCollectionVersion");
             this.Property(t => t.Ignored).HasColumnName("Ignored");
+            this.Property(t => t.CreationDate).HasColumnName("CreationDate");
             this.Property(t => t.Payload).HasColumnName("Payload");
         }
     }

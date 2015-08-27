@@ -1,5 +1,4 @@
 ﻿using EventCentric.Repository;
-using EventCentric.Utils;
 using System;
 using System.Collections.Concurrent;
 using System.Linq;
@@ -40,14 +39,15 @@ namespace EventCentric.Publishing
         {
             using (var context = this.contextFactory())
             {
-                var nextStream =
-                    context
-                    .Streams
-                    .Where(s => s.StreamCollectionVersion > previousStreamCollectionVersion)
-                    .OrderBy(s => s.StreamCollectionVersion)
-                    .First();
+                //var nextStream =
+                //    context
+                //    .Streams
+                //    .Where(s => s.StreamCollectionVersion > previousStreamCollectionVersion)
+                //    .OrderBy(s => s.StreamCollectionVersion)
+                //    .First();
 
-                return new Tuple<Guid, int>(nextStream.StreamId, nextStream.StreamCollectionVersion);
+                //return new Tuple<Guid, int>(nextStream.StreamId, nextStream.StreamCollectionVersion);
+                return null;
             }
         }
 
@@ -55,8 +55,8 @@ namespace EventCentric.Publishing
         {
             using (var context = this.contextFactory())
             {
-                if (context.Streams.Any())
-                    return context.Streams.Max(s => s.StreamCollectionVersion);
+                //if (context.Streams.Any())
+                //    return context.Streams.Max(s => s.StreamCollectionVersion);
 
                 return 0;
             }
@@ -67,15 +67,15 @@ namespace EventCentric.Publishing
             var streamsVersionById = new ConcurrentDictionary<Guid, int>();
             using (var context = this.contextFactory())
             {
-                var streams = context
-                                .Streams
-                                .AsCachedAnyEnumerable();
+                //var streams = context
+                //                .Streams
+                //                .AsCachedAnyEnumerable();
 
-                if (streams.Any())
-                {
-                    foreach (var stream in streams)
-                        streamsVersionById.TryAdd(stream.StreamId, stream.Version);
-                }
+                //if (streams.Any())
+                //{
+                //    foreach (var stream in streams)
+                //        streamsVersionById.TryAdd(stream.StreamId, stream.Version);
+                //}
 
                 return streamsVersionById;
             }

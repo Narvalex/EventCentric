@@ -18,12 +18,10 @@ namespace EventCentric.Repository
         { }
 
         public IDbSet<EventEntity> Events { get; set; }
-        public IDbSet<StreamEntity> Streams { get; set; }
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
             modelBuilder.Configurations.Add(new EventEntityMap());
-            modelBuilder.Configurations.Add(new StreamEntityMap());
         }
     }
 }

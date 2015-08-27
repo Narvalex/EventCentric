@@ -21,6 +21,8 @@ namespace EventCentric.Publishing
         private readonly IEventDao dao;
         private const int responseLength = 50;
 
+        private volatile int eventCollectionVersion;
+
         public EventPublisher(IBus bus, IEventDao dao)
             : base(bus)
         {
@@ -49,28 +51,7 @@ namespace EventCentric.Publishing
             base.Start();
         }
 
-        public OldPollEventsResponse PollEvents(PollEventsRequest request)
-        {
-            var responseList = new List<OldPolledEventData>(5);
-
-            //request.StreamVersionsFromSubscriber.ForEach(pollerVersion =>
-            //{
-            //    var currentVersion = this.streamVersionsById.TryGetValue(pollerVersion.Key);
-            //    // Check if version is still up to date
-            //    if (pollerVersion.Value >= currentVersion)
-            //        responseList.Add(new OldPolledEventData(_streamType, pollerVersion.Key, false, string.Empty));
-            //    else
-            //    // If poller's version is stale, pull from event store the next one
-            //    {
-            //        string payload = this.dao.GetNextEventPayload(pollerVersion.Key, pollerVersion.Value);
-            //        responseList.Add(new OldPolledEventData(_streamType, pollerVersion.Key, true, payload));
-            //    }
-            //});
-
-            return new OldPollEventsResponse(true, responseList);
-        }
-
-        public PollResponse PollEvents(int clientVersion)
+        public PollResponse PollEvents(int eventBufferVersion)
         {
             bool newEventsFound = false;
             var newEvents = new List<NewEvent>();
@@ -78,38 +59,21 @@ namespace EventCentric.Publishing
             while (!this.stopping && attemps <= 100)
             {
                 attemps += 1;
-                var events = this.dao.FindEvents(clientVersion, responseLength);
-                if (events != null)
+                if (this.eventCollectionVersion <= eventBufferVersion)
+                    Thread.Sleep(100);
+                else
                 {
-                    newEventsFound = true;
-                    newEvents = events;
+                    newEvents = this.dao.GetEvents(eventBufferVersion, responseLength);
                     break;
                 }
-                else
-                    Thread.Sleep(100);
             }
 
             return new PollResponse(newEventsFound, _streamType, newEvents);
         }
 
-        public PollStreamsResponse PollStreams(PollStreamsRequest request)
-        {
-            PollStreamsResponse response = null;
-            //if (this.streamCollectionVersion > request.StreamCollectionVersion)
-            //{
-            //    var newStream = this.dao.GetNextStreamIdAndStreamCollectionVersion(request.StreamCollectionVersion);
-            //    response = new PollStreamsResponse(true, newStream.Item1, newStream.Item2);
-            //}
-            //else
-            //    response = new PollStreamsResponse(false, null, null);
-
-            return response;
-        }
-
         protected override void OnStarting()
         {
-            //this.streamVersionsById = this.dao.GetStreamsVersionsById();
-            //this.streamCollectionVersion = this.dao.GetStreamCollectionVersion();
+            this.eventCollectionVersion = this.dao.GetEventCollectionVersion();
             this.bus.Publish(new EventPublisherStarted());
         }
 

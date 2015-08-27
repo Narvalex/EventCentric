@@ -4,6 +4,6 @@ namespace EventCentric.Publishing
 {
     public interface IEventSource
     {
-        PollResponse PollEvents(int clientVersion);
+        PollResponse PollEvents(int eventBufferVersion);
     }
 }

@@ -1,5 +1,4 @@
 ﻿using EventCentric.EventSourcing;
-using System;
 
 namespace EventCentric.Queueing
 {
@@ -9,7 +8,7 @@ namespace EventCentric.Queueing
         /// Enqueue a message in the queue
         /// </summary>
         /// <param name="event">The message to enqueue.</param>
-        /// <returns>The updated stream version in the queue and the updated stream collection version.</returns>
-        Tuple<int, int> Enqueue(IEvent @event);
+        /// <returns>The event stream collection version.</returns>
+        int Enqueue(IEvent @event);
     }
 }

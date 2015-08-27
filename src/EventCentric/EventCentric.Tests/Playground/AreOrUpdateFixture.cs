@@ -1,6 +1,7 @@
 ﻿using EventCentric.Database;
 using EventCentric.Repository;
 using EventCentric.Repository.Mapping;
+using EventCentric.Respository;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Configuration;
@@ -17,7 +18,7 @@ namespace EventCentric.Tests.Playground
         public AreOrUpdateFixture()
         {
             this.connectionString = ConfigurationManager.AppSettings["defaultConnection"];
-            EventStoreWithSubPerStreamDbInitializer.CreateDatabaseObjects(connectionString, true);
+            DbInitializer.CreateDatabaseObjects(connectionString, true);
             this.contextFactory = () => new EventStoreDbContext(this.connectionString);
         }
 

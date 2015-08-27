@@ -3,6 +3,7 @@ using EventCentric.Messaging.Commands;
 using EventCentric.Messaging.Events;
 using EventCentric.Pulling;
 using EventCentric.Repository;
+using EventCentric.Respository;
 using EventCentric.Serialization;
 using EventCentric.Tests.Pulling.Helpers;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -124,7 +125,7 @@ namespace EventCentric.Tests.Pulling.EventPullerFixture
         public GIVEN_event_puller_with_db()
         {
             this.connectionString = ConfigurationManager.AppSettings["defaultConnection"];
-            EventStoreWithSubPerStreamDbInitializer.CreateDatabaseObjects(connectionString, true);
+            DbInitializer.CreateDatabaseObjects(connectionString, true);
 
             this.streamId1 = Guid.NewGuid();
             this.bus = new TestBus();

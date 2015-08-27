@@ -8,36 +8,40 @@ namespace EventCentric.Publishing
 {
     public class EventDao : IEventDao
     {
-        private readonly Func<EventStoreDbContext> contextFactory;
+        private readonly Func<EventQueueDbContext> contextFactory;
 
-        public EventDao(Func<EventStoreDbContext> contextFactory)
+        public EventDao(Func<EventQueueDbContext> contextFactory)
         {
             this.contextFactory = contextFactory;
         }
 
-        public List<NewEvent> FindEvents(int previousEventCollectionVersion, int quantity)
+        public List<NewEvent> GetEvents(int fromEventCollectionVersion, int quantity)
         {
             using (var context = this.contextFactory())
             {
-                var eventsQuery = context
-                                    .Events
-                                    .Where(e => e.EventCollectionVersion > previousEventCollectionVersion)
-                                    .OrderBy(e => e.EventCollectionVersion);
+                return context
+                        .Events
+                        .Where(e => e.EventCollectionVersion >= fromEventCollectionVersion)
+                        .OrderBy(e => e.EventCollectionVersion)
+                        .Select(e => new NewEvent(e.EventCollectionVersion, e.Payload))
+                        .Take(quantity)
+                        .ToList();
+            }
+        }
 
-                if (!eventsQuery.Any())
-                    return null;
-
-                var events = eventsQuery
-                                .Select(e => new NewEvent(e.EventCollectionVersion, e.Payload))
-                                .Take(quantity)
-                                .ToList();
-                return events;
+        public int GetEventCollectionVersion()
+        {
+            using (var context = this.contextFactory())
+            {
+                return !context.Events.Any() ? 0 : context.Events.Max(e => e.EventCollectionVersion);
             }
         }
     }
 
     public interface IEventDao
     {
-        List<NewEvent> FindEvents(int previousEventCollectionVersion, int quantity);
+        List<NewEvent> GetEvents(int fromEventCollectionVersion, int quantity);
+
+        int GetEventCollectionVersion();
     }
 }

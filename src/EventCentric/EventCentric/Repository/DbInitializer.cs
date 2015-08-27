@@ -1,9 +1,9 @@
 ﻿using System.Data.SqlClient;
 using System.Globalization;
 
-namespace EventCentric.Database
+namespace EventCentric.Respository
 {
-    public class EventStoreWithSubPerStreamDbInitializer
+    public class DbInitializer
     {
         public static void CreateDatabaseObjects(string connectionString, bool createDatabase = false, bool isForclientNode = false)
         {
@@ -46,8 +46,7 @@ IF NOT EXISTS (SELECT name FROM sys.databases WHERE name = N'{0}') CREATE DATABA
                 {
                     command.CommandText = isForclientNode ? EventsCreateTableScript + StreamsCreateTableScript
                                                           : EventsCreateTableScript + StreamsCreateTableScript
-                                                            + SubscriptionsCreateTableScript + SubscribedSourcesCreateTableScript
-                                                            + InboxCreateTableScript;
+                                                            + SubscriptionsCreateTableScript + InboxCreateTableScript;
                     command.ExecuteNonQuery();
                 }
             }
@@ -61,17 +60,20 @@ EXECUTE sp_executesql N'CREATE SCHEMA [EventStore] AUTHORIZATION [dbo]';
 
 IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[EventStore].[Events]') AND type in (N'U'))
 CREATE TABLE [EventStore].[Events](
+    [StreamType] [nvarchar] (255) NOT NULL,
 	[StreamId] [uniqueidentifier] NOT NULL,
 	[Version] [int] NOT NULL,
 	[EventId] [uniqueidentifier] NOT NULL,
 	CONSTRAINT EventStore_Events_EventId UNIQUE(EventId),
 	[EventType] [nvarchar] (255) NOT NULL,
 	[CorrelationId] [uniqueidentifier] NULL,
-	[CreationDate] [datetime] NOT NULL,
+    [EventCollectionVersion] [int] IDENTITY(1,1) NOT NULL,
+    [CreationDate] [datetime] NOT NULL,
 	[Payload] [nvarchar] (max) NOT NULL
 
 PRIMARY KEY CLUSTERED 
 (
+    [StreamType] ASC,
 	[StreamId] ASC, 
     [Version] ASC
 )WITH (PAD_INDEX  = OFF, STATISTICS_NORECOMPUTE  = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS  = ON, ALLOW_PAGE_LOCKS  = ON) ON [PRIMARY]
@@ -83,12 +85,12 @@ PRIMARY KEY CLUSTERED
 @"--Streams
 IF NOT EXISTS(SELECT* FROM sys.objects WHERE object_id = OBJECT_ID(N'[EventStore].[Streams]') AND type in (N'U'))
 CREATE TABLE[EventStore].[Streams](
-    [StreamId]
-    [uniqueidentifier] NOT NULL,
+    [StreamId] [uniqueidentifier] NOT NULL,
     [Version] [int] NOT NULL,
     [Memento] [nvarchar](max) NULL,
+    [StreamCollectionVersion] [int] IDENTITY(1,1) NOT NULL,
     [CreationDate] [datetime] NOT NULL,
-    [StreamCollectionVersion] [int] IDENTITY(1,1) NOT NULL
+    [UpdateTime] [datetime] NOT NULL
 PRIMARY KEY CLUSTERED
 (
     [StreamId] ASC
@@ -98,32 +100,17 @@ PRIMARY KEY CLUSTERED
 
         #region EventStore.Subscriptions
         private const string SubscriptionsCreateTableScript =
-@"-- Subscriptions
-IF NOT EXISTS(SELECT* FROM sys.objects WHERE object_id = OBJECT_ID(N'[EventStore].[Subscriptions]') AND type in (N'U'))
+@"-- Subscriptons
+IF NOT EXISTS(SELECT* FROM sys.objects WHERE object_id = OBJECT_ID(N'[EventStore].[SubscribedSources]') AND type in (N'U'))
 CREATE TABLE[EventStore].[Subscriptions](
 	[StreamType] [nvarchar] (255) NOT NULL,
-    [StreamId] [uniqueidentifier] NOT NULL,
-    [LastProcessedVersion] [int] NOT NULL,
-    [LastProcessedEventId] [uniqueidentifier] NOT NULL,
-    [CreationDate] [datetime] NOT NULL,
-    [IsPoisoned] [bit] NOT NULL,
-    [ExceptionMessage] [nvarchar] (max) NULL
-PRIMARY KEY CLUSTERED
-(
-    [StreamType] ASC,
-    [StreamId] ASC
-)WITH(PAD_INDEX  = OFF, STATISTICS_NORECOMPUTE  = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS  = ON, ALLOW_PAGE_LOCKS  = ON) ON[PRIMARY]
-) ON[PRIMARY];";
-        #endregion
-
-        #region EventStore.SubscribedSources
-        private const string SubscribedSourcesCreateTableScript =
-@"-- Subscribed sources
-IF NOT EXISTS(SELECT* FROM sys.objects WHERE object_id = OBJECT_ID(N'[EventStore].[SubscribedSources]') AND type in (N'U'))
-CREATE TABLE[EventStore].[SubscribedSources](
-	[StreamType] [nvarchar] (255) NOT NULL,
     [Url] [nvarchar] (500) NOT NULL,
-    [StreamCollectionVersion] [int] NOT NULL
+    [ProcessorBufferVersion] [int] NOT NULL,
+    [IsPoisoned] [bit] NOT NULL,
+    [DeadLetterPayload] [nvarchar] (max) NULL,
+    [ExceptionMessage] [nvarchar] (max) NULL,
+    [CreationDate] [datetime] NOT NULL,
+    [UpdateTime] [datetime] NOT NULL
 PRIMARY KEY CLUSTERED
 (
     [StreamType] ASC
@@ -143,8 +130,9 @@ CONSTRAINT EventStore_Inbox_EventId UNIQUE(EventId),
     [StreamId] [uniqueidentifier] NOT NULL,
     [Version] [int] NOT NULL,
     [EventType] [nvarchar] (255) NOT NULL,
-    [CreationDate] [datetime] NOT NULL,
+    [EventCollectionVersion] [int] NOT NULL,
     [Ignored] [bit] NULL,
+    [CreationDate] [datetime] NOT NULL,
 	[Payload] [nvarchar] (max) NOT NULL
 
 PRIMARY KEY CLUSTERED

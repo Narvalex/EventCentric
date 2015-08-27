@@ -1,4 +1,4 @@
-﻿using EventCentric.Database;
+﻿using EventCentric.Respository;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Configuration;
 
@@ -18,13 +18,13 @@ namespace EventCentric.Tests
         [TestMethod]
         public void Processor_node_db_can_be_created()
         {
-            EventStoreDbInitializer.CreateDatabaseObjects(this.connectionString, true);
+            DbInitializer.CreateDatabaseObjects(this.connectionString, true);
         }
 
         [TestMethod]
         public void Client_node_db_can_be_created()
         {
-            EventStoreDbInitializer.CreateDatabaseObjects(this.connectionString, true, true);
+            DbInitializer.CreateDatabaseObjects(this.connectionString, true, true);
         }
 
         //public void Dispose()

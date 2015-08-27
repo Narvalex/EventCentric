@@ -34,7 +34,7 @@ namespace EventCentric
             var subscriptionDao = new SubscriptionDao(() => new EventQueueDbContext(connectionString));
             var subscriptionWriter = new SubscriptionInboxWriter(() => new EventStoreDbContext(connectionString), time, serializer);
             var subscriptionRepository = new SubscriptionRepository(() => new EventStoreDbContext(connectionString));
-            var eventDao = new EventDao(() => new EventStoreDbContext(connectionString));
+            var eventDao = new EventDao(() => new EventQueueDbContext(connectionString));
 
             var eventStore = new EventStore<TAggregate>(serializer, () => new EventStoreDbContext(connectionString), subscriptionWriter, time, guid);
 
@@ -42,11 +42,9 @@ namespace EventCentric
 
             var http = new HttpPoller(bus);
 
-            var buffer = new EventBuffer(subscriptionRepository, http);
-            var proxy = new ProcessorProxy(bus);
-
-            var publisher = new EventPublisher(bus, eventDao);
-            var pollster = new EventPollster(bus, buffer, proxy);
+            var buffer = new EventBuffer(bus, subscriptionRepository, http);
+            var publisher = new EventPublisher<TAggregate>(bus, eventDao);
+            var pollster = new EventPollster(bus, buffer);
             var fsm = new Node(bus);
 
             // Register processor dependencies
@@ -78,7 +76,7 @@ namespace EventCentric
             var streamDao = new OldStreamDao(() => new EventQueueDbContext(connectionString));
             var subscriptionDao = new SubscriptionDao(() => new EventQueueDbContext(connectionString));
             var subscriptionWriter = new SubscriptionInboxWriter(() => new EventStoreDbContext(connectionString), time, serializer);
-            var eventDao = new EventDao(() => new EventStoreDbContext(connectionString));
+            var eventDao = new EventDao(() => new EventQueueDbContext(connectionString));
 
             var dbContextConstructor = typeof(TDbContext).GetConstructor(new[] { typeof(string) });
             Ensure.CastIsValid(dbContextConstructor, "Type TDbContext must have a constructor with the following signature: ctor(string)");
@@ -87,7 +85,7 @@ namespace EventCentric
 
             var bus = new Bus();
 
-            var publisher = new EventPublisher(bus, eventDao);
+            var publisher = new EventPublisher<TAggregate>(bus, eventDao);
             var puller = new EventPullerPerStream(bus, subscriptionDao, subscriptionWriter, new OldHttpPoller(), serializer);
             var fsm = new Node(bus);
 

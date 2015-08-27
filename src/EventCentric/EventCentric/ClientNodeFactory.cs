@@ -27,9 +27,9 @@ namespace EventCentric
             var node = new ClientNode(bus);
 
             var queueWriter = new QueueWriter<T>(() => new EventQueueDbContext(connectionString), serializer, time, guid);
-            var eventDao = new EventDao(() => new EventStoreDbContext(connectionString));
+            var eventDao = new EventDao(() => new EventQueueDbContext(connectionString));
             var eventBus = new EventQueue(bus, queueWriter);
-            var eventPublisher = new EventPublisher(bus, eventDao);
+            var eventPublisher = new EventPublisher<T>(bus, eventDao);
 
             // Register for DI
             container.RegisterInstance<IEventBus>(eventBus);
