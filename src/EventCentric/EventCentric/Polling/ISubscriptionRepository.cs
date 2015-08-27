@@ -4,6 +4,6 @@ namespace EventCentric.Polling
 {
     public interface ISubscriptionRepository
     {
-        ConcurrentBag<Subscription> GetSubscriptions();
+        ConcurrentBag<BufferedSubscription> GetSubscriptions();
     }
 }

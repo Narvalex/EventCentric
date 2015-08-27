@@ -1,9 +1,7 @@
-﻿using EventCentric.Polling;
-
-namespace EventCentric.Transport
+﻿namespace EventCentric.Transport
 {
     public interface IHttpPoller
     {
-        void PollSubscription(Subscription subscription);
+        void PollSubscription(string streamType, string url, int lastReceivedVersion);
     }
 }

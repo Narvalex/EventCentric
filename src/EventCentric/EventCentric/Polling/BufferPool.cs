@@ -8,19 +8,17 @@ using System.Threading.Tasks;
 
 namespace EventCentric.Polling
 {
-    public class EventBuffer : Worker,
+    public class BufferPool : Worker,
         IMessageHandler<PollResponseWasReceived>
     {
         private readonly ISubscriptionRepository repository;
         private readonly IHttpPoller http;
 
         // Sets the threshold where there is need
-        private const int bufferMaxThreshold = 100;
         private const int bufferMinThreshold = 50;
-        private ConcurrentBag<Subscription> subscriptionsBag;
-        private ConcurrentQueue<NewEvent> queue;
+        private ConcurrentBag<BufferedSubscription> subscriptionsBag;
 
-        public EventBuffer(IBus bus, ISubscriptionRepository repository, IHttpPoller http)
+        public BufferPool(IBus bus, ISubscriptionRepository repository, IHttpPoller http)
             : base(bus)
         {
             Ensure.NotNull(repository, "repository");
@@ -35,17 +33,15 @@ namespace EventCentric.Polling
         /// </summary>
         public void Initialize()
         {
-            this.queue = new ConcurrentQueue<NewEvent>();
             this.subscriptionsBag = this.repository.GetSubscriptions();
         }
 
         public bool TryFill()
         {
-            if (!(queue.Count > bufferMinThreshold) && !(queue.Count < bufferMinThreshold))
-                // The queue if full
-                return false;
+            var subscriptonsReadyForPolling = this.subscriptionsBag
+                                                  .Where(s => !s.IsPolling && s.NewEventsQueue.Count < 50)
+                                                  .ToArray();
 
-            var subscriptonsReadyForPolling = this.subscriptionsBag.Where(s => !s.IsPolling).ToArray();
             if (!subscriptonsReadyForPolling.Any())
                 // all subscriptions are being polled
                 return false;
@@ -53,7 +49,8 @@ namespace EventCentric.Polling
             foreach (var subscription in subscriptonsReadyForPolling)
             {
                 subscription.IsPolling = true;
-                Task.Factory.StartNewLongRunning(() => http.PollSubscription(subscription));
+                Task.Factory.StartNewLongRunning(() =>
+                    http.PollSubscription(subscription.StreamType, subscription.Url, subscription.CurrentBufferVersion));
             }
 
             // there are subscriptions that are being polled
@@ -68,15 +65,19 @@ namespace EventCentric.Polling
         public void Handle(PollResponseWasReceived message)
         {
             var response = message.Response;
+            var subscription = this.subscriptionsBag.Where(s => s.StreamType == response.StreamType).Single();
+
             if (response.NewEventsWereFound)
             {
                 var orderedEvents = response.NewEvents.OrderBy(e => e.EventCollectionVersion).ToArray();
 
+                subscription.CurrentBufferVersion = orderedEvents.Last().EventCollectionVersion;
+
                 foreach (var e in orderedEvents)
-                    this.queue.Enqueue(e);
+                    subscription.NewEventsQueue.Enqueue(e);
             }
 
-            this.subscriptionsBag.Where(s => s.StreamType == response.StreamType).Single().IsPolling = false;
+            subscription.IsPolling = false;
         }
     }
 }

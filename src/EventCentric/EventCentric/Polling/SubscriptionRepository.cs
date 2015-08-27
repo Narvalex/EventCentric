@@ -14,15 +14,17 @@ namespace EventCentric.Polling
             this.contextFactory = contextFactory;
         }
 
-        public ConcurrentBag<Subscription> GetSubscriptions()
+        public ConcurrentBag<BufferedSubscription> GetSubscriptions()
         {
-            var subscriptions = new ConcurrentBag<Subscription>();
+            var subscriptions = new ConcurrentBag<BufferedSubscription>();
             using (var context = this.contextFactory())
             {
                 var subscriptionsQuery = context.Subscriptions.Where(s => !s.IsPoisoned);
                 if (subscriptionsQuery.Any())
                     foreach (var s in subscriptionsQuery)
-                        subscriptions.Add(new Subscription(s.StreamType, s.Url, s.ProcessorBufferVersion));
+                        // We substract one version in order to set the current version bellow the last one, in case that first event
+                        // was not yet processed.
+                        subscriptions.Add(new BufferedSubscription(s.StreamType, s.Url, s.ProcessorBufferVersion - 1));
 
                 return subscriptions;
             }

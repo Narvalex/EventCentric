@@ -131,8 +131,8 @@ namespace EventCentric.Processing
         private void HandleEventAndAppendToStore(T aggregate, IEvent @event)
         {
             ((dynamic)aggregate).Handle((dynamic)@event);
-            var streamCollectionVersion = this.store.Save(aggregate, @event);
-            this.bus.Publish(new StreamHasBeenUpdated(aggregate.Id, aggregate.Version, streamCollectionVersion));
+            var version = this.store.Save(aggregate, @event);
+            this.bus.Publish(new EventStoreHasBeenUpdated(version));
             this.PublishIncomingEventHasBeenProcessed(@event);
         }
 

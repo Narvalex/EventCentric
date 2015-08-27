@@ -44,7 +44,7 @@ IF NOT EXISTS (SELECT name FROM sys.databases WHERE name = N'{0}') CREATE DATABA
 
                 using (var command = connection.CreateCommand())
                 {
-                    command.CommandText = isForclientNode ? EventsCreateTableScript + StreamsCreateTableScript
+                    command.CommandText = isForclientNode ? EventsCreateTableScript
                                                           : EventsCreateTableScript + StreamsCreateTableScript
                                                             + SubscriptionsCreateTableScript + InboxCreateTableScript;
                     command.ExecuteNonQuery();

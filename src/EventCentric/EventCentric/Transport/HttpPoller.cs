@@ -1,6 +1,5 @@
 ﻿using EventCentric.Messaging;
 using EventCentric.Messaging.Events;
-using EventCentric.Polling;
 using System;
 using System.Net.Http;
 
@@ -14,7 +13,7 @@ namespace EventCentric.Transport
             : base(bus)
         { }
 
-        public void PollSubscription(Subscription subscription)
+        public void PollSubscription(string streamType, string url, int fromVersion)
         {
             // when poll arives, publish in bus.
 
@@ -22,7 +21,7 @@ namespace EventCentric.Transport
             {
                 try
                 {
-                    var getResult = client.GetAsync($"{subscription.Url}/events/{subscription.ProcessorBufferVersion}").Result;
+                    var getResult = client.GetAsync($"{url}/events/{fromVersion}").Result;
                     if (!getResult.IsSuccessStatusCode)
                         throw new InvalidOperationException($"The status code was: {getResult.StatusCode.ToString()}");
 
@@ -33,7 +32,7 @@ namespace EventCentric.Transport
                 {
                     Console.WriteLine(ex.Message);
 
-                    this.bus.Publish(new PollResponseWasReceived(new PollResponse(false, subscription.StreamType, null)));
+                    this.bus.Publish(new PollResponseWasReceived(new PollResponse(false, streamType, null)));
                 }
             }
         }

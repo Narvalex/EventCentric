@@ -1,8 +1,8 @@
 ﻿namespace EventCentric.Messaging.Events
 {
-    public class StreamHasBeenUpdated : IMessage
+    public class EventStoreHasBeenUpdated : IMessage
     {
-        public StreamHasBeenUpdated(int eventCollectionVersion)
+        public EventStoreHasBeenUpdated(int eventCollectionVersion)
         {
             this.EventCollectionVersion = eventCollectionVersion;
         }

@@ -11,15 +11,12 @@ namespace EventCentric.Publishing
     public class EventPublisher<T> : FSM, IEventSource,
         IMessageHandler<StartEventPublisher>,
         IMessageHandler<StopEventPublisher>,
-        IMessageHandler<StreamHasBeenUpdated>
+        IMessageHandler<EventStoreHasBeenUpdated>
     {
-        //private ConcurrentDictionary<Guid, int> streamVersionsById;
-        //private volatile int streamCollectionVersion;
-
-        // New
         private static readonly string _streamType = typeof(T).Name;
         private readonly IEventDao dao;
         private const int responseLength = 50;
+        private readonly object lockObject = new object();
 
         private volatile int eventCollectionVersion;
 
@@ -31,14 +28,13 @@ namespace EventCentric.Publishing
             this.dao = dao;
         }
 
-        public void Handle(StreamHasBeenUpdated message)
+        public void Handle(EventStoreHasBeenUpdated message)
         {
-            //this.streamVersionsById.AddOrUpdate(
-            //    key: message.StreamId,
-            //    addValue: message.UpdatedStreamVersion,
-            //    updateValueFactory: (streamId, currentVersion) => message.UpdatedStreamVersion > currentVersion ? message.UpdatedStreamVersion : currentVersion);
-
-            //this.streamCollectionVersion = message.UpdatedStreamCollectionVersion > this.streamCollectionVersion ? message.UpdatedStreamCollectionVersion : this.streamCollectionVersion;
+            lock (this.lockObject)
+            {
+                if (message.EventCollectionVersion > this.eventCollectionVersion)
+                    this.eventCollectionVersion = message.EventCollectionVersion;
+            }
         }
 
         public void Handle(StopEventPublisher message)
@@ -51,24 +47,25 @@ namespace EventCentric.Publishing
             base.Start();
         }
 
-        public PollResponse PollEvents(int eventBufferVersion)
+        public PollResponse PollEvents(int lastReceivedVersion)
         {
-            bool newEventsFound = false;
+            bool newEventsWereFound = false;
             var newEvents = new List<NewEvent>();
             var attemps = 0;
             while (!this.stopping && attemps <= 100)
             {
                 attemps += 1;
-                if (this.eventCollectionVersion <= eventBufferVersion)
+                if (this.eventCollectionVersion <= lastReceivedVersion)
                     Thread.Sleep(100);
                 else
                 {
-                    newEvents = this.dao.GetEvents(eventBufferVersion, responseLength);
+                    newEvents = this.dao.FindEvents(lastReceivedVersion, responseLength);
+                    newEventsWereFound = newEvents.Count > 0 ? true : false;
                     break;
                 }
             }
 
-            return new PollResponse(newEventsFound, _streamType, newEvents);
+            return new PollResponse(newEventsWereFound, _streamType, newEvents);
         }
 
         protected override void OnStarting()

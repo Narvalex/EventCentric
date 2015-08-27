@@ -1,11 +1,9 @@
-﻿using EventCentric.Database;
-using EventCentric.EventSourcing;
+﻿using EventCentric.EventSourcing;
 using EventCentric.Repository;
 using EventCentric.Repository.Mapping;
 using EventCentric.Serialization;
 using EventCentric.Utils;
 using System;
-using System.Data.Entity;
 using System.Linq;
 
 namespace EventCentric.Queueing
@@ -54,6 +52,7 @@ namespace EventCentric.Queueing
                 context.Events.Add(
                     new EventEntity
                     {
+                        StreamType = @event.StreamType,
                         StreamId = @event.StreamId,
                         Version = @event.Version,
                         EventId = @event.EventId,
@@ -62,26 +61,9 @@ namespace EventCentric.Queueing
                         Payload = this.serializer.Serialize(@event)
                     });
 
-                ((DbContext)context).AddOrUpdate(
-                    find: () => context.Streams.Where(s => s.StreamId == @event.StreamId).SingleOrDefault(),
-                    add: () => new StreamEntity
-                    {
-                        StreamId = @event.StreamId,
-                        Version = @event.Version,
-                        CreationDate = now
-                    },
-                    update: stream =>
-                    {
-                        stream.Version = @event.Version;
-                        stream.CreationDate = now;
-                    });
-
                 context.SaveChanges();
 
-                //var updatedStreamCollectionVersion = context.Streams.Max(s => s.StreamCollectionVersion);
-
-                //return new Tuple<int, int>(updatedVersion, updatedStreamCollectionVersion);
-                return null;
+                return context.Events.Max(e => e.EventCollectionVersion);
             }
         }
     }

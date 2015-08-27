@@ -42,7 +42,7 @@ namespace EventCentric
 
             var http = new HttpPoller(bus);
 
-            var buffer = new EventBuffer(bus, subscriptionRepository, http);
+            var buffer = new BufferPool(bus, subscriptionRepository, http);
             var publisher = new EventPublisher<TAggregate>(bus, eventDao);
             var pollster = new EventPollster(bus, buffer);
             var fsm = new Node(bus);

@@ -15,9 +15,9 @@ namespace EventCentric.Pulling
         IMessageHandler<IncomingEventHasBeenProcessed>,
         IMessageHandler<IncomingEventIsPoisoned>
     {
-        private readonly EventBuffer buffer;
+        private readonly BufferPool buffer;
 
-        public EventPollster(IBus bus, EventBuffer buffer)
+        public EventPollster(IBus bus, BufferPool buffer)
             : base(bus)
         {
             Ensure.NotNull(buffer, "buffer");

@@ -15,17 +15,34 @@ namespace EventCentric.Publishing
             this.contextFactory = contextFactory;
         }
 
-        public List<NewEvent> GetEvents(int fromEventCollectionVersion, int quantity)
+        /// <summary>
+        /// FindEvents
+        /// </summary>
+        /// <returns>Events if found, otherwise return empty list.</returns>
+        public List<NewEvent> FindEvents(int lastReceivedVersion, int quantity)
         {
             using (var context = this.contextFactory())
             {
-                return context
-                        .Events
-                        .Where(e => e.EventCollectionVersion >= fromEventCollectionVersion)
-                        .OrderBy(e => e.EventCollectionVersion)
-                        .Select(e => new NewEvent(e.EventCollectionVersion, e.Payload))
-                        .Take(quantity)
-                        .ToList();
+                var events = new List<NewEvent>();
+                try
+                {
+
+                    var eventsQuery = context
+                                .Events
+                                .Where(e => e.EventCollectionVersion > lastReceivedVersion)
+                                .OrderBy(e => e.EventCollectionVersion)
+                                .Take(quantity);
+
+                    foreach (var e in eventsQuery)
+                        events.Add(new NewEvent(e.EventCollectionVersion, e.Payload));
+
+                    return events;
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                    return events;
+                }
             }
         }
 
@@ -40,7 +57,7 @@ namespace EventCentric.Publishing
 
     public interface IEventDao
     {
-        List<NewEvent> GetEvents(int fromEventCollectionVersion, int quantity);
+        List<NewEvent> FindEvents(int fromEventCollectionVersion, int quantity);
 
         int GetEventCollectionVersion();
     }
