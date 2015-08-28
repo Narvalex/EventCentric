@@ -21,23 +21,20 @@ namespace EventCentric.EventSourcing
         private readonly ObjectCache cache;
 
         private readonly Func<Guid, IMemento, T> originatorAggregateFactory;
-        private readonly Func<IEventStoreDbContext> contextFactory;
+        private readonly Func<bool, IEventStoreDbContext> contextFactory;
+        // It may be interesting to have a dbcontext just for queries
         private readonly Action<T, IEventStoreDbContext> denormalizeIfApplicable;
 
-        private readonly ISubscriptionInboxWriter subscriptionWriter;
-
-        public EventStore(ITextSerializer serializer, Func<IEventStoreDbContext> contextFactory, ISubscriptionInboxWriter subscriptionWriter, ITimeProvider time, IGuidProvider guid)
+        public EventStore(ITextSerializer serializer, Func<bool, IEventStoreDbContext> contextFactory, ITimeProvider time, IGuidProvider guid)
         {
             Ensure.NotNull(serializer, "serializer");
             Ensure.NotNull(contextFactory, "contextFactory");
             Ensure.NotNull(time, "time");
-            Ensure.NotNull(subscriptionWriter, "subscriptionWriter");
             Ensure.NotNull(guid, "guid");
 
             this.serializer = serializer;
             this.contextFactory = contextFactory;
             this.time = time;
-            this.subscriptionWriter = subscriptionWriter;
             this.guid = guid;
             this.cache = new MemoryCache(_streamType);
 
@@ -60,7 +57,7 @@ namespace EventCentric.EventSourcing
             if (cachedMemento == null || !cachedMemento.Item2.HasValue)
             {
                 // Return from SQL Server;
-                using (var context = this.contextFactory.Invoke())
+                using (var context = this.contextFactory.Invoke(true))
                 {
                     var stream = context.Streams.Where(s => s.StreamId == id).SingleOrDefault();
 
@@ -81,7 +78,7 @@ namespace EventCentric.EventSourcing
             if (cachedMemento == null || !cachedMemento.Item2.HasValue)
             {
                 // Return from SQL Server;
-                using (var context = this.contextFactory.Invoke())
+                using (var context = this.contextFactory.Invoke(true))
                 {
                     var stream = context.Streams.Where(s => s.StreamId == id).SingleOrDefault();
 
@@ -95,9 +92,9 @@ namespace EventCentric.EventSourcing
             return this.originatorAggregateFactory.Invoke(id, cachedMemento.Item1);
         }
 
-        public int Save(T eventSourced, IncomingEvent<IEvent> envelopedIncomingEvent)
+        public int Save<TEvent>(T eventSourced, IncomingEvent<TEvent> envelope) where TEvent : IEvent
         {
-            var incomingEvent = envelopedIncomingEvent.Event;
+            var incomingEvent = envelope.Event;
             var pendingEvents = eventSourced.PendingEvents;
             if (pendingEvents.Length == 0)
                 throw new ArgumentOutOfRangeException("pendingEvents");
@@ -105,7 +102,7 @@ namespace EventCentric.EventSourcing
             var key = eventSourced.Id.ToString();
             try
             {
-                using (var context = this.contextFactory.Invoke())
+                using (var context = this.contextFactory.Invoke(false))
                 {
                     var versions = context.Events
                                           .Where(e => e.StreamId == eventSourced.Id)
@@ -138,7 +135,7 @@ namespace EventCentric.EventSourcing
                             });
                     }
 
-                    // Log incoming event in the subscription table
+                    // Log the incoming message in the inbox
                     var message = new InboxEntity
                     {
                         EventId = incomingEvent.EventId,
@@ -146,24 +143,17 @@ namespace EventCentric.EventSourcing
                         StreamId = incomingEvent.StreamId,
                         Version = incomingEvent.Version,
                         EventType = incomingEvent.GetType().Name,
+                        EventCollectionVersion = envelope.EventCollectionVersion,
                         CreationDate = now,
                         Ignored = false,
                         Payload = this.serializer.Serialize(incomingEvent)
                     };
                     context.Inbox.Add(message);
 
-                    throw new NotImplementedException("Need to implement subscription update");
-                    //((DbContext)context).AddOrUpdate(
-                    //    find: () => context
-                    //                        .Subscriptions
-                    //                        .Where(s => s.StreamId == correlatedEvent.StreamId && s.StreamType == correlatedEvent.StreamType)
-                    //                        .SingleOrDefault(),
-                    //    add: () => { throw new InvalidOperationException("Subscription does not exist!"); },
-                    //    update: subscription =>
-                    //    {
-                    //        subscription.LastProcessedVersion = correlatedEvent.Version;
-                    //        subscription.LastProcessedEventId = correlatedEvent.EventId;
-                    //    });
+                    // Update subscription
+                    var subscription = context.Subscriptions.Where(s => s.StreamType == incomingEvent.StreamType).Single();
+                    subscription.ProcessorBufferVersion = envelope.ProcessorBufferVersion;
+                    subscription.UpdateTime = now;
 
 
                     // Cache Memento And Publish Stream
@@ -199,8 +189,7 @@ namespace EventCentric.EventSourcing
 
                     context.SaveChanges();
 
-                    //return streamEntity.StreamCollectionVersion;
-                    throw new NotImplementedException();
+                    return context.Events.Max(e => e.EventCollectionVersion);
                 }
             }
             catch

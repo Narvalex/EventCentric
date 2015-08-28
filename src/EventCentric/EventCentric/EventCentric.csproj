@@ -106,8 +106,6 @@
     <Compile Include="Messaging\PoisonMessageException.cs" />
     <Compile Include="NodeState.cs" />
     <Compile Include="Publishing\EventSourceController.cs" />
-    <Compile Include="Polling\SubscribedSource.cs" />
-    <Compile Include="Polling\OldSubscription.cs" />
     <Compile Include="Queueing\IQueueWriter.cs" />
     <Compile Include="Queueing\EventQueue.cs" />
     <Compile Include="Queueing\QueuedEvent.cs" />
@@ -123,7 +121,6 @@
     <Compile Include="EventSourcing\IEventStore.cs" />
     <Compile Include="EventSourcing\IHandles.cs" />
     <Compile Include="EventSourcing\IMementoOriginator.cs" />
-    <Compile Include="Processing\ISubscriptionInboxWriter.cs" />
     <Compile Include="EventSourcing\IUpdatesOn.cs" />
     <Compile Include="EventSourcing\StreamNotFoundException.cs" />
     <Compile Include="Node.cs" />
@@ -142,13 +139,11 @@
     <Compile Include="Repository\Mapping\InboxEntity.cs" />
     <Compile Include="Repository\EventStoreDbContext.cs" />
     <Compile Include="Repository\Mapping\StreamEntity.cs" />
-    <Compile Include="Processing\SubscriptionInboxWriter.cs" />
     <Compile Include="Messaging\IEventBus.cs" />
     <Compile Include="Processing\IEventHandler.cs" />
     <Compile Include="Publishing\IEventSource.cs" />
     <Compile Include="Publishing\IOldStreamDao.cs" />
     <Compile Include="Publishing\OldStreamDao.cs" />
-    <Compile Include="Polling\SubscriptionDao.cs" />
     <Compile Include="Serialization\ITextSerializer.cs" />
     <Compile Include="Serialization\JsonTextSerializer.cs" />
     <Compile Include="Serialization\TextSerializerExtensions.cs" />
@@ -165,10 +160,7 @@
     <Compile Include="Processing\EventProcessor.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Publishing\EventPublisher.cs" />
-    <Compile Include="Polling\OldEventPullerPerStream.cs" />
-    <Compile Include="Polling\ISubscriptionDao.cs" />
     <Compile Include="Transport\PollEventsDto.cs" />
-    <Compile Include="Polling\SubscribedStream.cs" />
     <Compile Include="Transport\PollResponse.cs" />
     <Compile Include="Transport\PollStreamsRequest.cs" />
     <Compile Include="Transport\PollStreamsResponse.cs" />

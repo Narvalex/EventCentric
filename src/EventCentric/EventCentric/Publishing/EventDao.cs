@@ -8,9 +8,9 @@ namespace EventCentric.Publishing
 {
     public class EventDao : IEventDao
     {
-        private readonly Func<EventQueueDbContext> contextFactory;
+        private readonly Func<bool, EventQueueDbContext> contextFactory;
 
-        public EventDao(Func<EventQueueDbContext> contextFactory)
+        public EventDao(Func<bool, EventQueueDbContext> contextFactory)
         {
             this.contextFactory = contextFactory;
         }
@@ -21,7 +21,7 @@ namespace EventCentric.Publishing
         /// <returns>Events if found, otherwise return empty list.</returns>
         public List<NewRawEvent> FindEvents(int lastReceivedVersion, int quantity)
         {
-            using (var context = this.contextFactory())
+            using (var context = this.contextFactory(true))
             {
                 var events = new List<NewRawEvent>();
                 try
@@ -48,7 +48,7 @@ namespace EventCentric.Publishing
 
         public int GetEventCollectionVersion()
         {
-            using (var context = this.contextFactory())
+            using (var context = this.contextFactory(true))
             {
                 return !context.Events.Any() ? 0 : context.Events.Max(e => e.EventCollectionVersion);
             }

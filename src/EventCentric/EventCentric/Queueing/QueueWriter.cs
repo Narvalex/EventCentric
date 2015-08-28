@@ -11,12 +11,12 @@ namespace EventCentric.Queueing
     public class QueueWriter<T> : IQueueWriter
     {
         private static readonly string _streamType = typeof(T).Name;
-        private readonly Func<EventQueueDbContext> contextFactory;
+        private readonly Func<bool, EventQueueDbContext> contextFactory;
         private readonly ITextSerializer serializer;
         private readonly ITimeProvider time;
         private readonly IGuidProvider guid;
 
-        public QueueWriter(Func<EventQueueDbContext> contextFactory, ITextSerializer serializer, ITimeProvider time, IGuidProvider guid)
+        public QueueWriter(Func<bool, EventQueueDbContext> contextFactory, ITextSerializer serializer, ITimeProvider time, IGuidProvider guid)
         {
             Ensure.NotNull(contextFactory, "contextFactory");
             Ensure.NotNull(serializer, "serializer");
@@ -31,7 +31,7 @@ namespace EventCentric.Queueing
 
         public int Enqueue(IEvent @event)
         {
-            using (var context = this.contextFactory())
+            using (var context = this.contextFactory(false))
             {
                 var versions = context.Events
                                       .Where(e => e.StreamId == @event.StreamId)

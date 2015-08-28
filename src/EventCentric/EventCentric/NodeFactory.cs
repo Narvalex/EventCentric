@@ -26,23 +26,23 @@ namespace EventCentric
             var connectionProvider = ConnectionManager.GetConnectionProvider();
             var connectionString = connectionProvider.ConnectionString;
 
+            Func<bool, EventStoreDbContext> storeContextFactory = isReadOnly => new EventStoreDbContext(isReadOnly, connectionString);
+            Func<bool, EventQueueDbContext> queueContextFactory = isReadOnly => new EventQueueDbContext(isReadOnly, connectionString);
+
             var serializer = new JsonTextSerializer();
             var time = setLocalTime ? new LocalTimeProvider() as ITimeProvider : new UtcTimeProvider() as ITimeProvider;
             var guid = setSequentialGuid ? new SequentialGuid() as IGuidProvider : new DefaultGuidProvider() as IGuidProvider;
 
-            var streamDao = new OldStreamDao(() => new EventQueueDbContext(connectionString));
-            var subscriptionDao = new SubscriptionDao(() => new EventQueueDbContext(connectionString));
-            var subscriptionWriter = new SubscriptionInboxWriter(() => new EventStoreDbContext(connectionString), time, serializer);
-            var subscriptionRepository = new SubscriptionRepository(() => new EventStoreDbContext(connectionString));
-            var eventDao = new EventDao(() => new EventQueueDbContext(connectionString));
+            var subscriptionRepository = new SubscriptionRepository(storeContextFactory);
+            var eventDao = new EventDao(queueContextFactory);
 
-            var eventStore = new EventStore<TAggregate>(serializer, () => new EventStoreDbContext(connectionString), subscriptionWriter, time, guid);
+            var eventStore = new EventStore<TAggregate>(serializer, storeContextFactory, time, guid);
 
             var bus = new Bus();
 
             var http = new HttpPoller(bus);
 
-            var buffer = new BufferPool(bus, subscriptionRepository, http);
+            var buffer = new BufferPool(bus, subscriptionRepository, http, serializer);
             var publisher = new EventPublisher<TAggregate>(bus, eventDao);
             var pollster = new EventPollster(bus, buffer);
             var fsm = new Node(bus);
@@ -50,11 +50,10 @@ namespace EventCentric
             // Register processor dependencies
             container.RegisterInstance<IBus>(bus);
             container.RegisterInstance<IEventStore<TAggregate>>(eventStore);
-            container.RegisterInstance<ISubscriptionInboxWriter>(subscriptionWriter);
 
-            var constructor = typeof(THandler).GetConstructor(new[] { typeof(IBus), typeof(IEventStore<TAggregate>), typeof(ISubscriptionInboxWriter) });
-            Ensure.CastIsValid(constructor, "Type THandler must have a valid constructor with the following signature: .ctor(IBus, IEventStore<T>, ISubscriptionInboxWriter)");
-            var processor = (THandler)constructor.Invoke(new object[] { bus, eventStore, subscriptionWriter });
+            var constructor = typeof(THandler).GetConstructor(new[] { typeof(IBus), typeof(IEventStore<TAggregate>) });
+            Ensure.CastIsValid(constructor, "Type THandler must have a valid constructor with the following signature: .ctor(IBus, IEventStore<T>)");
+            var processor = (THandler)constructor.Invoke(new object[] { bus, eventStore });
 
             // Register for DI
             container.RegisterInstance<IEventSource>(publisher);
@@ -69,34 +68,33 @@ namespace EventCentric
             var connectionProvider = ConnectionManager.GetConnectionProvider();
             var connectionString = connectionProvider.ConnectionString;
 
+            Func<bool, EventStoreDbContext> storeContextFactory = isReadOnly => new EventStoreDbContext(isReadOnly, connectionString);
+            Func<bool, EventQueueDbContext> queueContextFactory = isReadOnly => new EventQueueDbContext(isReadOnly, connectionString);
+
             var serializer = new JsonTextSerializer();
             var time = setLocalTime ? new LocalTimeProvider() as ITimeProvider : new UtcTimeProvider() as ITimeProvider;
             var guid = setSequentialGuid ? new SequentialGuid() as IGuidProvider : new DefaultGuidProvider() as IGuidProvider;
 
-            var streamDao = new OldStreamDao(() => new EventQueueDbContext(connectionString));
-            var subscriptionDao = new SubscriptionDao(() => new EventQueueDbContext(connectionString));
-            var subscriptionWriter = new SubscriptionInboxWriter(() => new EventStoreDbContext(connectionString), time, serializer);
-            var eventDao = new EventDao(() => new EventQueueDbContext(connectionString));
 
-            var dbContextConstructor = typeof(TDbContext).GetConstructor(new[] { typeof(string) });
-            Ensure.CastIsValid(dbContextConstructor, "Type TDbContext must have a constructor with the following signature: ctor(string)");
-            Func<IEventStoreDbContext> dbContextFactory = () => (TDbContext)dbContextConstructor.Invoke(new object[] { connectionString });
-            var eventStore = new EventStore<TAggregate>(serializer, dbContextFactory, subscriptionWriter, time, guid);
+            var eventDao = new EventDao(queueContextFactory);
+
+            var dbContextConstructor = typeof(TDbContext).GetConstructor(new[] { typeof(bool), typeof(string) });
+            Ensure.CastIsValid(dbContextConstructor, "Type TDbContext must have a constructor with the following signature: ctor(bool, string)");
+            Func<bool, IEventStoreDbContext> dbContextFactory = isReadOnly => (TDbContext)dbContextConstructor.Invoke(new object[] { isReadOnly, connectionString });
+            var eventStore = new EventStore<TAggregate>(serializer, dbContextFactory, time, guid);
 
             var bus = new Bus();
 
             var publisher = new EventPublisher<TAggregate>(bus, eventDao);
-            var puller = new OldEventPullerPerStream(bus, subscriptionDao, subscriptionWriter, new OldHttpPoller(), serializer);
             var fsm = new Node(bus);
 
             // Register processor dependencies
             container.RegisterInstance<IBus>(bus);
             container.RegisterInstance<IEventStore<TAggregate>>(eventStore);
-            container.RegisterInstance<ISubscriptionInboxWriter>(subscriptionWriter);
 
-            var processorConstructor = typeof(THandler).GetConstructor(new[] { typeof(IBus), typeof(IEventStore<TAggregate>), typeof(ISubscriptionInboxWriter) });
-            Ensure.CastIsValid(processorConstructor, "Type THandler must have a valid constructor with the following signature: .ctor(IBus, IEventStore<T>, ISubscriptionInboxWriter)");
-            var processor = (THandler)processorConstructor.Invoke(new object[] { bus, eventStore, subscriptionWriter });
+            var processorConstructor = typeof(THandler).GetConstructor(new[] { typeof(IBus), typeof(IEventStore<TAggregate>) });
+            Ensure.CastIsValid(processorConstructor, "Type THandler must have a valid constructor with the following signature: .ctor(IBus, IEventStore<T>)");
+            var processor = (THandler)processorConstructor.Invoke(new object[] { bus, eventStore });
 
             // Register for DI
             container.RegisterInstance<IEventSource>(publisher);

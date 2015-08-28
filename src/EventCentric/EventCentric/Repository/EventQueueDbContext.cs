@@ -13,9 +13,12 @@ namespace EventCentric.Repository
             System.Data.Entity.Database.SetInitializer<EventQueueDbContext>(null);
         }
 
-        public EventQueueDbContext(string nameOrconnectionString)
+        public EventQueueDbContext(bool isReadOnly, string nameOrconnectionString)
             : base(nameOrconnectionString)
-        { }
+        {
+            if (isReadOnly)
+                this.Configuration.AutoDetectChangesEnabled = false;
+        }
 
         public IDbSet<EventEntity> Events { get; set; }
 

@@ -13,7 +13,8 @@ namespace EventCentric.Polling
 {
     public class BufferPool : Worker,
         IMessageHandler<PollResponseWasReceived>,
-        IMessageHandler<IncomingEventHasBeenProcessed>
+        IMessageHandler<IncomingEventHasBeenProcessed>,
+        IMessageHandler<IncomingEventIsPoisoned>
     {
         private readonly ISubscriptionRepository repository;
         private readonly IHttpPoller http;
@@ -125,6 +126,15 @@ namespace EventCentric.Polling
         public void Handle(IncomingEventHasBeenProcessed message)
         {
 
+        }
+
+        public void Handle(IncomingEventIsPoisoned message)
+        {
+            this.repository.FlagSubscriptionAsPoisoned(message.PoisonedEvent);
+
+            this.bus.Publish(
+                new FatalErrorOcurred(
+                    new FatalErrorException("Fatal error: Inconming event is poisoned.", message.Exception)));
         }
     }
 }

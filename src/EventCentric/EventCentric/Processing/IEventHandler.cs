@@ -6,8 +6,8 @@ namespace EventCentric.Processing
     public interface IEventHandler
     { }
 
-    public interface IEventHandler<T> where T : IncomingEvent<IEvent>
+    public interface IEventHandler<T> where T : IEvent
     {
-        void Handle(T incomingEvent);
+        void Handle(IncomingEvent<T> incomingEvent);
     }
 }

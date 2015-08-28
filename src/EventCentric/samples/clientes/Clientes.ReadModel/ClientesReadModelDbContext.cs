@@ -6,12 +6,12 @@ namespace Clientes.ReadModel
 {
     public class ClientesReadModelDbContext : EventStoreDbContext
     {
-        public ClientesReadModelDbContext(string nameOrconnectionString)
-            : base(nameOrconnectionString)
+        public ClientesReadModelDbContext(bool isReadOnly, string nameOrconnectionString)
+            : base(isReadOnly, nameOrconnectionString)
         { }
 
         public ClientesReadModelDbContext()
-            : base("Name=defaultConnection")
+            : base(false, "Name=defaultConnection")
         { }
 
         public IDbSet<Cliente> Clientes { get; set; }

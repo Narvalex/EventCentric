@@ -2,19 +2,20 @@
 using EventCentric.EventSourcing;
 using EventCentric.Messaging;
 using EventCentric.Processing;
+using EventCentric.Transport;
 
 namespace Clientes.EventProcessor
 {
     public class ClientesHandler : EventProcessor<Clientes>,
         IEventHandler<SolicitudNuevoClienteRecibida>
     {
-        public ClientesHandler(IBus bus, IEventStore<Clientes> store, ISubscriptionInboxWriter subscriptionWriter)
-            : base(bus, store, subscriptionWriter)
+        public ClientesHandler(IBus bus, IEventStore<Clientes> store)
+            : base(bus, store)
         { }
 
-        public void Handle(SolicitudNuevoClienteRecibida @event)
+        public void Handle(IncomingEvent<SolicitudNuevoClienteRecibida> incomingEvent)
         {
-            base.CreateNewStream(@event.IdCliente, @event);
+            base.CreateNewStream(incomingEvent.Event.IdCliente, incomingEvent);
         }
     }
 }

@@ -25,18 +25,15 @@ namespace EventCentric.Processing
             where T : class, IEventSourced
     {
         private readonly IEventStore<T> store;
-        private readonly ISubscriptionInboxWriter subscriptionWriter;
         private readonly Func<Guid, T> newAggregateFactory;
         protected ConcurrentDictionary<Guid, object> streamLocksById;
 
-        public EventProcessor(IBus bus, IEventStore<T> store, ISubscriptionInboxWriter subscriptionWriter)
+        public EventProcessor(IBus bus, IEventStore<T> store)
             : base(bus)
         {
             Ensure.NotNull(store, "store");
-            Ensure.NotNull(subscriptionWriter, "inboxWriter");
 
             this.store = store;
-            this.subscriptionWriter = subscriptionWriter;
 
             this.streamLocksById = new ConcurrentDictionary<Guid, object>();
 
@@ -57,8 +54,7 @@ namespace EventCentric.Processing
             {
                 this.bus.Publish(
                     new IncomingEventIsPoisoned(
-                        message.IncomingEvent.Event.StreamType,
-                        message.IncomingEvent.Event.StreamId,
+                        message.IncomingEvent,
                         new PoisonMessageException("Poison message detected in Event Processor", ex)));
             }
         }
@@ -80,7 +76,7 @@ namespace EventCentric.Processing
         /// </summary>
         /// <param name="id">The id of the new stream. A brand new computed <see cref="Guid"/>.</param>
         /// <param name="@event">The first message that the new aggregate will process.</param>
-        protected void CreateNewStream(Guid id, IncomingEvent<IEvent> incomingEvent)
+        protected void CreateNewStream<TEvent>(Guid id, IncomingEvent<TEvent> incomingEvent) where TEvent : IEvent
         {
             this.HandleSafelyWithStreamLocking(id, () =>
             {
@@ -89,7 +85,7 @@ namespace EventCentric.Processing
             });
         }
 
-        protected void CreateNewStreamIfNotExists(Guid id, IncomingEvent<IEvent> incomingEvent)
+        protected void CreateNewStreamIfNotExists<TEvent>(Guid id, IncomingEvent<TEvent> incomingEvent) where TEvent : IEvent
         {
             this.HandleSafelyWithStreamLocking(id, () =>
             {
@@ -123,7 +119,6 @@ namespace EventCentric.Processing
         /// <param name="@event">The <see cref="IEvent"/> to be igonred.</param>
         protected void Ignore(IncomingEvent<IEvent> incomingEvent)
         {
-            this.subscriptionWriter.LogIncomingEventAsIgnored(incomingEvent.Event);
             this.PublishIncomingEventHasBeenProcessed(incomingEvent);
         }
 
@@ -133,7 +128,7 @@ namespace EventCentric.Processing
         /// <param name="aggregate">The aggregate.</param>
         /// <param name="@event">The event.</param>
         /// <returns>The updated stream version.</returns>
-        private void HandleEventAndAppendToStore(T aggregate, IncomingEvent<IEvent> incomingEvent)
+        private void HandleEventAndAppendToStore<TEvent>(T aggregate, IncomingEvent<TEvent> incomingEvent) where TEvent : IEvent
         {
             ((dynamic)aggregate).Handle((dynamic)incomingEvent.Event);
             var version = this.store.Save(aggregate, incomingEvent);
@@ -155,7 +150,7 @@ namespace EventCentric.Processing
             }
         }
 
-        private void PublishIncomingEventHasBeenProcessed(IncomingEvent<IEvent> incomingEvent)
+        private void PublishIncomingEventHasBeenProcessed<TEvent>(IncomingEvent<TEvent> incomingEvent) where TEvent : IEvent
         {
             this.bus.Publish(new IncomingEventHasBeenProcessed(incomingEvent.Event.StreamType, incomingEvent.EventCollectionVersion));
         }

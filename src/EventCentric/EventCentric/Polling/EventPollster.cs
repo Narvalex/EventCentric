@@ -11,9 +11,7 @@ namespace EventCentric.Pulling
 {
     public class EventPollster : FSM,
         IMessageHandler<StartEventPollster>,
-        IMessageHandler<StopEventPollster>,
-        IMessageHandler<IncomingEventHasBeenProcessed>,
-        IMessageHandler<IncomingEventIsPoisoned>
+        IMessageHandler<StopEventPollster>
     {
         private readonly BufferPool buffer;
 
@@ -47,20 +45,6 @@ namespace EventCentric.Pulling
         {
             // Ensure to stop everything;
             this.bus.Publish(new EventPullerStopped());
-        }
-
-        public void Handle(IncomingEventIsPoisoned message)
-        {
-            // TODO: log when poison was detected and signal to shut down everything.
-
-            this.bus.Publish(
-                new FatalErrorOcurred(
-                    new FatalErrorException("Fatal error: Inconming event is poisoned.", message.Exception)));
-        }
-
-        public void Handle(IncomingEventHasBeenProcessed message)
-        {
-            throw new NotImplementedException();
         }
 
         private void Poll()
