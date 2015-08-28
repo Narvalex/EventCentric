@@ -50,7 +50,14 @@ namespace EventCentric.Processing
         {
             try
             {
-                ((dynamic)this).Handle((dynamic)message.IncomingEvent);
+                var incomingEvent = message.IncomingEvent;
+                if (this.store.IncomingEventIsDuplicate(incomingEvent.EventId))
+                {
+                    this.Ignore(incomingEvent);
+                    return;
+                }
+
+                ((dynamic)this).Handle((dynamic)incomingEvent);
             }
             catch (Exception ex)
             {

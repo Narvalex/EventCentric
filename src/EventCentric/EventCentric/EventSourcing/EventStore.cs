@@ -208,5 +208,14 @@ namespace EventCentric.EventSourcing
                 throw;
             }
         }
+
+
+        public bool IncomingEventIsDuplicate(Guid incomingEventId)
+        {
+            using (var context = this.contextFactory(true))
+            {
+                return context.Inbox.Any(e => e.EventId == incomingEventId);
+            }
+        }
     }
 }

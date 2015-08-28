@@ -146,8 +146,8 @@
     <Compile Include="Serialization\JsonTextSerializer.cs" />
     <Compile Include="Serialization\TextSerializerExtensions.cs" />
     <Compile Include="Transport\EventInProcessorBucket.cs" />
-    <Compile Include="Transport\HttpPoller.cs" />
-    <Compile Include="Transport\IHttpPoller.cs" />
+    <Compile Include="Transport\HttpPollster.cs" />
+    <Compile Include="Transport\IHttpPollster.cs" />
     <Compile Include="Transport\NewRawEvent.cs" />
     <Compile Include="Messaging\FSM.cs" />
     <Compile Include="Processing\EventProcessor.cs" />

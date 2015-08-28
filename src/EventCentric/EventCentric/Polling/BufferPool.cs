@@ -17,7 +17,7 @@ namespace EventCentric.Polling
         IMessageHandler<IncomingEventIsPoisoned>
     {
         private readonly ISubscriptionRepository repository;
-        private readonly IHttpPoller http;
+        private readonly IHttpPollster http;
         private readonly ITextSerializer serializer;
 
         // Sets the threshold where there is need
@@ -27,7 +27,7 @@ namespace EventCentric.Polling
 
         private readonly object lockObject = new object();
 
-        public BufferPool(IBus bus, ISubscriptionRepository repository, IHttpPoller http, ITextSerializer serializer)
+        public BufferPool(IBus bus, ISubscriptionRepository repository, IHttpPollster http, ITextSerializer serializer)
             : base(bus)
         {
             Ensure.NotNull(repository, "repository");

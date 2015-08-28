@@ -5,11 +5,11 @@ using System.Net.Http;
 
 namespace EventCentric.Transport
 {
-    public class HttpPoller : Worker, IHttpPoller
+    public class HttpPollster : Worker, IHttpPollster
     {
         private const int timeoutSeconds = 60;
 
-        public HttpPoller(IBus bus)
+        public HttpPollster(IBus bus)
             : base(bus)
         { }
 
@@ -21,9 +21,9 @@ namespace EventCentric.Transport
             {
                 try
                 {
-                    var getResult = client.GetAsync($"{url}/events/{fromVersion}").Result;
+                    var getResult = client.GetAsync(string.Format("{0}/events/{1}", url, fromVersion)).Result;
                     if (!getResult.IsSuccessStatusCode)
-                        throw new InvalidOperationException($"The status code was: {getResult.StatusCode.ToString()}");
+                        throw new InvalidOperationException(string.Format("The status code was: {0}", getResult.StatusCode.ToString()));
 
                     var response = getResult.Content.ReadAsAsync<PollResponse>().Result;
                     this.bus.Publish(new PollResponseWasReceived(response));

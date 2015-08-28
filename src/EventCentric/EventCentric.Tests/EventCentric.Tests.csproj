@@ -63,13 +63,9 @@
   </Choose>
   <ItemGroup>
     <Compile Include="EventStoreDbInitializerFixture.cs" />
-    <Compile Include="FiniteStateMachine\GIVEN_FSM_and_lazy_containers.cs" />
     <Compile Include="FiniteStateMachine\Helpers\FakeBus.cs" />
-    <Compile Include="FiniteStateMachine\Helpers\TestLazyWorkersContainer.cs" />
-    <Compile Include="Helpers\GenericTestBus.cs" />
     <Compile Include="Helpers\GIVEN_db.cs" />
     <Compile Include="Playground\Helpers\TestActor.cs" />
-    <Compile Include="Playground\HttpClientCapabilities.cs" />
     <Compile Include="Playground\InMemoryObjectsPerformance.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
