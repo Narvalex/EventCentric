@@ -25,6 +25,8 @@ namespace EventCentric.Polling
         private const int eventsToFlushMaxCount = 50;
         private ConcurrentBag<BufferedSubscription> subscriptionsBag;
 
+        private readonly object lockObject = new object();
+
         public BufferPool(IBus bus, ISubscriptionRepository repository, IHttpPoller http, ITextSerializer serializer)
             : base(bus)
         {
@@ -48,7 +50,7 @@ namespace EventCentric.Polling
         public bool TryFill()
         {
             var subscriptonsReadyForPolling = this.subscriptionsBag
-                                                  .Where(s => !s.IsPolling && s.NewEventsQueue.Count < queueMaxThreshold)
+                                                  .Where(s => !s.IsPolling && !s.IsPoisoned && s.NewEventsQueue.Count < queueMaxThreshold)
                                                   .ToArray();
 
             if (!subscriptonsReadyForPolling.Any())
@@ -69,7 +71,7 @@ namespace EventCentric.Polling
         public bool TryFlush()
         {
             var subscriptionsReadyToFlush =
-                this.subscriptionsBag.Where(s => s.NewEventsQueue.Count > 0 && s.EventsInProcessorBag.IsEmpty)
+                this.subscriptionsBag.Where(s => s.NewEventsQueue.Count > 0 && s.EventsInProcessorBag.All(e => e.WasProcessed))
                                      .ToArray();
 
             if (!subscriptionsReadyToFlush.Any())
@@ -88,15 +90,17 @@ namespace EventCentric.Polling
                 }
 
                 var processorBufferVersion = rawEvents.Min(e => e.EventCollectionVersion);
+
+                // Reset the bag;
+                subscription.EventsInProcessorBag = new ConcurrentBag<EventInProcessorBucket>();
                 rawEvents.ForEach(raw =>
                 {
-                    var incomingEvent =
-                        new IncomingEvent<IEvent>(
-                            raw.EventCollectionVersion,
-                            processorBufferVersion,
-                            this.serializer.Deserialize<IEvent>(raw.Payload));
+                    var incomingEvent = this.serializer.Deserialize<IEvent>(raw.Payload);
 
-                    subscription.EventsInProcessorBag.Add(incomingEvent);
+                    ((Event)incomingEvent).EventCollectionVersion = raw.EventCollectionVersion;
+                    ((Event)incomingEvent).ProcessorBufferVersion = processorBufferVersion;
+
+                    subscription.EventsInProcessorBag.Add(new EventInProcessorBucket(incomingEvent));
 
                     this.bus.Publish(new NewIncomingEvent(incomingEvent));
                 });
@@ -125,16 +129,31 @@ namespace EventCentric.Polling
 
         public void Handle(IncomingEventHasBeenProcessed message)
         {
-
+            this.subscriptionsBag
+                    .Where(s => s.StreamType == message.StreamType)
+                    .Single()
+                        .EventsInProcessorBag
+                        .Where(e => e.Event.EventCollectionVersion == message.EventCollectionVersion)
+                        .Single()
+                        .MarkEventAsProcessed();
         }
 
         public void Handle(IncomingEventIsPoisoned message)
         {
-            this.repository.FlagSubscriptionAsPoisoned(message.PoisonedEvent);
+            lock (this.lockObject)
+            {
+                var poisonedSubscription = this.subscriptionsBag.Where(s => s.StreamType == message.PoisonedEvent.StreamType).Single();
+                if (poisonedSubscription.IsPoisoned == true)
+                    return;
 
-            this.bus.Publish(
-                new FatalErrorOcurred(
-                    new FatalErrorException("Fatal error: Inconming event is poisoned.", message.Exception)));
+                poisonedSubscription.IsPoisoned = true;
+
+                this.repository.FlagSubscriptionAsPoisoned(message.PoisonedEvent, message.Exception);
+
+                this.bus.Publish(
+                    new FatalErrorOcurred(
+                        new FatalErrorException("Fatal error: Inconming event is poisoned.", message.Exception)));
+            }
         }
     }
 }

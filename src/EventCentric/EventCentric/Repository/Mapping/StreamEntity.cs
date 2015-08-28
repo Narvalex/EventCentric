@@ -1,4 +1,5 @@
 using System;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Data.Entity.ModelConfiguration;
 
 namespace EventCentric.Repository.Mapping
@@ -19,6 +20,9 @@ namespace EventCentric.Repository.Mapping
         {
             // Primary Key
             this.HasKey(t => t.StreamId);
+
+            this.Property(t => t.StreamCollectionVersion)
+                .HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
 
             // Table & Column Mappings
             this.ToTable("Streams", "EventStore");

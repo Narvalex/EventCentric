@@ -33,7 +33,7 @@ namespace EventCentric
             var time = setLocalTime ? new LocalTimeProvider() as ITimeProvider : new UtcTimeProvider() as ITimeProvider;
             var guid = setSequentialGuid ? new SequentialGuid() as IGuidProvider : new DefaultGuidProvider() as IGuidProvider;
 
-            var subscriptionRepository = new SubscriptionRepository(storeContextFactory);
+            var subscriptionRepository = new SubscriptionRepository(storeContextFactory, serializer, time);
             var eventDao = new EventDao(queueContextFactory);
 
             var eventStore = new EventStore<TAggregate>(serializer, storeContextFactory, time, guid);

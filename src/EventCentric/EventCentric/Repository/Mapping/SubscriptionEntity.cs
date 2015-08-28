@@ -9,7 +9,7 @@ namespace EventCentric.Repository.Mapping
         public string Url { get; set; }
         public int ProcessorBufferVersion { get; set; }
         public bool IsPoisoned { get; set; }
-        public int PoisonEventCollectionVersion { get; set; }
+        public int? PoisonEventCollectionVersion { get; set; }
         public string DeadLetterPayload { get; set; }
         public string ExceptionMessage { get; set; }
         public DateTime CreationDate { get; set; }

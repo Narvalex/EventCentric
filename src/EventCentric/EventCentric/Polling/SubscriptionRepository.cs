@@ -1,6 +1,8 @@
 ﻿using EventCentric.EventSourcing;
+using EventCentric.Messaging;
 using EventCentric.Repository;
-using EventCentric.Transport;
+using EventCentric.Serialization;
+using EventCentric.Utils;
 using System;
 using System.Collections.Concurrent;
 using System.Linq;
@@ -10,33 +12,72 @@ namespace EventCentric.Polling
     public class SubscriptionRepository : ISubscriptionRepository
     {
         private readonly Func<bool, EventStoreDbContext> contextFactory;
+        private readonly ITextSerializer serializer;
+        private readonly ITimeProvider time;
 
-        public SubscriptionRepository(Func<bool, EventStoreDbContext> contextFactory)
+        public SubscriptionRepository(Func<bool, EventStoreDbContext> contextFactory, ITextSerializer serializer, ITimeProvider time)
         {
+            Ensure.NotNull(contextFactory, "contextFactory");
+            Ensure.NotNull(serializer, "serializer");
+            Ensure.NotNull(time, "time");
+
             this.contextFactory = contextFactory;
+            this.serializer = serializer;
+            this.time = time;
         }
 
         public ConcurrentBag<BufferedSubscription> GetSubscriptions()
         {
             var subscriptions = new ConcurrentBag<BufferedSubscription>();
-            using (var context = this.contextFactory(true))
-            {
-                var subscriptionsQuery = context.Subscriptions.Where(s => !s.IsPoisoned);
-                if (subscriptionsQuery.Any())
-                    foreach (var s in subscriptionsQuery)
-                        // We substract one version in order to set the current version bellow the last one, in case that first event
-                        // was not yet processed.
-                        subscriptions.Add(new BufferedSubscription(s.StreamType, s.Url, s.ProcessorBufferVersion - 1));
 
-                return subscriptions;
+            try
+            {
+                using (var context = this.contextFactory(true))
+                {
+                    var subscriptionsQuery = context.Subscriptions.Where(s => !s.IsPoisoned);
+                    if (subscriptionsQuery.Any())
+                        foreach (var s in subscriptionsQuery)
+                            // We substract one version in order to set the current version bellow the last one, in case that first event
+                            // was not yet processed.
+                            subscriptions.Add(new BufferedSubscription(s.StreamType.Trim(), s.Url.Trim(), s.ProcessorBufferVersion - 1, s.IsPoisoned));
+
+
+                }
             }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+
+            return subscriptions;
         }
 
-        public void FlagSubscriptionAsPoisoned(IncomingEvent<IEvent> poisonedEvent)
+        public void FlagSubscriptionAsPoisoned(IEvent poisonedEvent, PoisonMessageException exception)
         {
             using (var context = this.contextFactory.Invoke(false))
             {
+                var subscription = context.Subscriptions.Where(s => s.StreamType == poisonedEvent.StreamType).Single();
+                subscription.IsPoisoned = true;
+                subscription.UpdateTime = this.time.Now;
+                subscription.PoisonEventCollectionVersion = poisonedEvent.EventCollectionVersion;
+                try
+                {
+                    subscription.ExceptionMessage = this.serializer.Serialize(exception);
+                }
+                catch (Exception)
+                {
+                    subscription.ExceptionMessage = string.Format("Exception type: {0}. Exception message: {1}. Inner exception: {2}", exception.GetType().Name, exception.Message, exception.InnerException.Message != null ? exception.InnerException.Message : "null");
+                }
+                try
+                {
+                    subscription.DeadLetterPayload = this.serializer.Serialize(poisonedEvent);
+                }
+                catch (Exception)
+                {
+                    subscription.DeadLetterPayload = string.Format("EventType: {0}", poisonedEvent.GetType().Name);
+                }
 
+                context.SaveChanges();
             }
         }
     }

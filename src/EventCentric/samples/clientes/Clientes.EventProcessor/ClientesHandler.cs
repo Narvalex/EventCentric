@@ -2,7 +2,6 @@
 using EventCentric.EventSourcing;
 using EventCentric.Messaging;
 using EventCentric.Processing;
-using EventCentric.Transport;
 
 namespace Clientes.EventProcessor
 {
@@ -13,9 +12,9 @@ namespace Clientes.EventProcessor
             : base(bus, store)
         { }
 
-        public void Handle(IncomingEvent<SolicitudNuevoClienteRecibida> incomingEvent)
+        public void Handle(SolicitudNuevoClienteRecibida incomingEvent)
         {
-            base.CreateNewStream(incomingEvent.Event.IdCliente, incomingEvent);
+            base.CreateNewStream(incomingEvent.IdCliente, incomingEvent);
         }
     }
 }

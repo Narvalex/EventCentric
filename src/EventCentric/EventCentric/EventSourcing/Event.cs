@@ -4,7 +4,11 @@ namespace EventCentric.EventSourcing
 {
     public class Event : IEvent
     {
+        public int EventCollectionVersion { get; set; }
+
         public Guid EventId { get; set; }
+
+        public int ProcessorBufferVersion { get; set; }
 
         public Guid StreamId { get; set; }
 

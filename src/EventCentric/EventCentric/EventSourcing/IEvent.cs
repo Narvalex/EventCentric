@@ -9,13 +9,17 @@ namespace EventCentric.EventSourcing
         /// </summary>
         Guid EventId { get; }
 
+        string StreamType { get; }
+
+        Guid StreamId { get; }
+
         /// <summary>
         /// The version of the stream when the event happened.
         /// </summary>
         int Version { get; }
 
-        string StreamType { get; }
+        int EventCollectionVersion { get; }
 
-        Guid StreamId { get; }
+        int ProcessorBufferVersion { get; }
     }
 }

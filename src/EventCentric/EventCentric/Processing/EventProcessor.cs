@@ -2,10 +2,10 @@
 using EventCentric.Messaging;
 using EventCentric.Messaging.Commands;
 using EventCentric.Messaging.Events;
-using EventCentric.Transport;
 using EventCentric.Utils;
 using System;
 using System.Collections.Concurrent;
+using System.Linq;
 
 namespace EventCentric.Processing
 {
@@ -26,7 +26,8 @@ namespace EventCentric.Processing
     {
         private readonly IEventStore<T> store;
         private readonly Func<Guid, T> newAggregateFactory;
-        protected ConcurrentDictionary<Guid, object> streamLocksById;
+        protected readonly ConcurrentDictionary<Guid, object> streamLocksById;
+        protected readonly ConcurrentBag<Guid> poisonedStreams;
 
         public EventProcessor(IBus bus, IEventStore<T> store)
             : base(bus)
@@ -36,6 +37,7 @@ namespace EventCentric.Processing
             this.store = store;
 
             this.streamLocksById = new ConcurrentDictionary<Guid, object>();
+            this.poisonedStreams = new ConcurrentBag<Guid>();
 
             // New aggregate
             var constructor = typeof(T).GetConstructor(new[] { typeof(Guid) });
@@ -76,7 +78,7 @@ namespace EventCentric.Processing
         /// </summary>
         /// <param name="id">The id of the new stream. A brand new computed <see cref="Guid"/>.</param>
         /// <param name="@event">The first message that the new aggregate will process.</param>
-        protected void CreateNewStream<TEvent>(Guid id, IncomingEvent<TEvent> incomingEvent) where TEvent : IEvent
+        protected void CreateNewStream(Guid id, IEvent incomingEvent)
         {
             this.HandleSafelyWithStreamLocking(id, () =>
             {
@@ -85,7 +87,7 @@ namespace EventCentric.Processing
             });
         }
 
-        protected void CreateNewStreamIfNotExists<TEvent>(Guid id, IncomingEvent<TEvent> incomingEvent) where TEvent : IEvent
+        protected void CreateNewStreamIfNotExists(Guid id, IEvent incomingEvent)
         {
             this.HandleSafelyWithStreamLocking(id, () =>
             {
@@ -102,7 +104,7 @@ namespace EventCentric.Processing
         /// </summary>
         /// <param name="id">The id of the stream.</param>
         /// <param name="@event">The event to be handled by the aggregate of <see cref="T"/>.</param>
-        protected void Handle(Guid id, IncomingEvent<IEvent> incomingEvent)
+        protected void Handle(Guid id, IEvent incomingEvent)
         {
             this.HandleSafelyWithStreamLocking(id, () =>
             {
@@ -117,7 +119,7 @@ namespace EventCentric.Processing
         /// happened in the source.
         /// </summary>
         /// <param name="@event">The <see cref="IEvent"/> to be igonred.</param>
-        protected void Ignore(IncomingEvent<IEvent> incomingEvent)
+        protected void Ignore(IEvent incomingEvent)
         {
             this.PublishIncomingEventHasBeenProcessed(incomingEvent);
         }
@@ -128,9 +130,9 @@ namespace EventCentric.Processing
         /// <param name="aggregate">The aggregate.</param>
         /// <param name="@event">The event.</param>
         /// <returns>The updated stream version.</returns>
-        private void HandleEventAndAppendToStore<TEvent>(T aggregate, IncomingEvent<TEvent> incomingEvent) where TEvent : IEvent
+        private void HandleEventAndAppendToStore(T aggregate, IEvent incomingEvent)
         {
-            ((dynamic)aggregate).Handle((dynamic)incomingEvent.Event);
+            ((dynamic)aggregate).Handle((dynamic)incomingEvent);
             var version = this.store.Save(aggregate, incomingEvent);
             this.bus.Publish(new EventStoreHasBeenUpdated(version));
             this.PublishIncomingEventHasBeenProcessed(incomingEvent);
@@ -146,13 +148,25 @@ namespace EventCentric.Processing
             this.streamLocksById.TryAdd(id, new object());
             lock (this.streamLocksById.TryGetValue(id))
             {
-                handle();
+                try
+                {
+                    // Handle only if is not poisoned
+                    if (!this.poisonedStreams.Where(p => p == id).Any())
+                        handle();
+                }
+                catch (Exception ex)
+                {
+                    // If an error ocurred, flag it in order to abort any subsecuent attemps to update the stream that
+                    // could not process a previous event.
+                    this.poisonedStreams.Add(id);
+                    throw ex;
+                }
             }
         }
 
-        private void PublishIncomingEventHasBeenProcessed<TEvent>(IncomingEvent<TEvent> incomingEvent) where TEvent : IEvent
+        private void PublishIncomingEventHasBeenProcessed(IEvent incomingEvent)
         {
-            this.bus.Publish(new IncomingEventHasBeenProcessed(incomingEvent.Event.StreamType, incomingEvent.EventCollectionVersion));
+            this.bus.Publish(new IncomingEventHasBeenProcessed(incomingEvent.StreamType, incomingEvent.EventCollectionVersion));
         }
     }
 }

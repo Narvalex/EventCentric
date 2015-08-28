@@ -2,7 +2,6 @@
 using EventCentric.Repository;
 using EventCentric.Repository.Mapping;
 using EventCentric.Serialization;
-using EventCentric.Transport;
 using EventCentric.Utils;
 using System;
 using System.Data.Entity;
@@ -92,9 +91,8 @@ namespace EventCentric.EventSourcing
             return this.originatorAggregateFactory.Invoke(id, cachedMemento.Item1);
         }
 
-        public int Save<TEvent>(T eventSourced, IncomingEvent<TEvent> envelope) where TEvent : IEvent
+        public int Save(T eventSourced, IEvent incomingEvent)
         {
-            var incomingEvent = envelope.Event;
             var pendingEvents = eventSourced.PendingEvents;
             if (pendingEvents.Length == 0)
                 throw new ArgumentOutOfRangeException("pendingEvents");
@@ -125,6 +123,7 @@ namespace EventCentric.EventSourcing
                         context.Events.Add(
                             new EventEntity
                             {
+                                StreamType = _streamType,
                                 StreamId = @event.StreamId,
                                 Version = @event.Version,
                                 EventId = @event.EventId,
@@ -143,7 +142,7 @@ namespace EventCentric.EventSourcing
                         StreamId = incomingEvent.StreamId,
                         Version = incomingEvent.Version,
                         EventType = incomingEvent.GetType().Name,
-                        EventCollectionVersion = envelope.EventCollectionVersion,
+                        EventCollectionVersion = incomingEvent.EventCollectionVersion,
                         CreationDate = now,
                         Ignored = false,
                         Payload = this.serializer.Serialize(incomingEvent)
@@ -152,7 +151,7 @@ namespace EventCentric.EventSourcing
 
                     // Update subscription
                     var subscription = context.Subscriptions.Where(s => s.StreamType == incomingEvent.StreamType).Single();
-                    subscription.ProcessorBufferVersion = envelope.ProcessorBufferVersion;
+                    subscription.ProcessorBufferVersion = incomingEvent.ProcessorBufferVersion;
                     subscription.UpdateTime = now;
 
 
@@ -169,13 +168,14 @@ namespace EventCentric.EventSourcing
                             StreamId = eventSourced.Id,
                             Version = eventSourced.Version,
                             Memento = serializedMemento,
-                            CreationDate = now
+                            CreationDate = now,
+                            UpdateTime = now
                         },
                         stream =>
                         {
                             stream.Version = eventSourced.Version;
                             stream.Memento = serializedMemento;
-                            stream.CreationDate = now;
+                            stream.UpdateTime = now;
                         });
 
                     // Cache in memory

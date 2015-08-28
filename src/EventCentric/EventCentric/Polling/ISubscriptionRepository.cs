@@ -1,5 +1,5 @@
 ﻿using EventCentric.EventSourcing;
-using EventCentric.Transport;
+using EventCentric.Messaging;
 using System.Collections.Concurrent;
 
 namespace EventCentric.Polling
@@ -8,6 +8,6 @@ namespace EventCentric.Polling
     {
         ConcurrentBag<BufferedSubscription> GetSubscriptions();
 
-        void FlagSubscriptionAsPoisoned(IncomingEvent<IEvent> poisonedEvent);
+        void FlagSubscriptionAsPoisoned(IEvent poisonedEvent, PoisonMessageException exception);
     }
 }

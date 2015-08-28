@@ -2,7 +2,6 @@
 using EventCentric.EventSourcing;
 using EventCentric.Messaging;
 using EventCentric.Processing;
-using EventCentric.Transport;
 using System;
 
 namespace Clientes.ReadModel
@@ -14,7 +13,7 @@ namespace Clientes.ReadModel
             : base(bus, store)
         { }
 
-        public void Handle(IncomingEvent<CuentaCreadaANuevoCliente> incomingEvent)
+        public void Handle(CuentaCreadaANuevoCliente incomingEvent)
         {
             base.CreateNewStreamIfNotExists(Guid.Empty, incomingEvent);
         }

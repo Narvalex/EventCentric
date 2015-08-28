@@ -1,19 +1,19 @@
-﻿using EventCentric.EventSourcing;
-using EventCentric.Transport;
+﻿using EventCentric.Transport;
 using System.Collections.Concurrent;
 
 namespace EventCentric.Polling
 {
     public class BufferedSubscription
     {
-        public BufferedSubscription(string streamType, string url, int currentBufferVersion)
+        public BufferedSubscription(string streamType, string url, int currentBufferVersion, bool isPoisoned)
         {
             this.StreamType = streamType;
             this.Url = url;
             this.CurrentBufferVersion = currentBufferVersion;
             this.IsPolling = false;
+            this.IsPoisoned = isPoisoned;
             this.NewEventsQueue = new ConcurrentQueue<NewRawEvent>();
-            this.EventsInProcessorBag = new ConcurrentBag<IncomingEvent<IEvent>>();
+            this.EventsInProcessorBag = new ConcurrentBag<EventInProcessorBucket>();
         }
 
         public string StreamType { get; private set; }
@@ -24,7 +24,8 @@ namespace EventCentric.Polling
         /// </summary>
         public volatile int CurrentBufferVersion;
         public volatile bool IsPolling;
+        public volatile bool IsPoisoned;
         public volatile ConcurrentQueue<NewRawEvent> NewEventsQueue;
-        public volatile ConcurrentBag<IncomingEvent<IEvent>> EventsInProcessorBag;
+        public volatile ConcurrentBag<EventInProcessorBucket> EventsInProcessorBag;
     }
 }

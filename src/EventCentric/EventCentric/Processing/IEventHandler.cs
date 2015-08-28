@@ -1,5 +1,4 @@
 ﻿using EventCentric.EventSourcing;
-using EventCentric.Transport;
 
 namespace EventCentric.Processing
 {
@@ -8,6 +7,6 @@ namespace EventCentric.Processing
 
     public interface IEventHandler<T> where T : IEvent
     {
-        void Handle(IncomingEvent<T> incomingEvent);
+        void Handle(T incomingEvent);
     }
 }
