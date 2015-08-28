@@ -7,7 +7,7 @@ namespace EventCentric.Transport
 {
     public class HttpPoller : Worker, IHttpPoller
     {
-        private const int timeoutSeconds = 30;
+        private const int timeoutSeconds = 60;
 
         public HttpPoller(IBus bus)
             : base(bus)

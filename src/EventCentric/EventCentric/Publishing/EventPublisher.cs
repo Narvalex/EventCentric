@@ -15,7 +15,8 @@ namespace EventCentric.Publishing
     {
         private static readonly string _streamType = typeof(T).Name;
         private readonly IEventDao dao;
-        private const int responseLength = 50;
+        private const int eventsToPushMaxCount = 50;
+        private const int attempsMaxCount = 300;
         private readonly object lockObject = new object();
 
         private volatile int eventCollectionVersion;
@@ -52,14 +53,14 @@ namespace EventCentric.Publishing
             bool newEventsWereFound = false;
             var newEvents = new List<NewRawEvent>();
             var attemps = 0;
-            while (!this.stopping && attemps <= 100)
+            while (!this.stopping && attemps <= attempsMaxCount)
             {
                 attemps += 1;
                 if (this.eventCollectionVersion <= lastReceivedVersion)
                     Thread.Sleep(100);
                 else
                 {
-                    newEvents = this.dao.FindEvents(lastReceivedVersion, responseLength);
+                    newEvents = this.dao.FindEvents(lastReceivedVersion, eventsToPushMaxCount);
                     newEventsWereFound = newEvents.Count > 0 ? true : false;
                     break;
                 }
