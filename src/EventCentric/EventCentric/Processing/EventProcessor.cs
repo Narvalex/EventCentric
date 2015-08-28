@@ -160,3 +160,4 @@ namespace EventCentric.Processing
             this.bus.Publish(new IncomingEventHasBeenProcessed(incomingEvent.Event.StreamType, incomingEvent.EventCollectionVersion));
         }
     }
+}

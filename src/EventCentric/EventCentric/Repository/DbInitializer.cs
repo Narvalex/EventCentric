@@ -107,6 +107,7 @@ CREATE TABLE[EventStore].[Subscriptions](
     [Url] [nvarchar] (500) NOT NULL,
     [ProcessorBufferVersion] [int] NOT NULL,
     [IsPoisoned] [bit] NOT NULL,
+    [PoisonEventCollectionVersion] [int] NOT NULL,
     [DeadLetterPayload] [nvarchar] (max) NULL,
     [ExceptionMessage] [nvarchar] (max) NULL,
     [CreationDate] [datetime] NOT NULL,

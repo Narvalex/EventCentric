@@ -9,6 +9,7 @@ namespace EventCentric.Repository.Mapping
         public string Url { get; set; }
         public int ProcessorBufferVersion { get; set; }
         public bool IsPoisoned { get; set; }
+        public int PoisonEventCollectionVersion { get; set; }
         public string DeadLetterPayload { get; set; }
         public string ExceptionMessage { get; set; }
         public DateTime CreationDate { get; set; }
@@ -39,6 +40,7 @@ namespace EventCentric.Repository.Mapping
             this.Property(t => t.Url).HasColumnName("Url");
             this.Property(t => t.ProcessorBufferVersion).HasColumnName("ProcessorBufferVersion");
             this.Property(t => t.IsPoisoned).HasColumnName("IsPoisoned");
+            this.Property(t => t.PoisonEventCollectionVersion).HasColumnName("PoisonEventCollectionVersion");
             this.Property(t => t.DeadLetterPayload).HasColumnName("DeadLetterPayload");
             this.Property(t => t.ExceptionMessage).HasColumnName("ExceptionMessage");
             this.Property(t => t.CreationDate).HasColumnName("CreationDate");
