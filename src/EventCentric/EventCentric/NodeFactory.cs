@@ -43,8 +43,8 @@ namespace EventCentric
             var http = new HttpPollster(bus);
 
             var buffer = new BufferPool(bus, subscriptionRepository, http, serializer);
-            var publisher = new EventPublisher<TAggregate>(bus, eventDao);
             var pollster = new EventPollster(bus, buffer);
+            var publisher = new EventPublisher<TAggregate>(bus, eventDao);
             var fsm = new Node(bus);
 
             // Register processor dependencies
@@ -85,6 +85,11 @@ namespace EventCentric
 
             var bus = new Bus();
 
+            var http = new HttpPollster(bus);
+
+            var subscriptionRepository = new SubscriptionRepository(storeContextFactory, serializer, time);
+            var buffer = new BufferPool(bus, subscriptionRepository, http, serializer);
+            var pollster = new EventPollster(bus, buffer);
             var publisher = new EventPublisher<TAggregate>(bus, eventDao);
             var fsm = new Node(bus);
 
