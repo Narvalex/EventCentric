@@ -8,8 +8,8 @@ namespace EventCentric
     public class Node : FSM, INode,
         IMessageHandler<EventPublisherStarted>,
         IMessageHandler<EventProcessorStarted>,
-        IMessageHandler<EventPullerStarted>,
-        IMessageHandler<EventPullerStopped>,
+        IMessageHandler<EventPollsterStarted>,
+        IMessageHandler<EventPollsterStopped>,
         IMessageHandler<EventProcessorStopped>,
         IMessageHandler<EventPublisherStopped>
     {
@@ -86,7 +86,7 @@ namespace EventCentric
             }
         }
 
-        public void Handle(EventPullerStarted message)
+        public void Handle(EventPollsterStarted message)
         {
             this.State = NodeState.UpAndRunning;
         }
@@ -101,7 +101,7 @@ namespace EventCentric
             this.bus.Publish(new StartEventPollster());
         }
 
-        public void Handle(EventPullerStopped message)
+        public void Handle(EventPollsterStopped message)
         {
             //..
         }

@@ -38,13 +38,13 @@ namespace EventCentric.Pulling
             Task.Factory.StartNewLongRunning(() => this.Poll());
 
             // Ensure to start everything;
-            this.bus.Publish(new EventPullerStarted());
+            this.bus.Publish(new EventPollsterStarted());
         }
 
         protected override void OnStopping()
         {
             // Ensure to stop everything;
-            this.bus.Publish(new EventPullerStopped());
+            this.bus.Publish(new EventPollsterStopped());
         }
 
         private void Poll()

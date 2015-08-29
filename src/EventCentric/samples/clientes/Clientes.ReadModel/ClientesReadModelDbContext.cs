@@ -25,4 +25,18 @@ namespace Clientes.ReadModel
 
         public DateTime FechaIngreso { get; set; }
     }
+
+    //    CREATE TABLE[dbo].[Clientes](
+    //	[Id]
+    //    [uniqueidentifier]
+    //    NOT NULL,
+    //    [Nombre] [nvarchar](max) NULL,
+    //	[FechaIngreso]
+    //    [datetime]
+    //    NOT NULL,
+    //PRIMARY KEY CLUSTERED
+    //(
+    //    [Id] ASC
+    //)WITH(PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON[PRIMARY]
+    //) ON[PRIMARY] TEXTIMAGE_ON[PRIMARY]
 }
