@@ -15,7 +15,7 @@ namespace EventCentric.Publishing
     {
         private static readonly string _streamType = typeof(T).Name;
         private readonly IEventDao dao;
-        private const int eventsToPushMaxCount = 50;
+        private const int eventsToPushMaxCount = 100;
         private const int attempsMaxCount = 300;
         private readonly object lockObject = new object();
 

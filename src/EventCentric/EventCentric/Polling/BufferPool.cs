@@ -21,8 +21,8 @@ namespace EventCentric.Polling
         private readonly ITextSerializer serializer;
 
         // Sets the threshold where there is need
-        private const int queueMaxThreshold = 100;
-        private const int eventsToFlushMaxCount = 50;
+        private const int queueMaxThreshold = 1000;
+        private const int eventsToFlushPerSubscriptionMaxCount = 100;
         private ConcurrentBag<BufferedSubscription> subscriptionsBag;
 
         private readonly object lockObject = new object();
@@ -78,35 +78,38 @@ namespace EventCentric.Polling
                 return false;
 
             foreach (var subscription in subscriptionsReadyToFlush)
-            {
-                var rawEvents = new List<NewRawEvent>();
-                for (int i = 0; i < eventsToFlushMaxCount; i++)
-                {
-                    NewRawEvent rawEvent = null;
-                    if (!subscription.NewEventsQueue.TryDequeue(out rawEvent))
-                        break;
-
-                    rawEvents.Add(rawEvent);
-                }
-
-                var processorBufferVersion = rawEvents.Min(e => e.EventCollectionVersion);
-
-                // Reset the bag;
-                subscription.EventsInProcessorBag = new ConcurrentBag<EventInProcessorBucket>();
-                rawEvents.ForEach(raw =>
-                {
-                    var incomingEvent = this.serializer.Deserialize<IEvent>(raw.Payload);
-
-                    ((Event)incomingEvent).EventCollectionVersion = raw.EventCollectionVersion;
-                    ((Event)incomingEvent).ProcessorBufferVersion = processorBufferVersion;
-
-                    subscription.EventsInProcessorBag.Add(new EventInProcessorBucket(incomingEvent));
-
-                    this.bus.Publish(new NewIncomingEvent(incomingEvent));
-                });
-            }
+                Task.Factory.StartNewLongRunning(() => this.Flush(subscription));
 
             return true;
+        }
+
+        private void Flush(BufferedSubscription subscription)
+        {
+            var rawEvents = new List<NewRawEvent>();
+            for (int i = 0; i < eventsToFlushPerSubscriptionMaxCount; i++)
+            {
+                NewRawEvent rawEvent = null;
+                if (!subscription.NewEventsQueue.TryDequeue(out rawEvent))
+                    break;
+
+                rawEvents.Add(rawEvent);
+            }
+
+            var processorBufferVersion = rawEvents.Min(e => e.EventCollectionVersion);
+
+            // Reset the bag;
+            subscription.EventsInProcessorBag = new ConcurrentBag<EventInProcessorBucket>();
+            rawEvents.ForEach(raw =>
+            {
+                var incomingEvent = this.serializer.Deserialize<IEvent>(raw.Payload);
+
+                ((Event)incomingEvent).EventCollectionVersion = raw.EventCollectionVersion;
+                ((Event)incomingEvent).ProcessorBufferVersion = processorBufferVersion;
+
+                subscription.EventsInProcessorBag.Add(new EventInProcessorBucket(incomingEvent));
+
+                this.bus.Publish(new NewIncomingEvent(incomingEvent));
+            });
         }
 
         public void Handle(PollResponseWasReceived message)
