@@ -1,0 +1,334 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{CAE981DA-E553-4740-8A49-15B9FE716784}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>EventCentricNet4</RootNamespace>
+    <AssemblyName>EventCentricNet4</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>TRACE;DEBUG</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE;NET4</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <HintPath>..\packages\EntityFramework.6.1.3\lib\net40\EntityFramework.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="EntityFramework.SqlServer, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <HintPath>..\packages\EntityFramework.6.1.3\lib\net40\EntityFramework.SqlServer.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Microsoft.Practices.ServiceLocation, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\CommonServiceLocator.1.0\lib\NET35\Microsoft.Practices.ServiceLocation.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Microsoft.Practices.Unity, Version=2.1.505.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Unity.2.1.505.2\lib\NET35\Microsoft.Practices.Unity.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Microsoft.Practices.Unity.Configuration, Version=2.1.505.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Unity.2.1.505.2\lib\NET35\Microsoft.Practices.Unity.Configuration.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Newtonsoft.Json, Version=7.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.7.0.1\lib\net40\Newtonsoft.Json.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.configuration" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Net.Http, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
+    <Reference Include="System.Runtime.Caching" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\EventCentric\ClientNode.cs">
+      <Link>ClientNode.cs</Link>
+    </Compile>
+    <Compile Include="..\EventCentric\ClientNodeFactory.cs">
+      <Link>ClientNodeFactory.cs</Link>
+    </Compile>
+    <Compile Include="..\EventCentric\Database\ConnectionProvider.cs">
+      <Link>Database\ConnectionProvider.cs</Link>
+    </Compile>
+    <Compile Include="..\EventCentric\Database\DataReaderExtensions.cs">
+      <Link>Database\DataReaderExtensions.cs</Link>
+    </Compile>
+    <Compile Include="..\EventCentric\Database\DbContextExtensions.cs">
+      <Link>Database\DbContextExtensions.cs</Link>
+    </Compile>
+    <Compile Include="..\EventCentric\Database\IConnectionProvider.cs">
+      <Link>Database\IConnectionProvider.cs</Link>
+    </Compile>
+    <Compile Include="..\EventCentric\Database\SqlClientLite.cs">
+      <Link>Database\SqlClientLite.cs</Link>
+    </Compile>
+    <Compile Include="..\EventCentric\Database\TransientFaultHandlingDbConfiguration.cs">
+      <Link>Database\TransientFaultHandlingDbConfiguration.cs</Link>
+    </Compile>
+    <Compile Include="..\EventCentric\EventSourcing\Denormalizer.cs">
+      <Link>EventSourcing\Denormalizer.cs</Link>
+    </Compile>
+    <Compile Include="..\EventCentric\EventSourcing\Event.cs">
+      <Link>EventSourcing\Event.cs</Link>
+    </Compile>
+    <Compile Include="..\EventCentric\EventSourcing\EventSourced.cs">
+      <Link>EventSourcing\EventSourced.cs</Link>
+    </Compile>
+    <Compile Include="..\EventCentric\EventSourcing\EventStore.cs">
+      <Link>EventSourcing\EventStore.cs</Link>
+    </Compile>
+    <Compile Include="..\EventCentric\EventSourcing\EventStoreConcurrencyException.cs">
+      <Link>EventSourcing\EventStoreConcurrencyException.cs</Link>
+    </Compile>
+    <Compile Include="..\EventCentric\EventSourcing\IDenormalizer.cs">
+      <Link>EventSourcing\IDenormalizer.cs</Link>
+    </Compile>
+    <Compile Include="..\EventCentric\EventSourcing\IEvent.cs">
+      <Link>EventSourcing\IEvent.cs</Link>
+    </Compile>
+    <Compile Include="..\EventCentric\EventSourcing\IEventSourced.cs">
+      <Link>EventSourcing\IEventSourced.cs</Link>
+    </Compile>
+    <Compile Include="..\EventCentric\EventSourcing\IEventStore.cs">
+      <Link>EventSourcing\IEventStore.cs</Link>
+    </Compile>
+    <Compile Include="..\EventCentric\EventSourcing\IHandles.cs">
+      <Link>EventSourcing\IHandles.cs</Link>
+    </Compile>
+    <Compile Include="..\EventCentric\EventSourcing\IMementoOriginator.cs">
+      <Link>EventSourcing\IMementoOriginator.cs</Link>
+    </Compile>
+    <Compile Include="..\EventCentric\EventSourcing\IUpdatesOn.cs">
+      <Link>EventSourcing\IUpdatesOn.cs</Link>
+    </Compile>
+    <Compile Include="..\EventCentric\EventSourcing\ReadModelUpdated.cs">
+      <Link>EventSourcing\ReadModelUpdated.cs</Link>
+    </Compile>
+    <Compile Include="..\EventCentric\EventSourcing\StreamNotFoundException.cs">
+      <Link>EventSourcing\StreamNotFoundException.cs</Link>
+    </Compile>
+    <Compile Include="..\EventCentric\INode.cs">
+      <Link>INode.cs</Link>
+    </Compile>
+    <Compile Include="..\EventCentric\Messaging\Bus.cs">
+      <Link>Messaging\Bus.cs</Link>
+    </Compile>
+    <Compile Include="..\EventCentric\Messaging\BusExtensions.cs">
+      <Link>Messaging\BusExtensions.cs</Link>
+    </Compile>
+    <Compile Include="..\EventCentric\Messaging\Commands\StartEngineCommands.cs">
+      <Link>Messaging\Commands\StartEngineCommands.cs</Link>
+    </Compile>
+    <Compile Include="..\EventCentric\Messaging\Commands\StopEngineCommands.cs">
+      <Link>Messaging\Commands\StopEngineCommands.cs</Link>
+    </Compile>
+    <Compile Include="..\EventCentric\Messaging\Envelope.cs">
+      <Link>Messaging\Envelope.cs</Link>
+    </Compile>
+    <Compile Include="..\EventCentric\Messaging\Events\EngineStartedEvents.cs">
+      <Link>Messaging\Events\EngineStartedEvents.cs</Link>
+    </Compile>
+    <Compile Include="..\EventCentric\Messaging\Events\EngineStoppedEvents.cs">
+      <Link>Messaging\Events\EngineStoppedEvents.cs</Link>
+    </Compile>
+    <Compile Include="..\EventCentric\Messaging\Events\EventStoreHasBeenUpdated.cs">
+      <Link>Messaging\Events\EventStoreHasBeenUpdated.cs</Link>
+    </Compile>
+    <Compile Include="..\EventCentric\Messaging\Events\FatalErrorOcurred.cs">
+      <Link>Messaging\Events\FatalErrorOcurred.cs</Link>
+    </Compile>
+    <Compile Include="..\EventCentric\Messaging\Events\IncomingEventHasBeenProcessed.cs">
+      <Link>Messaging\Events\IncomingEventHasBeenProcessed.cs</Link>
+    </Compile>
+    <Compile Include="..\EventCentric\Messaging\Events\IncomingMessageIsPoisoned.cs">
+      <Link>Messaging\Events\IncomingMessageIsPoisoned.cs</Link>
+    </Compile>
+    <Compile Include="..\EventCentric\Messaging\Events\MessageHasBeenQueued.cs">
+      <Link>Messaging\Events\MessageHasBeenQueued.cs</Link>
+    </Compile>
+    <Compile Include="..\EventCentric\Messaging\Events\NewIncomingEvent.cs">
+      <Link>Messaging\Events\NewIncomingEvent.cs</Link>
+    </Compile>
+    <Compile Include="..\EventCentric\Messaging\Events\PollResponseWasReceived.cs">
+      <Link>Messaging\Events\PollResponseWasReceived.cs</Link>
+    </Compile>
+    <Compile Include="..\EventCentric\Messaging\FatalErrorException.cs">
+      <Link>Messaging\FatalErrorException.cs</Link>
+    </Compile>
+    <Compile Include="..\EventCentric\Messaging\FSM.cs">
+      <Link>Messaging\FSM.cs</Link>
+    </Compile>
+    <Compile Include="..\EventCentric\Messaging\IBus.cs">
+      <Link>Messaging\IBus.cs</Link>
+    </Compile>
+    <Compile Include="..\EventCentric\Messaging\IEventBus.cs">
+      <Link>Messaging\IEventBus.cs</Link>
+    </Compile>
+    <Compile Include="..\EventCentric\Messaging\PoisonMessageException.cs">
+      <Link>Messaging\PoisonMessageException.cs</Link>
+    </Compile>
+    <Compile Include="..\EventCentric\Messaging\Worker.cs">
+      <Link>Messaging\Worker.cs</Link>
+    </Compile>
+    <Compile Include="..\EventCentric\Node.cs">
+      <Link>Node.cs</Link>
+    </Compile>
+    <Compile Include="..\EventCentric\NodeFactory.cs">
+      <Link>NodeFactory.cs</Link>
+    </Compile>
+    <Compile Include="..\EventCentric\NodeState.cs">
+      <Link>NodeState.cs</Link>
+    </Compile>
+    <Compile Include="..\EventCentric\Polling\BufferedSubscription.cs">
+      <Link>Polling\BufferedSubscription.cs</Link>
+    </Compile>
+    <Compile Include="..\EventCentric\Polling\BufferPool.cs">
+      <Link>Polling\BufferPool.cs</Link>
+    </Compile>
+    <Compile Include="..\EventCentric\Polling\EventPollster.cs">
+      <Link>Polling\EventPollster.cs</Link>
+    </Compile>
+    <Compile Include="..\EventCentric\Polling\ISubscriptionRepository.cs">
+      <Link>Polling\ISubscriptionRepository.cs</Link>
+    </Compile>
+    <Compile Include="..\EventCentric\Polling\SubscriptionRepository.cs">
+      <Link>Polling\SubscriptionRepository.cs</Link>
+    </Compile>
+    <Compile Include="..\EventCentric\Processing\EventProcessor.cs">
+      <Link>Processing\EventProcessor.cs</Link>
+    </Compile>
+    <Compile Include="..\EventCentric\Processing\IEventHandler.cs">
+      <Link>Processing\IEventHandler.cs</Link>
+    </Compile>
+    <Compile Include="..\EventCentric\Publishing\EventDao.cs">
+      <Link>Publishing\EventDao.cs</Link>
+    </Compile>
+    <Compile Include="..\EventCentric\Publishing\EventPublisher.cs">
+      <Link>Publishing\EventPublisher.cs</Link>
+    </Compile>
+    <Compile Include="..\EventCentric\Publishing\IEventSource.cs">
+      <Link>Publishing\IEventSource.cs</Link>
+    </Compile>
+    <Compile Include="..\EventCentric\Queueing\EventQueue.cs">
+      <Link>Queueing\EventQueue.cs</Link>
+    </Compile>
+    <Compile Include="..\EventCentric\Queueing\IQueueWriter.cs">
+      <Link>Queueing\IQueueWriter.cs</Link>
+    </Compile>
+    <Compile Include="..\EventCentric\Queueing\QueuedEvent.cs">
+      <Link>Queueing\QueuedEvent.cs</Link>
+    </Compile>
+    <Compile Include="..\EventCentric\Queueing\QueueWriter.cs">
+      <Link>Queueing\QueueWriter.cs</Link>
+    </Compile>
+    <Compile Include="..\EventCentric\Repository\DbInitializer.cs">
+      <Link>Repository\DbInitializer.cs</Link>
+    </Compile>
+    <Compile Include="..\EventCentric\Repository\EventQueueDbContext.cs">
+      <Link>Repository\EventQueueDbContext.cs</Link>
+    </Compile>
+    <Compile Include="..\EventCentric\Repository\EventStoreDbContext.cs">
+      <Link>Repository\EventStoreDbContext.cs</Link>
+    </Compile>
+    <Compile Include="..\EventCentric\Repository\IEventStoreDbContext.cs">
+      <Link>Repository\IEventStoreDbContext.cs</Link>
+    </Compile>
+    <Compile Include="..\EventCentric\Repository\Mapping\EventEntity.cs">
+      <Link>Repository\Mapping\EventEntity.cs</Link>
+    </Compile>
+    <Compile Include="..\EventCentric\Repository\Mapping\InboxEntity.cs">
+      <Link>Repository\Mapping\InboxEntity.cs</Link>
+    </Compile>
+    <Compile Include="..\EventCentric\Repository\Mapping\StreamEntity.cs">
+      <Link>Repository\Mapping\StreamEntity.cs</Link>
+    </Compile>
+    <Compile Include="..\EventCentric\Repository\Mapping\SubscriptionEntity.cs">
+      <Link>Repository\Mapping\SubscriptionEntity.cs</Link>
+    </Compile>
+    <Compile Include="..\EventCentric\Serialization\ITextSerializer.cs">
+      <Link>Serialization\ITextSerializer.cs</Link>
+    </Compile>
+    <Compile Include="..\EventCentric\Serialization\JsonTextSerializer.cs">
+      <Link>Serialization\JsonTextSerializer.cs</Link>
+    </Compile>
+    <Compile Include="..\EventCentric\Serialization\TextSerializerExtensions.cs">
+      <Link>Serialization\TextSerializerExtensions.cs</Link>
+    </Compile>
+    <Compile Include="..\EventCentric\Transport\EventInProcessorBucket.cs">
+      <Link>Transport\EventInProcessorBucket.cs</Link>
+    </Compile>
+    <Compile Include="..\EventCentric\Transport\IHttpPollster.cs">
+      <Link>Transport\IHttpPollster.cs</Link>
+    </Compile>
+    <Compile Include="..\EventCentric\Transport\NewRawEvent.cs">
+      <Link>Transport\NewRawEvent.cs</Link>
+    </Compile>
+    <Compile Include="..\EventCentric\Transport\PollResponse.cs">
+      <Link>Transport\PollResponse.cs</Link>
+    </Compile>
+    <Compile Include="..\EventCentric\Utils\CacheAnyEnumerableExtensions.cs">
+      <Link>Utils\CacheAnyEnumerableExtensions.cs</Link>
+    </Compile>
+    <Compile Include="..\EventCentric\Utils\DictionaryExtensions.cs">
+      <Link>Utils\DictionaryExtensions.cs</Link>
+    </Compile>
+    <Compile Include="..\EventCentric\Utils\Ensure.cs">
+      <Link>Utils\Ensure.cs</Link>
+    </Compile>
+    <Compile Include="..\EventCentric\Utils\GuidProvider.cs">
+      <Link>Utils\GuidProvider.cs</Link>
+    </Compile>
+    <Compile Include="..\EventCentric\Utils\StringExtensions.cs">
+      <Link>Utils\StringExtensions.cs</Link>
+    </Compile>
+    <Compile Include="..\EventCentric\Utils\TaskExtensions.cs">
+      <Link>Utils\TaskExtensions.cs</Link>
+    </Compile>
+    <Compile Include="..\EventCentric\Utils\TimeProvider.cs">
+      <Link>Utils\TimeProvider.cs</Link>
+    </Compile>
+    <Compile Include="..\EventCentric\Utils\ValueObject.cs">
+      <Link>Utils\ValueObject.cs</Link>
+    </Compile>
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Transport\HttpPollster.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
+    <None Include="packages.config" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
