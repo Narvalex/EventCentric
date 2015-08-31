@@ -31,10 +31,10 @@ namespace EventCentric.Database
         /// <param name="name">The column name.</param>
         public static string SafeGetString(this IDataReader reader, string name)
         {
-            if (reader[name] != null)
-                return reader[name].ToString();
-            else
+            if (reader[name] is DBNull)
                 return string.Empty;
+
+            return reader[name].ToString();
         }
 
         public static string GetString(this IDataReader reader, string name)
@@ -47,7 +47,7 @@ namespace EventCentric.Database
         /// </summary>
         /// <param name="reader">The <see cref="SqlDataReader"/> instance.</param>
         /// <param name="i">The zero-based column ordinal.</param>
-        public static string SafeGetAndTrimString(this IDataReader reader, int i)
+        public static string SafeGetStringAndTrim(this IDataReader reader, int i)
         {
             if (!reader.IsDBNull(i))
                 return reader.GetString(i).Trim();
@@ -60,12 +60,12 @@ namespace EventCentric.Database
         /// </summary>
         /// <param name="reader">The <see cref="SqlDataReader"/> instance.</param>
         /// <param name="name">The zero-based column ordinal.</param>
-        public static string SafeGetAndTrimString(this IDataReader reader, string name)
+        public static string SafeGetStringAndTrim(this IDataReader reader, string name)
         {
-            if (reader[name] != null)
-                return ((string)reader[name]).Trim();
-            else
+            if (reader[name] is DBNull)
                 return string.Empty;
+
+            return reader[name].ToString().Trim();
         }
 
         /// <summary>
@@ -160,6 +160,18 @@ namespace EventCentric.Database
                 return reader.GetDouble(i);
             else
                 return default(float);
+        }
+
+        /// <summary>
+        /// Gets the value of the specified column as a double in Null-Safe mode.
+        /// </summary>
+        /// <param name="reader">The <see cref="SqlDataReader"/> instance.</param>
+        /// <param name="i">The zero-based column ordinal.</param>
+        public static double SafeGetDouble(this IDataReader reader, string name)
+        {
+            double number;
+            double.TryParse(reader[name].ToString(), out number);
+            return number;
         }
 
         /// <summary>

@@ -193,6 +193,9 @@
     <Compile Include="..\EventCentric\Messaging\PoisonMessageException.cs">
       <Link>Messaging\PoisonMessageException.cs</Link>
     </Compile>
+    <Compile Include="..\EventCentric\Messaging\SynchronousBus.cs">
+      <Link>Messaging\SynchronousBus.cs</Link>
+    </Compile>
     <Compile Include="..\EventCentric\Messaging\Worker.cs">
       <Link>Messaging\Worker.cs</Link>
     </Compile>

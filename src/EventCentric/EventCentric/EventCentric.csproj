@@ -80,6 +80,7 @@
     <Compile Include="ClientNodeFactory.cs" />
     <Compile Include="Database\ConnectionProvider.cs" />
     <Compile Include="Database\DataReaderExtensions.cs" />
+    <Compile Include="Messaging\SynchronousBus.cs" />
     <Compile Include="Repository\DbInitializer.cs" />
     <Compile Include="Database\IConnectionProvider.cs" />
     <Compile Include="Database\SqlClientLite.cs" />
