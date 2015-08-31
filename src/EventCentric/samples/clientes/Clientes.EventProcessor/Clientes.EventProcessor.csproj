@@ -152,6 +152,7 @@
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="Clientes.cs" />
     <Compile Include="ClientesHandler.cs" />
+    <Compile Include="Controllers\EventSourceController.cs" />
     <Compile Include="UnityConfig.cs" />
     <Compile Include="App_Start\UnityWebApiActivator.cs" />
     <Compile Include="App_Start\WebApiConfig.cs" />

@@ -105,7 +105,6 @@
     <Compile Include="NodeFactory.cs" />
     <Compile Include="Messaging\PoisonMessageException.cs" />
     <Compile Include="NodeState.cs" />
-    <Compile Include="Publishing\EventSourceController.cs" />
     <Compile Include="Queueing\IQueueWriter.cs" />
     <Compile Include="Queueing\EventQueue.cs" />
     <Compile Include="Queueing\QueuedEvent.cs" />

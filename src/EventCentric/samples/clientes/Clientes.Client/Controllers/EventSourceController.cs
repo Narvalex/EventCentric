@@ -8,7 +8,7 @@ namespace EventCentric.Publishing
 
         public EventSourceController(IEventSource source)
         {
-            // We do not check for null for performance reasons.
+            // We do not check null for performance reasons.
             //Ensure.NotNull(source, "source");
 
             this.source = source;

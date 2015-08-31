@@ -21,7 +21,7 @@ namespace EventCentric.Transport
             {
                 try
                 {
-                    var getResult = client.GetAsync(string.Format("{0}/events/{1}", url, fromVersion)).Result;
+                    var getResult = client.GetAsync(string.Format("{0}/{1}", url, fromVersion)).Result;
                     if (!getResult.IsSuccessStatusCode)
                         throw new InvalidOperationException(string.Format("The status code was: {0}", getResult.StatusCode.ToString()));
 
