@@ -5,11 +5,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("EventCentricNet4")]
+[assembly: AssemblyTitle("EventCentric.NodeFactory")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("EventCentricNet4")]
+[assembly: AssemblyProduct("EventCentric.NodeFactory")]
 [assembly: AssemblyCopyright("Copyright ©  2015")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -20,7 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("cae981da-e553-4740-8a49-15b9fe716784")]
+[assembly: Guid("44302c31-f9a4-4531-a43a-0e33cc5d4fd2")]
 
 // Version information for an assembly consists of the following four values:
 //

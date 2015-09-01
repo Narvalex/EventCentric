@@ -1,6 +1,4 @@
-﻿#define NET4
-
-using EventCentric.Messaging;
+﻿using EventCentric.Messaging;
 using EventCentric.Messaging.Events;
 using System;
 using System.Net.Http;
@@ -31,9 +29,8 @@ namespace EventCentric.Transport
                     if (!getResult.IsSuccessStatusCode)
                         throw new InvalidOperationException(string.Format("The status code was: {0}", getResult.StatusCode.ToString()));
 
-#if NET4
                     var response = getResult.Content.ReadAsAsync<PollResponse>().Result;
-#endif
+
                     this.bus.Publish(new PollResponseWasReceived(response));
                 }
                 catch (Exception ex)
