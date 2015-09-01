@@ -159,7 +159,7 @@
     <Compile Include="App_Start\FilterConfig.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="ClientesDenormalizer.cs" />
-    <Compile Include="ClientesDenormalizerHandler.cs" />
+    <Compile Include="ClientesSubscriber.cs" />
     <Compile Include="Controllers\EventSourceController.cs" />
     <Compile Include="UnityConfig.cs" />
     <Compile Include="App_Start\UnityWebApiActivator.cs" />

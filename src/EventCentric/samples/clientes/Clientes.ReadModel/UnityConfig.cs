@@ -40,7 +40,7 @@ namespace Clientes.ReadModel.App_Start
                 if (_node != null)
                     return;
 
-                _node = NodeFactory<ClientesDenormalizer, ClientesDenormalizerHandler>
+                _node = NodeFactory<ClientesDenormalizer, ClientesSubscriber>
                 .CreateDenormalizerNode<ClientesReadModelDbContext>(container);
 
                 _node.Start();

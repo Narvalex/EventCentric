@@ -6,11 +6,11 @@ using System;
 
 namespace Clientes.ReadModel
 {
-    public class ClientesDenormalizerHandler : EventProcessor<ClientesDenormalizer>,
+    public class ClientesSubscriber : EventProcessor<ClientesDenormalizer>,
         IEventHandler<CuentaCreadaANuevoCliente>,
         IEventHandler<SolicitudNuevoClienteRecibida>
     {
-        public ClientesDenormalizerHandler(IBus bus, IEventStore<ClientesDenormalizer> store)
+        public ClientesSubscriber(IBus bus, IEventStore<ClientesDenormalizer> store)
             : base(bus, store)
         { }
 
