@@ -1,4 +1,5 @@
 ﻿using EventCentric.EventSourcing;
+using EventCentric.Log;
 using EventCentric.Messaging;
 using EventCentric.Messaging.Commands;
 using EventCentric.Messaging.Events;
@@ -15,8 +16,8 @@ namespace EventCentric.Queueing
         private readonly IQueueWriter writer;
         protected ConcurrentDictionary<Guid, object> streamLocksById;
 
-        public EventQueue(IBus bus, IQueueWriter writer)
-            : base(bus)
+        public EventQueue(IBus bus, ILogger log, IQueueWriter writer)
+            : base(bus, log)
         {
             Ensure.NotNull(writer, "writer");
 

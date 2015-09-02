@@ -1,6 +1,8 @@
 ﻿using EventCentric.Database;
 using EventCentric.EventSourcing;
+using EventCentric.Log;
 using EventCentric.Messaging;
+using EventCentric.NodeFactory.Log;
 using EventCentric.Polling;
 using EventCentric.Processing;
 using EventCentric.Publishing;
@@ -21,7 +23,7 @@ namespace EventCentric
     {
         public static INode CreateNode(IUnityContainer container, bool setLocalTime = true, bool setSequentialGuid = true)
         {
-            DbConfiguration.SetConfiguration(new TransientFaultHandlingDbConfiguration());
+            //DbConfiguration.SetConfiguration(new TransientFaultHandlingDbConfiguration());
 
             var connectionProvider = ConnectionManager.GetConnectionProvider();
             var connectionString = connectionProvider.ConnectionString;
@@ -39,21 +41,22 @@ namespace EventCentric
             var eventStore = new EventStore<TAggregate>(serializer, storeContextFactory, time, guid);
 
             var bus = new Bus();
+            var log = Logger.ResolvedLogger;
 
             var http = new HttpPollster(bus);
 
             var buffer = new BufferPool(bus, subscriptionRepository, http, serializer);
-            var pollster = new EventPollster(bus, buffer);
-            var publisher = new EventPublisher<TAggregate>(bus, eventDao);
-            var fsm = new Node(bus);
+            var pollster = new EventPollster(bus, log, buffer);
+            var publisher = new EventPublisher<TAggregate>(bus, log, eventDao);
+            var fsm = new Node(bus, log);
 
             // Register processor dependencies
             container.RegisterInstance<IBus>(bus);
             container.RegisterInstance<IEventStore<TAggregate>>(eventStore);
 
-            var constructor = typeof(THandler).GetConstructor(new[] { typeof(IBus), typeof(IEventStore<TAggregate>) });
-            Ensure.CastIsValid(constructor, "Type THandler must have a valid constructor with the following signature: .ctor(IBus, IEventStore<T>)");
-            var processor = (THandler)constructor.Invoke(new object[] { bus, eventStore });
+            var constructor = typeof(THandler).GetConstructor(new[] { typeof(IBus), typeof(ILogger), typeof(IEventStore<TAggregate>) });
+            Ensure.CastIsValid(constructor, "Type THandler must have a valid constructor with the following signature: .ctor(IBus, ILogger, IEventStore<T>)");
+            var processor = (THandler)constructor.Invoke(new object[] { bus, log, eventStore });
 
             // Register for DI
             container.RegisterInstance<IEventSource>(publisher);
@@ -84,22 +87,23 @@ namespace EventCentric
             var eventStore = new EventStore<TAggregate>(serializer, dbContextFactory, time, guid);
 
             var bus = new Bus();
+            var log = Logger.ResolvedLogger;
 
             var http = new HttpPollster(bus);
 
             var subscriptionRepository = new SubscriptionRepository(storeContextFactory, serializer, time);
             var buffer = new BufferPool(bus, subscriptionRepository, http, serializer);
-            var pollster = new EventPollster(bus, buffer);
-            var publisher = new EventPublisher<TAggregate>(bus, eventDao);
-            var fsm = new Node(bus);
+            var pollster = new EventPollster(bus, log, buffer);
+            var publisher = new EventPublisher<TAggregate>(bus, log, eventDao);
+            var fsm = new Node(bus, log);
 
             // Register processor dependencies
             container.RegisterInstance<IBus>(bus);
             container.RegisterInstance<IEventStore<TAggregate>>(eventStore);
 
-            var processorConstructor = typeof(THandler).GetConstructor(new[] { typeof(IBus), typeof(IEventStore<TAggregate>) });
-            Ensure.CastIsValid(processorConstructor, "Type THandler must have a valid constructor with the following signature: .ctor(IBus, IEventStore<T>)");
-            var processor = (THandler)processorConstructor.Invoke(new object[] { bus, eventStore });
+            var processorConstructor = typeof(THandler).GetConstructor(new[] { typeof(IBus), typeof(ILogger), typeof(IEventStore<TAggregate>) });
+            Ensure.CastIsValid(processorConstructor, "Type THandler must have a valid constructor with the following signature: .ctor(IBus, ILogger, IEventStore<T>)");
+            var processor = (THandler)processorConstructor.Invoke(new object[] { bus, log, eventStore });
 
             // Register for DI
             container.RegisterInstance<IEventSource>(publisher);

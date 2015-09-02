@@ -1,5 +1,6 @@
 ﻿using EventCentric.Database;
 using EventCentric.Messaging;
+using EventCentric.NodeFactory.Log;
 using EventCentric.Publishing;
 using EventCentric.Queueing;
 using EventCentric.Repository;
@@ -27,12 +28,14 @@ namespace EventCentric
             var guid = setSequentialGuid ? new SequentialGuid() as IGuidProvider : new DefaultGuidProvider() as IGuidProvider;
 
             var bus = new Bus();
-            var node = new ClientNode(bus);
+            var log = Logger.ResolvedLogger;
+
+            var node = new ClientNode(bus, log);
 
             var queueWriter = new QueueWriter<T>(eventQueueDbContextFactory, serializer, time, guid);
             var eventDao = new EventDao(eventQueueDbContextFactory);
-            var eventBus = new EventQueue(bus, queueWriter);
-            var eventPublisher = new EventPublisher<T>(bus, eventDao);
+            var eventBus = new EventQueue(bus, log, queueWriter);
+            var eventPublisher = new EventPublisher<T>(bus, log, eventDao);
 
             // Register for DI
             container.RegisterInstance<IEventBus>(eventBus);

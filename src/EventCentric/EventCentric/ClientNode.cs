@@ -1,4 +1,5 @@
-﻿using EventCentric.Messaging;
+﻿using EventCentric.Log;
+using EventCentric.Messaging;
 using EventCentric.Messaging.Commands;
 using EventCentric.Messaging.Events;
 using System.Threading;
@@ -10,13 +11,13 @@ namespace EventCentric
     {
         public NodeState State { get; private set; }
 
-        public ClientNode(IBus bus)
-                : base(bus)
+        public ClientNode(IBus bus, ILogger log)
+                : base(bus, log)
         { }
 
         public void Handle(EventPublisherStarted message)
         {
-            this.State = NodeState.UpAndRunning;
+            //... up and running;
         }
 
         public new void Start()
@@ -52,6 +53,9 @@ namespace EventCentric
         protected override void OnStarting()
         {
             this.bus.Publish(new StartEventPublisher());
+
+            // we can safely go from here...
+            this.State = NodeState.UpAndRunning;
         }
 
         protected override void OnStopping()

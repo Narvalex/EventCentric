@@ -1,4 +1,6 @@
-﻿using EventCentric.Messaging.Events;
+﻿using EventCentric.Log;
+using EventCentric.Messaging.Events;
+using EventCentric.Utils;
 
 namespace EventCentric.Messaging
 {
@@ -9,10 +11,15 @@ namespace EventCentric.Messaging
 
         protected volatile bool systemHaltRequested = false;
         protected FatalErrorException fatalException = null;
+        protected ILogger log;
 
-        protected FSM(IBus bus)
+        protected FSM(IBus bus, ILogger log)
             : base(bus)
-        { }
+        {
+            Ensure.NotNull(log, "log");
+
+            this.log = log;
+        }
 
         protected void Start()
         {

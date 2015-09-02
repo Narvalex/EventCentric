@@ -1,5 +1,6 @@
 ﻿using Clientes.Events;
 using EventCentric.EventSourcing;
+using EventCentric.Log;
 using EventCentric.Messaging;
 using EventCentric.Processing;
 using System;
@@ -10,8 +11,8 @@ namespace Clientes.ReadModel
         IEventHandler<CuentaCreadaANuevoCliente>,
         IEventHandler<SolicitudNuevoClienteRecibida>
     {
-        public ClientesSubscriber(IBus bus, IEventStore<ClientesDenormalizer> store)
-            : base(bus, store)
+        public ClientesSubscriber(IBus bus, ILogger log, IEventStore<ClientesDenormalizer> store)
+            : base(bus, log, store)
         { }
 
         public void Handle(SolicitudNuevoClienteRecibida incomingEvent)

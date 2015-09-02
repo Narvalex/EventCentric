@@ -1,4 +1,5 @@
 ﻿using EventCentric.EventSourcing;
+using EventCentric.Log;
 using EventCentric.Messaging;
 using EventCentric.Messaging.Commands;
 using EventCentric.Messaging.Events;
@@ -29,8 +30,8 @@ namespace EventCentric.Processing
         protected readonly ConcurrentDictionary<Guid, object> streamLocksById;
         protected readonly ConcurrentBag<Guid> poisonedStreams;
 
-        public EventProcessor(IBus bus, IEventStore<T> store)
-            : base(bus)
+        public EventProcessor(IBus bus, ILogger log, IEventStore<T> store)
+            : base(bus, log)
         {
             Ensure.NotNull(store, "store");
 

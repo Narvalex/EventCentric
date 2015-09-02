@@ -21,6 +21,16 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Clientes.Tests", "samples\c
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventCentric.NodeFactory", "EventCentric.NodeFactory\EventCentric.NodeFactory.csproj", "{44302C31-F9A4-4531-A43A-0E33CC5D4FD2}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "lib", "lib", "{C2811117-D4CF-4232-9AF4-0BC3883AEC55}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "EntityFramework", "EntityFramework", "{2D7036EC-4F1A-4CCA-8D51-52F3C4D889C3}"
+	ProjectSection(SolutionItems) = preProject
+		lib\EntityFramework\EntityFramework.dll = lib\EntityFramework\EntityFramework.dll
+		lib\EntityFramework\EntityFramework.SqlServer.dll = lib\EntityFramework\EntityFramework.SqlServer.dll
+		lib\EntityFramework\EntityFramework.SqlServer.xml = lib\EntityFramework\EntityFramework.SqlServer.xml
+		lib\EntityFramework\EntityFramework.xml = lib\EntityFramework\EntityFramework.xml
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -69,6 +79,7 @@ Global
 		{61F54C69-0EF4-447C-B79C-40A3A1C2844A} = {0034CCF3-6EBB-4263-A7F0-A5C7725D354D}
 		{646AF484-78D6-43E1-9518-8EE486E9929F} = {0034CCF3-6EBB-4263-A7F0-A5C7725D354D}
 		{80A8E6D0-B395-4595-83F9-4B8C6B352D09} = {0034CCF3-6EBB-4263-A7F0-A5C7725D354D}
+		{2D7036EC-4F1A-4CCA-8D51-52F3C4D889C3} = {C2811117-D4CF-4232-9AF4-0BC3883AEC55}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		EnterpriseLibraryConfigurationToolBinariesPath = packages\Unity.2.1.505.2\lib\NET35

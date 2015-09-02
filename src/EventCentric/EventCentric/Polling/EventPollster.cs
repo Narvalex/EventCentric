@@ -1,4 +1,5 @@
-﻿using EventCentric.Messaging;
+﻿using EventCentric.Log;
+using EventCentric.Messaging;
 using EventCentric.Messaging.Commands;
 using EventCentric.Messaging.Events;
 using EventCentric.Polling;
@@ -15,8 +16,8 @@ namespace EventCentric.Pulling
     {
         private readonly BufferPool buffer;
 
-        public EventPollster(IBus bus, BufferPool buffer)
-            : base(bus)
+        public EventPollster(IBus bus, ILogger log, BufferPool buffer)
+            : base(bus, log)
         {
             Ensure.NotNull(buffer, "buffer");
 
@@ -25,12 +26,16 @@ namespace EventCentric.Pulling
 
         public void Handle(StopEventPollster message)
         {
+            this.log.Trace("Stopping pollster");
             base.Stop();
+            this.log.Trace("Pollster stopped");
         }
 
         public void Handle(StartEventPollster message)
         {
+            this.log.Trace("Starting pollster");
             base.Start();
+            this.log.Trace("Pollster started");
         }
 
         protected override void OnStarting()

@@ -105,7 +105,8 @@ namespace EventCentric.Messaging
             List<Tuple<Type, Action<Envelope>>> handlers;
             if (this.handlersByMessageType.TryGetValue(typeof(T), out handlers))
                 foreach (var handler in handlers)
-                    Task.Factory.StartNewLongRunning(() => handler.Item2(envelope));
+                    Task.Factory.StartNewLongRunning(() =>
+                        handler.Item2(envelope));
         }
     }
 }

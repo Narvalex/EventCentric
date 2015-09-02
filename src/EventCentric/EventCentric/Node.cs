@@ -1,4 +1,5 @@
-﻿using EventCentric.Messaging;
+﻿using EventCentric.Log;
+using EventCentric.Messaging;
 using EventCentric.Messaging.Commands;
 using EventCentric.Messaging.Events;
 using System.Threading;
@@ -13,8 +14,8 @@ namespace EventCentric
         IMessageHandler<EventProcessorStopped>,
         IMessageHandler<EventPublisherStopped>
     {
-        public Node(IBus bus)
-            : base(bus)
+        public Node(IBus bus, ILogger log)
+            : base(bus, log)
         {
             this.State = NodeState.Down;
         }
@@ -36,6 +37,7 @@ namespace EventCentric
             if (this.State == NodeState.Down)
             {
                 this.State = NodeState.Starting;
+                this.log.Trace("Starting processor node");
                 base.Start();
 
                 // Check if is started to release thread.
@@ -60,6 +62,10 @@ namespace EventCentric
         protected override void OnStarting()
         {
             this.bus.Publish(new StartEventPublisher());
+
+            // No user can issue a request, the pollster will receive new events after the publisher is 
+            // up and running, so we can say that the node is up and running.
+            this.State = NodeState.UpAndRunning;
         }
 
         protected override void OnStopping()
@@ -88,7 +94,8 @@ namespace EventCentric
 
         public void Handle(EventPollsterStarted message)
         {
-            this.State = NodeState.UpAndRunning;
+            //this.State = NodeState.UpAndRunning;
+            this.log.Trace("All services are up and running");
         }
 
         public void Handle(EventPublisherStarted message)

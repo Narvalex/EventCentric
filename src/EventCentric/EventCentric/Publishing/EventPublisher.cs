@@ -1,8 +1,10 @@
-﻿using EventCentric.Messaging;
+﻿using EventCentric.Log;
+using EventCentric.Messaging;
 using EventCentric.Messaging.Commands;
 using EventCentric.Messaging.Events;
 using EventCentric.Transport;
 using EventCentric.Utils;
+using System;
 using System.Collections.Generic;
 using System.Threading;
 
@@ -19,10 +21,10 @@ namespace EventCentric.Publishing
         private const int attempsMaxCount = 300;
         private readonly object lockObject = new object();
 
-        private volatile int eventCollectionVersion;
+        private volatile int eventCollectionVersion = 0;
 
-        public EventPublisher(IBus bus, IEventDao dao)
-            : base(bus)
+        public EventPublisher(IBus bus, ILogger log, IEventDao dao)
+            : base(bus, log)
         {
             Ensure.NotNull(dao, "dao");
 
@@ -40,11 +42,13 @@ namespace EventCentric.Publishing
 
         public void Handle(StopEventPublisher message)
         {
+            this.log.Trace("Stopping publisher");
             base.Stop();
         }
 
         public void Handle(StartEventPublisher message)
         {
+            this.log.Trace("Starting publisher");
             base.Start();
         }
 
@@ -71,8 +75,21 @@ namespace EventCentric.Publishing
 
         protected override void OnStarting()
         {
-            this.eventCollectionVersion = this.dao.GetEventCollectionVersion();
-            this.bus.Publish(new EventPublisherStarted());
+            try
+            {
+                // We handle exceptions on dao.
+                var currentVersion = this.dao.GetEventCollectionVersion();
+
+                // Event-sourcing-like approach :)
+                this.bus.Publish(
+                    new EventStoreHasBeenUpdated(currentVersion),
+                    new EventPublisherStarted());
+                this.log.Trace("Publisher started");
+            }
+            catch (Exception ex)
+            {
+                this.bus.Publish(new FatalErrorOcurred(new FatalErrorException("An exception ocurred while starting publisher", ex)));
+            }
         }
 
         protected override void OnStopping()
