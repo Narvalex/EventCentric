@@ -12,5 +12,13 @@ Source:  http://stackoverflow.com/questions/18599778/decreasing-height-of-bootst
 
 /* debido al navbar fixedtop */
 body {
-    margin: 50px
+    margin: 40px
 }
+
+    .log {
+        font-family:Consolas;
+        color:white; 
+        white-space:pre-wrap;
+        margin-bottom: -20px;
+        font-size: 12px;
+    }

@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
-using System.Web.Mvc;
+﻿using System.Web.Mvc;
 using System.Web.Routing;
 
 namespace Clientes.EventProcessor
@@ -12,6 +8,11 @@ namespace Clientes.EventProcessor
         public static void RegisterRoutes(RouteCollection routes)
         {
             routes.IgnoreRoute("{resource}.axd/{*pathInfo}");
+
+            routes.MapRoute(
+               name: "EventSource",
+               url: "{controller}/{action}/{eventBufferVersion}"
+            );
 
             routes.MapRoute(
                 name: "Default",

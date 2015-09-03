@@ -1,4 +1,5 @@
-﻿using EventCentric.Database;
+﻿using EventCentric.Config;
+using EventCentric.Database;
 using EventCentric.Messaging;
 using EventCentric.NodeFactory.Log;
 using EventCentric.Publishing;
@@ -18,8 +19,8 @@ namespace EventCentric
         {
             DbConfiguration.SetConfiguration(new TransientFaultHandlingDbConfiguration());
 
-            var connectionProvider = ConnectionManager.GetConnectionProvider();
-            var connectionString = connectionProvider.ConnectionString;
+            var eventStoreConfig = EventStoreConfig.GetConfig();
+            var connectionString = eventStoreConfig.ConnectionString;
 
             Func<bool, EventQueueDbContext> eventQueueDbContextFactory = isReadOnly => new EventQueueDbContext(isReadOnly, connectionString);
 
@@ -35,7 +36,7 @@ namespace EventCentric
             var queueWriter = new QueueWriter<T>(eventQueueDbContextFactory, serializer, time, guid);
             var eventDao = new EventDao(eventQueueDbContextFactory);
             var eventBus = new EventQueue(bus, log, queueWriter);
-            var eventPublisher = new EventPublisher<T>(bus, log, eventDao);
+            var eventPublisher = new Publisher<T>(bus, log, eventDao, eventStoreConfig.PushMaxCount, eventStoreConfig.PollAttemptsMaxCount);
 
             // Register for DI
             container.RegisterInstance<IEventBus>(eventBus);

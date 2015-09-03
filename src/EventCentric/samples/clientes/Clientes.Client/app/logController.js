@@ -23,17 +23,28 @@
                 addNotification: function (notification) {
                     var self = this;
 
-                    var entry = ko.utils.arrayFirst(self.notifications(),
+                    var messageWasReceived = ko.utils.arrayFirst(self.notifications(),
                         function (receivedNotification) {
                             return receivedNotification.id == notification.id;
                         });
 
-                    if (!entry) {
+                    if (!messageWasReceived) {
                         self.notifications.push(notification);
-                        self.messages.push(notification.id + '. ' + notification.message);
+                        self.messages.push(notification.message);
+                        //self.messages.push(notification.id + '. ' + notification.message);
 
                         scrollToBottom();
 
+                        // Cleaning...
+                        // Removing the first element. http://www.w3schools.com/jsref/jsref_shift.asp
+                        // Length of observable arrays: http://stackoverflow.com/questions/9543482/how-to-get-an-observablearrays-length
+                        while (self.notifications().length >= 350) {
+                            self.notifications.shift();
+                        }
+
+                        while (self.messages().length >= 350) {
+                            self.messages.shift();
+                        }
                     }
                 }
             };

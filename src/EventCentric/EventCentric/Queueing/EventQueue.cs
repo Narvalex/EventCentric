@@ -37,7 +37,9 @@ namespace EventCentric.Queueing
 
         public void Handle(StartEventQueue message)
         {
+            base.log.Trace("Starting event queue");
             base.Start();
+            base.log.Trace("Event queue started");
         }
 
         public void Handle(StopEventQueue message)

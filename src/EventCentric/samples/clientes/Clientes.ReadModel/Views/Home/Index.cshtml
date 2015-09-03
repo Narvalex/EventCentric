@@ -1,5 +1,5 @@
 ﻿@{
-    ViewBag.Title = "Log";
+    ViewBag.Title = "Node log";
 }
 
 <style>
@@ -11,11 +11,7 @@
 <div>
     <div data-bind="foreach:messages">
         <br />
-        <div data-bind="text: $data"
-             style="
-                            font-family:Consolas;
-                            color:white;
-                            white-space:pre-wrap">
+        <div data-bind="text: $data" class="log">
         </div>
     </div>
 </div>

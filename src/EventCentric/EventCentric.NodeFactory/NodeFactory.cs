@@ -1,4 +1,5 @@
-﻿using EventCentric.Database;
+﻿using EventCentric.Config;
+using EventCentric.Database;
 using EventCentric.EventSourcing;
 using EventCentric.Log;
 using EventCentric.Messaging;
@@ -23,10 +24,12 @@ namespace EventCentric
     {
         public static INode CreateNode(IUnityContainer container, bool setLocalTime = true, bool setSequentialGuid = true)
         {
-            //DbConfiguration.SetConfiguration(new TransientFaultHandlingDbConfiguration());
+            DbConfiguration.SetConfiguration(new TransientFaultHandlingDbConfiguration());
 
-            var connectionProvider = ConnectionManager.GetConnectionProvider();
-            var connectionString = connectionProvider.ConnectionString;
+            var eventStoreConfig = EventStoreConfig.GetConfig();
+            var pollerConfig = PollerConfig.GetConfig();
+
+            var connectionString = eventStoreConfig.ConnectionString;
 
             Func<bool, EventStoreDbContext> storeContextFactory = isReadOnly => new EventStoreDbContext(isReadOnly, connectionString);
             Func<bool, EventQueueDbContext> queueContextFactory = isReadOnly => new EventQueueDbContext(isReadOnly, connectionString);
@@ -43,11 +46,11 @@ namespace EventCentric
             var bus = new Bus();
             var log = Logger.ResolvedLogger;
 
-            var http = new HttpPollster(bus);
+            var http = new HttpLongPoller(bus, log, new TimeSpan(0, 0, pollerConfig.Timeout));
 
-            var buffer = new BufferPool(bus, subscriptionRepository, http, serializer);
-            var pollster = new EventPollster(bus, log, buffer);
-            var publisher = new EventPublisher<TAggregate>(bus, log, eventDao);
+            var buffer = new BufferPool(bus, subscriptionRepository, http, serializer, log, pollerConfig.BufferQueueMaxCount, pollerConfig.EventsToFlushMaxCount);
+            var pollster = new Poller(bus, log, buffer);
+            var publisher = new Publisher<TAggregate>(bus, log, eventDao, eventStoreConfig.PushMaxCount, eventStoreConfig.PollAttemptsMaxCount);
             var fsm = new Node(bus, log);
 
             // Register processor dependencies
@@ -68,8 +71,10 @@ namespace EventCentric
         {
             DbConfiguration.SetConfiguration(new TransientFaultHandlingDbConfiguration());
 
-            var connectionProvider = ConnectionManager.GetConnectionProvider();
-            var connectionString = connectionProvider.ConnectionString;
+            var eventStoreConfig = EventStoreConfig.GetConfig();
+            var pollerConfig = PollerConfig.GetConfig();
+
+            var connectionString = eventStoreConfig.ConnectionString;
 
             Func<bool, EventStoreDbContext> storeContextFactory = isReadOnly => new EventStoreDbContext(isReadOnly, connectionString);
             Func<bool, EventQueueDbContext> queueContextFactory = isReadOnly => new EventQueueDbContext(isReadOnly, connectionString);
@@ -89,12 +94,12 @@ namespace EventCentric
             var bus = new Bus();
             var log = Logger.ResolvedLogger;
 
-            var http = new HttpPollster(bus);
+            var http = new HttpLongPoller(bus, log, new TimeSpan(0, 0, pollerConfig.Timeout));
 
             var subscriptionRepository = new SubscriptionRepository(storeContextFactory, serializer, time);
-            var buffer = new BufferPool(bus, subscriptionRepository, http, serializer);
-            var pollster = new EventPollster(bus, log, buffer);
-            var publisher = new EventPublisher<TAggregate>(bus, log, eventDao);
+            var buffer = new BufferPool(bus, subscriptionRepository, http, serializer, log, pollerConfig.BufferQueueMaxCount, pollerConfig.EventsToFlushMaxCount);
+            var pollster = new Poller(bus, log, buffer);
+            var publisher = new Publisher<TAggregate>(bus, log, eventDao, eventStoreConfig.PushMaxCount, eventStoreConfig.PollAttemptsMaxCount);
             var fsm = new Node(bus, log);
 
             // Register processor dependencies

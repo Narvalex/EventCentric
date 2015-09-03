@@ -1,8 +1,8 @@
-﻿using System.Web.Http;
+﻿using System.Web.Mvc;
 
 namespace EventCentric.Publishing
 {
-    public class EventSourceController : ApiController
+    public class EventSourceController : Controller
     {
         private readonly IEventSource source;
 
@@ -15,11 +15,10 @@ namespace EventCentric.Publishing
         }
 
         [HttpGet]
-        [Route("events/{eventBufferVersion}")]
-        public IHttpActionResult Events(int eventBufferVersion)
+        public ActionResult Events(int eventBufferVersion)
         {
             var response = this.source.PollEvents(eventBufferVersion);
-            return this.Ok(response);
+            return this.Json(response, JsonRequestBehavior.AllowGet);
         }
     }
 }

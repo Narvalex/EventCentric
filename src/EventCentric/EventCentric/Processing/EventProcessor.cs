@@ -71,7 +71,9 @@ namespace EventCentric.Processing
 
         public void Handle(StartEventProcessor message)
         {
+            base.log.Trace("Starting processor");
             base.Start();
+            base.log.Trace("Processor started");
             base.bus.Publish(new EventProcessorStarted());
         }
 

@@ -37,7 +37,7 @@ namespace EventCentric
             if (this.State == NodeState.Down)
             {
                 this.State = NodeState.Starting;
-                this.log.Trace("Starting processor node");
+                this.log.Trace("Starting node");
                 base.Start();
 
                 // Check if is started to release thread.

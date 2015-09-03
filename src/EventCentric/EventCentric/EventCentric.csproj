@@ -59,12 +59,14 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ClientNode.cs" />
-    <Compile Include="Database\ConnectionProvider.cs" />
+    <Compile Include="Config\EventStoreConfig.cs" />
+    <Compile Include="Config\IPollerConfig.cs" />
+    <Compile Include="Config\PollerConfig.cs" />
     <Compile Include="Database\DataReaderExtensions.cs" />
     <Compile Include="Log\ILogger.cs" />
     <Compile Include="Messaging\SynchronousBus.cs" />
     <Compile Include="Repository\DbInitializer.cs" />
-    <Compile Include="Database\IConnectionProvider.cs" />
+    <Compile Include="Config\IEventStoreConfig.cs" />
     <Compile Include="Database\SqlClientLite.cs" />
     <Compile Include="Database\TransientFaultHandlingDbConfiguration.cs" />
     <Compile Include="EventSourcing\Denormalizer.cs" />
@@ -73,7 +75,7 @@
     <Compile Include="Messaging\Events\PollResponseWasReceived.cs" />
     <Compile Include="Messaging\Worker.cs" />
     <Compile Include="Polling\BufferPool.cs" />
-    <Compile Include="Polling\EventPollster.cs" />
+    <Compile Include="Polling\Poller.cs" />
     <Compile Include="Polling\BufferedSubscription.cs" />
     <Compile Include="Polling\SubscriptionRepository.cs" />
     <Compile Include="Polling\ISubscriptionRepository.cs" />
@@ -127,13 +129,13 @@
     <Compile Include="Serialization\JsonTextSerializer.cs" />
     <Compile Include="Serialization\TextSerializerExtensions.cs" />
     <Compile Include="Transport\EventInProcessorBucket.cs" />
-    <Compile Include="Transport\HttpPollster.cs" />
-    <Compile Include="Transport\IHttpPollster.cs" />
+    <Compile Include="Transport\HttpLongPoller.cs" />
+    <Compile Include="Transport\IHttpLongPoller.cs" />
     <Compile Include="Transport\NewRawEvent.cs" />
     <Compile Include="Messaging\FSM.cs" />
     <Compile Include="Processing\EventProcessor.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Publishing\EventPublisher.cs" />
+    <Compile Include="Publishing\Publisher.cs" />
     <Compile Include="Transport\PollResponse.cs" />
     <Compile Include="Utils\CacheAnyEnumerableExtensions.cs" />
     <Compile Include="Utils\DictionaryExtensions.cs" />

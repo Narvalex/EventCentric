@@ -15,5 +15,11 @@ namespace EventCentric.Utils
             if (argument == null)
                 throw new InvalidCastException(messageWhenCastIsInvalid);
         }
+
+        public static void Positive(int number, string argumentName)
+        {
+            if (number <= 0)
+                throw new ArgumentOutOfRangeException(argumentName, argumentName + " should be positive.");
+        }
     }
 }

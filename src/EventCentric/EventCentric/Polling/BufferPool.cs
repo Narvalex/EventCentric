@@ -1,4 +1,5 @@
 ﻿using EventCentric.EventSourcing;
+using EventCentric.Log;
 using EventCentric.Messaging;
 using EventCentric.Messaging.Events;
 using EventCentric.Serialization;
@@ -17,26 +18,43 @@ namespace EventCentric.Polling
         IMessageHandler<IncomingEventIsPoisoned>
     {
         private readonly ISubscriptionRepository repository;
-        private readonly IHttpPollster http;
+        private readonly IHttpLongPoller http;
         private readonly ITextSerializer serializer;
+        private readonly ILogger log;
 
-        // Sets the threshold where there is need
-        private const int queueMaxThreshold = 1000;
-        private const int eventsToFlushPerSubscriptionMaxCount = 100;
+        /// <summary>
+        /// Queue max count for all subscriptons.
+        /// </summary>
+        private readonly int queueMaxCount;
+
+        /// <summary>
+        /// Flush threshold per subscription.
+        /// </summary>
+        private readonly int eventsToFlushMaxCount;
+
         private ConcurrentBag<BufferedSubscription> subscriptionsBag;
 
         private readonly object lockObject = new object();
 
-        public BufferPool(IBus bus, ISubscriptionRepository repository, IHttpPollster http, ITextSerializer serializer)
+        public BufferPool(IBus bus, ISubscriptionRepository repository, IHttpLongPoller http, ITextSerializer serializer, ILogger log,
+            int queueMaxCount, int eventsToFlushMaxCount)
             : base(bus)
         {
             Ensure.NotNull(repository, "repository");
             Ensure.NotNull(http, "http");
             Ensure.NotNull(serializer, "serializer");
+            Ensure.NotNull(log, "logger");
+
+            Ensure.Positive(queueMaxCount, "queueMaxCount");
+            Ensure.Positive(eventsToFlushMaxCount, "eventsToFlushMaxCount");
 
             this.repository = repository;
             this.http = http;
             this.serializer = serializer;
+            this.log = log;
+
+            this.queueMaxCount = queueMaxCount;
+            this.eventsToFlushMaxCount = eventsToFlushMaxCount;
         }
 
         /// <summary>
@@ -50,7 +68,7 @@ namespace EventCentric.Polling
         public bool TryFill()
         {
             var subscriptonsReadyForPolling = this.subscriptionsBag
-                                                  .Where(s => !s.IsPolling && !s.IsPoisoned && s.NewEventsQueue.Count < queueMaxThreshold)
+                                                  .Where(s => !s.IsPolling && !s.IsPoisoned && s.NewEventsQueue.Count < queueMaxCount)
                                                   .ToArray();
 
             if (!subscriptonsReadyForPolling.Any())
@@ -85,8 +103,12 @@ namespace EventCentric.Polling
 
         private void Flush(BufferedSubscription subscription)
         {
+#if DEBUG
+            var eventsInQueue = subscription.NewEventsQueue.Count();
+#endif
+
             var rawEvents = new List<NewRawEvent>();
-            for (int i = 0; i < eventsToFlushPerSubscriptionMaxCount; i++)
+            for (int i = 0; i < eventsToFlushMaxCount; i++)
             {
                 NewRawEvent rawEvent = null;
                 if (!subscription.NewEventsQueue.TryDequeue(out rawEvent))
@@ -96,6 +118,10 @@ namespace EventCentric.Polling
             }
 
             var processorBufferVersion = rawEvents.Min(e => e.EventCollectionVersion);
+
+#if DEBUG
+            this.log.Trace("Flushing {0} events from {1} queue with {2} events", rawEvents.Count, subscription.StreamType, eventsInQueue);
+#endif
 
             // Reset the bag;
             subscription.EventsInProcessorBag = new ConcurrentBag<EventInProcessorBucket>();
@@ -119,6 +145,10 @@ namespace EventCentric.Polling
 
             if (response.NewEventsWereFound)
             {
+#if DEBUG
+                this.log.Trace("Received {0} events", response.NewEvents.Count());
+#endif
+
                 var orderedEvents = response.NewEvents.OrderBy(e => e.EventCollectionVersion).ToArray();
 
                 subscription.CurrentBufferVersion = orderedEvents.Last().EventCollectionVersion;

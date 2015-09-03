@@ -10,25 +10,29 @@ using System.Threading;
 
 namespace EventCentric.Publishing
 {
-    public class EventPublisher<T> : FSM, IEventSource,
+    public class Publisher<T> : FSM, IEventSource,
         IMessageHandler<StartEventPublisher>,
         IMessageHandler<StopEventPublisher>,
         IMessageHandler<EventStoreHasBeenUpdated>
     {
         private static readonly string _streamType = typeof(T).Name;
         private readonly IEventDao dao;
-        private const int eventsToPushMaxCount = 100;
-        private const int attempsMaxCount = 300;
+        private readonly int eventsToPushMaxCount = 100;
+        private readonly int attemptsMaxCount = 300;
         private readonly object lockObject = new object();
 
         private volatile int eventCollectionVersion = 0;
 
-        public EventPublisher(IBus bus, ILogger log, IEventDao dao)
+        public Publisher(IBus bus, ILogger log, IEventDao dao, int eventsToPushMaxCount, int attemptsMaxCount)
             : base(bus, log)
         {
             Ensure.NotNull(dao, "dao");
+            Ensure.Positive(eventsToPushMaxCount, "eventsToPushMaxCount");
+            Ensure.Positive(attemptsMaxCount, "attemptsMaxCount");
 
             this.dao = dao;
+            this.eventsToPushMaxCount = eventsToPushMaxCount;
+            this.attemptsMaxCount = attemptsMaxCount;
         }
 
         public void Handle(EventStoreHasBeenUpdated message)
@@ -57,7 +61,7 @@ namespace EventCentric.Publishing
             bool newEventsWereFound = false;
             var newEvents = new List<NewRawEvent>();
             var attemps = 0;
-            while (!this.stopping && attemps <= attempsMaxCount)
+            while (!this.stopping && attemps <= attemptsMaxCount)
             {
                 attemps += 1;
                 if (this.eventCollectionVersion <= lastReceivedVersion)
@@ -66,6 +70,10 @@ namespace EventCentric.Publishing
                 {
                     newEvents = this.dao.FindEvents(lastReceivedVersion, eventsToPushMaxCount);
                     newEventsWereFound = newEvents.Count > 0 ? true : false;
+
+#if DEBUG
+                    this.log.Trace("Pushing {0} events", newEvents.Count);
+#endif
                     break;
                 }
             }
@@ -80,14 +88,16 @@ namespace EventCentric.Publishing
                 // We handle exceptions on dao.
                 var currentVersion = this.dao.GetEventCollectionVersion();
 
+                this.log.Trace("Current event collection version is: {0}", currentVersion);
+                this.log.Trace("Publisher started");
                 // Event-sourcing-like approach :)
                 this.bus.Publish(
                     new EventStoreHasBeenUpdated(currentVersion),
                     new EventPublisherStarted());
-                this.log.Trace("Publisher started");
             }
             catch (Exception ex)
             {
+                this.log.Error(ex, "An error ocurred while starting event publisher.");
                 this.bus.Publish(new FatalErrorOcurred(new FatalErrorException("An exception ocurred while starting publisher", ex)));
             }
         }

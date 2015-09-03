@@ -16,7 +16,7 @@ namespace EventCentric.NodeFactory.Log
         private readonly ConcurrentQueue<Message> messageQueue = new ConcurrentQueue<Message>();
         private static readonly int _processId = Process.GetCurrentProcess().Id;
 
-        private readonly int messageMaxCount = 50;
+        private readonly int messageMaxCount = 300;
 
         private static readonly Logger _logger = new Logger();
 

@@ -18,6 +18,7 @@ namespace EventCentric
         public void Handle(EventPublisherStarted message)
         {
             //... up and running;
+            this.log.Trace("All services are up and running");
         }
 
         public new void Start()
@@ -32,6 +33,7 @@ namespace EventCentric
             if (this.State == NodeState.Down)
             {
                 this.State = NodeState.Starting;
+                this.log.Trace("Starting client node");
                 base.Start();
 
                 // Check if is started to release thread.

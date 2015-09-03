@@ -21,7 +21,6 @@ namespace EventCentric.EventSourcing
 
         private readonly Func<Guid, IMemento, T> originatorAggregateFactory;
         private readonly Func<bool, IEventStoreDbContext> contextFactory;
-        // It may be interesting to have a dbcontext just for queries
         private readonly Action<T, IEventStoreDbContext> denormalizeIfApplicable;
 
         public EventStore(ITextSerializer serializer, Func<bool, IEventStoreDbContext> contextFactory, ITimeProvider time, IGuidProvider guid)

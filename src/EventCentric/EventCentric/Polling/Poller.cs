@@ -10,13 +10,13 @@ using System.Threading.Tasks;
 
 namespace EventCentric.Pulling
 {
-    public class EventPollster : FSM,
+    public class Poller : FSM,
         IMessageHandler<StartEventPollster>,
         IMessageHandler<StopEventPollster>
     {
         private readonly BufferPool buffer;
 
-        public EventPollster(IBus bus, ILogger log, BufferPool buffer)
+        public Poller(IBus bus, ILogger log, BufferPool buffer)
             : base(bus, log)
         {
             Ensure.NotNull(buffer, "buffer");
@@ -35,7 +35,6 @@ namespace EventCentric.Pulling
         {
             this.log.Trace("Starting pollster");
             base.Start();
-            this.log.Trace("Pollster started");
         }
 
         protected override void OnStarting()
@@ -43,6 +42,7 @@ namespace EventCentric.Pulling
             Task.Factory.StartNewLongRunning(() => this.Poll());
 
             // Ensure to start everything;
+            this.log.Trace("Pollster started");
             this.bus.Publish(new EventPollsterStarted());
         }
 
