@@ -156,8 +156,10 @@
     <Compile Include="Areas\HelpPage\SampleGeneration\SampleDirection.cs" />
     <Compile Include="Areas\HelpPage\SampleGeneration\TextSample.cs" />
     <Compile Include="Areas\HelpPage\XmlDocumentationProvider.cs" />
+    <Compile Include="Controllers\ClientesController.cs" />
     <Compile Include="Controllers\EmpresasController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
+    <Compile Include="Controllers\InventarioController.cs" />
     <Compile Include="Controllers\ValuesController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
@@ -165,11 +167,19 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="app\clientes\app.js" />
+    <Content Include="app\clientes\index.html" />
+    <Content Include="app\clientes\nuevoCliente.html" />
+    <Content Include="app\clientes\nuevoClienteController.js" />
     <Content Include="app\common\config.js" />
     <Content Include="app\empresas\app.js" />
     <Content Include="app\empresas\index.html" />
     <Content Include="app\empresas\nuevaEmpresa.html" />
     <Content Include="app\empresas\nuevaEmpresaController.js" />
+    <Content Include="app\inventario\app.js" />
+    <Content Include="app\inventario\index.html" />
+    <Content Include="app\inventario\nuevaMercaderia.html" />
+    <Content Include="app\inventario\nuevaMercaderiaController.js" />
     <Content Include="Areas\HelpPage\HelpPage.css" />
     <Content Include="Content\bootstrap-theme.css" />
     <Content Include="Content\bootstrap-theme.min.css" />
@@ -239,6 +249,8 @@
     <Content Include="Views\Shared\Error.cshtml" />
     <Content Include="Views\Shared\_Layout.cshtml" />
     <Content Include="Views\Empresas\Index.cshtml" />
+    <Content Include="Views\Inventario\Index.cshtml" />
+    <Content Include="Views\Clientes\Index.cshtml" />
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>
