@@ -65,6 +65,7 @@
     <Compile Include="Database\DataReaderExtensions.cs" />
     <Compile Include="Log\ILogger.cs" />
     <Compile Include="Messaging\SynchronousBus.cs" />
+    <Compile Include="Queueing\CrudEventQueue.cs" />
     <Compile Include="Repository\DbInitializer.cs" />
     <Compile Include="Config\IEventStoreConfig.cs" />
     <Compile Include="Database\SqlClientLite.cs" />
