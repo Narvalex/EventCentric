@@ -1,3 +1,79 @@
 ﻿<section ng-controller="nuevaEmpresaController as vm">
-    {{ 9 + 9 }}
+    
+    <form name="form"
+          class="form-horizontal"
+          role="form"
+          ng-submit="vm.nuevaEmpresa()"
+          novalidate>
+
+        <fieldset>
+            <legend>Nueva empresa</legend>
+            
+            <div class="form-group">
+                <label for="nombre"
+                       class="col-sm-2 control-label">
+                    Nombre:
+                </label>
+                <div class="col-sm-4">
+                    <input name="nombre"
+                           type="text"
+                           class="form-control"
+                           ng-model="vm.empresa.nombre"
+                           required />
+                    <span class="error text-danger"
+                          ng-show="form.nombre.$error.required">
+                        <span class="glyphicon glyphicon-exclamation-sign"></span>
+                        Introduzca el nombre de la empresa por favor.
+                    </span>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="ruc"
+                       class="col-sm-2 control-label">
+                    RUC:
+                </label>
+                <div class="col-sm-4">
+                    <input name="ruc"
+                           type="text"
+                           class="form-control"
+                           ng-model="vm.empresa.ruc"
+                           required />
+                    <span class="error text-danger"
+                          ng-show="form.ruc.$error.required">
+                        <span class="glyphicon glyphicon-exclamation-sign"></span>
+                        Introduzca el RUC de la empresa por favor.
+                    </span>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="descripcion"
+                       class="col-sm-2 control-label">
+                    Descripción:
+                </label>
+                <div class="col-sm-8">
+                    <textarea name="descripcion"
+                              type="text"
+                              class="form-control"
+                              ng-model="vm.empresa.descripcion"
+                              required />
+                    <span class="error text-danger"
+                          ng-show="form.ruc.$error.required">
+                        <span class="glyphicon glyphicon-exclamation-sign"></span>
+                        Introduzca la descripción de la empresa por favor.
+                    </span>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <input type="submit" 
+                       value="Confirmar nueva empresa"
+                       class="btn btn-success col-sm-offset-2"
+                       ng-disabled="form.$invalid" />
+            </div>
+
+        </fieldset>
+    </form>
+
 </section>
