@@ -1,6 +1,6 @@
 ﻿using EventCentric.EventSourcing;
 
-namespace EventCentric.Messaging
+namespace EventCentric.Queueing
 {
     public interface IEventBus
     {

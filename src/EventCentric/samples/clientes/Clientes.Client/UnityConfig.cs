@@ -1,5 +1,5 @@
 using EventCentric;
-using EventCentric.Messaging;
+using EventCentric.Queueing;
 using Microsoft.Practices.Unity;
 using System;
 

@@ -13,7 +13,7 @@ namespace EventCentric.Queueing
         IMessageHandler<StartEventQueue>,
         IMessageHandler<StopEventQueue>
     {
-        private readonly IQueueWriter writer;
+        protected readonly IQueueWriter writer;
         protected ConcurrentDictionary<Guid, object> streamLocksById;
 
         public EventQueue(IBus bus, ILogger log, IQueueWriter writer)

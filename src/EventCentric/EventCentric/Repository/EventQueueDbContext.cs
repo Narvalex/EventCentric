@@ -3,10 +3,7 @@ using System.Data.Entity;
 
 namespace EventCentric.Repository
 {
-    /// <summary>
-    /// There could be an optimization just for reads..., maybe with an extension method.
-    /// </summary>
-    public class EventQueueDbContext : DbContext
+    public class EventQueueDbContext : DbContext, IEventQueueDbContext
     {
         static EventQueueDbContext()
         {

@@ -66,6 +66,8 @@
     <Compile Include="Log\ILogger.cs" />
     <Compile Include="Messaging\SynchronousBus.cs" />
     <Compile Include="Queueing\CrudEventQueue.cs" />
+    <Compile Include="Queueing\CrudQueueWriter.cs" />
+    <Compile Include="Queueing\ICrudEventBus.cs" />
     <Compile Include="Repository\DbInitializer.cs" />
     <Compile Include="Config\IEventStoreConfig.cs" />
     <Compile Include="Database\SqlClientLite.cs" />
@@ -82,6 +84,7 @@
     <Compile Include="Polling\ISubscriptionRepository.cs" />
     <Compile Include="Publishing\EventDao.cs" />
     <Compile Include="Repository\EventQueueDbContext.cs" />
+    <Compile Include="Repository\IEventQueueDbContext.cs" />
     <Compile Include="Repository\IEventStoreDbContext.cs" />
     <Compile Include="INode.cs" />
     <Compile Include="Messaging\Events\FatalErrorOcurred.cs" />
@@ -123,7 +126,7 @@
     <Compile Include="Repository\Mapping\InboxEntity.cs" />
     <Compile Include="Repository\EventStoreDbContext.cs" />
     <Compile Include="Repository\Mapping\StreamEntity.cs" />
-    <Compile Include="Messaging\IEventBus.cs" />
+    <Compile Include="Queueing\IEventBus.cs" />
     <Compile Include="Processing\IEventHandler.cs" />
     <Compile Include="Publishing\IEventSource.cs" />
     <Compile Include="Serialization\ITextSerializer.cs" />

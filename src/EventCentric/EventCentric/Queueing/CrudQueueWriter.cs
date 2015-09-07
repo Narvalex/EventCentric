@@ -8,30 +8,15 @@ using System.Linq;
 
 namespace EventCentric.Queueing
 {
-    public class QueueWriter<T> : IQueueWriter
+    public class CrudQueueWriter<TAggregate> : QueueWriter<TAggregate>, ICrudQueueWriter
     {
-        protected static readonly string _streamType = typeof(T).Name;
-        protected readonly Func<bool, IEventQueueDbContext> contextFactory;
-        protected readonly ITextSerializer serializer;
-        protected readonly ITimeProvider time;
-        protected readonly IGuidProvider guid;
+        public CrudQueueWriter(Func<bool, EventQueueDbContext> contextFactory, ITextSerializer serializer, ITimeProvider time, IGuidProvider guid)
+            : base(contextFactory, serializer, time, guid)
+        { }
 
-        public QueueWriter(Func<bool, IEventQueueDbContext> contextFactory, ITextSerializer serializer, ITimeProvider time, IGuidProvider guid)
+        public int Enqueue<T>(IEvent @event, Action<T> performCrudOperation) where T : IEventQueueDbContext
         {
-            Ensure.NotNull(contextFactory, "contextFactory");
-            Ensure.NotNull(serializer, "serializer");
-            Ensure.NotNull(time, "time");
-            Ensure.NotNull(guid, "guid");
-
-            this.contextFactory = contextFactory;
-            this.serializer = serializer;
-            this.time = time;
-            this.guid = guid;
-        }
-
-        public int Enqueue(IEvent @event)
-        {
-            using (var context = this.contextFactory(false))
+            using (var context = base.contextFactory(false))
             {
                 var versions = context.Events
                                       .Where(e => e.StreamId == @event.StreamId)
@@ -62,6 +47,8 @@ namespace EventCentric.Queueing
                     });
 
                 context.SaveChanges();
+
+                performCrudOperation((T)context);
 
                 return context.Events.Max(e => e.EventCollectionVersion);
             }

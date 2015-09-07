@@ -1,5 +1,5 @@
 ﻿using Clientes.Events;
-using EventCentric.Messaging;
+using EventCentric.Queueing;
 using EventCentric.Utils;
 using System;
 
