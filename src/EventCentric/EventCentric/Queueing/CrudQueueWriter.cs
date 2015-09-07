@@ -41,6 +41,7 @@ namespace EventCentric.Queueing
                         StreamId = @event.StreamId,
                         Version = @event.Version,
                         EventId = @event.EventId,
+                        TransactionId = @event.TransactionId,
                         EventType = @event.GetType().Name,
                         CreationDate = now,
                         Payload = this.serializer.Serialize(@event)

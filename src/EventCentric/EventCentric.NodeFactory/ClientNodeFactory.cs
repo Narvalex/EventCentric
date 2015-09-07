@@ -6,6 +6,7 @@ using EventCentric.Publishing;
 using EventCentric.Queueing;
 using EventCentric.Repository;
 using EventCentric.Serialization;
+using EventCentric.Transport;
 using EventCentric.Utils;
 using Microsoft.Practices.Unity;
 using System;
@@ -38,6 +39,8 @@ namespace EventCentric
             var eventBus = new EventQueue(bus, log, queueWriter);
             var eventPublisher = new Publisher<T>(bus, log, eventDao, eventStoreConfig.PushMaxCount, eventStoreConfig.PollAttemptsMaxCount);
 
+            var heartbeatListener = new HeartbeatListener(bus, log, time, new TimeSpan(0, 1, 0), new TimeSpan(0, 2, 0), isReadonly => new HeartbeatDbContext(isReadonly, connectionString));
+
             // Register for DI
             container.RegisterInstance<IEventBus>(eventBus);
             container.RegisterInstance<IEventSource>(eventPublisher);
@@ -69,6 +72,8 @@ namespace EventCentric
             var eventDao = new EventDao(eventQueueDbContextFactory);
             var eventBus = new CrudEventQueue(bus, log, queueWriter);
             var eventPublisher = new Publisher<T>(bus, log, eventDao, eventStoreConfig.PushMaxCount, eventStoreConfig.PollAttemptsMaxCount);
+
+            var heartbeatListener = new HeartbeatListener(bus, log, time, new TimeSpan(0, 1, 0), new TimeSpan(0, 2, 0), isReadonly => new HeartbeatDbContext(isReadonly, connectionString));
 
             // Register for DI
             container.RegisterInstance<IEventBus>(eventBus);

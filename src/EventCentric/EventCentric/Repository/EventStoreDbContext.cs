@@ -1,21 +1,14 @@
+using EventCentric.Database;
 using EventCentric.Repository.Mapping;
 using System.Data.Entity;
 
 namespace EventCentric.Repository
 {
-    public class EventStoreDbContext : DbContext, IEventStoreDbContext
+    public class EventStoreDbContext : OptimizedDbContext<EventStoreDbContext>, IEventStoreDbContext
     {
-        static EventStoreDbContext()
-        {
-            System.Data.Entity.Database.SetInitializer<EventStoreDbContext>(null);
-        }
-
         public EventStoreDbContext(bool isReadOnly, string nameOrconnectionString)
-            : base(nameOrconnectionString)
-        {
-            if (isReadOnly)
-                this.Configuration.AutoDetectChangesEnabled = false;
-        }
+            : base(isReadOnly, nameOrconnectionString)
+        { }
 
         public IDbSet<EventEntity> Events { get; set; }
         public IDbSet<InboxEntity> Inbox { get; set; }

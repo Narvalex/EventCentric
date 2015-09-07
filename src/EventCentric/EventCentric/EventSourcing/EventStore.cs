@@ -118,6 +118,7 @@ namespace EventCentric.EventSourcing
                     {
                         ((Event)@event).EventId = this.guid.NewGuid;
                         ((Event)@event).StreamType = _streamType;
+                        ((Event)@event).TransactionId = incomingEvent.TransactionId;
 
                         context.Events.Add(
                             new EventEntity
@@ -126,6 +127,7 @@ namespace EventCentric.EventSourcing
                                 StreamId = @event.StreamId,
                                 Version = @event.Version,
                                 EventId = @event.EventId,
+                                TransactionId = @event.TransactionId,
                                 EventType = @event.GetType().Name,
                                 CorrelationId = incomingEvent.EventId,
                                 CreationDate = now,

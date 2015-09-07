@@ -67,6 +67,12 @@
     <Compile Include="Messaging\SynchronousBus.cs" />
     <Compile Include="Queueing\CrudEventQueue.cs" />
     <Compile Include="Queueing\CrudQueueWriter.cs" />
+    <Compile Include="Repository\EventuallyConsistentDbContext.cs" />
+    <Compile Include="Repository\IEventuallyConsistentDbContext.cs" />
+    <Compile Include="Repository\Mapping\EventuallyConsistentResultEntity.cs" />
+    <Compile Include="Repository\Mapping\SubscriberHeartbeatEntity.cs" />
+    <Compile Include="Database\OptimizedDbContext.cs" />
+    <Compile Include="Repository\HeartbeatDbContext.cs" />
     <Compile Include="Queueing\ICrudEventBus.cs" />
     <Compile Include="Repository\DbInitializer.cs" />
     <Compile Include="Config\IEventStoreConfig.cs" />
@@ -133,6 +139,7 @@
     <Compile Include="Serialization\JsonTextSerializer.cs" />
     <Compile Include="Serialization\TextSerializerExtensions.cs" />
     <Compile Include="Transport\EventInProcessorBucket.cs" />
+    <Compile Include="Transport\HeartbeatListener.cs" />
     <Compile Include="Transport\HttpLongPoller.cs" />
     <Compile Include="Transport\IHttpLongPoller.cs" />
     <Compile Include="Transport\NewRawEvent.cs" />

@@ -4,6 +4,8 @@ namespace EventCentric.EventSourcing
 {
     public interface IEvent
     {
+        Guid TransactionId { get; }
+
         /// <summary>
         /// The id of the event.
         /// </summary>

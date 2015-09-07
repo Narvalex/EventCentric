@@ -9,6 +9,7 @@ namespace EventCentric.Repository.Mapping
         public string StreamType { get; set; }
         public Guid StreamId { get; set; }
         public int Version { get; set; }
+        public Guid TransactionId { get; set; }
         public Guid EventId { get; set; }
         public string EventType { get; set; }
         public Guid? CorrelationId { get; set; }

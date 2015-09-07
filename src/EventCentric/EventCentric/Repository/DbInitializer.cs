@@ -44,7 +44,7 @@ IF NOT EXISTS (SELECT name FROM sys.databases WHERE name = N'{0}') CREATE DATABA
 
                 using (var command = connection.CreateCommand())
                 {
-                    command.CommandText = isForclientNode ? EventsCreateTableScript
+                    command.CommandText = isForclientNode ? EventsCreateTableScript + SubscriberHeartbeatsCreateTableScript
                                                           : EventsCreateTableScript + StreamsCreateTableScript
                                                             + SubscriptionsCreateTableScript + InboxCreateTableScript;
                     command.ExecuteNonQuery();
@@ -142,6 +142,24 @@ PRIMARY KEY CLUSTERED
 )WITH(PAD_INDEX  = OFF, STATISTICS_NORECOMPUTE  = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS  = ON, ALLOW_PAGE_LOCKS  = ON) ON[PRIMARY]
 ) ON[PRIMARY];
 ";
+        #endregion
+
+        #region EventStore.SubscriberHeartbeats
+
+        private const string SubscriberHeartbeatsCreateTableScript =
+@"-- SubscriberHeartbeats
+IF NOT EXISTS(SELECT* FROM sys.objects WHERE object_id = OBJECT_ID(N'[EventStore].[SubscriberHeartbeats]') AND type in (N'U'))
+create table [EventStore].[SubscriberHeartbeats] (
+    [SubscriberName] [nvarchar](128) not null,
+    [Url] [nvarchar](max) null,
+    [HeartbeatCount] [int] not null,
+    [LastHeartbeatTime] [datetime] not null,
+    [UpdateTime] [datetime] not null,
+    [CreationDate] [datetime] not null,
+    primary key ([SubscriberName])
+);
+";
+
         #endregion
     }
 }

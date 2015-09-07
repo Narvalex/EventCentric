@@ -6,6 +6,8 @@ namespace EventCentric.EventSourcing
     {
         public int EventCollectionVersion { get; set; }
 
+        public Guid TransactionId { get; set; }
+
         public Guid EventId { get; set; }
 
         public int ProcessorBufferVersion { get; set; }
