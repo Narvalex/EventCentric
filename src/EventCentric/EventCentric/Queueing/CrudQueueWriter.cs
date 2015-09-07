@@ -10,7 +10,7 @@ namespace EventCentric.Queueing
 {
     public class CrudQueueWriter<TAggregate> : QueueWriter<TAggregate>, ICrudQueueWriter
     {
-        public CrudQueueWriter(Func<bool, EventQueueDbContext> contextFactory, ITextSerializer serializer, ITimeProvider time, IGuidProvider guid)
+        public CrudQueueWriter(Func<bool, IEventQueueDbContext> contextFactory, ITextSerializer serializer, ITimeProvider time, IGuidProvider guid)
             : base(contextFactory, serializer, time, guid)
         { }
 

@@ -8,9 +8,9 @@ namespace EventCentric.Publishing
 {
     public class EventDao : IEventDao
     {
-        private readonly Func<bool, EventQueueDbContext> contextFactory;
+        private readonly Func<bool, IEventQueueDbContext> contextFactory;
 
-        public EventDao(Func<bool, EventQueueDbContext> contextFactory)
+        public EventDao(Func<bool, IEventQueueDbContext> contextFactory)
         {
             this.contextFactory = contextFactory;
         }
