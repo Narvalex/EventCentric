@@ -15,7 +15,7 @@
         return service;
 
         function nuevaEmpresa(empresa) {
-            return $http.post('/api/empresas/nueva-empresa', empresa);
+            return $http.post('http://localhost:50588/empresas/nueva-empresa', empresa);
         }
     }
 })();
