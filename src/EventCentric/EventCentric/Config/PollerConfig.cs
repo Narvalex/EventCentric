@@ -25,9 +25,9 @@ namespace EventCentric.Config
         }
 
         [ConfigurationProperty("timeout", IsRequired = true)]
-        public int Timeout
+        public double Timeout
         {
-            get { return Convert.ToInt32(this["timeout"]); }
+            get { return Convert.ToDouble(this["timeout"]); }
         }
     }
 }

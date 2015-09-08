@@ -85,11 +85,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ClientNodeFactory.cs" />
+    <Compile Include="QueueNodeFactory.cs" />
     <Compile Include="Log\Logger.cs" />
     <Compile Include="Log\LogHub.cs" />
     <Compile Include="Log\SignalRBase.cs" />
-    <Compile Include="NodeFactory.cs" />
+    <Compile Include="SagaNodeFactory.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

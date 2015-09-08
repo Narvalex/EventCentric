@@ -20,6 +20,7 @@ namespace EventCentric.Repository
 
         public EventuallyConsistentResultEntity AwaitEventualConsistency(Guid transactionId)
         {
+            // Do with stopwatch
             var attemptCounter = 1;
             while (attemptCounter <= this.maxAttemptsCount)
             {

@@ -4,6 +4,6 @@
     {
         int BufferQueueMaxCount { get; }
         int EventsToFlushMaxCount { get; }
-        int Timeout { get; }
+        double Timeout { get; }
     }
 }

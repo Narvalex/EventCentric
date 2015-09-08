@@ -18,13 +18,15 @@ using System.Data.Entity;
 
 namespace EventCentric
 {
-    public class NodeFactory<TAggregate, THandler>
+    public class SagaNodeFactory<TAggregate, THandler>
         where TAggregate : class, IEventSourced
         where THandler : EventProcessor<TAggregate>
     {
         public static INode CreateNode(IUnityContainer container, bool setLocalTime = true, bool setSequentialGuid = true)
         {
             DbConfiguration.SetConfiguration(new TransientFaultHandlingDbConfiguration());
+            System.Data.Entity.Database.SetInitializer<EventStoreDbContext>(null);
+            System.Data.Entity.Database.SetInitializer<EventQueueDbContext>(null);
 
             var eventStoreConfig = EventStoreConfig.GetConfig();
             var pollerConfig = PollerConfig.GetConfig();
@@ -46,12 +48,12 @@ namespace EventCentric
             var bus = new Bus();
             var log = Logger.ResolvedLogger;
 
-            var http = new HttpLongPoller(bus, log, new TimeSpan(0, 0, pollerConfig.Timeout));
+            var http = new HttpLongPoller(bus, log, TimeSpan.FromMilliseconds(pollerConfig.Timeout));
 
             var buffer = new BufferPool(bus, subscriptionRepository, http, serializer, log, pollerConfig.BufferQueueMaxCount, pollerConfig.EventsToFlushMaxCount);
             var pollster = new Poller(bus, log, buffer);
-            var publisher = new Publisher<TAggregate>(bus, log, eventDao, eventStoreConfig.PushMaxCount, eventStoreConfig.PollAttemptsMaxCount);
-            var fsm = new Node(bus, log);
+            var publisher = new Publisher<TAggregate>(bus, log, eventDao, eventStoreConfig.PushMaxCount, TimeSpan.FromMilliseconds(eventStoreConfig.LongPollingTimeout));
+            var fsm = new SagaNode(bus, log);
 
             // Register processor dependencies
             container.RegisterInstance<IBus>(bus);
@@ -67,9 +69,15 @@ namespace EventCentric
             return fsm;
         }
 
+        /// <summary>
+        /// Do not forget: System.Data.Entity.Database.SetInitializer<TDbContext>(null);
+        /// </summary>
         public static INode CreateDenormalizerNode<TDbContext>(IUnityContainer container, bool setLocalTime = true, bool setSequentialGuid = true) where TDbContext : IEventStoreDbContext
         {
             DbConfiguration.SetConfiguration(new TransientFaultHandlingDbConfiguration());
+            System.Data.Entity.Database.SetInitializer<EventStoreDbContext>(null);
+            System.Data.Entity.Database.SetInitializer<EventQueueDbContext>(null);
+
 
             var eventStoreConfig = EventStoreConfig.GetConfig();
             var pollerConfig = PollerConfig.GetConfig();
@@ -94,13 +102,13 @@ namespace EventCentric
             var bus = new Bus();
             var log = Logger.ResolvedLogger;
 
-            var http = new HttpLongPoller(bus, log, new TimeSpan(0, 0, pollerConfig.Timeout));
+            var http = new HttpLongPoller(bus, log, TimeSpan.FromMilliseconds(pollerConfig.Timeout));
 
             var subscriptionRepository = new SubscriptionRepository(storeContextFactory, serializer, time);
             var buffer = new BufferPool(bus, subscriptionRepository, http, serializer, log, pollerConfig.BufferQueueMaxCount, pollerConfig.EventsToFlushMaxCount);
             var pollster = new Poller(bus, log, buffer);
-            var publisher = new Publisher<TAggregate>(bus, log, eventDao, eventStoreConfig.PushMaxCount, eventStoreConfig.PollAttemptsMaxCount);
-            var fsm = new Node(bus, log);
+            var publisher = new Publisher<TAggregate>(bus, log, eventDao, eventStoreConfig.PushMaxCount, TimeSpan.FromMilliseconds(eventStoreConfig.LongPollingTimeout));
+            var fsm = new SagaNode(bus, log);
 
             // Register processor dependencies
             container.RegisterInstance<IBus>(bus);

@@ -24,10 +24,10 @@ namespace EventCentric.Config
             get { return Convert.ToInt32(this["pushMaxCount"]); }
         }
 
-        [ConfigurationProperty("pollAttemptsMaxCount", IsRequired = true)]
-        public int PollAttemptsMaxCount
+        [ConfigurationProperty("longPollingTimeout", IsRequired = true)]
+        public double LongPollingTimeout
         {
-            get { return Convert.ToInt32(this["pollAttemptsMaxCount"]); }
+            get { return Convert.ToDouble(this["longPollingTimeout"]); }
         }
     }
 }

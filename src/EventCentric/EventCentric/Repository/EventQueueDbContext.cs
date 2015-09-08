@@ -4,7 +4,7 @@ using System.Data.Entity;
 
 namespace EventCentric.Repository
 {
-    public class EventQueueDbContext : OptimizedDbContext<EventQueueDbContext>, IEventQueueDbContext
+    public class EventQueueDbContext : OptimizedDbContext, IEventQueueDbContext
     {
         public EventQueueDbContext(bool isReadOnly, string nameOrconnectionString)
             : base(isReadOnly, nameOrconnectionString)

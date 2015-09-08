@@ -6,7 +6,7 @@ using System.Threading;
 
 namespace EventCentric
 {
-    public class Node : FSM, INode,
+    public class SagaNode : FSM, INode,
         IMessageHandler<EventPublisherStarted>,
         IMessageHandler<EventProcessorStarted>,
         IMessageHandler<EventPollsterStarted>,
@@ -14,7 +14,7 @@ namespace EventCentric
         IMessageHandler<EventProcessorStopped>,
         IMessageHandler<EventPublisherStopped>
     {
-        public Node(IBus bus, ILogger log)
+        public SagaNode(IBus bus, ILogger log)
             : base(bus, log)
         {
             this.State = NodeState.Down;

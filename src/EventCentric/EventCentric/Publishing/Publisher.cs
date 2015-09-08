@@ -6,6 +6,7 @@ using EventCentric.Transport;
 using EventCentric.Utils;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Threading;
 
 namespace EventCentric.Publishing
@@ -17,22 +18,21 @@ namespace EventCentric.Publishing
     {
         private static readonly string _streamType = typeof(T).Name;
         private readonly IEventDao dao;
-        private readonly int eventsToPushMaxCount = 100;
-        private readonly int attemptsMaxCount = 300;
+        private readonly int eventsToPushMaxCount;
+        private readonly TimeSpan longPollingTimeout;
         private readonly object lockObject = new object();
 
         private volatile int eventCollectionVersion = 0;
 
-        public Publisher(IBus bus, ILogger log, IEventDao dao, int eventsToPushMaxCount, int attemptsMaxCount)
+        public Publisher(IBus bus, ILogger log, IEventDao dao, int eventsToPushMaxCount, TimeSpan pollTimeout)
             : base(bus, log)
         {
             Ensure.NotNull(dao, "dao");
             Ensure.Positive(eventsToPushMaxCount, "eventsToPushMaxCount");
-            Ensure.Positive(attemptsMaxCount, "attemptsMaxCount");
 
             this.dao = dao;
             this.eventsToPushMaxCount = eventsToPushMaxCount;
-            this.attemptsMaxCount = attemptsMaxCount;
+            this.longPollingTimeout = pollTimeout;
         }
 
         public void Handle(EventStoreHasBeenUpdated message)
@@ -56,14 +56,16 @@ namespace EventCentric.Publishing
             base.Start();
         }
 
+        /// <remarks>
+        /// Timeout implementation inspired by: http://stackoverflow.com/questions/5018921/implement-c-sharp-timeout
+        /// </remarks>
         public PollResponse PollEvents(int lastReceivedVersion)
         {
             bool newEventsWereFound = false;
             var newEvents = new List<NewRawEvent>();
-            var attemps = 0;
-            while (!this.stopping && attemps <= attemptsMaxCount)
+            var stopwatch = Stopwatch.StartNew();
+            while (!this.stopping && stopwatch.Elapsed < this.longPollingTimeout)
             {
-                attemps += 1;
                 if (this.eventCollectionVersion <= lastReceivedVersion)
                     Thread.Sleep(100);
                 else

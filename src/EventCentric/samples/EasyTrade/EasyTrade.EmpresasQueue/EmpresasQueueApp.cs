@@ -8,7 +8,7 @@ using System;
 
 namespace EasyTrade.EmpresasQueue
 {
-    public class EmpresasQueueApp : CrudApplicationService
+    public class EmpresasQueueApp : CrudApplicationService, IEmpresasQueueApp
     {
         public EmpresasQueueApp(ICrudEventBus bus, IGuidProvider guid)
             : base(bus, guid)

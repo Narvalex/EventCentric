@@ -42,7 +42,7 @@ namespace Clientes.Client.App_Start
                 if (_node != null)
                     return;
 
-                _node = ClientNodeFactory<TelefonicaAdminClient>
+                _node = QueueNodeFactory<TelefonicaAdminClient>
                     .CreateNode(container);
 
                 _node.Start();

@@ -4,7 +4,7 @@ using System.Data.Entity;
 
 namespace EventCentric.Repository
 {
-    public class HeartbeatDbContext : OptimizedDbContext<HeartbeatDbContext>
+    public class HeartbeatDbContext : OptimizedDbContext
     {
         public HeartbeatDbContext(bool isReadonly, string nameOrConnectionString)
             : base(isReadonly, nameOrConnectionString)

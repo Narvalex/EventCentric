@@ -4,6 +4,6 @@
     {
         string ConnectionString { get; }
         int PushMaxCount { get; }
-        int PollAttemptsMaxCount { get; }
+        double LongPollingTimeout { get; }
     }
 }

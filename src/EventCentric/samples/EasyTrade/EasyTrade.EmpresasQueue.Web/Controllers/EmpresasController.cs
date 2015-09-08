@@ -7,10 +7,19 @@ namespace EasyTrade.EmpresasQueue.Web.Controllers
     [EnableCors(origins: "*", headers: "*", methods: "*")]
     public class EmpresasController : ApiController
     {
+        private readonly IEmpresasQueueApp app;
+
+        public EmpresasController(IEmpresasQueueApp app)
+        {
+            this.app = app;
+        }
+
         [HttpPost]
         [Route("empresas/nueva-empresa")]
         public IHttpActionResult NuevaEmpresas([FromBody]NuevaEmpresaDto dto)
         {
+            this.app.NuevaEmpresa(dto);
+            // TODO: enventual consistency awaiter.
             return this.Ok();
         }
     }

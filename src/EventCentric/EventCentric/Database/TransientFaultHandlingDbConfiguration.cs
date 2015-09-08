@@ -31,7 +31,7 @@ namespace EventCentric.Database
                 "System.Data.SqlClient",
                 () => SuspendExecutionStrategy
                     ? (IDbExecutionStrategy)new DefaultExecutionStrategy()
-                    : new SqlAzureExecutionStrategy(20, TimeSpan.FromMinutes(1)));
+                    : new SqlAzureExecutionStrategy(20, TimeSpan.FromSeconds(30)));
         }
 
         /// <summary>
