@@ -6,7 +6,7 @@
     <section name="pollerConfig" type="EventCentric.Config.PollerConfig, eventCentric" />
   </configSections>
 
-  <eventStoreConfig connectionString="server=(local);Database=ClientesEventProcessor;User Id=sa;pwd =123456" 
+  <eventStoreConfig connectionString="server=(local);Database=InsertDbNameHere;User Id=sa;pwd =123456" 
                     pushMaxCount="100"
                     longPollingTimeout="60000"></eventStoreConfig>
 

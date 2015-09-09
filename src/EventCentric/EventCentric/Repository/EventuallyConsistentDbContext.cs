@@ -1,6 +1,7 @@
 ﻿using EventCentric.Repository.Mapping;
 using System;
 using System.Data.Entity;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 
@@ -8,30 +9,29 @@ namespace EventCentric.Repository
 {
     public class EventuallyConsistentDbContext : EventStoreDbContext
     {
-        private readonly int maxAttemptsCount;
+        private readonly TimeSpan timeout;
 
-        public EventuallyConsistentDbContext(int maxAttemptsCount, bool isReadOnly, string nameOrconnectionString)
+        public EventuallyConsistentDbContext(TimeSpan timeout, bool isReadOnly, string nameOrconnectionString)
             : base(isReadOnly, nameOrconnectionString)
         {
-            this.maxAttemptsCount = maxAttemptsCount;
+            this.timeout = timeout;
         }
 
-        public IDbSet<EventuallyConsistentResultEntity> EventuallyConsistentResults { get; set; }
+        public IDbSet<EventuallyConsistentResult> EventuallyConsistentResults { get; set; }
 
-        public EventuallyConsistentResultEntity AwaitEventualConsistency(Guid transactionId)
+        public EventuallyConsistentResult AwaitEventualConsistency(Guid transactionId)
         {
-            // Do with stopwatch
-            var attemptCounter = 1;
-            while (attemptCounter <= this.maxAttemptsCount)
+            var stopwatch = new Stopwatch();
+            stopwatch.Start();
+            while (stopwatch.Elapsed < this.timeout)
             {
                 if (this.EventuallyConsistentResults.Any(r => r.TransactionId == transactionId))
                     return this.EventuallyConsistentResults.Single(r => r.TransactionId == transactionId);
 
                 Thread.Sleep(100);
-                attemptCounter += 1;
             }
 
-            throw new TimeoutException(string.Format("Timeout while waiting eventual consistency for transaccion id {0} in attempt number {1}", transactionId.ToString(), attemptCounter));
+            throw new TimeoutException(string.Format("Timeout while awaiting eventual consistency for transaccion id {0}. Timeout: {1} seconds.", transactionId.ToString(), this.timeout.TotalSeconds));
         }
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)

@@ -71,23 +71,11 @@ namespace EventCentric.EventSourcing
 
         public T Get(Guid id)
         {
-            // get memento from cache
-            var cachedMemento = (Tuple<IMemento, DateTime?>)this.cache.Get(id.ToString());
-            if (cachedMemento == null || !cachedMemento.Item2.HasValue)
-            {
-                // Return from SQL Server;
-                using (var context = this.contextFactory.Invoke(true))
-                {
-                    var stream = context.Streams.Where(s => s.StreamId == id).SingleOrDefault();
+            var aggregate = this.Find(id);
+            if (aggregate == null)
+                throw new StreamNotFoundException(id, _streamType);
 
-                    if (stream != null)
-                        cachedMemento = new Tuple<IMemento, DateTime?>(this.serializer.Deserialize<IMemento>(stream.Memento), null);
-                    else
-                        throw new StreamNotFoundException(id, _streamType);
-                }
-            }
-
-            return this.originatorAggregateFactory.Invoke(id, cachedMemento.Item1);
+            return aggregate;
         }
 
         public int Save(T eventSourced, IEvent incomingEvent)

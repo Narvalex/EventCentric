@@ -46,6 +46,7 @@ namespace EventCentric
             container.RegisterInstance<IEventBus>(eventBus);
             container.RegisterInstance<IEventSource>(eventPublisher);
             container.RegisterInstance<IGuidProvider>(guid);
+            container.RegisterInstance<ITimeProvider>(time);
 
             return node;
         }
@@ -84,6 +85,7 @@ namespace EventCentric
             container.RegisterInstance<ICrudEventBus>(eventBus);
             container.RegisterInstance<IEventSource>(eventPublisher);
             container.RegisterInstance<IGuidProvider>(guid);
+            container.RegisterInstance<ITimeProvider>(time);
 
             return node;
         }

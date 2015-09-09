@@ -3,7 +3,7 @@ using System.Data.Entity.ModelConfiguration;
 
 namespace EventCentric.Repository.Mapping
 {
-    public class EventuallyConsistentResultEntity
+    public class EventuallyConsistentResult
     {
         /// <summary>
         /// The transaction identifier. The event of command that started the whole process will
@@ -24,7 +24,7 @@ namespace EventCentric.Repository.Mapping
         public string Message { get; set; }
     }
 
-    public class EventuallyConsistentResultEntityMap : EntityTypeConfiguration<EventuallyConsistentResultEntity>
+    public class EventuallyConsistentResultEntityMap : EntityTypeConfiguration<EventuallyConsistentResult>
     {
         public EventuallyConsistentResultEntityMap()
         {

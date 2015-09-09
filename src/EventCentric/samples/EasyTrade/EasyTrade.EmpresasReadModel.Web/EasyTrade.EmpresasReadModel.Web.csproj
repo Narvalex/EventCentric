@@ -258,9 +258,17 @@
     <None Include="Project_Readme.html" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\..\EventCentric.NodeFactory\EventCentric.NodeFactory.csproj">
+      <Project>{44302c31-f9a4-4531-a43a-0e33cc5d4fd2}</Project>
+      <Name>EventCentric.NodeFactory</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\..\EventCentric\EventCentric.csproj">
       <Project>{4b00e8dd-813c-4abb-8c87-c664d188f62c}</Project>
       <Name>EventCentric</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\EasyTrade.EmpresasReadModel\EasyTrade.EmpresasReadModel.csproj">
+      <Project>{cf73dbf0-2180-41c0-a0a2-39b9d5135fa8}</Project>
+      <Name>EasyTrade.EmpresasReadModel</Name>
     </ProjectReference>
   </ItemGroup>
   <PropertyGroup>

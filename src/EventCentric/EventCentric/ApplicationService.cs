@@ -6,12 +6,15 @@ namespace EventCentric
     public abstract class ApplicationServiceBase
     {
         protected readonly IGuidProvider guid;
+        protected readonly ITimeProvider time;
 
-        public ApplicationServiceBase(IGuidProvider guid)
+        public ApplicationServiceBase(IGuidProvider guid, ITimeProvider time)
         {
             Ensure.NotNull(guid, "guid");
+            Ensure.NotNull(time, "time");
 
             this.guid = guid;
+            this.time = time;
         }
     }
 
@@ -22,8 +25,8 @@ namespace EventCentric
     {
         protected readonly IEventBus bus;
 
-        protected ApplicationService(IEventBus bus, IGuidProvider guid)
-            : base(guid)
+        protected ApplicationService(IEventBus bus, IGuidProvider guid, ITimeProvider time)
+            : base(guid, time)
         {
             Ensure.NotNull(bus, "bus");
 
@@ -38,8 +41,8 @@ namespace EventCentric
     {
         protected readonly ICrudEventBus bus;
 
-        protected CrudApplicationService(ICrudEventBus bus, IGuidProvider guid)
-            : base(guid)
+        protected CrudApplicationService(ICrudEventBus bus, IGuidProvider guid, ITimeProvider time)
+            : base(guid, time)
         {
             Ensure.NotNull(bus, "bus");
 

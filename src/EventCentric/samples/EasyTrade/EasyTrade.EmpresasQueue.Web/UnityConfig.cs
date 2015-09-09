@@ -49,7 +49,12 @@ namespace EasyTrade.EmpresasQueue.Web.App_Start
 
                 _node.Start();
 
-                var app = new EmpresasQueueApp(container.Resolve<ICrudEventBus>(), container.Resolve<IGuidProvider>());
+                var app = new EmpresasQueueApp(
+                    container.Resolve<ICrudEventBus>(),
+                    container.Resolve<IGuidProvider>(),
+                    container.Resolve<ITimeProvider>());
+
+                // For asp.net controller dependency injection
                 container.RegisterInstance<IEmpresasQueueApp>(app);
             }
         }

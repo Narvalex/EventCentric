@@ -5,6 +5,6 @@ namespace EventCentric.Repository
 {
     public interface IEventuallyConsistentDbContext : IEventStoreDbContext
     {
-        EventuallyConsistentResultEntity AwaitEventualConsistency(Guid transactionId);
+        EventuallyConsistentResult AwaitEventualConsistency(Guid transactionId);
     }
 }

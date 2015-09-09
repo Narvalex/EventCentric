@@ -5,7 +5,7 @@ namespace EventCentric.Respository
 {
     public class DbInitializer
     {
-        public static void CreateDatabaseObjects(string connectionString, bool createDatabase = false, bool isForclientNode = false)
+        public static void CreateDatabaseObjects(string connectionString, bool createDatabase = false, bool isForQueueNode = false)
         {
             if (createDatabase)
             {
@@ -44,7 +44,7 @@ IF NOT EXISTS (SELECT name FROM sys.databases WHERE name = N'{0}') CREATE DATABA
 
                 using (var command = connection.CreateCommand())
                 {
-                    command.CommandText = isForclientNode ? EventsCreateTableScript + SubscriberHeartbeatsCreateTableScript
+                    command.CommandText = isForQueueNode ? EventsCreateTableScript + SubscriberHeartbeatsCreateTableScript
                                                           : EventsCreateTableScript + StreamsCreateTableScript
                                                             + SubscriptionsCreateTableScript + InboxCreateTableScript;
                     command.ExecuteNonQuery();

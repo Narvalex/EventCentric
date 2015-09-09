@@ -52,12 +52,7 @@ namespace EventCentric.EventSourcing
 
         public virtual IMemento SaveToMemento()
         {
-            return new Memento { Version = this.version };
-        }
-
-        public class Memento : IMemento
-        {
-            public int Version { get; set; }
+            return new Memento(this.version);
         }
     }
 }

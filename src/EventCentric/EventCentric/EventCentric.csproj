@@ -61,6 +61,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ApplicationService.cs" />
+    <Compile Include="EventSourcing\Memento.cs" />
     <Compile Include="QueueNode.cs" />
     <Compile Include="Config\EventStoreConfig.cs" />
     <Compile Include="Config\IPollerConfig.cs" />
@@ -77,7 +78,7 @@
     <Compile Include="Database\OptimizedDbContext.cs" />
     <Compile Include="Repository\HeartbeatDbContext.cs" />
     <Compile Include="Queueing\ICrudEventBus.cs" />
-    <Compile Include="Repository\DbInitializer.cs" />
+    <Compile Include="Repository\DatabaseObjects\DbInitializer.cs" />
     <Compile Include="Config\IEventStoreConfig.cs" />
     <Compile Include="Database\SqlClientLite.cs" />
     <Compile Include="Database\TransientFaultHandlingDbConfiguration.cs" />
@@ -163,6 +164,8 @@
     <Content Include="Config\ConfigTemplate.xml">
       <SubType>Designer</SubType>
     </Content>
+    <Content Include="Repository\DatabaseObjects\CreateDatabase.sql" />
+    <Content Include="Repository\DatabaseObjects\QueueNodeDb.sql" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

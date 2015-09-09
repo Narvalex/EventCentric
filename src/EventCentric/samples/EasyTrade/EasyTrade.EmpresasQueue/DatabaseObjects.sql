@@ -1,10 +1,5 @@
-﻿IF NOT EXISTS (SELECT * FROM sys.schemas WHERE name = N'SetValidation')
-EXECUTE sp_executesql N'CREATE SCHEMA [SetValidation] AUTHORIZATION [dbo]';
-
-IF NOT EXISTS (SELECT * FROM sys.schemas WHERE name = N'EventStore')
-EXECUTE sp_executesql N'CREATE SCHEMA [EventStore] AUTHORIZATION [dbo]';
-
--- Events
+﻿
+-- EventStore.Events
 IF NOT EXISTS (SELECT * FROM sys.schemas WHERE name = N'EventStore')
 EXECUTE sp_executesql N'CREATE SCHEMA [EventStore] AUTHORIZATION [dbo]';
 
@@ -30,6 +25,10 @@ PRIMARY KEY CLUSTERED
 )WITH (PAD_INDEX  = OFF, STATISTICS_NORECOMPUTE  = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS  = ON, ALLOW_PAGE_LOCKS  = ON) ON [PRIMARY]
 ) ON [PRIMARY];
 
+IF NOT EXISTS (SELECT * FROM sys.schemas WHERE name = N'SetValidation')
+EXECUTE sp_executesql N'CREATE SCHEMA [SetValidation] AUTHORIZATION [dbo]';
+
+-- SetValidation.Empresas
 IF NOT EXISTS(SELECT* FROM sys.objects WHERE object_id = OBJECT_ID(N'[SetValidation].[Empresas]') AND type in (N'U'))
 create table [SetValidation].[Empresas] (
     [IdEmpresa] [uniqueidentifier] not null,

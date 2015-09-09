@@ -11,8 +11,8 @@ namespace EasyTrade.EmpresasQueue
 {
     public class EmpresasQueueApp : CrudApplicationService, IEmpresasQueueApp
     {
-        public EmpresasQueueApp(ICrudEventBus bus, IGuidProvider guid)
-            : base(bus, guid)
+        public EmpresasQueueApp(ICrudEventBus bus, IGuidProvider guid, ITimeProvider time)
+            : base(bus, guid, time)
         { }
 
         public Guid NuevaEmpresa(NuevaEmpresaDto dto)
@@ -21,7 +21,7 @@ namespace EasyTrade.EmpresasQueue
             var empresa = new Empresa(transactionId, dto.Nombre, dto.Ruc, dto.Descripcion);
 
             this.bus.Send<EmpresasQueueDbContext>(
-                new NuevaEmpresaRegistrada(empresa.IdEmpresa, transactionId, empresa),
+                new NuevaEmpresaRegistrada(empresa.IdEmpresa, transactionId, empresa, time.Now),
                 context =>
                 {
                     AlRegistrarNuevaEmpresa.ElNombreDebeSerUnico(context, empresa.Nombre);
