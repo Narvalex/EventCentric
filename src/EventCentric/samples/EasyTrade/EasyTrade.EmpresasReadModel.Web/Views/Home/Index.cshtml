@@ -1,0 +1,17 @@
+﻿@{
+    ViewBag.Title = "Node log";
+}
+
+<style>
+    body {
+        background-color: #1e1e1e;
+    }
+</style>
+
+<div>
+    <div data-bind="foreach:messages">
+        <br />
+        <div data-bind="text: $data" class="log">
+        </div>
+    </div>
+</div>

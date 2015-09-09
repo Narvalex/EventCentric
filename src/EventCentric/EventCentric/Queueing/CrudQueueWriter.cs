@@ -47,9 +47,9 @@ namespace EventCentric.Queueing
                         Payload = this.serializer.Serialize(@event)
                     });
 
-                context.SaveChanges();
-
                 performCrudOperation((T)context);
+
+                context.SaveChanges();
 
                 return context.Events.Max(e => e.EventCollectionVersion);
             }

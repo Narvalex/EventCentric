@@ -52,6 +52,8 @@
     <Compile Include="DTOs\NuevaEmpresaDto.cs" />
     <Compile Include="EmpresasQueueApp.cs" />
     <Compile Include="EmpresasQueueDbContext.cs" />
+    <Compile Include="Especificaciones\AlRegistrarNuevaEmpresa.cs" />
+    <Compile Include="Especificaciones\Excepciones\ElNombreDeEmpresaYaExiste.cs" />
     <Compile Include="IEmpresasQueueApp.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

@@ -48,6 +48,7 @@ namespace EventCentric.Repository.Mapping
             this.Property(t => t.StreamType).HasColumnName("StreamType");
             this.Property(t => t.StreamId).HasColumnName("StreamId");
             this.Property(t => t.Version).HasColumnName("Version");
+            this.Property(t => t.TransactionId).HasColumnName("TransactionId");
             this.Property(t => t.EventId).HasColumnName("EventId");
             this.Property(t => t.EventType).HasColumnName("EventType");
             this.Property(t => t.CorrelationId).HasColumnName("CorrelationId");

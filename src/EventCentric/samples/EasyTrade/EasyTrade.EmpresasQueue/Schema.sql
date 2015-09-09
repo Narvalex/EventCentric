@@ -13,6 +13,7 @@ CREATE TABLE [EventStore].[Events](
     [StreamType] [nvarchar] (255) NOT NULL,
 	[StreamId] [uniqueidentifier] NOT NULL,
 	[Version] [int] NOT NULL,
+    [TransactionId] [uniqueidentifier] NOT NULL,
 	[EventId] [uniqueidentifier] NOT NULL,
 	CONSTRAINT EventStore_Events_EventId UNIQUE(EventId),
 	[EventType] [nvarchar] (255) NOT NULL,
@@ -33,5 +34,5 @@ IF NOT EXISTS(SELECT* FROM sys.objects WHERE object_id = OBJECT_ID(N'[SetValidat
 create table [SetValidation].[Empresas] (
     [IdEmpresa] [uniqueidentifier] not null,
     [Nombre] [nvarchar] (255) NOT NULL,
-    primary key ([IdEmpresa])
+    primary key ([Nombre])
 );

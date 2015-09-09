@@ -1,4 +1,5 @@
 ﻿using EasyTrade.EmpresasQueue.DTOs;
+using EasyTrade.EmpresasQueue.Especificaciones;
 using EasyTrade.Events;
 using EasyTrade.Events.EmpresasQueue.DTOs;
 using EventCentric;
@@ -23,6 +24,8 @@ namespace EasyTrade.EmpresasQueue
                 new NuevaEmpresaRegistrada(empresa.IdEmpresa, transactionId, empresa),
                 context =>
                 {
+                    AlRegistrarNuevaEmpresa.ElNombreDebeSerUnico(context, empresa.Nombre);
+
                     // Seria bueno verificar primero si ya existe la empresa en al base de datos.
                     context.Empresas.Add(new EmpresaEntity
                     {

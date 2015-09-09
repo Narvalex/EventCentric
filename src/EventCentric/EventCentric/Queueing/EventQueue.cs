@@ -30,7 +30,21 @@ namespace EventCentric.Queueing
             this.streamLocksById.TryAdd(@event.StreamId, new object());
             lock (this.streamLocksById.TryGetValue(@event.StreamId))
             {
-                var version = this.writer.Enqueue(@event);
+                int version;
+                try
+                {
+                    version = this.writer.Enqueue(@event);
+                }
+                catch (Exception ex)
+                {
+                    this.log.Error(ex, "An errror ocurred in queue writer when writint event type {0}", @event.GetType().Name);
+                    throw;
+                }
+
+#if DEBUG
+                this.log.Trace("Event type {0} is now in queue", @event.GetType().Name);
+#endif
+
                 this.bus.Publish(new EventStoreHasBeenUpdated(version));
             }
         }

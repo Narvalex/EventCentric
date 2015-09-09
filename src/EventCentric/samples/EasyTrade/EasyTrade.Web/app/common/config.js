@@ -1,4 +1,6 @@
-﻿(function () {
+﻿var empresasQueueUrl = "http://localhost:50588";
+
+(function () {
     'use strict';
     var app = angular.module('app');
 

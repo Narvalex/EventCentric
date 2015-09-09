@@ -7,6 +7,7 @@ namespace EventCentric.Repository.Mapping
     {
         public long InboxId { get; set; }
         public Guid EventId { get; set; }
+        public Guid TransactionId { get; set; }
         public string StreamType { get; set; }
         public Guid StreamId { get; set; }
         public int Version { get; set; }
@@ -39,10 +40,14 @@ namespace EventCentric.Repository.Mapping
             this.Property(t => t.EventCollectionVersion)
                 .IsRequired();
 
+            this.Property(t => t.TransactionId)
+                .IsRequired();
+
             // Table & Column Mappings
             this.ToTable("Inbox", "EventStore");
             this.Property(t => t.InboxId).HasColumnName("InboxId");
             this.Property(t => t.EventId).HasColumnName("EventId");
+            this.Property(t => t.TransactionId).HasColumnName("TransactionId");
             this.Property(t => t.StreamType).HasColumnName("StreamType");
             this.Property(t => t.StreamId).HasColumnName("StreamId");
             this.Property(t => t.Version).HasColumnName("Version");

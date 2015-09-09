@@ -41,6 +41,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Messages", "Messages", "{54
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EasyTrade.Tests", "samples\EasyTrade\EasyTrade.Tests\EasyTrade.Tests.csproj", "{0E69F8BD-BEB3-4E56-803E-4BF61CFA289B}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EasyTrade.EmpresasReadModel.Web", "samples\EasyTrade\EasyTrade.EmpresasReadModel.Web\EasyTrade.EmpresasReadModel.Web.csproj", "{C96198D7-4125-4B83-892A-90861E4099C9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EasyTrade.EmpresasReadModel", "samples\EasyTrade\EasyTrade.EmpresasReadModel\EasyTrade.EmpresasReadModel.csproj", "{CF73DBF0-2180-41C0-A0A2-39B9D5135FA8}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -107,6 +111,14 @@ Global
 		{0E69F8BD-BEB3-4E56-803E-4BF61CFA289B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0E69F8BD-BEB3-4E56-803E-4BF61CFA289B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0E69F8BD-BEB3-4E56-803E-4BF61CFA289B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C96198D7-4125-4B83-892A-90861E4099C9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C96198D7-4125-4B83-892A-90861E4099C9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C96198D7-4125-4B83-892A-90861E4099C9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C96198D7-4125-4B83-892A-90861E4099C9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CF73DBF0-2180-41C0-A0A2-39B9D5135FA8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CF73DBF0-2180-41C0-A0A2-39B9D5135FA8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CF73DBF0-2180-41C0-A0A2-39B9D5135FA8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CF73DBF0-2180-41C0-A0A2-39B9D5135FA8}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -126,6 +138,8 @@ Global
 		{EC024C86-84DF-4D2B-A049-DB9DF06B3E91} = {54156847-AC43-411E-B20C-D63666B4A143}
 		{54156847-AC43-411E-B20C-D63666B4A143} = {5F3BE14E-BB71-42C2-BEA6-A68F40BA9823}
 		{0E69F8BD-BEB3-4E56-803E-4BF61CFA289B} = {5F3BE14E-BB71-42C2-BEA6-A68F40BA9823}
+		{C96198D7-4125-4B83-892A-90861E4099C9} = {5F3BE14E-BB71-42C2-BEA6-A68F40BA9823}
+		{CF73DBF0-2180-41C0-A0A2-39B9D5135FA8} = {5F3BE14E-BB71-42C2-BEA6-A68F40BA9823}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		EnterpriseLibraryConfigurationToolBinariesPath = packages\Unity.2.1.505.2\lib\NET35

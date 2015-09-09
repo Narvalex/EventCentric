@@ -139,6 +139,7 @@ namespace EventCentric.EventSourcing
                     var message = new InboxEntity
                     {
                         EventId = incomingEvent.EventId,
+                        TransactionId = incomingEvent.TransactionId,
                         StreamType = incomingEvent.StreamType,
                         StreamId = incomingEvent.StreamId,
                         Version = incomingEvent.Version,
@@ -209,7 +210,6 @@ namespace EventCentric.EventSourcing
                 throw;
             }
         }
-
 
         public bool IncomingEventIsDuplicate(Guid incomingEventId)
         {

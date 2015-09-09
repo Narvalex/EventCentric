@@ -9,8 +9,6 @@
 
     function empresasMessageSender($http) {
 
-        var urlPrefix = "http://localhost:50588";
-
         var service = {
             nuevaEmpresa: nuevaEmpresa
         };
@@ -18,7 +16,7 @@
         return service;
 
         function nuevaEmpresa(empresa) {
-            return $http.post('/empresas/nueva-empresa', empresa);
+            return $http.post(empresasQueueUrl + '/empresas/nueva-empresa', empresa);
         }
     }
 })();
