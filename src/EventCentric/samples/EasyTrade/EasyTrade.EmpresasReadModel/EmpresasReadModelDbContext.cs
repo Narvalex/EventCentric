@@ -7,8 +7,12 @@ namespace EasyTrade.EmpresasReadModel
 {
     public class EmpresasReadModelDbContext : EventuallyConsistentDbContext
     {
-        public EmpresasReadModelDbContext(TimeSpan timeout, bool isReadOnly, string nameOrconnectionString)
-            : base(timeout, isReadOnly, nameOrconnectionString)
+        public EmpresasReadModelDbContext(TimeSpan timeout, bool isReadOnly, string nameOrConnectionString)
+            : base(timeout, isReadOnly, nameOrConnectionString)
+        { }
+
+        public EmpresasReadModelDbContext(bool isReadOnly, string nameOrConnectionString)
+            : this(TimeSpan.FromSeconds(30), isReadOnly, nameOrConnectionString)
         { }
 
         public IDbSet<EmpresaEntity> Empresas { get; set; }

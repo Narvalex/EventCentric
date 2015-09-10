@@ -1,5 +1,4 @@
 ﻿using EventCentric.Config;
-using EventCentric.Database;
 using EventCentric.Messaging;
 using EventCentric.NodeFactory.Log;
 using EventCentric.Publishing;
@@ -10,7 +9,6 @@ using EventCentric.Transport;
 using EventCentric.Utils;
 using Microsoft.Practices.Unity;
 using System;
-using System.Data.Entity;
 
 namespace EventCentric
 {
@@ -18,7 +16,6 @@ namespace EventCentric
     {
         public static INode CreateNode(IUnityContainer container, bool setLocalTime = true, bool setSequentialGuid = true)
         {
-            DbConfiguration.SetConfiguration(new TransientFaultHandlingDbConfiguration());
             System.Data.Entity.Database.SetInitializer<EventQueueDbContext>(null);
 
             var eventStoreConfig = EventStoreConfig.GetConfig();
@@ -56,8 +53,6 @@ namespace EventCentric
         /// </summary>
         public static INode CreateCrudNode<TDbContext>(IUnityContainer container, bool setLocalTime = true, bool setSequentialGuid = true) where TDbContext : IEventQueueDbContext
         {
-            DbConfiguration.SetConfiguration(new TransientFaultHandlingDbConfiguration());
-
             var eventStoreConfig = EventStoreConfig.GetConfig();
             var connectionString = eventStoreConfig.ConnectionString;
 

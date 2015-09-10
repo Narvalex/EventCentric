@@ -1,5 +1,4 @@
 ﻿using EventCentric.Config;
-using EventCentric.Database;
 using EventCentric.EventSourcing;
 using EventCentric.Log;
 using EventCentric.Messaging;
@@ -14,7 +13,6 @@ using EventCentric.Transport;
 using EventCentric.Utils;
 using Microsoft.Practices.Unity;
 using System;
-using System.Data.Entity;
 
 namespace EventCentric
 {
@@ -24,7 +22,6 @@ namespace EventCentric
     {
         public static INode CreateNode(IUnityContainer container, bool setLocalTime = true, bool setSequentialGuid = true)
         {
-            DbConfiguration.SetConfiguration(new TransientFaultHandlingDbConfiguration());
             System.Data.Entity.Database.SetInitializer<EventStoreDbContext>(null);
             System.Data.Entity.Database.SetInitializer<EventQueueDbContext>(null);
 
@@ -74,10 +71,8 @@ namespace EventCentric
         /// </summary>
         public static INode CreateDenormalizerNode<TDbContext>(IUnityContainer container, bool setLocalTime = true, bool setSequentialGuid = true) where TDbContext : IEventStoreDbContext
         {
-            DbConfiguration.SetConfiguration(new TransientFaultHandlingDbConfiguration());
             System.Data.Entity.Database.SetInitializer<EventStoreDbContext>(null);
             System.Data.Entity.Database.SetInitializer<EventQueueDbContext>(null);
-
 
             var eventStoreConfig = EventStoreConfig.GetConfig();
             var pollerConfig = PollerConfig.GetConfig();
