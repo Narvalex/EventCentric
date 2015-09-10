@@ -8,7 +8,7 @@ namespace EasyTrade.EmpresasReadModel
     public class EmpresasQueueDenormalizer : Denormalizer<EmpresasReadModelDbContext>,
         IHandles<NuevaEmpresaRegistrada>
     {
-        // Si el nombre es igual, el mensaje de la transaccion va a ser distinta.
+        // esto es innecesario. Siempre sera null. Un denormalizer no deberia ser compatible con mementos complejos
         private string nombre;
 
         public EmpresasQueueDenormalizer(Guid id)
