@@ -161,7 +161,6 @@ create table [EventStore].[SubscriberHeartbeats] (
     primary key ([SubscriberName])
 );
 ";
-
         #endregion
     }
 }

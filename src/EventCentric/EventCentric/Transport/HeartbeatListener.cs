@@ -1,5 +1,6 @@
 ﻿using EventCentric.Log;
 using EventCentric.Messaging;
+using EventCentric.Messaging.Commands;
 using EventCentric.Messaging.Events;
 using EventCentric.Repository;
 using EventCentric.Utils;
@@ -11,7 +12,8 @@ using System.Threading.Tasks;
 
 namespace EventCentric.Transport
 {
-    public class HeartbeatListener : FSM
+    public class HeartbeatListener : FSM,
+        IMessageHandler<StartServices>
     {
         private readonly Func<bool, HeartbeatDbContext> contextFactory;
         private Tuple<string, string>[] subscribersNamesAndUrls;
@@ -138,6 +140,11 @@ namespace EventCentric.Transport
             var client = new HttpClient();
             client.Timeout = this.timeout;
             return client;
+        }
+
+        public void Handle(StartServices message)
+        {
+            this.Start();
         }
     }
 }

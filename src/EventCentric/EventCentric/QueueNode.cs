@@ -54,7 +54,9 @@ namespace EventCentric
 
         protected override void OnStarting()
         {
-            this.bus.Publish(new StartEventPublisher());
+            this.bus.Publish(
+                new StartServices(),
+                new StartEventPublisher());
 
             // we can safely go from here...
             this.State = NodeState.UpAndRunning;

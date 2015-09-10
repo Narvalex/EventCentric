@@ -1,4 +1,42 @@
-﻿-- Create EventStore schema
+﻿USE [master]
+GO
+
+
+declare @dbName varchar(max);
+--==========================
+-- 1/2 CHANGE DB NAME HERE
+--==========================
+set @dbName = N'InsertDbNameHere';
+
+
+-- Create database
+-- More info: http://dba.stackexchange.com/questions/30349/how-to-drop-database-in-single-user-mode?rq=1
+declare @createDbSql varchar(max);
+set @createDbSql = N'
+
+IF EXISTS (SELECT name FROM sys.databases WHERE name = N''' + @dbName + N''') 
+ALTER DATABASE ' + @dbName  + ' SET MULTI_USER WITH ROLLBACK IMMEDIATE;
+
+IF EXISTS (SELECT name FROM sys.databases WHERE name = N''' + @dbName + N''') 
+ALTER DATABASE ' + @dbName  + ' SET SINGLE_USER WITH ROLLBACK IMMEDIATE;
+
+IF EXISTS (SELECT name FROM sys.databases WHERE name = N''' + @dbName + N''')
+DROP DATABASE [' + @dbName + '];
+
+IF NOT EXISTS (SELECT name FROM sys.databases WHERE name = N''' + @dbName + N''') 
+CREATE DATABASE [' + @dbName +'];'
+
+
+EXEC(@createDbSql);
+GO
+
+--==========================
+-- 2/2 CHANGE DB NAME HERE
+--==========================
+USE [InsertDbNameHere]
+GO
+
+-- Create EventStore schema
 IF NOT EXISTS (SELECT * FROM sys.schemas WHERE name = N'EventStore')
 EXECUTE sp_executesql N'CREATE SCHEMA [EventStore] AUTHORIZATION [dbo]';
 
@@ -37,3 +75,4 @@ create table [EventStore].[SubscriberHeartbeats] (
     [CreationDate] [datetime] not null,
     primary key ([SubscriberName])
 );
+

@@ -26,7 +26,7 @@ namespace EasyTrade.EmpresasReadModel
         {
             base.UpdateReadModel(context =>
             {
-                var empresa = new EmpresaView
+                var empresa = new EmpresaEntity
                 {
                     IdEmpresa = e.Empresa.IdEmpresa,
                     Nombre = e.Empresa.Nombre,
