@@ -17,6 +17,10 @@ namespace EventCentric.Repository
             this.timeout = timeout;
         }
 
+        //public EventuallyConsistentDbContext()
+        //    : base(false, "server=(local);Database=EmpresasReadModel;User Id=sa;pwd =123456")
+        //{ }
+
         public IDbSet<EventuallyConsistentResult> EventuallyConsistentResults { get; set; }
 
         public EventuallyConsistentResult AwaitEventualConsistency(Guid transactionId)

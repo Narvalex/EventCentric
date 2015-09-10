@@ -47,7 +47,7 @@ namespace EventCentric
 
             var http = new HttpLongPoller(bus, log, TimeSpan.FromMilliseconds(pollerConfig.Timeout));
 
-            var buffer = new BufferPool(bus, subscriptionRepository, http, serializer, log, pollerConfig.BufferQueueMaxCount, pollerConfig.EventsToFlushMaxCount);
+            var buffer = new PollerBufferPool(bus, subscriptionRepository, http, serializer, log, pollerConfig.BufferQueueMaxCount, pollerConfig.EventsToFlushMaxCount);
             var pollster = new Poller(bus, log, buffer);
             var publisher = new Publisher<TAggregate>(bus, log, eventDao, eventStoreConfig.PushMaxCount, TimeSpan.FromMilliseconds(eventStoreConfig.LongPollingTimeout));
             var fsm = new SagaNode(bus, log);
@@ -100,7 +100,7 @@ namespace EventCentric
             var http = new HttpLongPoller(bus, log, TimeSpan.FromMilliseconds(pollerConfig.Timeout));
 
             var subscriptionRepository = new SubscriptionRepository(storeContextFactory, serializer, time);
-            var buffer = new BufferPool(bus, subscriptionRepository, http, serializer, log, pollerConfig.BufferQueueMaxCount, pollerConfig.EventsToFlushMaxCount);
+            var buffer = new PollerBufferPool(bus, subscriptionRepository, http, serializer, log, pollerConfig.BufferQueueMaxCount, pollerConfig.EventsToFlushMaxCount);
             var pollster = new Poller(bus, log, buffer);
             var publisher = new Publisher<TAggregate>(bus, log, eventDao, eventStoreConfig.PushMaxCount, TimeSpan.FromMilliseconds(eventStoreConfig.LongPollingTimeout));
             var fsm = new SagaNode(bus, log);

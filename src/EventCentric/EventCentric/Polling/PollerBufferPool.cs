@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace EventCentric.Polling
 {
-    public class BufferPool : Worker,
+    public class PollerBufferPool : Worker,
         IMessageHandler<PollResponseWasReceived>,
         IMessageHandler<IncomingEventHasBeenProcessed>,
         IMessageHandler<IncomingEventIsPoisoned>
@@ -36,7 +36,7 @@ namespace EventCentric.Polling
 
         private readonly object lockObject = new object();
 
-        public BufferPool(IBus bus, ISubscriptionRepository repository, IHttpLongPoller http, ITextSerializer serializer, ILogger log,
+        public PollerBufferPool(IBus bus, ISubscriptionRepository repository, IHttpLongPoller http, ITextSerializer serializer, ILogger log,
             int queueMaxCount, int eventsToFlushMaxCount)
             : base(bus)
         {
@@ -63,6 +63,14 @@ namespace EventCentric.Polling
         public void Initialize()
         {
             this.subscriptionsBag = this.repository.GetSubscriptions();
+            this.log.Trace("Found {0} subscription/s", subscriptionsBag.Count);
+
+            var subscriptionCount = 0;
+            foreach (var subscription in this.subscriptionsBag)
+            {
+                subscriptionCount += 1;
+                this.log.Trace(" Subscription {0} | Name: {1} | {1}", subscriptionCount, subscription.StreamType, subscription.Url);
+            }
         }
 
         public bool TryFill()

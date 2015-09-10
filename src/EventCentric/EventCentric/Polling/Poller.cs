@@ -14,9 +14,9 @@ namespace EventCentric.Pulling
         IMessageHandler<StartEventPollster>,
         IMessageHandler<StopEventPollster>
     {
-        private readonly BufferPool buffer;
+        private readonly PollerBufferPool buffer;
 
-        public Poller(IBus bus, ILogger log, BufferPool buffer)
+        public Poller(IBus bus, ILogger log, PollerBufferPool buffer)
             : base(bus, log)
         {
             Ensure.NotNull(buffer, "buffer");

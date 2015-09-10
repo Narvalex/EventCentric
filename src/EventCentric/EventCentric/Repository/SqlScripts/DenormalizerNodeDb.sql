@@ -118,6 +118,14 @@ PRIMARY KEY CLUSTERED
 )WITH(PAD_INDEX  = OFF, STATISTICS_NORECOMPUTE  = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS  = ON, ALLOW_PAGE_LOCKS  = ON) ON[PRIMARY]
 ) ON[PRIMARY];
 
+-- Create EventStore.EventuallyConsistentResults
+create table [EventStore].[EventuallyConsistentResults] (
+    [TransactionId] [uniqueidentifier] not null,
+    [ResultType] [int] not null,
+    [Message] [nvarchar](max) null,
+    primary key ([TransactionId])
+);
+
 -- Create ReadModel schema
 IF NOT EXISTS (SELECT * FROM sys.schemas WHERE name = N'ReadModel')
 EXECUTE sp_executesql N'CREATE SCHEMA [ReadModel] AUTHORIZATION [dbo]';
