@@ -61,8 +61,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Dao\IEmpresasReadModelDao.cs" />
     <Compile Include="EmpresasQueueDenormalizer.cs" />
     <Compile Include="EmpresasQueueProcessor.cs" />
+    <Compile Include="Dao\EmpresasReadModelDao.cs" />
     <Compile Include="EmpresasReadModelDbContext.cs" />
     <Compile Include="EmpresasReadModelNodeInitializer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

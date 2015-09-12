@@ -16,7 +16,7 @@ namespace EasyTrade.EmpresasQueue.Web.Controllers
 
         [HttpPost]
         [Route("empresas/nueva-empresa")]
-        public IHttpActionResult NuevaEmpresas([FromBody]NuevaEmpresaDto dto)
+        public IHttpActionResult NuevaEmpresa([FromBody]NuevaEmpresaDto dto)
         {
             this.app.NuevaEmpresa(dto);
             // TODO: enventual consistency awaiter.
