@@ -115,6 +115,7 @@ namespace EventCentric
 
             // Register for DI
             container.RegisterInstance<IEventSource>(publisher);
+            container.RegisterInstance<IEventStoreConfig>(eventStoreConfig);
 
             return fsm;
         }

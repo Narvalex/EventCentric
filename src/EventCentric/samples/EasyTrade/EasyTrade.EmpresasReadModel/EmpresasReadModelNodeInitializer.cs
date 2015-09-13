@@ -1,5 +1,8 @@
-﻿using EventCentric;
+﻿using EasyTrade.EmpresasReadModel.Dao;
+using EventCentric;
+using EventCentric.Config;
 using Microsoft.Practices.Unity;
+using System;
 
 namespace EasyTrade.EmpresasReadModel
 {
@@ -12,8 +15,16 @@ namespace EasyTrade.EmpresasReadModel
                 {
                     System.Data.Entity.Database.SetInitializer<EmpresasReadModelDbContext>(null);
 
-                    return SagaNodeFactory<EmpresasQueueDenormalizer, EmpresasQueueProcessor>
+                    var node = SagaNodeFactory<EmpresasQueueDenormalizer, EmpresasQueueProcessor>
                             .CreateDenormalizerNode<EmpresasReadModelDbContext>(container);
+
+                    var config = container.Resolve<IEventStoreConfig>();
+                    Func<EmpresasReadModelDbContext> contextFactory = () => new EmpresasReadModelDbContext(TimeSpan.FromSeconds(30), true, config.ConnectionString);
+                    var dao = new EmpresasReadModelDao(contextFactory);
+
+                    container.RegisterInstance<IEmpresasReadModelDao>(dao);
+
+                    return node;
                 });
         }
     }

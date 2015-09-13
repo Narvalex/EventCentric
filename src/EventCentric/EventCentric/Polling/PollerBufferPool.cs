@@ -128,7 +128,7 @@ namespace EventCentric.Polling
             var processorBufferVersion = rawEvents.Min(e => e.EventCollectionVersion);
 
 #if DEBUG
-            this.log.Trace("Flushing {0} events from {1} queue with {2} events", rawEvents.Count, subscription.StreamType, eventsInQueue);
+            this.log.Trace("Flushing {0} event/s from {1} queue with {2} event/s", rawEvents.Count, subscription.StreamType, eventsInQueue);
 #endif
 
             // Reset the bag;
@@ -154,7 +154,7 @@ namespace EventCentric.Polling
             if (response.NewEventsWereFound)
             {
 #if DEBUG
-                this.log.Trace("Received {0} events", response.NewEvents.Count());
+                this.log.Trace("Received {0} event/s", response.NewEvents.Count());
 #endif
 
                 var orderedEvents = response.NewEvents.OrderBy(e => e.EventCollectionVersion).ToArray();

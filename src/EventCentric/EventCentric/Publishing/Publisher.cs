@@ -74,7 +74,7 @@ namespace EventCentric.Publishing
                     newEventsWereFound = newEvents.Count > 0 ? true : false;
 
 #if DEBUG
-                    this.log.Trace("Pushing {0} events", newEvents.Count);
+                    this.log.Trace("Pushing {0} event/s", newEvents.Count);
 #endif
                     break;
                 }

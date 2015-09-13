@@ -169,6 +169,8 @@
     <Content Include="app\clientes\nuevoCliente.html" />
     <Content Include="app\clientes\nuevoClienteController.js" />
     <Content Include="app\common\config.js" />
+    <Content Include="app\common\utils.js" />
+    <Content Include="app\dao\empresasDao.js" />
     <Content Include="app\empresas\app.js" />
     <Content Include="app\empresas\index.html" />
     <Content Include="app\empresas\nuevaEmpresa.html" />
