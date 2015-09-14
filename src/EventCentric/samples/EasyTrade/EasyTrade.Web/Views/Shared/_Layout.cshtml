@@ -7,8 +7,11 @@
 
     <!-- css -->
     <link href="~/Content/bootstrap.css" rel="stylesheet" />
-    <link href="~/Content/site.css" rel="stylesheet" />
+    <link href="~/Content/material.css" rel="stylesheet" />
     <link href="~/Content/toastr.css" rel="stylesheet" />
+    <link href="~/Content/font-awesome.css" rel="stylesheet" />
+    <link href="~/Content/animate.css" rel="stylesheet" />
+    <link href="~/Content/site.css" rel="stylesheet" />
 
     <!-- js -->
     <script src="~/Scripts/jquery-2.1.4.js"></script>
@@ -16,6 +19,7 @@
     <script src="~/Scripts/angular.js"></script>
     <script src="~/Scripts/angular-ui-router.js"></script>
     <script src="~/Scripts/toastr.js"></script>
+    <script src="~/Scripts/material.js"></script>
 </head>
 
 <body>
@@ -34,7 +38,7 @@
                     <!-- Clientes -->
                     <li class="dropdown">
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                            Clientes
+                            <i class="fa fa-users"></i>&nbsp;Clientes
                         </a>
                         <ul class="dropdown-menu" role="menu">
                             <li>
@@ -52,7 +56,7 @@
                     <!-- Inventario -->
                     <li class="dropdown">
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                            Inventario
+                            <i class="fa fa-th"></i>&nbsp;Inventario
                         </a>
                         <ul class="dropdown-menu" role="menu">
                             <li>
@@ -70,17 +74,17 @@
                     <!-- Empresas -->
                     <li class="dropdown">
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                            Empresas
+                            <i class="fa fa-building"></i>&nbsp;Empresas
                         </a>
                         <ul class="dropdown-menu" role="menu">
                             <li>
                                 <a href="/empresas/">
-                                    Actualizar datos de empresa
+                                    <i class="fa fa-building"></i>&nbsp;Ver todas las empresas
                                 </a>
                             </li>
                             <li>
                                 <a href="/empresas/#/nueva-empresa">
-                                    Nueva empresa
+                                    <span class="glyphicon glyphicon-plus"></span>&nbsp;Nueva empresa
                                 </a>
                             </li>
                         </ul>
@@ -91,10 +95,10 @@
     </div>
     <div class="container body-content">
         @RenderBody()
-        <hr />
+        @*<hr />
         <footer>
             <p>&copy; @DateTime.Now.Year Alexis Narváez</p>
-        </footer>
+        </footer>*@
     </div>
 </body>
 </html>

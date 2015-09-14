@@ -5,20 +5,31 @@
         .module('app')
         .factory('empresasDao', empresasDao);
 
-    empresasMessageSender.$inject = ['$http'];
+    empresasDao.$inject = ['$http'];
 
-    function empresasMessageSender($http) {
+    function empresasDao($http) {
 
         var urlPrefix = "http://localhost:60867";
 
         var service = {
-            nuevaEmpresa: nuevaEmpresa
+            awaitNuevaEmpresa: awaitNuevaEmpresa,
+            obtenerTodasLasEmpresas: obtenerTodasLasEmpresas
         };
 
         return service;
 
-        function esperarNuevaEmpresa(transactionId) {
-            return $http.post(urlPrefix + '/empresas/nueva-empresa', empresa);
+        function awaitNuevaEmpresa(transactionId) {
+            return $http.get(urlPrefix + '/dao/await-nueva-empresa/' + transactionId)
+                    .then(function (response) {
+                        return response.data;
+                    });
+        }
+
+        function obtenerTodasLasEmpresas() {
+            return $http.get(urlPrefix + '/dao/obtener-todas-las-empresas')
+                    .then(function (response) {
+                        return response.data;
+                    });
         }
     }
 })();

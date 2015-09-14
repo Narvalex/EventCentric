@@ -32,6 +32,7 @@ namespace EasyTrade.EmpresasReadModel
                     Nombre = e.Empresa.Nombre,
                     Descripcion = e.Empresa.Descripcion,
                     Ruc = e.Empresa.Ruc,
+                    Activada = true,
                     FechaRegistro = e.FechaRegistro,
                     FechaActualizacion = e.FechaRegistro
                 };

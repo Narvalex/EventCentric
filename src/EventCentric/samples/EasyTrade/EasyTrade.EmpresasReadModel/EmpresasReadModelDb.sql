@@ -136,6 +136,7 @@ create table [ReadModel].[Empresas](
     [IdEmpresa] [uniqueidentifier] not null,
 	[Nombre] [nvarchar](255) null,
 	[Ruc] [nvarchar](50) null,
+	[Activada] [bit] not null,
 	[Descripcion] [nvarchar](max) null,
 	[FechaRegistro] [datetime] null,
 	[FechaActualizacion] [datetime] null

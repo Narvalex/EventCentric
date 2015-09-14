@@ -9,10 +9,23 @@
         var service = {
             disableSubmitButton: disableSubmitButton,
             enableSubmitButton: enableSubmitButton,
-            calculateAge: calculateAge
+            calculateAge: calculateAge,
+            animateTransitionTo: animateTransitionTo
         };
 
         return service;
+
+        // More info: https://www.youtube.com/watch?v=CBQGl6zokMs
+        // And also: https://github.com/daneden/animate.css
+        function animateTransitionTo(animationToRemove, animationToAdd, goToDestination) {
+            $(function () {
+                $('section.main').removeClass(animationToRemove).addClass(animationToAdd).one(
+                    'webkitAnimationEnd mozAnimationEnd MSAnimationEnd oanimationend animationend', function () {
+                        //$(this).removeClass('fadeOutRight');
+                        goToDestination();
+                    })
+            });
+        }
 
         function disableSubmitButton() {
             $(function () {

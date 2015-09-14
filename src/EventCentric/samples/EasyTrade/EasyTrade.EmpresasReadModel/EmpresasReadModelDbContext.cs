@@ -31,6 +31,7 @@ namespace EasyTrade.EmpresasReadModel
         public string Nombre { get; set; }
         public string Ruc { get; set; }
         public string Descripcion { get; set; }
+        public bool Activada { get; set; }
         public DateTime FechaRegistro { get; set; }
         public DateTime FechaActualizacion { get; set; }
     }
@@ -48,6 +49,7 @@ namespace EasyTrade.EmpresasReadModel
             this.Property(t => t.Nombre).HasColumnName("Nombre");
             this.Property(t => t.Ruc).HasColumnName("Ruc");
             this.Property(t => t.Descripcion).HasColumnName("Descripcion");
+            this.Property(t => t.Activada).HasColumnName("Activada");
             this.Property(t => t.FechaRegistro).HasColumnName("FechaRegistro");
             this.Property(t => t.FechaActualizacion).HasColumnName("FechaActualizacion");
         }

@@ -5,11 +5,12 @@
         .module('app')
         .controller('nuevaEmpresaController', nuevaEmpresaController);
 
-    nuevaEmpresaController.$inject = ['empresasMessageSender', 'utils'];
+    nuevaEmpresaController.$inject = ['empresasMessageSender', 'empresasDao', '$state', 'utils'];
 
-    function nuevaEmpresaController(empresasMessageSender, utils) {
+    function nuevaEmpresaController(empresasMessageSender, empresasDao, $state, utils) {
         var vm = this;
         var sender = empresasMessageSender;
+        var dao = empresasDao;
 
         // View models
         vm.submitText = 'Registrar empresa';
@@ -29,7 +30,20 @@
 
             sender.nuevaEmpresa(vm.empresa)
                 .then(function (data) {
-                    toastr.success("Nueva empresa agregada!");
+                    // await eventual consistency
+                    toastr.success('La empresa ha sido registrada correctamente!');
+                    dao.awaitNuevaEmpresa(data.data)
+                        .then(function (data) {
+                            utils.animateTransitionTo('fadeInLeft', 'fadeOutRight', function () { 
+                                $state.go('main');
+                            });
+                        },
+                        function (message) {
+                            toastr.error(message.data.exceptionMessage);
+                            toastr.warning('La empresa ha sido registrada correctamente, pero el sistema se está tardando un poco en actualizarse.');
+                            vm.submitText = 'Registrar otra empresa';
+                            utils.enableSubmitButton();
+                        });
                 },
                 function (message) {
                     toastr.error(message.data.exceptionMessage);

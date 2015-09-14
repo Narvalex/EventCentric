@@ -24,7 +24,7 @@ namespace EasyTrade.EmpresasReadModel.Web.Controllers
         }
 
         [HttpGet]
-        [Route("dao/empresas")]
+        [Route("dao/obtener-todas-las-empresas")]
         public IHttpActionResult ObtenerTodasLasEmpresas()
         {
             var empresas = this.dao.ObtenerListaDeTodasLasEmpresas();

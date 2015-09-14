@@ -1,0 +1,33 @@
+﻿<section ng-controller="empresasMainController as vm"
+         class="main animated fadeInLeft">
+
+    <p>
+        Buscar: <input ng-model="buscar"/>
+    </p>
+
+    <!-- Material -->
+    <label class="mdl-switch mdl-js-switch mdl-js-ripple-effect" for="switch-1">
+        <input type="checkbox" id="switch-1" class="mdl-switch__input" checked />
+        <span class="mdl-switch__label"></span>
+    </label>
+    <label class="mdl-switch mdl-js-switch mdl-js-ripple-effect" for="switch-2">
+        <input type="checkbox" id="switch-2" class="mdl-switch__input" />
+        <span class="mdl-switch__label"></span>
+    </label>
+    <!-- End Material -->
+
+    <div class="table-responsive">
+        <table class="table table-striped table-hover">
+            <tr ng-repeat="empresa in vm.empresas | orderBy:'name' | filter:buscar" ng-hide="!empresa.activada">
+                <td>{{empresa.idEmpresa}}</td>
+                <td>{{empresa.nombre}}</td>
+                <td>{{empresa.ruc}}</td>
+                <td>{{empresa.descripcion}}</td>
+                <td>{{empresa.fechaRegistro}}</td>
+                <td>{{empresa.fechaActualizacion}}</td>
+                <td>{{empresa.activada}}</td>
+            </tr>
+        </table>
+    </div>
+
+</section>
