@@ -1,5 +1,6 @@
 ﻿using EventCentric.Repository;
 using System;
+using System.Collections.Generic;
 
 namespace EventCentric.EventSourcing
 {
@@ -10,6 +11,10 @@ namespace EventCentric.EventSourcing
 
         protected Denormalizer(Guid id)
             : base(id)
+        { }
+
+        protected Denormalizer(Guid id, IEnumerable<IEvent> streamOfEvents)
+            : base(id, streamOfEvents)
         { }
 
         protected Denormalizer(Guid id, IMemento memento)

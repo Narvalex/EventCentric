@@ -65,8 +65,10 @@
     <Compile Include="EmpresasQueueApp.cs" />
     <Compile Include="EmpresasQueueDbContext.cs" />
     <Compile Include="EmpresasQueueNodeInitializer.cs" />
+    <Compile Include="Especificaciones\AlDesactivarEmpresa.cs" />
     <Compile Include="Especificaciones\AlRegistrarNuevaEmpresa.cs" />
     <Compile Include="Especificaciones\Excepciones\ElNombreDeEmpresaYaExiste.cs" />
+    <Compile Include="Especificaciones\Excepciones\LaEmpresaNoEstaRegistrada.cs" />
     <Compile Include="IEmpresasQueueApp.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

@@ -4,6 +4,7 @@ using EventCentric.Repository.Mapping;
 using EventCentric.Serialization;
 using EventCentric.Utils;
 using System;
+using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
 using System.Runtime.Caching;
@@ -19,7 +20,9 @@ namespace EventCentric.EventSourcing
         private readonly IGuidProvider guid;
         private readonly ObjectCache cache;
 
+        private readonly Func<Guid, IEnumerable<IEvent>, T> aggregateFactory;
         private readonly Func<Guid, IMemento, T> originatorAggregateFactory;
+
         private readonly Func<bool, IEventStoreDbContext> contextFactory;
         private readonly Action<T, IEventStoreDbContext> denormalizeIfApplicable;
 
@@ -37,10 +40,13 @@ namespace EventCentric.EventSourcing
             this.cache = new MemoryCache(_streamType);
 
             /// TODO: could be replaced with a compiled lambda to make it more performant.
-            var mementoConstructor = typeof(T).GetConstructor(new[] { typeof(Guid), typeof(IMemento) });
-            Ensure.CastIsValid(mementoConstructor, "Type T must have a constructor with the following signature: .ctor(Guid, IMemento)");
+            var fromMementoConstructor = typeof(T).GetConstructor(new[] { typeof(Guid), typeof(IMemento) });
+            Ensure.CastIsValid(fromMementoConstructor, "Type T must have a constructor with the following signature: .ctor(Guid, IMemento)");
+            this.originatorAggregateFactory = (id, memento) => (T)fromMementoConstructor.Invoke(new object[] { id, memento });
 
-            this.originatorAggregateFactory = (id, memento) => (T)mementoConstructor.Invoke(new object[] { id, memento });
+            var fromStreamConstructor = typeof(T).GetConstructor(new[] { typeof(Guid), typeof(IEnumerable<IEvent>) });
+            Ensure.CastIsValid(fromStreamConstructor, "Type T must have a constructor with the following signature: .ctor(Guid, IEnumerable<IVersionedEvent>)");
+            this.aggregateFactory = (id, streamOfEvents) => (T)fromStreamConstructor.Invoke(new object[] { id, streamOfEvents });
 
             if (typeof(IDenormalizer).IsAssignableFrom(typeof(T)))
                 this.denormalizeIfApplicable = (aggregate, context) => ((IDenormalizer)aggregate).Denormalize(context);
@@ -54,7 +60,7 @@ namespace EventCentric.EventSourcing
             var cachedMemento = (Tuple<IMemento, DateTime?>)this.cache.Get(id.ToString());
             if (cachedMemento == null || !cachedMemento.Item2.HasValue)
             {
-                // Return from SQL Server;
+                // try return memento from SQL Server;
                 using (var context = this.contextFactory.Invoke(true))
                 {
                     var stream = context.Streams.Where(s => s.StreamId == id).SingleOrDefault();
@@ -62,7 +68,20 @@ namespace EventCentric.EventSourcing
                     if (stream != null)
                         cachedMemento = new Tuple<IMemento, DateTime?>(this.serializer.Deserialize<IMemento>(stream.Memento), null);
                     else
+                    {
+                        // if memento not found then try get full stream
+                        var streamOfEvents = context.Events
+                                       .Where(e => e.StreamId == id)
+                                       .OrderBy(e => e.Version)
+                                       .AsEnumerable()
+                                       .Select(e => this.serializer.Deserialize<IEvent>(e.Payload))
+                                       .AsCachedAnyEnumerable();
+
+                        if (streamOfEvents.Any())
+                            return aggregateFactory.Invoke(id, streamOfEvents);
+
                         return null;
+                    }
                 }
             }
 

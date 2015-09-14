@@ -1,6 +1,7 @@
 ﻿using EasyTrade.EmpresasQueue.DTOs;
 using EasyTrade.EmpresasQueue.Especificaciones;
 using EasyTrade.Events;
+using EasyTrade.Events.EmpresasQueue;
 using EasyTrade.Events.EmpresasQueue.DTOs;
 using EventCentric;
 using EventCentric.Queueing;
@@ -14,6 +15,21 @@ namespace EasyTrade.EmpresasQueue
         public EmpresasQueueApp(ICrudEventBus bus, IGuidProvider guid, ITimeProvider time)
             : base(bus, guid, time)
         { }
+
+        public Guid DesactivarEmpresa(Guid idEmpresa)
+        {
+            var transactionId = this.guid.NewGuid;
+
+            var @event = new EmpresaDesactivada(idEmpresa, transactionId, idEmpresa);
+
+            this.bus.Send<EmpresasQueueDbContext>(@event,
+                context =>
+                {
+                    AlDesactivarEmpresa.EstaDebeHaberSidoRegistrada(context, idEmpresa);
+                });
+
+            return transactionId;
+        }
 
         public Guid NuevaEmpresa(NuevaEmpresaDto dto)
         {

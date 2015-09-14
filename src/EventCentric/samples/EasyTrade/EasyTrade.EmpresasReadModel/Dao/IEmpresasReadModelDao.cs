@@ -6,7 +6,7 @@ namespace EasyTrade.EmpresasReadModel.Dao
 {
     public interface IEmpresasReadModelDao
     {
-        EventuallyConsistentResult EsperarPorRegistracionDeNuevaEmpresa(Guid transactionId);
+        EventuallyConsistentResult AwaitResult(Guid transactionId);
         List<EmpresaEntity> ObtenerListaDeTodasLasEmpresas();
     }
 }

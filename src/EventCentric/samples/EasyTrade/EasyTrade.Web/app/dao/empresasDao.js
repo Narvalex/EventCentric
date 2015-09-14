@@ -12,14 +12,14 @@
         var urlPrefix = "http://localhost:60867";
 
         var service = {
-            awaitNuevaEmpresa: awaitNuevaEmpresa,
+            awaitResult: awaitResult,
             obtenerTodasLasEmpresas: obtenerTodasLasEmpresas
         };
 
         return service;
 
-        function awaitNuevaEmpresa(transactionId) {
-            return $http.get(urlPrefix + '/dao/await-nueva-empresa/' + transactionId)
+        function awaitResult(transactionId) {
+            return $http.get(urlPrefix + '/dao/await-result/' + transactionId)
                     .then(function (response) {
                         return response.data;
                     });

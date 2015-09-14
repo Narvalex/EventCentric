@@ -32,7 +32,8 @@
                 .then(function (data) {
                     // await eventual consistency
                     toastr.success('La empresa ha sido registrada correctamente!');
-                    dao.awaitNuevaEmpresa(data.data)
+                    vm.submitText = 'Registrado! Redirigiendo a la lista de empresas...';
+                    dao.awaitResult(data.data)
                         .then(function (data) {
                             utils.animateTransitionTo('fadeInLeft', 'fadeOutRight', function () { 
                                 $state.go('main');

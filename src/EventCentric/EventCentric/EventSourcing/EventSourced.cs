@@ -14,6 +14,13 @@ namespace EventCentric.EventSourcing
             this.id = id;
         }
 
+        protected EventSourced(Guid id, IEnumerable<IEvent> streamOfEvents)
+            : this(id)
+        {
+            foreach (var e in streamOfEvents)
+                this.Apply(e);
+        }
+
         protected EventSourced(Guid id, IMemento memento)
             : this(id)
         {
@@ -39,8 +46,7 @@ namespace EventCentric.EventSourcing
         {
             @event.StreamId = this.id;
             @event.Version = this.version + 1;
-            ((dynamic)this).On((dynamic)@event);
-            this.version = @event.Version;
+            this.Apply(@event);
             this.pendingEvents.Add(@event);
         }
 
@@ -48,6 +54,12 @@ namespace EventCentric.EventSourcing
         {
             foreach (var @event in events)
                 this.Update(@event);
+        }
+
+        private void Apply(IEvent @event)
+        {
+            ((dynamic)this).On((dynamic)@event);
+            this.version = @event.Version;
         }
 
         public virtual IMemento SaveToMemento()

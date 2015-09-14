@@ -22,7 +22,7 @@ namespace EasyTrade.EmpresasReadModel.Dao
             }
         }
 
-        public EventuallyConsistentResult EsperarPorRegistracionDeNuevaEmpresa(Guid idTransaction)
+        public EventuallyConsistentResult AwaitResult(Guid idTransaction)
         {
             using (var context = this.contextFactory())
             {

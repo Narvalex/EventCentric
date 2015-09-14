@@ -16,10 +16,10 @@ namespace EasyTrade.EmpresasReadModel.Web.Controllers
         }
 
         [HttpGet]
-        [Route("dao/await-nueva-empresa/{transactionId}")]
-        public IHttpActionResult AwaitNuevaEmpresa(Guid transactionId)
+        [Route("dao/await-result/{transactionId}")]
+        public IHttpActionResult AwaitResult(Guid transactionId)
         {
-            var result = this.dao.EsperarPorRegistracionDeNuevaEmpresa(transactionId);
+            var result = this.dao.AwaitResult(transactionId);
             return this.Ok(result);
         }
 

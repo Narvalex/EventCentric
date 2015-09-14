@@ -1,25 +1,60 @@
 ﻿using EasyTrade.Events;
+using EasyTrade.Events.EmpresasQueue;
 using EventCentric.EventSourcing;
 using EventCentric.Repository.Mapping;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace EasyTrade.EmpresasReadModel
 {
     public class EmpresasQueueDenormalizer : Denormalizer<EmpresasReadModelDbContext>,
-        IHandles<NuevaEmpresaRegistrada>
+        IHandles<NuevaEmpresaRegistrada>,
+        IHandles<EmpresaDesactivada>
     {
-        // esto es innecesario. Siempre sera null. Un denormalizer no deberia ser compatible con mementos complejos
-        private string nombre;
-
         public EmpresasQueueDenormalizer(Guid id)
             : base(id)
         { }
 
+        public EmpresasQueueDenormalizer(Guid id, IEnumerable<IEvent> streamOfEvents)
+            : base(id, streamOfEvents)
+        { }
+
         public EmpresasQueueDenormalizer(Guid id, IMemento memento)
             : base(id, memento)
+        { }
+
+        public void Handle(EmpresaDesactivada e)
         {
-            var state = (DenormalizerMemento)memento;
-            this.nombre = state.Nombre;
+            base.UpdateReadModel(context =>
+            {
+                EmpresaEntity empresa;
+                try
+                {
+                    empresa = context.Empresas.Single(x => x.IdEmpresa == e.IdEmpresa);
+                    empresa.Activada = false;
+
+                    var consistencyResult = new EventuallyConsistentResult
+                    {
+                        ResultType = 1,
+                        TransactionId = e.TransactionId,
+                        Message = string.Format("La empresa {0} ha sido desactivada exitosamente", empresa.Nombre)
+                    };
+
+                    context.EventuallyConsistentResults.Add(consistencyResult);
+                }
+                catch (Exception ex)
+                {
+                    var consistencyResult = new EventuallyConsistentResult
+                    {
+                        ResultType = 1,
+                        TransactionId = e.TransactionId,
+                        Message = string.Format("Ha ocurrido un error al desactivar la empresa con id {0}. {1}", e.IdEmpresa, ex.Message)
+                    };
+
+                    context.EventuallyConsistentResults.Add(consistencyResult);
+                }
+            });
         }
 
         public void Handle(NuevaEmpresaRegistrada e)
@@ -47,22 +82,6 @@ namespace EasyTrade.EmpresasReadModel
                 context.Empresas.Add(empresa);
                 context.EventuallyConsistentResults.Add(consistencyResult);
             });
-        }
-
-        public override IMemento SaveToMemento()
-        {
-            return new DenormalizerMemento(this.Version, this.nombre);
-        }
-
-        public class DenormalizerMemento : Memento
-        {
-            public DenormalizerMemento(int version, string nombre)
-                : base(version)
-            {
-                this.Nombre = nombre;
-            }
-
-            public string Nombre { get; private set; }
         }
     }
 }

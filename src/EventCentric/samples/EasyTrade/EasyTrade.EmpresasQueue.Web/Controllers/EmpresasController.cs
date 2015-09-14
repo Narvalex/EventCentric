@@ -1,4 +1,5 @@
 ﻿using EasyTrade.EmpresasQueue.DTOs;
+using System;
 using System.Web.Http;
 using System.Web.Http.Cors;
 
@@ -19,7 +20,14 @@ namespace EasyTrade.EmpresasQueue.Web.Controllers
         public IHttpActionResult NuevaEmpresa([FromBody]NuevaEmpresaDto dto)
         {
             var transactionId = this.app.NuevaEmpresa(dto);
-            // TODO: enventual consistency awaiter.
+            return this.Ok(transactionId);
+        }
+
+        [HttpPost]
+        [Route("empresas/desactivar-empresa/{idEmpresa}")]
+        public IHttpActionResult DesactivarEmpresa([FromUri]Guid idEmpresa)
+        {
+            var transactionId = this.app.DesactivarEmpresa(idEmpresa);
             return this.Ok(transactionId);
         }
     }
