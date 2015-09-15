@@ -22,7 +22,7 @@ namespace EventCentric.Processing
     public abstract class EventProcessor<T> : FSM,
         IMessageHandler<StartEventProcessor>,
         IMessageHandler<StopEventProcessor>,
-        IMessageHandler<NewIncomingEvent>
+        IMessageHandler<NewIncomingEvents>
             where T : class, IEventSourced
     {
         private readonly IEventStore<T> store;
@@ -47,25 +47,27 @@ namespace EventCentric.Processing
             this.newAggregateFactory = (id) => (T)constructor.Invoke(new object[] { id });
         }
 
-        public void Handle(NewIncomingEvent message)
+        public void Handle(NewIncomingEvents message)
         {
-            try
+            foreach (var incomingEvent in message.IncomingEvents)
             {
-                var incomingEvent = message.IncomingEvent;
-                if (this.store.IncomingEventIsDuplicate(incomingEvent.EventId))
+                try
                 {
-                    this.Ignore(incomingEvent);
-                    return;
-                }
+                    if (this.store.IncomingEventIsDuplicate(incomingEvent.EventId))
+                    {
+                        this.Ignore(incomingEvent);
+                        return;
+                    }
 
-                ((dynamic)this).Handle((dynamic)incomingEvent);
-            }
-            catch (Exception ex)
-            {
-                this.bus.Publish(
-                    new IncomingEventIsPoisoned(
-                        message.IncomingEvent,
-                        new PoisonMessageException("Poison message detected in Event Processor", ex)));
+                        ((dynamic)this).Handle((dynamic)incomingEvent);
+                }
+                catch (Exception ex)
+                {
+                    this.bus.Publish(
+                        new IncomingEventIsPoisoned(
+                            incomingEvent,
+                            new PoisonMessageException("Poison message detected in Event Processor", ex)));
+                }
             }
         }
 

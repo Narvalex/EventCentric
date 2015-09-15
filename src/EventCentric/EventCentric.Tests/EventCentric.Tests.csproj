@@ -65,6 +65,7 @@
     <Compile Include="EventStoreDbInitializerFixture.cs" />
     <Compile Include="FiniteStateMachine\Helpers\FakeBus.cs" />
     <Compile Include="Helpers\GIVEN_db.cs" />
+    <Compile Include="Playground\GroupedEventStreams.cs" />
     <Compile Include="Playground\Helpers\TestActor.cs" />
     <Compile Include="Playground\InMemoryObjectsPerformance.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

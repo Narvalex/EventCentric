@@ -33,6 +33,7 @@ namespace EventCentric
             Func<bool, EventStoreDbContext> storeContextFactory = isReadOnly => new EventStoreDbContext(isReadOnly, connectionString);
             Func<bool, EventQueueDbContext> queueContextFactory = isReadOnly => new EventQueueDbContext(isReadOnly, connectionString);
 
+            var log = Logger.ResolvedLogger;
             var serializer = new JsonTextSerializer();
             var time = setLocalTime ? new LocalTimeProvider() as ITimeProvider : new UtcTimeProvider() as ITimeProvider;
             var guid = setSequentialGuid ? new SequentialGuid() as IGuidProvider : new DefaultGuidProvider() as IGuidProvider;
@@ -40,10 +41,9 @@ namespace EventCentric
             var subscriptionRepository = new SubscriptionRepository(storeContextFactory, serializer, time);
             var eventDao = new EventDao(queueContextFactory);
 
-            var eventStore = new EventStore<TAggregate>(serializer, storeContextFactory, time, guid);
+            var eventStore = new EventStore<TAggregate>(serializer, storeContextFactory, time, guid, log);
 
             var bus = new Bus();
-            var log = Logger.ResolvedLogger;
 
             var http = new HttpLongPoller(bus, log, TimeSpan.FromMilliseconds(pollerConfig.Timeout));
 
@@ -82,6 +82,7 @@ namespace EventCentric
             Func<bool, EventStoreDbContext> storeContextFactory = isReadOnly => new EventStoreDbContext(isReadOnly, connectionString);
             Func<bool, EventQueueDbContext> queueContextFactory = isReadOnly => new EventQueueDbContext(isReadOnly, connectionString);
 
+            var log = Logger.ResolvedLogger;
             var serializer = new JsonTextSerializer();
             var time = setLocalTime ? new LocalTimeProvider() as ITimeProvider : new UtcTimeProvider() as ITimeProvider;
             var guid = setSequentialGuid ? new SequentialGuid() as IGuidProvider : new DefaultGuidProvider() as IGuidProvider;
@@ -92,10 +93,9 @@ namespace EventCentric
             var dbContextConstructor = typeof(TDbContext).GetConstructor(new[] { typeof(bool), typeof(string) });
             Ensure.CastIsValid(dbContextConstructor, "Type TDbContext must have a constructor with the following signature: ctor(bool, string)");
             Func<bool, IEventStoreDbContext> dbContextFactory = isReadOnly => (TDbContext)dbContextConstructor.Invoke(new object[] { isReadOnly, connectionString });
-            var eventStore = new EventStore<TAggregate>(serializer, dbContextFactory, time, guid);
+            var eventStore = new EventStore<TAggregate>(serializer, dbContextFactory, time, guid, log);
 
             var bus = new Bus();
-            var log = Logger.ResolvedLogger;
 
             var http = new HttpLongPoller(bus, log, TimeSpan.FromMilliseconds(pollerConfig.Timeout));
 

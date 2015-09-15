@@ -133,7 +133,7 @@ namespace EventCentric.Polling
 
             // Reset the bag;
             subscription.EventsInProcessorBag = new ConcurrentBag<EventInProcessorBucket>();
-            rawEvents.ForEach(raw =>
+            var streams = rawEvents.Select(raw =>
             {
                 var incomingEvent = this.serializer.Deserialize<IEvent>(raw.Payload);
 
@@ -142,8 +142,18 @@ namespace EventCentric.Polling
 
                 subscription.EventsInProcessorBag.Add(new EventInProcessorBucket(incomingEvent));
 
-                this.bus.Publish(new NewIncomingEvent(incomingEvent));
-            });
+                return incomingEvent;
+                //this.bus.Publish(new NewIncomingEvents(incomingEvent));
+            })
+            .GroupBy(x => x.StreamId, x => x,
+                    (key, group) => new
+                    {
+                        StreamId = key,
+                        Events = group.ToList()
+                    });
+
+            foreach (var stream in streams)
+                this.bus.Publish(new NewIncomingEvents(stream.Events.OrderBy(x => x.Version).ToArray()));
         }
 
         public void Handle(PollResponseWasReceived message)

@@ -2,13 +2,13 @@
 
 namespace EventCentric.Messaging.Events
 {
-    public class NewIncomingEvent : IMessage
+    public class NewIncomingEvents : IMessage
     {
-        public NewIncomingEvent(IEvent incomingEvent)
+        public NewIncomingEvents(IEvent[] incomingEvents)
         {
-            this.IncomingEvent = incomingEvent;
+            this.IncomingEvents = incomingEvents;
         }
 
-        public IEvent IncomingEvent { get; private set; }
+        public IEvent[] IncomingEvents { get; private set; }
     }
 }

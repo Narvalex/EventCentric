@@ -88,7 +88,8 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="EmpresasReadModelDb.sql" />
+    <Content Include="Scripts\CreateEmpresasReadModelDb.sql" />
+    <Content Include="Scripts\DropTablesKeepingSubscription.sql" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

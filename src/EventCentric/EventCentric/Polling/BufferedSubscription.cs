@@ -25,7 +25,15 @@ namespace EventCentric.Polling
         public volatile int CurrentBufferVersion;
         public volatile bool IsPolling;
         public volatile bool IsPoisoned;
+
+        /// <summary>
+        /// A queue where the events are being reserved
+        /// </summary>
         public volatile ConcurrentQueue<NewRawEvent> NewEventsQueue;
+
+        /// <summary>
+        /// A bag that monitors the events that are currently being processed
+        /// </summary>
         public volatile ConcurrentBag<EventInProcessorBucket> EventsInProcessorBag;
     }
 }

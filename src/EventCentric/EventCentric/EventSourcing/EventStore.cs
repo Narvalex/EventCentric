@@ -1,4 +1,5 @@
 ﻿using EventCentric.Database;
+using EventCentric.Log;
 using EventCentric.Repository;
 using EventCentric.Repository.Mapping;
 using EventCentric.Serialization;
@@ -15,6 +16,8 @@ namespace EventCentric.EventSourcing
     {
         private static readonly string _streamType = typeof(T).Name;
 
+        private readonly ILogger log;
+
         private readonly ITextSerializer serializer;
         private readonly ITimeProvider time;
         private readonly IGuidProvider guid;
@@ -26,17 +29,19 @@ namespace EventCentric.EventSourcing
         private readonly Func<bool, IEventStoreDbContext> contextFactory;
         private readonly Action<T, IEventStoreDbContext> denormalizeIfApplicable;
 
-        public EventStore(ITextSerializer serializer, Func<bool, IEventStoreDbContext> contextFactory, ITimeProvider time, IGuidProvider guid)
+        public EventStore(ITextSerializer serializer, Func<bool, IEventStoreDbContext> contextFactory, ITimeProvider time, IGuidProvider guid, ILogger log)
         {
             Ensure.NotNull(serializer, "serializer");
             Ensure.NotNull(contextFactory, "contextFactory");
             Ensure.NotNull(time, "time");
             Ensure.NotNull(guid, "guid");
+            Ensure.NotNull(log, "log");
 
             this.serializer = serializer;
             this.contextFactory = contextFactory;
             this.time = time;
             this.guid = guid;
+            this.log = log;
             this.cache = new MemoryCache(_streamType);
 
             /// TODO: could be replaced with a compiled lambda to make it more performant.
@@ -92,7 +97,11 @@ namespace EventCentric.EventSourcing
         {
             var aggregate = this.Find(id);
             if (aggregate == null)
-                throw new StreamNotFoundException(id, _streamType);
+            {
+                var ex = new StreamNotFoundException(id, _streamType);
+                this.log.Error(ex, "Stream not found exception for stream {0} with id of {1}", _streamType, id);
+                throw ex;
+            }
 
             return aggregate;
         }
@@ -123,7 +132,7 @@ namespace EventCentric.EventSourcing
 
                     foreach (var @event in pendingEvents)
                     {
-                        ((Event)@event).EventId = this.guid.NewGuid;
+                        ((Event)@event).EventId = this.guid.NewGuid();
                         ((Event)@event).StreamType = _streamType;
                         ((Event)@event).TransactionId = incomingEvent.TransactionId;
 

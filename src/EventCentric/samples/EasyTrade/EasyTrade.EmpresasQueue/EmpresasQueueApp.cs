@@ -18,7 +18,7 @@ namespace EasyTrade.EmpresasQueue
 
         public Guid DesactivarEmpresa(Guid idEmpresa)
         {
-            var transactionId = this.guid.NewGuid;
+            var transactionId = this.guid.NewGuid();
 
             var @event = new EmpresaDesactivada(idEmpresa, transactionId, idEmpresa);
 
@@ -33,7 +33,7 @@ namespace EasyTrade.EmpresasQueue
 
         public Guid NuevaEmpresa(NuevaEmpresaDto dto)
         {
-            var transactionId = this.guid.NewGuid;
+            var transactionId = this.guid.NewGuid();
             var empresa = new Empresa(transactionId, dto.Nombre, dto.Ruc, dto.Descripcion);
 
             this.bus.Send<EmpresasQueueDbContext>(

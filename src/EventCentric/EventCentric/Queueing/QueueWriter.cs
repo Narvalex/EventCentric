@@ -46,7 +46,7 @@ namespace EventCentric.Queueing
                 var now = this.time.Now;
 
                 ((Event)@event).StreamType = _streamType;
-                ((Event)@event).EventId = this.guid.NewGuid;
+                ((Event)@event).EventId = this.guid.NewGuid();
                 ((Event)@event).Version = updatedVersion;
 
                 context.Events.Add(
