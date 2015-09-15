@@ -24,6 +24,7 @@
         vm.alternarMostrarTodo = alternarMostrarTodo;
         vm.desactivarEmpresa = desactivarEmpresa;
         vm.reactivarEmpresa = reactivarEmpresa;
+        vm.redirectToNuevaEmpresa = redirectToNuevaEmpresa,
 
         activate();
 
@@ -104,6 +105,12 @@
                 vm.mostrarTodoLabel = 'Ocultar empresas inactivas';
             else
                 vm.mostrarTodoLabel = 'Mostrar todo'
+        }
+
+        function redirectToNuevaEmpresa() {
+            utils.animateTransitionTo('section.main', 'fadeInLeft', 'fadeOutRight', function () {
+                $state.go('nuevaEmpresa');
+            });
         }
 
         function enterBusy(message) {

@@ -171,8 +171,10 @@
     <Content Include="app\common\config.js" />
     <Content Include="app\common\utils.js" />
     <Content Include="app\dao\empresasDao.js" />
+    <Content Include="app\empresas\actualizarEmpresaController.js" />
     <Content Include="app\empresas\app.js" />
     <Content Include="app\empresas\empresasMain.html" />
+    <Content Include="app\empresas\actualizarEmpresa.html" />
     <Content Include="app\empresas\nuevaEmpresa.html" />
     <Content Include="app\empresas\empresasMainController.js" />
     <Content Include="app\empresas\nuevaEmpresaController.js" />

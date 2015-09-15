@@ -1,14 +1,14 @@
-﻿<section ng-controller="nuevaEmpresaController as vm"
+﻿<section ng-controller="actualizarEmpresaController as vm"
          class="main animated fadeInLeft">
     
     <form name="form"
           class="form-horizontal"
           role="form"
-          ng-submit="vm.nuevaEmpresa()"
+          ng-submit="vm.actualizarEmpresa()"
           novalidate>
 
         <fieldset>
-            <h3 class="text-primary"><span class="glyphicon glyphicon-plus"></span>&nbsp;Nueva empresa</h3>
+            <h4 class="text-primary"><span class="glyphicon glyphicon-plus"></span>&nbsp;Actualizar empresa</h4>
             
             <div class="form-group">
                 <label for="nombre"
@@ -68,12 +68,10 @@
             </div>
 
             <div class="form-group">
-                <input type="submit"
+                <input type="submit" 
                        value="{{vm.submitText}}"
-                       class="btn btn-success col-lg-offset-2"
+                       class="btn btn-success col-sm-offset-2"
                        ng-disabled="form.$invalid" />
-
-                <a href="" ng-click="vm.cancelar()" class="btn btn-default">Cancelar</a>
             </div>
 
         </fieldset>

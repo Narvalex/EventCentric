@@ -22,6 +22,10 @@
             .state("nuevaEmpresa", {
                 url: "/nueva-empresa",
                 templateUrl: "/app/empresas/nuevaEmpresa.html"
+            })
+            .state("actualizarEmpresa", {
+                url: "/actualizar-empresa",
+                templateUrl: "/app/empresas/actualizarEmpresa.html"
             });
 
             $locationProvider.html5Mode(false);

@@ -17,6 +17,7 @@
 
         // Commands
         vm.nuevaEmpresa = nuevaEmpresa;
+        vm.cancelar = cancelar;
 
         activate();
 
@@ -51,6 +52,12 @@
                     vm.submitText = 'Volver a intentar registrar empresa';
                     utils.enableSubmitButton();
                 });
+        }
+
+        function cancelar() {
+            utils.animateTransitionTo('section.main', 'fadeInLeft', 'fadeOutRight', function () {
+                $state.go('main');
+            });
         }
     }
 })();
