@@ -42,6 +42,7 @@
   <ItemGroup>
     <Compile Include="EmpresasQueue\DTOs\Empresa.cs" />
     <Compile Include="EmpresasQueue\EmpresaDesactivada.cs" />
+    <Compile Include="EmpresasQueue\EmpresaReactivada.cs" />
     <Compile Include="EmpresasQueue\IEmpresasQueueSubscriber.cs" />
     <Compile Include="EmpresasQueue\NuevaEmpresaRegistrada.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

@@ -10,7 +10,8 @@ namespace EasyTrade.EmpresasReadModel
 {
     public class EmpresasQueueDenormalizer : Denormalizer<EmpresasReadModelDbContext>,
         IHandles<NuevaEmpresaRegistrada>,
-        IHandles<EmpresaDesactivada>
+        IHandles<EmpresaDesactivada>,
+        IHandles<EmpresaReactivada>
     {
         public EmpresasQueueDenormalizer(Guid id)
             : base(id)
@@ -23,6 +24,39 @@ namespace EasyTrade.EmpresasReadModel
         public EmpresasQueueDenormalizer(Guid id, IMemento memento)
             : base(id, memento)
         { }
+
+        public void Handle(EmpresaReactivada e)
+        {
+            base.UpdateReadModel(context =>
+            {
+                EmpresaEntity empresa;
+                try
+                {
+                    empresa = context.Empresas.Single(x => x.IdEmpresa == e.IdEmpresa);
+                    empresa.Activada = true;
+
+                    var consistencyResult = new EventuallyConsistentResult
+                    {
+                        ResultType = 1,
+                        TransactionId = e.TransactionId,
+                        Message = string.Format("La empresa {0} ha sido reactivada exitosamente", empresa.Nombre)
+                    };
+
+                    context.EventuallyConsistentResults.Add(consistencyResult);
+                }
+                catch (Exception ex)
+                {
+                    var consistencyResult = new EventuallyConsistentResult
+                    {
+                        ResultType = 1,
+                        TransactionId = e.TransactionId,
+                        Message = string.Format("Ha ocurrido un error al reactivar la empresa con id {0}. {1}", e.IdEmpresa, ex.Message)
+                    };
+
+                    context.EventuallyConsistentResults.Add(consistencyResult);
+                }
+            });
+        }
 
         public void Handle(EmpresaDesactivada e)
         {

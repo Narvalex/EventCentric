@@ -52,5 +52,20 @@ namespace EasyTrade.EmpresasQueue
 
             return transactionId;
         }
+
+        public Guid ReactivarEmpresa(Guid idEmpresa)
+        {
+            var transactionId = this.guid.NewGuid();
+
+            var @event = new EmpresaReactivada(idEmpresa, transactionId, idEmpresa);
+
+            this.bus.Send<EmpresasQueueDbContext>(@event,
+                context =>
+                {
+                    AlReactivarEmpresa.EstaDebeHaberSidoRegistrada(context, idEmpresa);
+                });
+
+            return transactionId;
+        }
     }
 }

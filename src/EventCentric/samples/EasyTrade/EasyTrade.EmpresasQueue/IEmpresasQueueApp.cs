@@ -8,5 +8,7 @@ namespace EasyTrade.EmpresasQueue
         Guid NuevaEmpresa(NuevaEmpresaDto dto);
 
         Guid DesactivarEmpresa(Guid idEmpresa);
+
+        Guid ReactivarEmpresa(Guid idEmpresa);
     }
 }

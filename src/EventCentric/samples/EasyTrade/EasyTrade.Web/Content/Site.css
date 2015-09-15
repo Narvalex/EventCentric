@@ -15,7 +15,7 @@ body {
     margin: 50px
 }
 
-p, .busy {
+ .busy {
     font-size: 30px;
     text-align: center;
     margin: 50px;

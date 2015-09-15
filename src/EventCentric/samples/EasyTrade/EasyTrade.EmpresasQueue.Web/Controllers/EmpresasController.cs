@@ -35,7 +35,8 @@ namespace EasyTrade.EmpresasQueue.Web.Controllers
         [Route("empresas/reactivar-empresa/{idEmpresa}")]
         public IHttpActionResult ReactivarEmpresa([FromUri]Guid idEmpresa)
         {
-            return this.Ok(idEmpresa);
+            var transactionId = this.app.ReactivarEmpresa(idEmpresa);
+            return this.Ok(transactionId);
         }
     }
 }
