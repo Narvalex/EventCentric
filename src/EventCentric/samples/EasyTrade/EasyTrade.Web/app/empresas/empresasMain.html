@@ -1,7 +1,6 @@
 ﻿<section ng-controller="empresasMainController as vm"
          class="main animated fadeInLeft">
 
-    <div class="container-fluid">
         <div class="row">
             <h3 class="text-primary pull-left"><span class="fa fa-building"></span>&nbsp;Empresas</h3>
 
@@ -29,7 +28,7 @@
 
 
         <div class="row" ng-hide="vm.busy">
-            <div class="col-md-11">
+            <div class="col-xs-12 col-md-11">
                 <div class="table-responsive">
                     <table class="table table-hover">
                         <tr>
@@ -58,7 +57,7 @@
                                 </a>
                             </td>
                             <td ng-hide="empresa.activada">
-                                <a href="" ng-click="vm.reactivarEmpresa(empresa.idEmpresa, empresa.nombre)" class="text-primary" title="Activar empresa">
+                                <a href="" ng-click="vm.reactivarEmpresa(empresa.idEmpresa, empresa.nombre)" class="text-primary" title="Reactivar empresa">
                                     <span class="glyphicon glyphicon-open"></span>
                                 </a>
                             </td>
@@ -67,5 +66,4 @@
                 </div>
             </div>
         </div>
-    </div>
-</section>
+  </section>

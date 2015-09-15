@@ -84,3 +84,6 @@ primary key
 (
     [IdEmpresa] ASC
 ))
+
+
+update EventStore.Subscriptions set ProcessorBufferVersion = 0, IsPoisoned = 0
