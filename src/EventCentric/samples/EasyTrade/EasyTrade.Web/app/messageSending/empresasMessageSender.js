@@ -13,7 +13,8 @@
 
         var service = {
             nuevaEmpresa: nuevaEmpresa,
-            desactivarEmpresa: desactivarEmpresa
+            desactivarEmpresa: desactivarEmpresa,
+            reactivarEmpresa: reactivarEmpresa
         };
 
         return service;
@@ -24,6 +25,10 @@
 
         function desactivarEmpresa(idEmpresa) {
             return $http.post(empresasQueueUrl + '/empresas/desactivar-empresa/' + idEmpresa);
+        }
+
+        function reactivarEmpresa(idEmpresa) {
+            return $http.post(empresasQueueUrl + '/empresas/reactivar-empresa/' + idEmpresa);
         }
     }
 })();

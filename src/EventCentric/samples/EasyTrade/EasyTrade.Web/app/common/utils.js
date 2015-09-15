@@ -17,9 +17,9 @@
 
         // More info: https://www.youtube.com/watch?v=CBQGl6zokMs
         // And also: https://github.com/daneden/animate.css
-        function animateTransitionTo(animationToRemove, animationToAdd, goToDestination) {
+        function animateTransitionTo(element, animationToRemove, animationToAdd, goToDestination) {
             $(function () {
-                $('section.main').removeClass(animationToRemove).addClass(animationToAdd).one(
+                $(element).removeClass(animationToRemove).addClass(animationToAdd).one(
                     'webkitAnimationEnd mozAnimationEnd MSAnimationEnd oanimationend animationend', function () {
                         //$(this).removeClass('fadeOutRight');
                         goToDestination();

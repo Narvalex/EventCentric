@@ -14,3 +14,10 @@ Source:  http://stackoverflow.com/questions/18599778/decreasing-height-of-bootst
 body {
     margin: 50px
 }
+
+p, .busy {
+    font-size: 30px;
+    text-align: center;
+    margin: 50px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
