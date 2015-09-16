@@ -2,11 +2,12 @@
          class="main animated fadeInRight">
 
     <div class="row">
-        <div class="container">
-            <h3 class="col-md-offset-1 text-primary pull-left"><span class="fa fa-building"></span>&nbsp;Empresas</h3>
-
-            <form class="form-inline pull-right"
+        <div class="col-md-offset-2 col-md-8 margin-bottom-lite">
+            <form class="form-inline"
                   ng-hide="vm.busy">
+                <span class="text-primary form-inline-title"><span class="fa fa-building"></span>&nbsp;Empresas</span>
+
+
                 <div class="form-group">
                     <input type="text" class="form-control" placeholder="Buscar empresa"
                            ng-model="vm.buscar" />
@@ -20,6 +21,7 @@
                     <span class="glyphicon glyphicon-plus"></span>
                     &nbsp;&nbsp;Nueva empresa
                 </a>
+
             </form>
         </div>
     </div>

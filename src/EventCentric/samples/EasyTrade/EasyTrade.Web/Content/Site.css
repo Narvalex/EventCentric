@@ -28,3 +28,12 @@ section.main {
     -o-animation-duration: 0.8s;
     animation-duration: 0.8s;
 }
+
+.form-inline-title {
+    font-size: 25px;
+    margin-right: 20px;
+}
+
+.margin-bottom-lite {
+    margin-bottom: 15px;
+}
