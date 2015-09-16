@@ -5,23 +5,35 @@
         .module('app')
         .controller('actualizarEmpresaController', actualizarEmpresaController);
 
-    actualizarEmpresaController.$inject = ['empresasMessageSender', 'empresasDao', '$state', 'utils'];
+    actualizarEmpresaController.$inject = ['empresasMessageSender', 'empresasDao', '$state', '$stateParams', 'utils'];
 
-    function actualizarEmpresaController(empresasMessageSender, empresasDao, $state, utils) {
+    function actualizarEmpresaController(empresasMessageSender, empresasDao, $state, $stateParams, utils) {
         var vm = this;
         var sender = empresasMessageSender;
         var dao = empresasDao;
 
         // View models
         vm.submitText = 'Actualizar datos';
+        vm.empresa = {};
 
         // Commands
         vm.actualizarEmpresa = actualizarEmpresa;
+        vm.cancelar = cancelar;
 
         activate();
 
         function activate() {
-            //...            
+            obtenerEmpresa($stateParams.idEmpresa);
+        }
+
+        function obtenerEmpresa(idEmpresa) {
+            dao.obtenerEmpresa(idEmpresa)
+                .then(function (data) {
+                    vm.empresa = data;
+                },
+                function (message) {
+                    toastr.error(message.data.exceptionMessage);
+                });
         }
 
         function actualizarEmpresa() {
@@ -49,6 +61,12 @@
                     vm.submitText = 'Volver a intentar actualizar empresa';
                     utils.enableSubmitButton();
                 });
+        }
+
+        function cancelar() {
+            utils.animateTransitionTo('section.main', 'fadeInLeft', 'fadeOutRight', function () {
+                $state.go('main');
+            });
         }
     }
 })();

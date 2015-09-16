@@ -9,11 +9,12 @@
 
     function empresasDao($http) {
 
-        var urlPrefix = "http://localhost:60867";
+        var urlPrefix = "http://172.16.251.125:83";
 
         var service = {
             awaitResult: awaitResult,
-            obtenerTodasLasEmpresas: obtenerTodasLasEmpresas
+            obtenerTodasLasEmpresas: obtenerTodasLasEmpresas,
+            obtenerEmpresa: obtenerEmpresa
         };
 
         return service;
@@ -27,6 +28,13 @@
 
         function obtenerTodasLasEmpresas() {
             return $http.get(urlPrefix + '/dao/obtener-todas-las-empresas')
+                    .then(function (response) {
+                        return response.data;
+                    });
+        }
+
+        function obtenerEmpresa(idEmpresa) {
+            return $http.get(urlPrefix + '/dao/empresa/' + idEmpresa)
                     .then(function (response) {
                         return response.data;
                     });

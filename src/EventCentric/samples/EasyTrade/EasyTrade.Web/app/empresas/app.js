@@ -24,7 +24,7 @@
                 templateUrl: "/app/empresas/nuevaEmpresa.html"
             })
             .state("actualizarEmpresa", {
-                url: "/actualizar-empresa",
+                url: "/actualizar-empresa?idEmpresa",
                 templateUrl: "/app/empresas/actualizarEmpresa.html"
             });
 

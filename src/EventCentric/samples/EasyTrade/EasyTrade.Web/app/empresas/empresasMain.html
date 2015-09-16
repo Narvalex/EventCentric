@@ -1,69 +1,67 @@
 ﻿<section ng-controller="empresasMainController as vm"
          class="main animated fadeInLeft">
 
-        <div class="row">
-            <h3 class="text-primary pull-left"><span class="fa fa-building"></span>&nbsp;Empresas</h3>
+    <div class="row">
+        <h3 class="text-primary pull-left"><span class="fa fa-building"></span>&nbsp;Empresas</h3>
 
-            <form class="form-inline pull-right"
-                   ng-hide="vm.busy">
-                <div class="form-group">
-                    <input type="text" class="form-control" placeholder="Buscar empresa"
-                           ng-model="vm.buscar" />
-                </div>
-                <a href="" class="btn btn-default" ng-click="vm.alternarMostrarTodo()">
-                    <span class="glyphicon glyphicon-eye-open" ng-show="!vm.mostrarTodo"></span>
-                    <span class="glyphicon glyphicon-eye-close" ng-show="vm.mostrarTodo"></span>
-                    &nbsp;&nbsp;{{vm.mostrarTodoLabel}}
-                </a>
-                <a href="" class="btn btn-primary" ng-click="vm.redirectToNuevaEmpresa()">
-                    <span class="glyphicon glyphicon-plus"></span>
-                    &nbsp;&nbsp;Nueva empresa
-                </a>
-            </form>
-        </div>
-
-        <div class="row" ng-show="vm.busy">
-            <p class="text-muted busy animated fadeIn"><span class="text-primary fa fa-cog fa-spin fa-2x"></span>&nbsp;&nbsp;{{vm.busyMessage}}</p>
-        </div>
-
-
-        <div class="row" ng-hide="vm.busy">
-            <div class="col-xs-12 col-md-11">
-                <div class="table-responsive">
-                    <table class="table table-hover">
-                        <tr>
-                            <th>Nombre</th>
-                            <th>RUC</th>
-                            <th class="text-center">Fecha de registro</th>
-                            <th class="text-center">Última actualización</th>
-                            <th colspan="2">Acciones</th>
-                        </tr>
-                        <tr ng-repeat="empresa in vm.empresas | orderBy:'name' | filter:vm.buscar" ng-hide="!empresa.activada && !vm.mostrarTodo">
-                            <td title="empresa.descripcion">{{empresa.nombre}}</td>
-                            <td>{{empresa.ruc}}</td>
-                            <td class="text-center">{{empresa.fechaRegistro | date:'dd/MM/yyyy'}}</td>
-                            <td class="text-center">{{empresa.fechaActualizacion | date:'dd/MM/yyyy'}}</td>
-                            <td ng-show="empresa.activada">
-                                <a href="" ng-click="vm.redirigirParaActualizarEmpresa()" class="text-primary" title="Actualizar empresa">
-                                    <span class="glyphicon glyphicon-edit"></span>
-                                </a>
-                            </td>
-                            <td ng-show="!empresa.activada">
-                                <!-- Fill empty line-->
-                            </td>
-                            <td ng-show="empresa.activada">
-                                <a href="" ng-click="vm.desactivarEmpresa(empresa.idEmpresa, empresa.nombre)" class="text-danger" title="Desactivar empresa">
-                                    <span class="glyphicon glyphicon-remove"></span>
-                                </a>
-                            </td>
-                            <td ng-hide="empresa.activada">
-                                <a href="" ng-click="vm.reactivarEmpresa(empresa.idEmpresa, empresa.nombre)" class="text-primary" title="Reactivar empresa">
-                                    <span class="glyphicon glyphicon-open"></span>
-                                </a>
-                            </td>
-                        </tr>
-                    </table>
-                </div>
+        <form class="form-inline pull-right"
+              ng-hide="vm.busy">
+            <div class="form-group">
+                <input type="text" class="form-control" placeholder="Buscar empresa"
+                       ng-model="vm.buscar" />
             </div>
+            <a href="" class="btn btn-default" ng-click="vm.alternarMostrarTodo()">
+                <span class="glyphicon glyphicon-eye-open" ng-show="!vm.mostrarTodo"></span>
+                <span class="glyphicon glyphicon-eye-close" ng-show="vm.mostrarTodo"></span>
+                &nbsp;&nbsp;{{vm.mostrarTodoLabel}}
+            </a>
+            <a href="" class="btn btn-primary" ng-click="vm.redirectToNuevaEmpresa()">
+                <span class="glyphicon glyphicon-plus"></span>
+                &nbsp;&nbsp;Nueva empresa
+            </a>
+        </form>
+    </div>
+
+    <div class="row" ng-show="vm.busy">
+        <p class="text-muted busy animated fadeIn"><span class="text-primary fa fa-cog fa-spin fa-2x"></span>&nbsp;&nbsp;{{vm.busyMessage}}</p>
+    </div>
+
+
+    <div class="row" ng-hide="vm.busy">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <tr>
+                    <th>Nombre</th>
+                    <th>RUC</th>
+                    <th class="text-center">Fecha de registro</th>
+                    <th class="text-center">Última actualización</th>
+                    <th colspan="2">Acciones</th>
+                </tr>
+                <tr ng-repeat="empresa in vm.empresas | orderBy:'name' | filter:vm.buscar" ng-hide="!empresa.activada && !vm.mostrarTodo">
+                    <td title="empresa.descripcion">{{empresa.nombre}}</td>
+                    <td>{{empresa.ruc}}</td>
+                    <td class="text-center">{{empresa.fechaRegistro | date:'dd/MM/yyyy'}}</td>
+                    <td class="text-center">{{empresa.fechaActualizacion | date:'dd/MM/yyyy'}}</td>
+                    <td ng-show="empresa.activada">
+                        <a href="" ng-click="vm.redirectToActualizarEmpresa(empresa.idEmpresa)" class="text-primary" title="Actualizar empresa">
+                            <span class="glyphicon glyphicon-edit"></span>
+                        </a>
+                    </td>
+                    <td ng-show="!empresa.activada">
+                        <!-- Fill empty line-->
+                    </td>
+                    <td ng-show="empresa.activada">
+                        <a href="" ng-click="vm.desactivarEmpresa(empresa.idEmpresa, empresa.nombre)" class="text-danger" title="Desactivar empresa">
+                            <span class="glyphicon glyphicon-remove"></span>
+                        </a>
+                    </td>
+                    <td ng-hide="empresa.activada">
+                        <a href="" ng-click="vm.reactivarEmpresa(empresa.idEmpresa, empresa.nombre)" class="text-success" title="Reactivar empresa">
+                            <span class="glyphicon glyphicon-share"></span>
+                        </a>
+                    </td>
+                </tr>
+            </table>
         </div>
-  </section>
+    </div>
+</section>

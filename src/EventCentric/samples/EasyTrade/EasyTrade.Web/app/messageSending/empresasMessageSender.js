@@ -9,7 +9,7 @@
 
     function empresasMessageSender($http) {
 
-        var empresasQueueUrl = "http://localhost:50588";
+        var empresasQueueUrl = "http://172.16.251.125:82";
 
         var service = {
             nuevaEmpresa: nuevaEmpresa,

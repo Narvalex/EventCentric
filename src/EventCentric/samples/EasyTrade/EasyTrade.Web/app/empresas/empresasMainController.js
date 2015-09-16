@@ -24,7 +24,10 @@
         vm.alternarMostrarTodo = alternarMostrarTodo;
         vm.desactivarEmpresa = desactivarEmpresa;
         vm.reactivarEmpresa = reactivarEmpresa;
-        vm.redirectToNuevaEmpresa = redirectToNuevaEmpresa,
+        
+        // Redirects
+        vm.redirectToNuevaEmpresa = redirectToNuevaEmpresa;
+        vm.redirectToActualizarEmpresa = redirectToActualizarEmpresa;
 
         activate();
 
@@ -63,7 +66,7 @@
                             obtenerTodasLasEmpresas();
                         },
                         function (message) {
-                            toast.empresas(message.data.exceptionMessage);
+                            toastr.error(message.data.exceptionMessage);
                             exitBusy();
                         })
                 },
@@ -102,7 +105,7 @@
             vm.mostrarTodo = !vm.mostrarTodo;
 
             if (vm.mostrarTodo)
-                vm.mostrarTodoLabel = 'Ocultar empresas inactivas';
+                vm.mostrarTodoLabel = 'Ocultar inactivas';
             else
                 vm.mostrarTodoLabel = 'Mostrar todo'
         }
@@ -113,6 +116,12 @@
             });
         }
 
+        function redirectToActualizarEmpresa(idEmpresa) {
+            utils.animateTransitionTo('section.main', 'fadeInLeft', 'fadeOutRight', function () {
+                window.location = '#/actualizar-empresa?idEmpresa=' + idEmpresa;
+            });
+        }
+        
         function enterBusy(message) {
             vm.busy = true;
             vm.busyMessage = message;

@@ -8,7 +8,7 @@
           novalidate>
 
         <fieldset>
-            <h4 class="text-primary"><span class="glyphicon glyphicon-plus"></span>&nbsp;Actualizar empresa</h4>
+            <h4 class="text-primary"><span class="glyphicon glyphicon-edit"></span>&nbsp;Actualizar empresa</h4>
             
             <div class="form-group">
                 <label for="nombre"
@@ -72,6 +72,8 @@
                        value="{{vm.submitText}}"
                        class="btn btn-success col-sm-offset-2"
                        ng-disabled="form.$invalid" />
+
+                <a href="" ng-click="vm.cancelar()" class="btn btn-default">Cancelar</a>
             </div>
 
         </fieldset>
