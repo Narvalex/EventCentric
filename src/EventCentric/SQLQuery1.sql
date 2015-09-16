@@ -1,1 +1,1 @@
-﻿select * from SetValidation.Empresas
+﻿select * from EventStore.Events
