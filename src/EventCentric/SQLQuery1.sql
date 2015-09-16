@@ -1,4 +1,1 @@
-﻿use EmpresasReadModel
-go
-
-select * from EventStore.Subscriptions
+﻿select * from SetValidation.Empresas

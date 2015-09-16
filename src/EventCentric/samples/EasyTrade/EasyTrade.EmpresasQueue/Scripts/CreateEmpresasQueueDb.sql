@@ -80,5 +80,6 @@ IF NOT EXISTS(SELECT* FROM sys.objects WHERE object_id = OBJECT_ID(N'[SetValidat
 create table [SetValidation].[Empresas] (
     [IdEmpresa] [uniqueidentifier] not null,
     [Nombre] [nvarchar] (255) NOT NULL,
-    primary key ([Nombre])
+	constraint SetValidation_Empresas_Nombre unique(Nombre),
+    primary key ([IdEmpresa])
 );

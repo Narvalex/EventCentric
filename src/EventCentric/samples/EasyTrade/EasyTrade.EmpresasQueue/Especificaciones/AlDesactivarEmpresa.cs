@@ -1,15 +1,5 @@
-﻿using EasyTrade.EmpresasQueue.Especificaciones.Excepciones;
-using System;
-using System.Linq;
-
-namespace EasyTrade.EmpresasQueue.Especificaciones
+﻿namespace EasyTrade.EmpresasQueue.Especificaciones
 {
-    public class AlDesactivarEmpresa
-    {
-        public static void EstaDebeHaberSidoRegistrada(EmpresasQueueDbContext context, Guid idEmpresa)
-        {
-            if (!context.Empresas.Any(e => e.IdEmpresa == idEmpresa))
-                throw new LaEmpresaNoEstaRegistrada(string.Format("No está registrada la empresa id {0}", idEmpresa));
-        }
-    }
+    public class AlDesactivarEmpresa : AlTrabajarConEmpresaRegistrada
+    { }
 }

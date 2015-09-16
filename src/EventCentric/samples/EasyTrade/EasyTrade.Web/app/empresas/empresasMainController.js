@@ -111,13 +111,13 @@
         }
 
         function redirectToNuevaEmpresa() {
-            utils.animateTransitionTo('section.main', 'fadeInLeft', 'fadeOutRight', function () {
+            utils.animateTransitionTo('section.main', 'fadeInRight', 'fadeOutLeft', function () {
                 $state.go('nuevaEmpresa');
             });
         }
 
         function redirectToActualizarEmpresa(idEmpresa) {
-            utils.animateTransitionTo('section.main', 'fadeInLeft', 'fadeOutRight', function () {
+            utils.animateTransitionTo('section.main', 'fadeInRight', 'fadeOutLeft', function () {
                 window.location = '#/actualizar-empresa?idEmpresa=' + idEmpresa;
             });
         }

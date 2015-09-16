@@ -13,7 +13,7 @@
         var dao = empresasDao;
 
         // View models
-        vm.submitText = 'Actualizar datos';
+        vm.submitText = 'Recuperando empresa...';
         vm.empresa = {};
 
         // Commands
@@ -30,6 +30,7 @@
             dao.obtenerEmpresa(idEmpresa)
                 .then(function (data) {
                     vm.empresa = data;
+                    vm.submitText = 'Actualizar datos';
                 },
                 function (message) {
                     toastr.error(message.data.exceptionMessage);
@@ -47,7 +48,7 @@
                     vm.submitText = 'Actualizado! Redirigiendo a la lista de empresas...';
                     dao.awaitResult(data.data)
                         .then(function (data) {
-                            utils.animateTransitionTo('section.main', 'fadeInLeft', 'fadeOutRight', function () { 
+                            utils.animateTransitionTo('section.main', 'fadeInLeft', 'zoomOutUp', function () { 
                                 $state.go('main');
                             });
                         },
@@ -64,7 +65,7 @@
         }
 
         function cancelar() {
-            utils.animateTransitionTo('section.main', 'fadeInLeft', 'fadeOutRight', function () {
+            utils.animateTransitionTo('section.main', 'fadeInRight', 'zoomOutDown', function () {
                 $state.go('main');
             });
         }

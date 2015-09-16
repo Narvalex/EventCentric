@@ -1,7 +1,6 @@
 ﻿use EmpresasReadModel
 go
 
--- Create EventStore.Events
 drop table EventStore.events
 CREATE TABLE [EventStore].[Events](
     [StreamType] [nvarchar] (255) NOT NULL,
@@ -15,7 +14,6 @@ CREATE TABLE [EventStore].[Events](
     [EventCollectionVersion] [int] IDENTITY(1,1) NOT NULL,
     [CreationDate] [datetime] NOT NULL,
 	[Payload] [nvarchar] (max) NOT NULL
-
 PRIMARY KEY CLUSTERED 
 (
     [StreamType] ASC,
@@ -24,7 +22,6 @@ PRIMARY KEY CLUSTERED
 )WITH (PAD_INDEX  = OFF, STATISTICS_NORECOMPUTE  = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS  = ON, ALLOW_PAGE_LOCKS  = ON) ON [PRIMARY]
 ) ON [PRIMARY];
 
--- Create EventStore.Streams
 drop table EventStore.Streams 
 CREATE TABLE [EventStore].[Streams](
     [StreamId] [uniqueidentifier] NOT NULL,
@@ -39,7 +36,6 @@ PRIMARY KEY CLUSTERED
 )WITH(PAD_INDEX  = OFF, STATISTICS_NORECOMPUTE  = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS  = ON, ALLOW_PAGE_LOCKS  = ON) ON[PRIMARY]
 ) ON[PRIMARY];
 
--- Create EventStore.Inbox
 drop table EventStore.Inbox
 CREATE TABLE[EventStore].[Inbox](
 	[InboxId] [bigint] IDENTITY(1,1) NOT NULL,
@@ -54,14 +50,12 @@ CONSTRAINT EventStore_Inbox_EventId UNIQUE(EventId),
     [Ignored] [bit] NULL,
     [CreationDate] [datetime] NOT NULL,
 	[Payload] [nvarchar] (max) NOT NULL
-
 PRIMARY KEY CLUSTERED
 (
     [InboxId] ASC
 )WITH(PAD_INDEX  = OFF, STATISTICS_NORECOMPUTE  = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS  = ON, ALLOW_PAGE_LOCKS  = ON) ON[PRIMARY]
 ) ON[PRIMARY];
 
--- Create EventStore.EventuallyConsistentResults
 drop table EventStore.EventuallyConsistentResults
 create table [EventStore].[EventuallyConsistentResults] (
     [TransactionId] [uniqueidentifier] not null,

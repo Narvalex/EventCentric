@@ -1,6 +1,6 @@
-﻿using System;
+﻿using EventCentric.Repository.Mapping;
+using System;
 using System.Collections.Generic;
-using EventCentric.Repository.Mapping;
 
 namespace EasyTrade.EmpresasReadModel.Dao
 {
@@ -8,5 +8,6 @@ namespace EasyTrade.EmpresasReadModel.Dao
     {
         EventuallyConsistentResult AwaitResult(Guid transactionId);
         List<EmpresaEntity> ObtenerListaDeTodasLasEmpresas();
+        EmpresaEntity ObtenerEmpresa(Guid idEmpresa);
     }
 }

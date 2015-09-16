@@ -89,7 +89,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Scripts\CreateEmpresasReadModelDb.sql" />
-    <Content Include="Scripts\DropTablesKeepingSubscription.sql" />
+    <Content Include="Scripts\ResetEmpresasReadModelDb.sql" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

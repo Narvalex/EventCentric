@@ -30,5 +30,12 @@ namespace EasyTrade.EmpresasReadModel.Dao
             }
         }
 
+        public EmpresaEntity ObtenerEmpresa(Guid idEmpresa)
+        {
+            using (var context = this.contextFactory())
+            {
+                return context.Empresas.FirstOrDefault(e => e.IdEmpresa == idEmpresa);
+            }
+        }
     }
 }

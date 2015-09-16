@@ -13,6 +13,11 @@ namespace EasyTrade.EmpresasReadModel
             : base(bus, log, store)
         { }
 
+        public void Handle(DatosDeEmpresaActualizados incomingEvent)
+        {
+            this.Handle(incomingEvent.Empresa.IdEmpresa, incomingEvent);
+        }
+
         public void Handle(EmpresaReactivada incomingEvent)
         {
             this.Handle(incomingEvent.IdEmpresa, incomingEvent);

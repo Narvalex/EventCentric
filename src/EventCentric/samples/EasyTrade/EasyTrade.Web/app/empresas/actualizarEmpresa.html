@@ -1,5 +1,5 @@
 ﻿<section ng-controller="actualizarEmpresaController as vm"
-         class="main animated fadeInLeft">
+         class="main animated fadeInRight">
     
     <form name="form"
           class="form-horizontal"
@@ -8,7 +8,7 @@
           novalidate>
 
         <fieldset>
-            <h4 class="text-primary"><span class="glyphicon glyphicon-edit"></span>&nbsp;Actualizar empresa</h4>
+            <h3 class="col-md-offset-1 text-primary"><span class="glyphicon glyphicon-edit"></span>&nbsp;Actualizar empresa</h3>
             
             <div class="form-group">
                 <label for="nombre"
@@ -60,7 +60,7 @@
                               ng-model="vm.empresa.descripcion"
                               required />
                     <span class="error text-danger"
-                          ng-show="form.ruc.$error.required">
+                          ng-show="form.descripcion.$error.required">
                         <span class="glyphicon glyphicon-exclamation-sign"></span>
                         Introduzca la descripción de la empresa por favor.
                     </span>

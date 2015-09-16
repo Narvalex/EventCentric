@@ -30,5 +30,13 @@ namespace EasyTrade.EmpresasReadModel.Web.Controllers
             var empresas = this.dao.ObtenerListaDeTodasLasEmpresas();
             return this.Ok(empresas);
         }
+
+        [HttpGet]
+        [Route("dao/empresa/{idEmpresa}")]
+        public IHttpActionResult ObtenerEmpresa(Guid idEmpresa)
+        {
+            var empresa = this.dao.ObtenerEmpresa(idEmpresa);
+            return this.Ok(empresa);
+        }
     }
 }

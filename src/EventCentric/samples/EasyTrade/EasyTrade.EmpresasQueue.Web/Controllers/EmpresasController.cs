@@ -24,6 +24,14 @@ namespace EasyTrade.EmpresasQueue.Web.Controllers
         }
 
         [HttpPost]
+        [Route("empresas/actualizar-empresa")]
+        public IHttpActionResult ActualizarEmpresa([FromBody]EmpresaDto dto)
+        {
+            var transactionId = this.app.ActualizarEmpresa(dto);
+            return this.Ok(transactionId);
+        }
+
+        [HttpPost]
         [Route("empresas/desactivar-empresa/{idEmpresa}")]
         public IHttpActionResult DesactivarEmpresa([FromUri]Guid idEmpresa)
         {

@@ -32,7 +32,7 @@ namespace EasyTrade.EmpresasQueue
         public EmpresaEntityMap()
         {
             // Primary Key
-            this.HasKey(t => t.Nombre);
+            this.HasKey(t => t.IdEmpresa);
 
             // Table & Column Mappings
             this.ToTable("Empresas", "SetValidation");

@@ -11,7 +11,8 @@ namespace EasyTrade.EmpresasReadModel
     public class EmpresasQueueDenormalizer : Denormalizer<EmpresasReadModelDbContext>,
         IHandles<NuevaEmpresaRegistrada>,
         IHandles<EmpresaDesactivada>,
-        IHandles<EmpresaReactivada>
+        IHandles<EmpresaReactivada>,
+        IHandles<DatosDeEmpresaActualizados>
     {
         public EmpresasQueueDenormalizer(Guid id)
             : base(id)
@@ -29,32 +30,37 @@ namespace EasyTrade.EmpresasReadModel
         {
             base.UpdateReadModel(context =>
             {
-                EmpresaEntity empresa;
-                try
+                var empresa = context.Empresas.Single(x => x.IdEmpresa == e.IdEmpresa);
+                empresa.Activada = true;
+
+                var consistencyResult = new EventuallyConsistentResult
                 {
-                    empresa = context.Empresas.Single(x => x.IdEmpresa == e.IdEmpresa);
-                    empresa.Activada = true;
+                    ResultType = 1,
+                    TransactionId = e.TransactionId,
+                    Message = string.Format("La empresa {0} ha sido reactivada exitosamente", empresa.Nombre)
+                };
 
-                    var consistencyResult = new EventuallyConsistentResult
-                    {
-                        ResultType = 1,
-                        TransactionId = e.TransactionId,
-                        Message = string.Format("La empresa {0} ha sido reactivada exitosamente", empresa.Nombre)
-                    };
+                context.EventuallyConsistentResults.Add(consistencyResult);
+            });
+        }
 
-                    context.EventuallyConsistentResults.Add(consistencyResult);
-                }
-                catch (Exception ex)
+        public void Handle(DatosDeEmpresaActualizados e)
+        {
+            base.UpdateReadModel(context =>
+            {
+                var empresa = context.Empresas.Single(x => x.IdEmpresa == e.Empresa.IdEmpresa);
+                empresa.Nombre = e.Empresa.Nombre;
+                empresa.Ruc = e.Empresa.Ruc;
+                empresa.Descripcion = e.Empresa.Descripcion;
+
+                var consistencyResult = new EventuallyConsistentResult
                 {
-                    var consistencyResult = new EventuallyConsistentResult
-                    {
-                        ResultType = 1,
-                        TransactionId = e.TransactionId,
-                        Message = string.Format("Ha ocurrido un error al reactivar la empresa con id {0}. {1}", e.IdEmpresa, ex.Message)
-                    };
+                    ResultType = 1,
+                    TransactionId = e.TransactionId,
+                    Message = string.Format("La empresa {0} ha sido actualizada exitosamente", empresa.Nombre)
+                };
 
-                    context.EventuallyConsistentResults.Add(consistencyResult);
-                }
+                context.EventuallyConsistentResults.Add(consistencyResult);
             });
         }
 
@@ -62,32 +68,17 @@ namespace EasyTrade.EmpresasReadModel
         {
             base.UpdateReadModel(context =>
             {
-                EmpresaEntity empresa;
-                try
+                var empresa = context.Empresas.Single(x => x.IdEmpresa == e.IdEmpresa);
+                empresa.Activada = false;
+
+                var consistencyResult = new EventuallyConsistentResult
                 {
-                    empresa = context.Empresas.Single(x => x.IdEmpresa == e.IdEmpresa);
-                    empresa.Activada = false;
+                    ResultType = 1,
+                    TransactionId = e.TransactionId,
+                    Message = string.Format("La empresa {0} ha sido desactivada exitosamente", empresa.Nombre)
+                };
 
-                    var consistencyResult = new EventuallyConsistentResult
-                    {
-                        ResultType = 1,
-                        TransactionId = e.TransactionId,
-                        Message = string.Format("La empresa {0} ha sido desactivada exitosamente", empresa.Nombre)
-                    };
-
-                    context.EventuallyConsistentResults.Add(consistencyResult);
-                }
-                catch (Exception ex)
-                {
-                    var consistencyResult = new EventuallyConsistentResult
-                    {
-                        ResultType = 1,
-                        TransactionId = e.TransactionId,
-                        Message = string.Format("Ha ocurrido un error al desactivar la empresa con id {0}. {1}", e.IdEmpresa, ex.Message)
-                    };
-
-                    context.EventuallyConsistentResults.Add(consistencyResult);
-                }
+                context.EventuallyConsistentResults.Add(consistencyResult);
             });
         }
 
