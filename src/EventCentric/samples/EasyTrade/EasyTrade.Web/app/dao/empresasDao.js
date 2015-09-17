@@ -9,8 +9,8 @@
 
     function empresasDao($http) {
 
-        //var urlPrefix = "http://172.16.251.125:83";
-        var urlPrefix = "http://192.168.1.4:83";
+        var urlPrefix = "http://172.16.251.125:83";
+        //var urlPrefix = "http://192.168.1.4:83";
 
         var service = {
             awaitResult: awaitResult,

@@ -30,7 +30,7 @@ namespace EventCentric
             var bus = new Bus();
             var log = Logger.ResolvedLogger;
 
-            var node = new QueueNode(bus, log);
+            var node = new QueueNode(typeof(T).Name, bus, log);
 
             var queueWriter = new QueueWriter<T>(eventQueueDbContextFactory, serializer, time, guid);
             var eventDao = new EventDao(eventQueueDbContextFactory);
@@ -67,7 +67,7 @@ namespace EventCentric
             var bus = new Bus();
             var log = Logger.ResolvedLogger;
 
-            var node = new QueueNode(bus, log);
+            var node = new QueueNode(typeof(T).Name, bus, log);
 
             var queueWriter = new CrudQueueWriter<T>(eventQueueDbContextFactory, serializer, time, guid);
             var eventDao = new EventDao(eventQueueDbContextFactory);

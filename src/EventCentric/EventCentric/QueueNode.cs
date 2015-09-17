@@ -6,13 +6,13 @@ using System.Threading;
 
 namespace EventCentric
 {
-    public class QueueNode : FSM, INode,
+    public class QueueNode : NodeBase, INode,
         IMessageHandler<EventPublisherStarted>
     {
         public NodeState State { get; private set; }
 
-        public QueueNode(IBus bus, ILogger log)
-                : base(bus, log)
+        public QueueNode(string nodeName, IBus bus, ILogger log)
+                : base(nodeName, bus, log)
         { }
 
         public void Handle(EventPublisherStarted message)

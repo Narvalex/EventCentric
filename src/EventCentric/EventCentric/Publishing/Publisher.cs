@@ -80,7 +80,7 @@ namespace EventCentric.Publishing
                 }
             }
 
-            return new PollResponse(newEventsWereFound, _streamType, newEvents);
+            return new PollResponse(false, newEventsWereFound, _streamType, newEvents, lastReceivedVersion, this.eventCollectionVersion);
         }
 
         protected override void OnStarting()

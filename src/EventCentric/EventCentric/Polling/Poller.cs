@@ -14,7 +14,7 @@ using System.Threading.Tasks;
 
 namespace EventCentric.Polling
 {
-    public class Poller : FSM,
+    public class Poller : FSM, IMonitoredSubscriber,
         IMessageHandler<StartEventPoller>,
         IMessageHandler<StopEventPoller>,
         IMessageHandler<PollResponseWasReceived>,
@@ -167,6 +167,12 @@ namespace EventCentric.Polling
                 }
             }
 
+            if (!response.ErrorDetected)
+            {
+                subscription.consumerVersion = response.ConsumerVersion;
+                subscription.producerVersion = response.ProducerVersion;
+            }
+
             subscription.IsPolling = false;
         }
 
@@ -255,6 +261,11 @@ namespace EventCentric.Polling
                 if (isStarving)
                     Thread.Sleep(100);
             }
+        }
+
+        public IMonitoredSubscription[] GetSubscriptionsMetrics()
+        {
+            return this.bufferPool;
         }
     }
 }

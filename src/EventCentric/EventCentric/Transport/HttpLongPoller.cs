@@ -49,7 +49,7 @@ namespace EventCentric.Transport
                     this.log.Error(ex, "Error while polling {0}, from {1}, from version {2}", streamType, url, fromVersion);
                     // To have a break;
                     Thread.Sleep(10000);
-                    this.bus.Publish(new PollResponseWasReceived(new PollResponse(false, streamType, null)));
+                    this.bus.Publish(new PollResponseWasReceived(new PollResponse(true, false, streamType, null, 0, 0)));
                 }
             }
         }

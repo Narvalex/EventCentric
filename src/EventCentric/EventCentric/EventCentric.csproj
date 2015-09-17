@@ -62,7 +62,10 @@
   <ItemGroup>
     <Compile Include="ApplicationService.cs" />
     <Compile Include="EventSourcing\Memento.cs" />
+    <Compile Include="NodeBase.cs" />
     <Compile Include="NodeInitializer.cs" />
+    <Compile Include="Polling\IMonitoredSubscriber.cs" />
+    <Compile Include="Polling\IMonitoredSubscription.cs" />
     <Compile Include="Publishing\IEventDao.cs" />
     <Compile Include="QueueNode.cs" />
     <Compile Include="Config\EventStoreConfig.cs" />

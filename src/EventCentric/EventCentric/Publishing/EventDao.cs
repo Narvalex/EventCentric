@@ -24,25 +24,17 @@ namespace EventCentric.Publishing
             using (var context = this.contextFactory(true))
             {
                 var events = new List<NewRawEvent>();
-                try
-                {
 
-                    var eventsQuery = context
-                                .Events
-                                .Where(e => e.EventCollectionVersion > lastReceivedVersion)
-                                .OrderBy(e => e.EventCollectionVersion)
-                                .Take(quantity);
+                var eventsQuery = context
+                            .Events
+                            .Where(e => e.EventCollectionVersion > lastReceivedVersion)
+                            .OrderBy(e => e.EventCollectionVersion)
+                            .Take(quantity);
 
-                    foreach (var e in eventsQuery)
-                        events.Add(new NewRawEvent(e.EventCollectionVersion, e.Payload));
+                foreach (var e in eventsQuery)
+                    events.Add(new NewRawEvent(e.EventCollectionVersion, e.Payload));
 
-                    return events;
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine(ex.Message);
-                    return events;
-                }
+                return events;
             }
         }
 

@@ -70,7 +70,7 @@ namespace EventCentric.Transport
                         if (!response.IsSuccessStatusCode)
                             throw new InvalidOperationException(string.Format("Heartbeat request received an status code of: {0}", response.StatusCode.ToString()));
 
-                        this.log.Trace("Heartbeat of {0} received from {1}", name, url);
+                        this.log.Trace($"{response.Content.ReadAsStringAsync().Result}");
                         using (var context = this.contextFactory(false))
                         {
                             var subscription = context.SubscriberHeartbeats.Single(s => s.SubscriberName == name);

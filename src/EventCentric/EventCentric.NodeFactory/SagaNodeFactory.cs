@@ -48,7 +48,7 @@ namespace EventCentric
 
             var poller = new Poller(bus, log, subscriptionRepository, http, serializer, pollerConfig.BufferQueueMaxCount, pollerConfig.EventsToFlushMaxCount);
             var publisher = new Publisher<TAggregate>(bus, log, eventDao, eventStoreConfig.PushMaxCount, TimeSpan.FromMilliseconds(eventStoreConfig.LongPollingTimeout));
-            var fsm = new SagaNode(bus, log);
+            var fsm = new SagaNode(typeof(TAggregate).Name, bus, log);
 
             // Register processor dependencies
             container.RegisterInstance<IBus>(bus);
@@ -60,6 +60,9 @@ namespace EventCentric
 
             // Register for DI
             container.RegisterInstance<IEventSource>(publisher);
+            container.RegisterInstance<ILogger>(log);
+            container.RegisterInstance<INode>(fsm);
+            container.RegisterInstance<IMonitoredSubscriber>(poller);
 
             return fsm;
         }
@@ -100,7 +103,7 @@ namespace EventCentric
             var subscriptionRepository = new SubscriptionRepository(storeContextFactory, serializer, time);
             var poller = new Poller(bus, log, subscriptionRepository, http, serializer, pollerConfig.BufferQueueMaxCount, pollerConfig.EventsToFlushMaxCount);
             var publisher = new Publisher<TAggregate>(bus, log, eventDao, eventStoreConfig.PushMaxCount, TimeSpan.FromMilliseconds(eventStoreConfig.LongPollingTimeout));
-            var fsm = new SagaNode(bus, log);
+            var fsm = new SagaNode(typeof(TAggregate).Name, bus, log);
 
             // Register processor dependencies
             container.RegisterInstance<IBus>(bus);
@@ -113,6 +116,9 @@ namespace EventCentric
             // Register for DI
             container.RegisterInstance<IEventSource>(publisher);
             container.RegisterInstance<IEventStoreConfig>(eventStoreConfig);
+            container.RegisterInstance<ILogger>(log);
+            container.RegisterInstance<INode>(fsm);
+            container.RegisterInstance<IMonitoredSubscriber>(poller);
 
             return fsm;
         }
