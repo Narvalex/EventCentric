@@ -6,6 +6,7 @@ using EventCentric.Messaging.Events;
 using EventCentric.Utils;
 using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace EventCentric.Processing
@@ -49,17 +50,21 @@ namespace EventCentric.Processing
 
         public void Handle(NewIncomingEvents message)
         {
+#if DEBUG
+            var traces = new List<string>();
+            traces.Add($"Processing {message.IncomingEvents.Count()} event/s as follows:");
+            foreach (var incomingEvent in message.IncomingEvents)
+            {
+                traces.Add($"   Processor buffer version {incomingEvent.ProcessorBufferVersion} | Event collection version {incomingEvent.EventCollectionVersion} | Stream {incomingEvent.StreamId} version {incomingEvent.Version}");
+            }
+            this.log.Trace(traces.ToArray());
+#endif
+
             foreach (var incomingEvent in message.IncomingEvents)
             {
                 try
                 {
-                    if (this.store.IncomingEventIsDuplicate(incomingEvent.EventId))
-                    {
-                        this.Ignore(incomingEvent);
-                        return;
-                    }
-
-                        ((dynamic)this).Handle((dynamic)incomingEvent);
+                    ((dynamic)this).Handle((dynamic)incomingEvent);
                 }
                 catch (Exception ex)
                 {

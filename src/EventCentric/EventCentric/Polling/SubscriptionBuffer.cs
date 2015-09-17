@@ -3,9 +3,9 @@ using System.Collections.Concurrent;
 
 namespace EventCentric.Polling
 {
-    public class BufferedSubscription
+    public class SubscriptionBuffer
     {
-        public BufferedSubscription(string streamType, string url, int currentBufferVersion, bool isPoisoned)
+        public SubscriptionBuffer(string streamType, string url, int currentBufferVersion, bool isPoisoned)
         {
             this.StreamType = streamType;
             this.Url = url;
@@ -20,7 +20,8 @@ namespace EventCentric.Polling
         public string Url { get; private set; }
 
         /// <summary>
-        /// The processor buffer version is the lowest event collection version that the processor was handling.
+        /// The processor buffer version is the lowest event collection version that the processor was handling when starting from cold.
+        /// When is on running, is the lastest buffer version that was polled.
         /// </summary>
         public volatile int CurrentBufferVersion;
         public volatile bool IsPolling;

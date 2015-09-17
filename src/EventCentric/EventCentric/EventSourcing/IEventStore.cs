@@ -26,12 +26,5 @@ namespace EventCentric.EventSourcing
         /// <param name="incomingEvent">The correlated <see cref="IEvent"/></param>
         /// <returns>The stream collection version.</returns>
         int Save(T eventSourced, IEvent incomingEvent);
-
-        /// <summary>
-        /// Checks if the incoming event is duplicate.
-        /// </summary>
-        /// <param name="incomingEventId">The incoming event identifier.</param>
-        /// <returns>True if is duplicate, false if is not.</returns>
-        bool IncomingEventIsDuplicate(Guid incomingEventId);
     }
 }

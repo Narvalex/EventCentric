@@ -109,6 +109,24 @@ namespace EventCentric.NodeFactory.Log
                                  args.Length == 0 ? format : string.Format(format, args),
                                  stringBuilder);
         }
+
+        public void Trace(params string[] lines)
+        {
+            var stringBuilder = new StringBuilder();
+
+            stringBuilder.AppendLine();
+
+            foreach (var line in lines)
+                stringBuilder.AppendLine(line);
+
+            stringBuilder.AppendLine();
+
+            this.messageQueue.Enqueue(new Message
+            {
+                id = this.GetMessageId(),
+                message = stringBuilder.ToString()
+            });
+        }
     }
 
     /// <summary>

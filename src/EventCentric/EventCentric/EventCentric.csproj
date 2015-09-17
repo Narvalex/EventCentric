@@ -63,6 +63,7 @@
     <Compile Include="ApplicationService.cs" />
     <Compile Include="EventSourcing\Memento.cs" />
     <Compile Include="NodeInitializer.cs" />
+    <Compile Include="Publishing\IEventDao.cs" />
     <Compile Include="QueueNode.cs" />
     <Compile Include="Config\EventStoreConfig.cs" />
     <Compile Include="Config\IPollerConfig.cs" />
@@ -88,9 +89,8 @@
     <Compile Include="EventSourcing\ReadModelUpdated.cs" />
     <Compile Include="Messaging\Events\PollResponseWasReceived.cs" />
     <Compile Include="Messaging\Worker.cs" />
-    <Compile Include="Polling\PollerBufferPool.cs" />
     <Compile Include="Polling\Poller.cs" />
-    <Compile Include="Polling\BufferedSubscription.cs" />
+    <Compile Include="Polling\SubscriptionBuffer.cs" />
     <Compile Include="Polling\SubscriptionRepository.cs" />
     <Compile Include="Polling\ISubscriptionRepository.cs" />
     <Compile Include="Publishing\EventDao.cs" />

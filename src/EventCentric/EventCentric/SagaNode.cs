@@ -9,8 +9,8 @@ namespace EventCentric
     public class SagaNode : FSM, INode,
         IMessageHandler<EventPublisherStarted>,
         IMessageHandler<EventProcessorStarted>,
-        IMessageHandler<EventPollsterStarted>,
-        IMessageHandler<EventPollsterStopped>,
+        IMessageHandler<EventPollerStarted>,
+        IMessageHandler<EventPollerStopped>,
         IMessageHandler<EventProcessorStopped>,
         IMessageHandler<EventPublisherStopped>
     {
@@ -86,13 +86,13 @@ namespace EventCentric
             {
                 this.State = NodeState.ShuttingDown;
 
-                this.bus.Publish(new StopEventProcessor(), new StopEventPublisher(), new StopEventPollster());
+                this.bus.Publish(new StopEventProcessor(), new StopEventPublisher(), new StopEventPoller());
                 this.State = NodeState.Down;
                 this.OnStopping();
             }
         }
 
-        public void Handle(EventPollsterStarted message)
+        public void Handle(EventPollerStarted message)
         {
             //this.State = NodeState.UpAndRunning;
             this.log.Trace("All services are up and running");
@@ -105,10 +105,10 @@ namespace EventCentric
 
         public void Handle(EventProcessorStarted message)
         {
-            this.bus.Publish(new StartEventPollster());
+            this.bus.Publish(new StartEventPoller());
         }
 
-        public void Handle(EventPollsterStopped message)
+        public void Handle(EventPollerStopped message)
         {
             //..
         }

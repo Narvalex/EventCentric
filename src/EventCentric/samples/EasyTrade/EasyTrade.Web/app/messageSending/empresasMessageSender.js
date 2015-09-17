@@ -9,7 +9,8 @@
 
     function empresasMessageSender($http) {
 
-        var empresasQueueUrl = "http://172.16.251.125:82";
+        //var empresasQueueUrl = "http://172.16.251.125:82";
+        var empresasQueueUrl = "http://192.168.1.4:82";
 
         var service = {
             nuevaEmpresa: nuevaEmpresa,

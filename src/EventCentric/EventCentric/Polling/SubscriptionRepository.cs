@@ -4,7 +4,7 @@ using EventCentric.Repository;
 using EventCentric.Serialization;
 using EventCentric.Utils;
 using System;
-using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace EventCentric.Polling
@@ -26,30 +26,21 @@ namespace EventCentric.Polling
             this.time = time;
         }
 
-        public ConcurrentBag<BufferedSubscription> GetSubscriptions()
+        public SubscriptionBuffer[] GetSubscriptions()
         {
-            var subscriptions = new ConcurrentBag<BufferedSubscription>();
+            var subscriptions = new List<SubscriptionBuffer>();
 
-            try
+            using (var context = this.contextFactory(true))
             {
-                using (var context = this.contextFactory(true))
-                {
-                    var subscriptionsQuery = context.Subscriptions.Where(s => !s.IsPoisoned);
-                    if (subscriptionsQuery.Any())
-                        foreach (var s in subscriptionsQuery)
-                            // We substract one version in order to set the current version bellow the last one, in case that first event
-                            // was not yet processed.
-                            subscriptions.Add(new BufferedSubscription(s.StreamType.Trim(), s.Url.Trim(), s.ProcessorBufferVersion - 1, s.IsPoisoned));
-
-
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
+                var subscriptionsQuery = context.Subscriptions.Where(s => !s.IsPoisoned);
+                if (subscriptionsQuery.Any())
+                    foreach (var s in subscriptionsQuery)
+                        // We substract one version in order to set the current version bellow the last one, in case that first event
+                        // was not yet processed.
+                        subscriptions.Add(new SubscriptionBuffer(s.StreamType.Trim(), s.Url.Trim(), s.ProcessorBufferVersion - 1, s.IsPoisoned));
             }
 
-            return subscriptions;
+            return subscriptions.ToArray();
         }
 
         public void FlagSubscriptionAsPoisoned(IEvent poisonedEvent, PoisonMessageException exception)

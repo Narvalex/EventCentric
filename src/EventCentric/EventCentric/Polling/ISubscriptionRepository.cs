@@ -1,12 +1,11 @@
 ﻿using EventCentric.EventSourcing;
 using EventCentric.Messaging;
-using System.Collections.Concurrent;
 
 namespace EventCentric.Polling
 {
     public interface ISubscriptionRepository
     {
-        ConcurrentBag<BufferedSubscription> GetSubscriptions();
+        SubscriptionBuffer[] GetSubscriptions();
 
         void FlagSubscriptionAsPoisoned(IEvent poisonedEvent, PoisonMessageException exception);
     }
