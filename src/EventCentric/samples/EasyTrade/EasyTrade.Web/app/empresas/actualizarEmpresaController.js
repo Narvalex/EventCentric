@@ -65,7 +65,7 @@
         }
 
         function cancelar() {
-            utils.animateTransitionTo('section.main', 'fadeInRight', 'zoomOutDown', function () {
+            utils.animateTransitionTo('section.main', 'fadeInLeft', 'zoomOutDown', function () {
                 $state.go('main');
             });
         }

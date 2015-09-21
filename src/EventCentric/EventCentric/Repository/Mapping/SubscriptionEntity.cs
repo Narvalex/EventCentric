@@ -7,6 +7,7 @@ namespace EventCentric.Repository.Mapping
     {
         public string StreamType { get; set; }
         public string Url { get; set; }
+        public string Token { get; set; }
         public int ProcessorBufferVersion { get; set; }
         public bool IsPoisoned { get; set; }
         public int? PoisonEventCollectionVersion { get; set; }
@@ -38,6 +39,7 @@ namespace EventCentric.Repository.Mapping
             this.ToTable("Subscriptions", "EventStore");
             this.Property(t => t.StreamType).HasColumnName("StreamType");
             this.Property(t => t.Url).HasColumnName("Url");
+            this.Property(t => t.Token).HasColumnName("Token");
             this.Property(t => t.ProcessorBufferVersion).HasColumnName("ProcessorBufferVersion");
             this.Property(t => t.IsPoisoned).HasColumnName("IsPoisoned");
             this.Property(t => t.PoisonEventCollectionVersion).HasColumnName("PoisonEventCollectionVersion");

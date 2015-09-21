@@ -1,5 +1,6 @@
 ﻿using EventCentric.Config;
 using EventCentric.Messaging;
+using EventCentric.NodeFactory.Factories;
 using EventCentric.NodeFactory.Log;
 using EventCentric.Publishing;
 using EventCentric.Queueing;
@@ -20,6 +21,8 @@ namespace EventCentric
 
             var eventStoreConfig = EventStoreConfig.GetConfig();
             var connectionString = eventStoreConfig.ConnectionString;
+
+            AuthorizationFactory.SetToken(eventStoreConfig);
 
             Func<bool, EventQueueDbContext> eventQueueDbContextFactory = isReadOnly => new EventQueueDbContext(isReadOnly, connectionString);
 
@@ -55,6 +58,8 @@ namespace EventCentric
         {
             var eventStoreConfig = EventStoreConfig.GetConfig();
             var connectionString = eventStoreConfig.ConnectionString;
+
+            AuthorizationFactory.SetToken(eventStoreConfig);
 
             var dbContextConstructor = typeof(TDbContext).GetConstructor(new[] { typeof(bool), typeof(string) });
             Ensure.CastIsValid(dbContextConstructor, "Type TDbContext must have a constructor with the following signature: ctor(bool, string)");

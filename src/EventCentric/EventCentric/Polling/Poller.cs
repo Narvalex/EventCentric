@@ -90,7 +90,7 @@ namespace EventCentric.Polling
             {
                 subscription.IsPolling = true;
                 Task.Factory.StartNewLongRunning(() =>
-                    http.PollSubscription(subscription.StreamType, subscription.Url, subscription.CurrentBufferVersion));
+                    http.PollSubscription(subscription.StreamType, subscription.Url, subscription.Token, subscription.CurrentBufferVersion));
             }
 
             // there are subscriptions that are being polled

@@ -60,14 +60,14 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ApplicationService.cs" />
+    <Compile Include="Node\ApplicationService.cs" />
     <Compile Include="EventSourcing\Memento.cs" />
-    <Compile Include="NodeBase.cs" />
-    <Compile Include="NodeInitializer.cs" />
+    <Compile Include="Node\NodeBase.cs" />
+    <Compile Include="Node\NodeInitializer.cs" />
     <Compile Include="Polling\IMonitoredSubscriber.cs" />
     <Compile Include="Polling\IMonitoredSubscription.cs" />
     <Compile Include="Publishing\IEventDao.cs" />
-    <Compile Include="QueueNode.cs" />
+    <Compile Include="Node\QueueNode.cs" />
     <Compile Include="Config\EventStoreConfig.cs" />
     <Compile Include="Config\IPollerConfig.cs" />
     <Compile Include="Config\PollerConfig.cs" />
@@ -100,13 +100,13 @@
     <Compile Include="Repository\EventQueueDbContext.cs" />
     <Compile Include="Repository\IEventQueueDbContext.cs" />
     <Compile Include="Repository\IEventStoreDbContext.cs" />
-    <Compile Include="INode.cs" />
+    <Compile Include="Node\INode.cs" />
     <Compile Include="Messaging\Events\FatalErrorOcurred.cs" />
     <Compile Include="Messaging\Events\MessageHasBeenQueued.cs" />
     <Compile Include="Messaging\FatalErrorException.cs" />
     <Compile Include="Messaging\BusExtensions.cs" />
     <Compile Include="Messaging\PoisonMessageException.cs" />
-    <Compile Include="NodeState.cs" />
+    <Compile Include="Node\NodeState.cs" />
     <Compile Include="Queueing\IQueueWriter.cs" />
     <Compile Include="Queueing\EventQueue.cs" />
     <Compile Include="Queueing\QueuedEvent.cs" />
@@ -124,7 +124,7 @@
     <Compile Include="EventSourcing\IMementoOriginator.cs" />
     <Compile Include="EventSourcing\IUpdatesOn.cs" />
     <Compile Include="EventSourcing\StreamNotFoundException.cs" />
-    <Compile Include="SagaNode.cs" />
+    <Compile Include="Node\SagaNode.cs" />
     <Compile Include="Messaging\Bus.cs" />
     <Compile Include="Messaging\Commands\StartEngineCommands.cs" />
     <Compile Include="Messaging\Commands\StopEngineCommands.cs" />
@@ -176,6 +176,7 @@
     <None Include="App.config" />
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

@@ -5,10 +5,11 @@ namespace EventCentric.Polling
 {
     public class SubscriptionBuffer : IMonitoredSubscription
     {
-        public SubscriptionBuffer(string streamType, string url, int currentBufferVersion, bool isPoisoned)
+        public SubscriptionBuffer(string streamType, string url, string token, int currentBufferVersion, bool isPoisoned)
         {
             this.StreamType = streamType;
             this.Url = url;
+            this.Token = token;
             this.CurrentBufferVersion = currentBufferVersion;
             this.IsPolling = false;
             this.IsPoisoned = isPoisoned;
@@ -18,6 +19,7 @@ namespace EventCentric.Polling
 
         public string StreamType { get; private set; }
         public string Url { get; private set; }
+        public string Token { get; private set; }
 
         /// <summary>
         /// The processor buffer version is the lowest event collection version that the processor was handling when starting from cold.

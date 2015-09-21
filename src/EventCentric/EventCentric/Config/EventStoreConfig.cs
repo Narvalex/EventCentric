@@ -29,5 +29,11 @@ namespace EventCentric.Config
         {
             get { return Convert.ToDouble(this["longPollingTimeout"]); }
         }
+
+        [ConfigurationProperty("token", IsRequired = true)]
+        public string Token
+        {
+            get { return this["token"] as string; }
+        }
     }
 }

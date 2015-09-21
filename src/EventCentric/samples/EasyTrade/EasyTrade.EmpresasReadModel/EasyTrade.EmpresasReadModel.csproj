@@ -89,6 +89,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Scripts\CreateEmpresasReadModelDb.sql" />
+    <Content Include="Scripts\InsertSubscriptions.sql" />
     <Content Include="Scripts\ResetEmpresasReadModelDb.sql" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

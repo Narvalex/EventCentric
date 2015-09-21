@@ -4,6 +4,7 @@ using EventCentric.Messaging.Events;
 using EventCentric.Utils;
 using System;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Threading;
 
 // More info: http://stackoverflow.com/questions/17700089/whats-the-best-way-to-target-multiple-versions-of-the-net-framework
@@ -28,11 +29,11 @@ namespace EventCentric.Transport
             this.log = log;
         }
 
-        public void PollSubscription(string streamType, string url, int fromVersion)
+        public void PollSubscription(string streamType, string url, string token, int fromVersion)
         {
             // when poll arives, publish in bus.
 
-            using (var client = this.CreateHttpClient())
+            using (var client = this.CreateHttpClient(token))
             {
                 try
                 {
@@ -54,10 +55,16 @@ namespace EventCentric.Transport
             }
         }
 
-        private HttpClient CreateHttpClient()
+
+        /// <summary>
+        /// More info on credentials: http://stackoverflow.com/questions/14627399/setting-authorization-header-of-httpclient
+        /// </summary>
+        /// <returns></returns>
+        private HttpClient CreateHttpClient(string token)
         {
             var client = new HttpClient();
             client.Timeout = this.timeout;
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
             return client;
         }
     }

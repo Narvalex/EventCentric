@@ -2,6 +2,7 @@
 using EventCentric.EventSourcing;
 using EventCentric.Log;
 using EventCentric.Messaging;
+using EventCentric.NodeFactory.Factories;
 using EventCentric.NodeFactory.Log;
 using EventCentric.Polling;
 using EventCentric.Processing;
@@ -28,6 +29,8 @@ namespace EventCentric
             var pollerConfig = PollerConfig.GetConfig();
 
             var connectionString = eventStoreConfig.ConnectionString;
+
+            AuthorizationFactory.SetToken(eventStoreConfig);
 
             Func<bool, EventStoreDbContext> storeContextFactory = isReadOnly => new EventStoreDbContext(isReadOnly, connectionString);
             Func<bool, EventQueueDbContext> queueContextFactory = isReadOnly => new EventQueueDbContext(isReadOnly, connectionString);
@@ -79,6 +82,8 @@ namespace EventCentric
             var pollerConfig = PollerConfig.GetConfig();
 
             var connectionString = eventStoreConfig.ConnectionString;
+
+            AuthorizationFactory.SetToken(eventStoreConfig);
 
             Func<bool, EventStoreDbContext> storeContextFactory = isReadOnly => new EventStoreDbContext(isReadOnly, connectionString);
             Func<bool, EventQueueDbContext> queueContextFactory = isReadOnly => new EventQueueDbContext(isReadOnly, connectionString);

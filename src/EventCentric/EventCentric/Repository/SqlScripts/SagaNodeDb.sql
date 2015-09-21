@@ -83,6 +83,7 @@ IF NOT EXISTS(SELECT* FROM sys.objects WHERE object_id = OBJECT_ID(N'[EventStore
 CREATE TABLE[EventStore].[Subscriptions](
 	[StreamType] [nvarchar] (255) NOT NULL,
     [Url] [nvarchar] (500) NOT NULL,
+	[Token] [nvarchar] (max) NOT NULL,
     [ProcessorBufferVersion] [int] NOT NULL,
     [IsPoisoned] [bit] NOT NULL,
     [PoisonEventCollectionVersion] [int] NULL,

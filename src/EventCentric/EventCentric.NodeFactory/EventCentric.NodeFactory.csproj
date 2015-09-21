@@ -85,6 +85,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Factories\AuthorizationFactory.cs" />
     <Compile Include="QueueNodeFactory.cs" />
     <Compile Include="Log\Logger.cs" />
     <Compile Include="Log\LogHub.cs" />
@@ -93,6 +94,10 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\EventCentric.Authorization\EventCentric.Authorization.csproj">
+      <Project>{39a21d07-83a2-402a-9aaf-56b3a225487a}</Project>
+      <Name>EventCentric.Authorization</Name>
+    </ProjectReference>
     <ProjectReference Include="..\EventCentric\EventCentric.csproj">
       <Project>{4b00e8dd-813c-4abb-8c87-c664d188f62c}</Project>
       <Name>EventCentric</Name>

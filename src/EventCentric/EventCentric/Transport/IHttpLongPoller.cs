@@ -8,6 +8,6 @@
         /// <remarks>
         /// More info: http://www.pubnub.com/blog/http-long-polling/ 
         /// </remarks>
-        void PollSubscription(string streamType, string url, int lastReceivedVersion);
+        void PollSubscription(string streamType, string url, string token, int lastReceivedVersion);
     }
 }

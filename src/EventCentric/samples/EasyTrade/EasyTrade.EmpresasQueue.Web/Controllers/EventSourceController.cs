@@ -1,10 +1,12 @@
-﻿using EventCentric.Publishing;
+﻿using EventCentric.Authorization;
+using EventCentric.Publishing;
 using System.Web.Http;
 using System.Web.Http.Cors;
 
 namespace EasyTrade.EmpresasQueue.Web.Controllers
 {
     [EnableCors(origins: "*", headers: "*", methods: "*")]
+    [AuthorizationRequired]
     public class EventSourceController : ApiController
     {
         private readonly IEventSource source;

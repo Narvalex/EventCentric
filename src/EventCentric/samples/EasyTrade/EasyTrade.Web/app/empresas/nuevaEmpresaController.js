@@ -36,7 +36,7 @@
                     vm.submitText = 'Registrado! Redirigiendo a la lista de empresas...';
                     dao.awaitResult(data.data)
                         .then(function (data) {
-                            utils.animateTransitionTo('section.main', 'fadeInRight', 'zoomOutUp', function () {
+                            utils.animateTransitionTo('section.main', 'zoomIn', 'zoomOutUp', function () {
                                 $state.go('main');
                             });
                         },
@@ -55,7 +55,7 @@
         }
 
         function cancelar() {
-            utils.animateTransitionTo('section.main', 'fadeInRight', 'zoomOutDown', function () {
+            utils.animateTransitionTo('section.main', 'zoomIn', 'zoomOutDown', function () {
                 $state.go('main');
             });
         }

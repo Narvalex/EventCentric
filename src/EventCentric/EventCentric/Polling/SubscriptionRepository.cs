@@ -37,7 +37,7 @@ namespace EventCentric.Polling
                     foreach (var s in subscriptionsQuery)
                         // We substract one version in order to set the current version bellow the last one, in case that first event
                         // was not yet processed.
-                        subscriptions.Add(new SubscriptionBuffer(s.StreamType.Trim(), s.Url.Trim(), s.ProcessorBufferVersion - 1, s.IsPoisoned));
+                        subscriptions.Add(new SubscriptionBuffer(s.StreamType.Trim(), s.Url.Trim(), s.Token, s.ProcessorBufferVersion - 1, s.IsPoisoned));
             }
 
             return subscriptions.ToArray();
