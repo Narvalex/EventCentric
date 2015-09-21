@@ -56,6 +56,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventCentric.Authorization", "EventCentric.Authorization\EventCentric.Authorization.csproj", "{39A21D07-83A2-402A-9AAF-56B3A225487A}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EasyTrade.InventarioQueue", "samples\EasyTrade\EasyTrade.InventarioQueue\EasyTrade.InventarioQueue.csproj", "{FDDE5257-CA89-4BFD-8249-ADC922F7FF13}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Inventario", "Inventario", "{80E0F4F1-167A-4726-96D3-804E29A1FBBC}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -138,6 +142,10 @@ Global
 		{39A21D07-83A2-402A-9AAF-56B3A225487A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{39A21D07-83A2-402A-9AAF-56B3A225487A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{39A21D07-83A2-402A-9AAF-56B3A225487A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FDDE5257-CA89-4BFD-8249-ADC922F7FF13}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FDDE5257-CA89-4BFD-8249-ADC922F7FF13}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FDDE5257-CA89-4BFD-8249-ADC922F7FF13}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FDDE5257-CA89-4BFD-8249-ADC922F7FF13}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -160,6 +168,8 @@ Global
 		{C96198D7-4125-4B83-892A-90861E4099C9} = {34EB9962-7371-4522-ACAC-B0A6442762CD}
 		{CF73DBF0-2180-41C0-A0A2-39B9D5135FA8} = {34EB9962-7371-4522-ACAC-B0A6442762CD}
 		{34EB9962-7371-4522-ACAC-B0A6442762CD} = {5F3BE14E-BB71-42C2-BEA6-A68F40BA9823}
+		{FDDE5257-CA89-4BFD-8249-ADC922F7FF13} = {80E0F4F1-167A-4726-96D3-804E29A1FBBC}
+		{80E0F4F1-167A-4726-96D3-804E29A1FBBC} = {5F3BE14E-BB71-42C2-BEA6-A68F40BA9823}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		EnterpriseLibraryConfigurationToolBinariesPath = packages\Unity.2.1.505.2\lib\NET35

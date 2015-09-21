@@ -14,9 +14,9 @@
             $urlRouterProvider.otherwise("/");
 
             $stateProvider
-            .state("index", {
+            .state("main", {
                 url: "/",
-                templateUrl: "/app/inventario/index.html"
+                templateUrl: "/app/inventario/inventarioMain.html"
             })
             //.state("nuevaEmpresa", {
             //    url: "/nueva-empresa",
@@ -47,7 +47,7 @@
     // Kick start the router
     app.run(['$state',
         function ($state) {
-            $state.go('index');
+            $state.go('main');
 
             configToastr();
         }]);
