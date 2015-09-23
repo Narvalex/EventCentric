@@ -33,15 +33,15 @@ namespace EventCentric.Transport
         {
             // when poll arives, publish in bus.
 
-            using (var client = this.CreateHttpClient(token))
+            using (var httpClient = this.CreateHttpClient(token))
             {
                 try
                 {
-                    var getResult = client.GetAsync(string.Format("{0}/{1}", url, fromVersion)).Result;
-                    if (!getResult.IsSuccessStatusCode)
-                        throw new InvalidOperationException(string.Format("The status code was: {0}", getResult.StatusCode.ToString()));
+                    var result = httpClient.GetAsync(string.Format("{0}/{1}", url, fromVersion)).Result;
+                    if (!result.IsSuccessStatusCode)
+                        throw new InvalidOperationException(string.Format("The status code was: {0}", result.StatusCode.ToString()));
 
-                    var response = getResult.Content.ReadAsAsync<PollResponse>().Result;
+                    var response = result.Content.ReadAsAsync<PollResponse>().Result;
 
                     this.bus.Publish(new PollResponseWasReceived(response));
                 }
