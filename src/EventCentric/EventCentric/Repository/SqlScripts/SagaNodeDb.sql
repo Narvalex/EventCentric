@@ -1,4 +1,10 @@
-﻿USE [master]
+﻿--=====================================================
+-- README: This script can drop and create the schema. 
+-- To achieve this, you need to specify the desired db 
+-- name in 2 places bellow
+--====================================================
+
+USE [master]
 GO
 
 

@@ -89,6 +89,11 @@ namespace EventCentric.Database
             }
         }
 
+        public void DropDatabase()
+        {
+            DropDatabase(this.connectionString);
+        }
+
         public static void DropDatabase(string connectionString)
         {
             var builder = new SqlConnectionStringBuilder(connectionString);

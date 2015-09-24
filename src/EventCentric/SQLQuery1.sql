@@ -1,1 +1,4 @@
-﻿select * from EventStore.Subscriptions
+﻿use EventCentricTestDb
+go
+
+select * from EventStore.streams

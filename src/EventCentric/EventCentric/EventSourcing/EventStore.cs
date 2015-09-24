@@ -28,8 +28,9 @@ namespace EventCentric.EventSourcing
 
         private readonly Func<bool, IEventStoreDbContext> contextFactory;
         private readonly Action<T, IEventStoreDbContext> denormalizeIfApplicable;
+        private readonly Action<IEvent, IEventStoreDbContext, DateTime> updateSubscriptionIfApplicable;
 
-        public EventStore(ITextSerializer serializer, Func<bool, IEventStoreDbContext> contextFactory, ITimeProvider time, IGuidProvider guid, ILogger log)
+        public EventStore(ITextSerializer serializer, Func<bool, IEventStoreDbContext> contextFactory, ITimeProvider time, IGuidProvider guid, ILogger log, bool isSubscriptor = true)
         {
             Ensure.NotNull(serializer, "serializer");
             Ensure.NotNull(contextFactory, "contextFactory");
@@ -57,6 +58,16 @@ namespace EventCentric.EventSourcing
                 this.denormalizeIfApplicable = (aggregate, context) => ((IDenormalizer)aggregate).Denormalize(context);
             else
                 this.denormalizeIfApplicable = (aggregate, context) => { };
+
+            if (isSubscriptor)
+                this.updateSubscriptionIfApplicable = (incomingEvent, context, now) =>
+                {
+                    var subscription = context.Subscriptions.Where(s => s.StreamType == incomingEvent.StreamType).Single();
+                    subscription.ProcessorBufferVersion = incomingEvent.ProcessorBufferVersion;
+                    subscription.UpdateTime = now;
+                };
+            else
+                this.updateSubscriptionIfApplicable = (incomingEvent, context, now) => { };
         }
 
         public T Find(Guid id)
@@ -173,9 +184,7 @@ namespace EventCentric.EventSourcing
                     context.Inbox.Add(message);
 
                     // Update subscription
-                    var subscription = context.Subscriptions.Where(s => s.StreamType == incomingEvent.StreamType).Single();
-                    subscription.ProcessorBufferVersion = incomingEvent.ProcessorBufferVersion;
-                    subscription.UpdateTime = now;
+                    this.updateSubscriptionIfApplicable(incomingEvent, context, now);
 
 
                     // Cache Memento And Publish Stream

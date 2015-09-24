@@ -62,9 +62,11 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
-    <Compile Include="EventStoreDbInitializerFixture.cs" />
+    <Compile Include="EventSourcing\EventStoreFixture.cs" />
+    <Compile Include="EventSourcing\Helpers\CartTestAggregate.cs" />
+    <Compile Include="EventSourcing\Helpers\Messages.cs" />
     <Compile Include="FiniteStateMachine\Helpers\FakeBus.cs" />
-    <Compile Include="Helpers\GIVEN_db.cs" />
+    <Compile Include="Helpers\LoggerFakes.cs" />
     <Compile Include="Playground\GroupedEventStreams.cs" />
     <Compile Include="Playground\Helpers\TestActor.cs" />
     <Compile Include="Playground\InMemoryObjectsPerformance.cs" />

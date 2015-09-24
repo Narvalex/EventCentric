@@ -83,7 +83,7 @@
     <Compile Include="Database\OptimizedDbContext.cs" />
     <Compile Include="Repository\HeartbeatDbContext.cs" />
     <Compile Include="Queueing\ICrudEventBus.cs" />
-    <Compile Include="Repository\SqlScripts\DbInitializer.cs" />
+    <Compile Include="Repository\EventCentricDbInitializer.cs" />
     <Compile Include="Config\IEventStoreConfig.cs" />
     <Compile Include="Database\SqlClientLite.cs" />
     <Compile Include="Database\TransientFaultHandlingDbConfiguration.cs" />

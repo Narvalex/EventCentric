@@ -3,28 +3,28 @@ using System.Net.Http;
 
 namespace Clientes.Tests
 {
-    [TestClass]
+    //[TestClass]
     public class PerformanceTests
     {
-        [TestMethod]
+        //[TestMethod]
         public void Can_create_10_streams()
         {
             this.CreateStreams(10);
         }
 
-        [TestMethod]
+        //[TestMethod]
         public void Can_create_50_streams()
         {
             this.CreateStreams(50);
         }
 
-        [TestMethod]
+        //[TestMethod]
         public void Can_create_100_streams()
         {
             this.CreateStreams(100);
         }
 
-        [TestMethod]
+        //[TestMethod]
         public void Can_create_500_streams()
         {
             this.CreateStreams(500);
