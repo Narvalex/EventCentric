@@ -11,9 +11,9 @@ using System.Linq;
 
 namespace EasyTrade.EmpresasQueue
 {
-    public class EmpresasQueueApp : CrudApplicationService, IEmpresasQueueApp
+    public class EmpresasQueueApp : CrudQueueApplicationService, IEmpresasQueueApp
     {
-        public EmpresasQueueApp(ICrudEventBus bus, IGuidProvider guid, ITimeProvider time)
+        public EmpresasQueueApp(ICrudEventQueue bus, IGuidProvider guid, ITimeProvider time)
             : base(bus, guid, time)
         { }
 
@@ -23,7 +23,7 @@ namespace EasyTrade.EmpresasQueue
 
             var empresa = new Empresa(dto.IdEmpresa, dto.Nombre, dto.Ruc, dto.Descripcion);
 
-            this.bus.Send<EmpresasQueueDbContext>(
+            this.queue.Enqueue<EmpresasQueueDbContext>(
                 new DatosDeEmpresaActualizados(dto.IdEmpresa, transactionId, empresa, time.Now),
                 context =>
                 {
@@ -43,7 +43,7 @@ namespace EasyTrade.EmpresasQueue
 
             var @event = new EmpresaDesactivada(idEmpresa, transactionId, idEmpresa);
 
-            this.bus.Send<EmpresasQueueDbContext>(@event,
+            this.queue.Enqueue<EmpresasQueueDbContext>(@event,
                 context =>
                 {
                     AlDesactivarEmpresa.EstaDebeHaberSidoRegistrada(context, idEmpresa);
@@ -57,7 +57,7 @@ namespace EasyTrade.EmpresasQueue
             var transactionId = this.guid.NewGuid();
             var empresa = new Empresa(transactionId, dto.Nombre, dto.Ruc, dto.Descripcion);
 
-            this.bus.Send<EmpresasQueueDbContext>(
+            this.queue.Enqueue<EmpresasQueueDbContext>(
                 new NuevaEmpresaRegistrada(empresa.IdEmpresa, transactionId, empresa, time.Now),
                 context =>
                 {
@@ -79,7 +79,7 @@ namespace EasyTrade.EmpresasQueue
 
             var @event = new EmpresaReactivada(idEmpresa, transactionId, idEmpresa);
 
-            this.bus.Send<EmpresasQueueDbContext>(@event,
+            this.queue.Enqueue<EmpresasQueueDbContext>(@event,
                 context =>
                 {
                     AlReactivarEmpresa.EstaDebeHaberSidoRegistrada(context, idEmpresa);

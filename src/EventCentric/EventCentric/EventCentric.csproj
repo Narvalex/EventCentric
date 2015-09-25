@@ -60,10 +60,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Node\ApplicationService.cs" />
+    <Compile Include="Node\ApplicationServiceBase.cs" />
     <Compile Include="EventSourcing\Memento.cs" />
     <Compile Include="Node\NodeBase.cs" />
     <Compile Include="Node\NodeInitializer.cs" />
+    <Compile Include="Node\ProcessorApplicationService.cs" />
+    <Compile Include="Node\QueueApplicationService.cs" />
     <Compile Include="Polling\IMonitoredSubscriber.cs" />
     <Compile Include="Polling\IMonitoredSubscription.cs" />
     <Compile Include="Publishing\IEventDao.cs" />
@@ -82,7 +84,7 @@
     <Compile Include="Repository\Mapping\SubscriberHeartbeatEntity.cs" />
     <Compile Include="Database\OptimizedDbContext.cs" />
     <Compile Include="Repository\HeartbeatDbContext.cs" />
-    <Compile Include="Queueing\ICrudEventBus.cs" />
+    <Compile Include="Queueing\ICrudEventQueue.cs" />
     <Compile Include="Repository\EventCentricDbInitializer.cs" />
     <Compile Include="Config\IEventStoreConfig.cs" />
     <Compile Include="Database\SqlClientLite.cs" />
@@ -140,7 +142,7 @@
     <Compile Include="Repository\Mapping\InboxEntity.cs" />
     <Compile Include="Repository\EventStoreDbContext.cs" />
     <Compile Include="Repository\Mapping\StreamEntity.cs" />
-    <Compile Include="Queueing\IEventBus.cs" />
+    <Compile Include="Queueing\IEventQueue.cs" />
     <Compile Include="Processing\IEventHandler.cs" />
     <Compile Include="Publishing\IEventSource.cs" />
     <Compile Include="Serialization\ITextSerializer.cs" />

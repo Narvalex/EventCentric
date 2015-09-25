@@ -2,8 +2,8 @@
 
 namespace EventCentric.Queueing
 {
-    public interface IEventBus
+    public interface IEventQueue
     {
-        void Send(IEvent @event);
+        void Enqueue(IEvent @event);
     }
 }

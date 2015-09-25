@@ -43,7 +43,7 @@ namespace EventCentric
             var heartbeatListener = new HeartbeatListener(bus, log, time, new TimeSpan(0, 1, 0), new TimeSpan(0, 2, 0), isReadonly => new HeartbeatDbContext(isReadonly, connectionString));
 
             // Register for DI
-            container.RegisterInstance<IEventBus>(eventBus);
+            container.RegisterInstance<IEventQueue>(eventBus);
             container.RegisterInstance<IEventSource>(eventPublisher);
             container.RegisterInstance<IGuidProvider>(guid);
             container.RegisterInstance<ITimeProvider>(time);
@@ -82,7 +82,7 @@ namespace EventCentric
             var heartbeatListener = new HeartbeatListener(bus, log, time, new TimeSpan(0, 1, 0), new TimeSpan(0, 2, 0), isReadonly => new HeartbeatDbContext(isReadonly, connectionString));
 
             // Register for DI
-            container.RegisterInstance<ICrudEventBus>(eventBus);
+            container.RegisterInstance<ICrudEventQueue>(eventBus);
             container.RegisterInstance<IEventSource>(eventPublisher);
             container.RegisterInstance<IGuidProvider>(guid);
             container.RegisterInstance<ITimeProvider>(time);

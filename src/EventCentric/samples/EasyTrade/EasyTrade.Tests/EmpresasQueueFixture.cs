@@ -18,7 +18,7 @@ namespace EasyTrade.Tests
             var container = new UnityContainer();
             var node = QueueNodeFactory<EmpresasQueueApp>.CreateCrudNode<EmpresasQueueDbContext>(container);
             System.Data.Entity.Database.SetInitializer<EmpresasQueueDbContext>(null);
-            this.app = new EmpresasQueueApp(container.Resolve<ICrudEventBus>(), container.Resolve<IGuidProvider>(), container.Resolve<ITimeProvider>());
+            this.app = new EmpresasQueueApp(container.Resolve<ICrudEventQueue>(), container.Resolve<IGuidProvider>(), container.Resolve<ITimeProvider>());
         }
 
         //[TestMethod]

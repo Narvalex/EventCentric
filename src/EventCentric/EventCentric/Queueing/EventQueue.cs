@@ -9,7 +9,7 @@ using System.Collections.Concurrent;
 
 namespace EventCentric.Queueing
 {
-    public class EventQueue : FSM, IEventBus,
+    public class EventQueue : FSM, IEventQueue,
         IMessageHandler<StartEventQueue>,
         IMessageHandler<StopEventQueue>
     {
@@ -25,7 +25,7 @@ namespace EventCentric.Queueing
             this.streamLocksById = new ConcurrentDictionary<Guid, object>();
         }
 
-        public void Send(IEvent @event)
+        public void Enqueue(IEvent @event)
         {
             this.streamLocksById.TryAdd(@event.StreamId, new object());
             lock (this.streamLocksById.TryGetValue(@event.StreamId))

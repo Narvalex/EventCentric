@@ -47,7 +47,7 @@ namespace Clientes.Client.App_Start
 
                 _node.Start();
 
-                var app = new TelefonicaAdminClient(container.Resolve<IEventBus>());
+                var app = new TelefonicaAdminClient(container.Resolve<IEventQueue>());
                 container.RegisterInstance<ITelefonicaAdminClient>(app);
             }
         }

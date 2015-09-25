@@ -16,17 +16,16 @@ using System;
 
 namespace EventCentric
 {
-    public class SagaNodeFactory<TAggregate, THandler>
+    public class ProessorNodeFactory<TAggregate, THandler>
         where TAggregate : class, IEventSourced
         where THandler : EventProcessor<TAggregate>
     {
-        public static INode CreateNode(IUnityContainer container, bool setLocalTime = true, bool setSequentialGuid = true)
+        public static INode CreateNode(IUnityContainer container, bool isSaga, bool setLocalTime = true, bool setSequentialGuid = true)
         {
             System.Data.Entity.Database.SetInitializer<EventStoreDbContext>(null);
             System.Data.Entity.Database.SetInitializer<EventQueueDbContext>(null);
 
             var eventStoreConfig = EventStoreConfig.GetConfig();
-            var pollerConfig = PollerConfig.GetConfig();
 
             var connectionString = eventStoreConfig.ConnectionString;
 
@@ -47,9 +46,6 @@ namespace EventCentric
 
             var bus = new Bus();
 
-            var http = new HttpLongPoller(bus, log, TimeSpan.FromMilliseconds(pollerConfig.Timeout));
-
-            var poller = new Poller(bus, log, subscriptionRepository, http, serializer, pollerConfig.BufferQueueMaxCount, pollerConfig.EventsToFlushMaxCount);
             var publisher = new Publisher<TAggregate>(bus, log, eventDao, eventStoreConfig.PushMaxCount, TimeSpan.FromMilliseconds(eventStoreConfig.LongPollingTimeout));
             var fsm = new SagaNode(typeof(TAggregate).Name, bus, log);
 
@@ -65,7 +61,15 @@ namespace EventCentric
             container.RegisterInstance<IEventSource>(publisher);
             container.RegisterInstance<ILogger>(log);
             container.RegisterInstance<INode>(fsm);
-            container.RegisterInstance<IMonitoredSubscriber>(poller);
+
+            // For saga nodes
+            if (isSaga)
+            {
+                var pollerConfig = PollerConfig.GetConfig();
+                var http = new HttpLongPoller(bus, log, TimeSpan.FromMilliseconds(pollerConfig.Timeout));
+                var poller = new Poller(bus, log, subscriptionRepository, http, serializer, pollerConfig.BufferQueueMaxCount, pollerConfig.EventsToFlushMaxCount);
+                container.RegisterInstance<IMonitoredSubscriber>(poller);
+            }
 
             return fsm;
         }

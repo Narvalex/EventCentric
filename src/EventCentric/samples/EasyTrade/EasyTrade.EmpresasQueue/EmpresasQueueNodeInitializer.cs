@@ -17,7 +17,7 @@ namespace EasyTrade.EmpresasQueue
 
                     System.Data.Entity.Database.SetInitializer<EmpresasQueueDbContext>(null);
 
-                    var app = new EmpresasQueueApp(container.Resolve<ICrudEventBus>(), container.Resolve<IGuidProvider>(), container.Resolve<ITimeProvider>());
+                    var app = new EmpresasQueueApp(container.Resolve<ICrudEventQueue>(), container.Resolve<IGuidProvider>(), container.Resolve<ITimeProvider>());
 
                     // For asp.net controller dependency injection
                     container.RegisterInstance<IEmpresasQueueApp>(app);

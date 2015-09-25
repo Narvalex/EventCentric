@@ -90,7 +90,7 @@
     <Compile Include="Log\Logger.cs" />
     <Compile Include="Log\LogHub.cs" />
     <Compile Include="Log\SignalRBase.cs" />
-    <Compile Include="SagaNodeFactory.cs" />
+    <Compile Include="ProcessorNodeFactory.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

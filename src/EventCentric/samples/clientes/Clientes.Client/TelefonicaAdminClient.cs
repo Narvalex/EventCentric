@@ -8,9 +8,9 @@ namespace Clientes.Client
     public class TelefonicaAdminClient : ITelefonicaAdminClient
     {
         private readonly IGuidProvider guidProvider;
-        private readonly IEventBus bus;
+        private readonly IEventQueue bus;
 
-        public TelefonicaAdminClient(IEventBus bus)
+        public TelefonicaAdminClient(IEventQueue bus)
         {
             Ensure.NotNull(bus, "bus");
 
@@ -21,19 +21,19 @@ namespace Clientes.Client
         public void SolicitudNuevoClienteRecibida(string nombre)
         {
             // Silly validation
-            this.bus.Send(new SolicitudNuevoClienteRecibida(nombre, this.guidProvider.NewGuid(), this.guidProvider.NewGuid()));
+            this.bus.Enqueue(new SolicitudNuevoClienteRecibida(nombre, this.guidProvider.NewGuid(), this.guidProvider.NewGuid()));
         }
 
         public void ClienteAbonoPorSaldo(Guid idCliente, int montoAbonado)
         {
             // Silly vallidation
-            this.bus.Send(new ClienteAbonoPorSaldo(montoAbonado, idCliente, this.guidProvider.NewGuid()));
+            this.bus.Enqueue(new ClienteAbonoPorSaldo(montoAbonado, idCliente, this.guidProvider.NewGuid()));
         }
 
         public void ClienteGastoSaldo(Guid idCliente, int saldoGastado)
         {
             // Silly Validation
-            this.bus.Send(new ClienteGastoSaldo(saldoGastado, idCliente, this.guidProvider.NewGuid()));
+            this.bus.Enqueue(new ClienteGastoSaldo(saldoGastado, idCliente, this.guidProvider.NewGuid()));
         }
     }
 }

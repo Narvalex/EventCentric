@@ -8,13 +8,13 @@ using System;
 
 namespace EventCentric.Queueing
 {
-    public class CrudEventQueue : EventQueue, ICrudEventBus
+    public class CrudEventQueue : EventQueue, ICrudEventQueue
     {
         public CrudEventQueue(IBus bus, ILogger log, ICrudQueueWriter writer)
             : base(bus, log, writer)
         { }
 
-        public void Send<T>(IEvent @event, Action<T> performCrudOperation) where T : IEventQueueDbContext
+        public void Enqueue<T>(IEvent @event, Action<T> performCrudOperation) where T : IEventQueueDbContext
         {
             base.streamLocksById.TryAdd(@event.StreamId, new object());
             lock (this.streamLocksById.TryGetValue(@event.StreamId))

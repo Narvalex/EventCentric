@@ -40,8 +40,8 @@ namespace Clientes.EventProcessor.App_Start
                 if (_node != null)
                     return;
 
-                _node = SagaNodeFactory<Clientes, ClientesHandler>
-                   .CreateNode(container);
+                _node = ProessorNodeFactory<Clientes, ClientesHandler>
+                   .CreateNode(container, true);
 
                 _node.Start();
             }
