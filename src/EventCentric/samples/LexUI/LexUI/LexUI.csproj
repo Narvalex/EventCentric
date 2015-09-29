@@ -90,6 +90,12 @@
     <Content Include="external-modules\lxLayout\lxLayoutDirective.js" />
     <Content Include="external-modules\lxLayout\lxLayoutModule.js" />
     <Content Include="external-modules\lxLayout\lxLayoutTemplate.html" />
+    <Content Include="external-modules\lxMenu\lxMenu.css" />
+    <Content Include="external-modules\lxMenu\lxMenuItemTemplate.html" />
+    <Content Include="external-modules\lxMenu\lxMenuTemplate.html" />
+    <Content Include="external-modules\lxMenu\lxMenuController.js" />
+    <Content Include="external-modules\lxMenu\lxMenuDirective.js" />
+    <Content Include="external-modules\lxMenu\lxMenuItemDirective.js" />
     <Content Include="external-modules\lxMenu\lxMenuModule.js" />
     <Content Include="favicon.ico" />
     <Content Include="fonts\fontawesome-webfont.svg" />

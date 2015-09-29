@@ -26,6 +26,16 @@
     margin-top: -13px;
 }
 
+@media screen and (max-width: 320px) {
+    .lx-logo-title {
+        display: none;
+    }
+
+    .lx-logo-subtitle {
+        display: none;
+    }
+}
+
 .lx-right-side-controls {
     line-height: 60px;
 }
@@ -36,6 +46,21 @@
 
 @media screen and (max-width: 768px) {
     .lx-right-side-controls {
-    display: none;
+        display: none;
+    }
 }
+
+.lx-collapsed-menu {
+    display: inline-block;
+    height: 100%;
+}
+
+.lx-nav-button {
+    height: 40px;
+    width: 60px;
+    margin-top: 10px;
+    border: 1px solid #888;
+    padding: 0;
+    font-size: 26px;
+    color: #777;
 }

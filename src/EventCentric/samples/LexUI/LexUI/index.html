@@ -8,11 +8,16 @@
 
     <link href="app/app.css" rel="stylesheet" />
     <link href="external-modules/lxLayout/lxLayout.css" rel="stylesheet" />
+    <link href="external-modules/lxMenu/lxMenu.css" rel="stylesheet" />
 
     <script src="Scripts/jquery-2.1.4.js"></script>
     <script src="Scripts/angular.js"></script>
 
     <script src="external-modules/lxMenu/lxMenuModule.js"></script>
+    <script src="external-modules/lxMenu/lxMenuController.js"></script>
+    <script src="external-modules/lxMenu/lxMenuDirective.js"></script>
+    <script src="external-modules/lxMenu/lxMenuItemDirective.js"></script>
+
     <script src="external-modules/lxLayout/lxLayoutModule.js"></script>
     <script src="external-modules/lxLayout/lxLayoutController.js"></script>
     <script src="external-modules/lxLayout/lxLayoutDirective.js"></script>
@@ -21,14 +26,14 @@
     <script src="app/appConfig.js"></script>
 </head>
 <body class="container-fluid"> <!-- The container fluid is to make use of the full screen -->
-    <lx-layout title="Lex UI"
-               subtitle="A Mobile User Experience!"
+    <lx-layout app-title="Lex UI"
+               app-subtitle="A Mobile User Experience!"
                icon-file="images/sample-logo.png">
 
         <lx-menu>
-            <lx-menu-item></lx-menu-item>
-            <lx-menu-item></lx-menu-item>
-            <lx-menu-item></lx-menu-item>
+            <lx-menu-item label="Dashboard" icon="fa-dashboard" route="dashboard"></lx-menu-item>
+            <lx-menu-item label="Lists" icon="fa-list" route="lists"></lx-menu-item>
+            <lx-menu-item label="Forms" icon="fa-pencil" route="forms"></lx-menu-item>
         </lx-menu>
     </lx-layout>
 </body>

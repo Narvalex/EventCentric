@@ -1,12 +1,19 @@
 ﻿<div class="lx-title-bar">
     <div class="row">
         <div class="lx-logo-area col-sm-6">
-            <img class="lx-icon" ng-src="{{iconFile}}" alt="Lex UI" title="{{title}} - {{subtitle}}" />
+            <img class="lx-icon" ng-src="{{iconFile}}" alt="Lex UI" title="{{appTitle}} - {{appSubtitle}}" />
             <div class="lx-title-area">
-                <p class="lx-logo-title">{{title}}</p>
-                <p class="lx-logo-subtitle">{{subtitle}}</p>
+                <p class="lx-logo-title">{{appTitle}}</p>
+                <p class="lx-logo-subtitle">{{appSubtitle}}</p>
+            </div>
+
+            <div ng-if="isMenuButtonVisible" ng-click="menuButtonClicked()" class="lx-collapsed-menu pull-right">
+                <button type="button" class="btn lx-nav-button">
+                    <i class="fa fa-bars"></i>
+                </button>
             </div>
         </div>
+
         <div class="lx-right-side-controls col-sm-6">
             <div>
                 <button class="btn btn-primary">Button 1</button>
@@ -15,4 +22,9 @@
             </div>
         </div>
     </div>
+</div>
+<div ng-transclude></div>
+
+<div style="position: absolute; left: 220px; top: 200px; color: red; font-size: 44px">
+    {{routeString}}
 </div>
