@@ -76,6 +76,8 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="app\app.css" />
+    <Content Include="app\appConfig.js" />
     <Content Include="app\appModule.js" />
     <Content Include="Content\bootstrap-theme.css" />
     <Content Include="Content\bootstrap-theme.min.css" />
@@ -83,7 +85,11 @@
     <Content Include="Content\bootstrap.min.css" />
     <Content Include="Content\font-awesome.css" />
     <Content Include="Content\font-awesome.min.css" />
+    <Content Include="external-modules\lxLayout\lxLayout.css" />
+    <Content Include="external-modules\lxLayout\lxLayoutController.js" />
+    <Content Include="external-modules\lxLayout\lxLayoutDirective.js" />
     <Content Include="external-modules\lxLayout\lxLayoutModule.js" />
+    <Content Include="external-modules\lxLayout\lxLayoutTemplate.html" />
     <Content Include="external-modules\lxMenu\lxMenuModule.js" />
     <Content Include="favicon.ico" />
     <Content Include="fonts\fontawesome-webfont.svg" />
@@ -99,6 +105,7 @@
     <Content Include="fonts\fontawesome-webfont.woff" />
     <Content Include="fonts\fontawesome-webfont.ttf" />
     <Content Include="fonts\fontawesome-webfont.eot" />
+    <Content Include="images\sample-logo.png" />
     <Content Include="index.html" />
     <Content Include="Scripts\angular-mocks.js" />
     <Content Include="Scripts\angular.js" />

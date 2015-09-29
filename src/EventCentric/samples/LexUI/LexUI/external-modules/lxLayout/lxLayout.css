@@ -1,0 +1,41 @@
+﻿.lx-title-bar {
+    background-color: white;
+    padding-right: 20px;
+}
+
+.lx-title-area {
+    display: inline-block;
+}
+
+.lx-icon {
+    display: inline-block;
+    width: 50px;
+    height: 50px;
+    margin: 8px;
+    vertical-align: top;
+}
+
+.lx-logo-title {
+    color: black;
+    margin-top: 6px;
+    font-size: 22px;
+}
+
+.lx-logo-subtitle {
+    font-size: 13px;
+    margin-top: -13px;
+}
+
+.lx-right-side-controls {
+    line-height: 60px;
+}
+
+.lx-right-side-controls > div {
+    text-align: right;
+}
+
+@media screen and (max-width: 768px) {
+    .lx-right-side-controls {
+    display: none;
+}
+}

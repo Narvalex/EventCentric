@@ -1,17 +1,35 @@
 ﻿<!DOCTYPE html>
-<html>
+<html ng-app="app">
 <head>
-    <title></title>
+    <meta name="viewport" content="width=device-width, initial-scale=1"> <!-- We allow user to zoom in -->
+    <title>Lex UI</title>
     <link href="Content/bootstrap.css" rel="stylesheet" />
     <link href="Content/font-awesome.css" rel="stylesheet" />
 
+    <link href="app/app.css" rel="stylesheet" />
+    <link href="external-modules/lxLayout/lxLayout.css" rel="stylesheet" />
+
     <script src="Scripts/jquery-2.1.4.js"></script>
     <script src="Scripts/angular.js"></script>
-</head>
-<body>
 
     <script src="external-modules/lxMenu/lxMenuModule.js"></script>
     <script src="external-modules/lxLayout/lxLayoutModule.js"></script>
+    <script src="external-modules/lxLayout/lxLayoutController.js"></script>
+    <script src="external-modules/lxLayout/lxLayoutDirective.js"></script>
+
     <script src="app/appModule.js"></script>
+    <script src="app/appConfig.js"></script>
+</head>
+<body class="container-fluid"> <!-- The container fluid is to make use of the full screen -->
+    <lx-layout title="Lex UI"
+               subtitle="A Mobile User Experience!"
+               icon-file="images/sample-logo.png">
+
+        <lx-menu>
+            <lx-menu-item></lx-menu-item>
+            <lx-menu-item></lx-menu-item>
+            <lx-menu-item></lx-menu-item>
+        </lx-menu>
+    </lx-layout>
 </body>
 </html>
