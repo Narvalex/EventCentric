@@ -4,6 +4,8 @@ angular.module('lxMenu').controller('lxMenuController',
     ['$scope', '$rootScope',
         function ($scope, $rootScope) {
 
+            $scope.showMenu = false;
+
             this.getActiveItem = function () {
                 return $scope.activeElement;
             };
@@ -17,5 +19,9 @@ angular.module('lxMenu').controller('lxMenuController',
                 {
                     route: route
                 });
-        };
+            };
+
+            $scope.$on('lxMessage-showMenuStateChanged', function (event, data) {
+                $scope.showMenu = data.show;
+            });
 }]);

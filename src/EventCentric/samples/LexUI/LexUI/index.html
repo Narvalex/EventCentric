@@ -17,6 +17,7 @@
     <script src="external-modules/lxMenu/lxMenuController.js"></script>
     <script src="external-modules/lxMenu/lxMenuDirective.js"></script>
     <script src="external-modules/lxMenu/lxMenuItemDirective.js"></script>
+    <script src="external-modules/lxMenu/lxMenuGroupDirective.js"></script>
 
     <script src="external-modules/lxLayout/lxLayoutModule.js"></script>
     <script src="external-modules/lxLayout/lxLayoutController.js"></script>
@@ -34,6 +35,11 @@
             <lx-menu-item label="Dashboard" icon="fa-dashboard" route="dashboard"></lx-menu-item>
             <lx-menu-item label="Lists" icon="fa-list" route="lists"></lx-menu-item>
             <lx-menu-item label="Forms" icon="fa-pencil" route="forms"></lx-menu-item>
+            <lx-menu-group label="Nested Items">
+                <lx-menu-item label="SubItem1" icon="fa-unlink" route="subItem1"></lx-menu-item>
+                <lx-menu-item label="SubItem2" icon="fa-unlink" route="subItem2"></lx-menu-item>
+                <lx-menu-item label="SubItem3" icon="fa-unlink" route="subItem3"></lx-menu-item>
+            </lx-menu-group>
         </lx-menu>
     </lx-layout>
 </body>

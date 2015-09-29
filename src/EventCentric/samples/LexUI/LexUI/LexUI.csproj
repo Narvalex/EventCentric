@@ -66,6 +66,8 @@
     <Reference Include="System.EnterpriseServices" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="external-modules\lxMenu\lxMenuGroupDirective.js" />
+    <Content Include="external-modules\lxMenu\lxMenuGroupTemplate.html" />
     <Content Include="packages.config" />
     <Content Include="Scripts\jquery-2.1.4.min.map" />
     <None Include="Web.Debug.config">

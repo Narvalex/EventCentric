@@ -68,3 +68,14 @@
     -webkit-user-select: none;
     user-select: none;
 }
+
+.lx-group-indicator-left {
+    -moz-transition: all .2s linear;
+    -o-transition: all .2s linear;
+    -webkit-transition: all .2s linear;
+    transition: all .2s linear;
+}
+
+.lx-subitem-section {
+    padding-left: 15px;
+}
