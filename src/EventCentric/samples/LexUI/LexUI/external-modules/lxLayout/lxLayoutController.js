@@ -5,13 +5,19 @@ angular.module('lxLayout').controller('lxLayoutController',
         function ($scope, $window, $timeout, $rootScope) {
 
             //$scope.isMenuVisible = true;
-            //$scope.isMenuButtonVisible = true;
+            $scope.isMenuVertical = true;
 
-            $scope.$on('lxMessage-ItemSelected',
+            $scope.$on('lxMessage-itemSelected',
                 function (event, data) {
                     $scope.routeString = data.route;
                     checkWidth();
                     broadcastMenuState();
+                });
+            
+
+            $scope.$on('lxMessage-menuOrientationChanged',
+                function (event, data) {
+                    $scope.isMenuVertical = data.isMenuVertical;
                 });
 
             $($window).on('resize.lxLayout', function () {

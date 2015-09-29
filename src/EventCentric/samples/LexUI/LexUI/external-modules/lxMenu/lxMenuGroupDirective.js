@@ -14,6 +14,10 @@ angular.module('lxMenu').directive('lxMenuGroup', function () {
                 scope.isOpen = false;
             };
 
+            scope.isVertical = function () {
+                return ctrl.isVertical();
+            };
+
             scope.clicked = function () {
                 scope.isOpen = !scope.isOpen;
             }
