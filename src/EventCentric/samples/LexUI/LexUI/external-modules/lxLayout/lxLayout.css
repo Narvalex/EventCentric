@@ -1,6 +1,8 @@
 ﻿.lx-title-bar {
     background-color: white;
-    padding-right: 20px;
+    position: fixed;
+    width: 100%;
+    max-height: 40px;
 }
 
 .lx-title-area {
@@ -9,35 +11,20 @@
 
 .lx-icon {
     display: inline-block;
-    width: 50px;
-    height: 50px;
-    margin: 8px;
+    width: 40px;
+    height: 40px;
     vertical-align: top;
 }
 
 .lx-logo-title {
     color: black;
-    margin-top: 6px;
     font-size: 22px;
-}
-
-.lx-logo-subtitle {
-    font-size: 13px;
-    margin-top: -13px;
-}
-
-@media screen and (max-width: 430px) {
-    .lx-logo-title {
-        display: none;
-    }
-
-    .lx-logo-subtitle {
-        display: none;
-    }
+    padding-top: 3px;
 }
 
 .lx-right-side-controls {
-    line-height: 60px;
+    /*line-height: 60px;*/
+    margin-top: 5px;
 }
 
 .lx-right-side-controls > div {
@@ -57,18 +44,18 @@
 
 .lx-nav-button {
     height: 40px;
-    width: 60px;
-    margin-top: 10px;
-    border: 1px solid #888;
+    width: 45px;
     padding: 0;
     font-size: 26px;
     color: #777;
+    background-color: rgba(240, 248, 255, 0.00);
 }
 
 .lx-view {
     margin-left: 200px;
+    margin-top: 40px;
     padding: 20px;
-    background-color: #ccc;
+    /*background-color: #ccc;*/
     min-height: 100vh;
     overflow: auto;
 

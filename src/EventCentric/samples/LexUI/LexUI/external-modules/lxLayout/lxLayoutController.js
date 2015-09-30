@@ -38,6 +38,8 @@ angular.module('lxLayout').controller('lxLayoutController',
 
             $scope.menuButtonClicked = function () {
                 $scope.isMenuVisible = !$scope.isMenuVisible;
+                // when clicked, it should be always vertical
+                $scope.isMenuVertical = true;
                 broadcastMenuState();
             }
 
