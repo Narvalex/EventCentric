@@ -6,12 +6,22 @@
 }
 
 .lx-menu-area-vertical {
+    float: left;
     width: 200px;
-    min-height: 100vh
+    min-height: 100vh;
+
+    -moz-transition: all 0.2s ease-out;
+    -o-transition: all 0.2s ease-out;
+    -webkit-transition: all 0.2s ease-out;
+    transition: all 0.2s ease-out;
 }
 
 .lx-menu-area-horizontal {
     width: 100%;
+}
+
+.lx-menu-area.ng-hide {
+    margin-left: -200px;
 }
 
 .lx-menu-area ul {
@@ -93,9 +103,34 @@
     background-color: #333;
 }
 
+.lx-menu-orientation-toggle-horizontal {
+    position: absolute;
+    top: -6px;
+    right: 10px;
+}
+
 .lx-item-horizontal {
     display: inline-block;
     width: 165px !important;
     margin-left: 20px;
     line-height: 1.5em !important;
+}
+
+.lx-popup-menu {
+    position: absolute;
+    z-index: 1000;
+    background-color: #333;
+    width: 200px;
+    padding-left: 0;
+}
+
+.lx-fade-in-animation {
+    -moz-transition: linear all 0.3s;
+    -o-transition: linear all 0.3s;
+    -webkit-transition: linear all 0.3s;
+    transition: linear all 0.3s;
+}
+
+.lx-fade-in-animation.ng-hide {
+    opacity: 0;
 }

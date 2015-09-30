@@ -16,7 +16,7 @@ angular.module('lxMenu').directive('lxMenuItem', function () {
             };
 
             scope.isVertical = function () {
-                return ctrl.isVertical();
+                return ctrl.isVertical() || el.parents('.lx-subitem-section').length > 0;
             };
 
             el.on('click', function (event) { // subscribe to click event on this element

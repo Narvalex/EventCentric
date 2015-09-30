@@ -64,3 +64,20 @@
     font-size: 26px;
     color: #777;
 }
+
+.lx-view {
+    margin-left: 200px;
+    padding: 20px;
+    background-color: #ccc;
+    min-height: 100vh;
+    overflow: auto;
+
+    -moz-transition: ease-out all 0.1s;
+    -o-transition: ease-out all 0.1s;
+    -webkit-transition: ease-out all 0.1s;
+    transition: ease-out all 0.1s;
+}
+
+.lx-view-full-width {
+    margin-left: 0;
+}

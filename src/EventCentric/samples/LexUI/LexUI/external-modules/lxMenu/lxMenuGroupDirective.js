@@ -15,11 +15,21 @@ angular.module('lxMenu').directive('lxMenuGroup', function () {
             };
 
             scope.isVertical = function () {
-                return ctrl.isVertical();
+                return ctrl.isVertical() || el.parents('.lx-subitem-section').length > 0;
             };
 
             scope.clicked = function () {
                 scope.isOpen = !scope.isOpen;
+
+                if (el.parents('.lx-subitem-section').length == 0)
+                    scope.setSubmenuPosition();
+
+                ctrl.setOpenMenuScope(scope);
+            }
+
+            scope.setSubmenuPosition = function () {
+                var pos = el.offset();
+                $('.lx-subitem-section').css({ 'left': pos.left + 20, 'top': 36 });
             }
         }
     };

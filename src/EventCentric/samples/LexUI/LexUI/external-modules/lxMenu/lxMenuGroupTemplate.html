@@ -5,6 +5,6 @@
         {{label}}
     </div>
 </li>
-<div ng-show="isOpen" class="lx-subitem-section">
+<div ng-show="isOpen" class="lx-subitem-section lx-fade-in-animation" ng-class="{'lx-popup-menu': !isVertical()}">
     <ul ng-transclude></ul>
 </div>

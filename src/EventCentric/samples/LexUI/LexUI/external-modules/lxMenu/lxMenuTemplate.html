@@ -1,6 +1,11 @@
-﻿<div class="lx-menu-area" ng-class="{'lx-menu-area-vertical': isVertical, 'lx-menu-area-horizontal': !isVertical}">
+﻿<div class="lx-menu-area"
+     ng-show="showMenu" 
+     ng-class="{'lx-menu-area-vertical': isVertical, 'lx-menu-area-horizontal': !isVertical}">
     <ul class="lx-menu" ng-transclude></ul>
-    <a class="btn lx-menu-orientation-toggle" ng-click="toggleMenuOrientation()">
-        <i class="fa fa-chevron-up"></i>
+    <a class="btn lx-menu-orientation-toggle" 
+       ng-click="toggleMenuOrientation()"
+       ng-show="allowHorizontalToggle"
+       ng-class="{'lx-menu-orientation-toggle-vertical': isVertical, 'lx-menu-orientation-toggle-horizontal': !isVertical}">
+        <i class="fa" ng-class="{'fa-chevron-up': isVertical, 'fa-chevron-left': !isVertical}"></i>
     </a>
 </div>

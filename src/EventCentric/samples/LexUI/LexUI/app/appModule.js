@@ -1,3 +1,3 @@
 ﻿'use strict';
 
-angular.module('app', ['lxLayout']);
+angular.module('app', ['lxLayout', 'ngRoute']);

@@ -1,15 +1,15 @@
 ﻿'use strict';
 
 angular.module('lxLayout').controller('lxLayoutController',
-    ['$scope', '$window', '$timeout', '$rootScope',
-        function ($scope, $window, $timeout, $rootScope) {
+    ['$scope', '$window', '$timeout', '$rootScope', '$location',
+        function ($scope, $window, $timeout, $rootScope, $location) {
 
             //$scope.isMenuVisible = true;
             $scope.isMenuVertical = true;
 
             $scope.$on('lxMessage-itemSelected',
                 function (event, data) {
-                    $scope.routeString = data.route;
+                    $location.path(data.route);
                     checkWidth();
                     broadcastMenuState();
                 });
@@ -39,7 +39,6 @@ angular.module('lxLayout').controller('lxLayoutController',
             $scope.menuButtonClicked = function () {
                 $scope.isMenuVisible = !$scope.isMenuVisible;
                 broadcastMenuState();
-                //$scope.$apply();
             }
 
             function checkWidth() {
@@ -51,7 +50,9 @@ angular.module('lxLayout').controller('lxLayoutController',
             function broadcastMenuState() {
                 $rootScope.$broadcast('lxMessage-showMenuStateChanged',
                     {
-                        show: $scope.isMenuVisible
+                        show: $scope.isMenuVisible,
+                        isVertical: $scope.isMenuVertical,
+                        allowHorizontalToggle: !$scope.isMenuButtonVisible
                     });
             }
         }

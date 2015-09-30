@@ -4,8 +4,8 @@ angular.module('lxMenu').controller('lxMenuController',
     ['$scope', '$rootScope',
         function ($scope, $rootScope) {
 
-            $scope.showMenu = false;
             $scope.isVertical = true;
+            $scope.allowHorizontalToggle = true;
 
             this.getActiveItem = function () {
                 return $scope.activeElement;
@@ -25,12 +25,24 @@ angular.module('lxMenu').controller('lxMenuController',
                     route: route
                 });
             };
+           
+
+            this.setOpenMenuScope = function (scope) {
+                $scope.openMenuScope = scope;
+            }
 
             $scope.$on('lxMessage-showMenuStateChanged', function (event, data) {
                 $scope.showMenu = data.show;
+                $scope.isVertical = data.isVertical;
+                $scope.allowHorizontalToggle = data.allowHorizontalToggle;
             });
 
             $scope.toggleMenuOrientation = function () {
+
+                // close any open menu
+                if ($scope.openMenuScope)
+                    $scope.openMenuScope.closeMenu();
+
                 $scope.isVertical = !$scope.isVertical;
 
                 $rootScope.$broadcast('lxMessage-menuOrientationChanged',
@@ -39,4 +51,16 @@ angular.module('lxMenu').controller('lxMenuController',
                 });
             };
 
-}]);
+            angular.element(document).bind('click', function (e) {
+                if ($scope.openMenuScope && !$scope.isVertical) {
+                    if ($(e.target).parent().hasClass('lx-selectable-item'))
+                        return;
+                    $scope.$apply(function () {
+                        $scope.openMenuScope.closeMenu();
+                    });
+                    e.preventDefault();
+                    e.stopPropagation();
+                }
+            });
+        }
+    ]);
