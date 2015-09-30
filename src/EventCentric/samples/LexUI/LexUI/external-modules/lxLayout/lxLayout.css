@@ -22,7 +22,7 @@
     padding-top: 3px;
 }
 
-.lx-right-side-controls {
+.lx-right-side-btn {
     /*line-height: 60px;*/
     margin-top: 5px;
 }
@@ -38,12 +38,11 @@
 }
 
 .lx-collapsed-menu {
-    display: inline-block;
     height: 100%;
 }
 
 .lx-nav-button {
-    height: 40px;
+    height: 39px;
     width: 45px;
     padding: 0;
     font-size: 26px;

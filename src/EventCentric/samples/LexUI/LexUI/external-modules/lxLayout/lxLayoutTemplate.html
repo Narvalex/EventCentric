@@ -5,19 +5,17 @@
             <div class="lx-title-area">
                 <p class="lx-logo-title">{{appTitle}}</p>
             </div>
-
-            <div ng-if="isMenuButtonVisible" ng-click="menuButtonClicked()" class="lx-collapsed-menu pull-right">
-                <button type="button" class="btn lx-nav-button">
-                    <i class="fa fa-bars"></i>
-                </button>
-            </div>
         </div>
 
         <div class="lx-right-side-controls col-sm-6">
             <div>
-                <button class="btn btn-primary btn-sm">Button 1</button>
-                <button class="btn btn-info btn-sm">Button 2</button>
-                <button class="btn btn-info btn-sm">Button 3</button>
+                <button class="btn btn-primary btn-sm lx-right-side-btn">Button 1</button>
+                <button class="btn btn-info btn-sm lx-right-side-btn">Button 2</button>
+                <button class="btn btn-info btn-sm lx-right-side-btn">Button 3</button>
+
+                <button type="button" ng-click="menuButtonClicked()" class="btn lx-nav-button lx-collapsed-menu pull-right">
+                    <i class="fa fa-bars"></i>
+                </button>
             </div>
         </div>
     </div>
