@@ -6,18 +6,21 @@ angular.module('app').config(['$routeProvider', function ($routeProvider) {
         {
             url: '/dashboard',
             config: {
+                title: 'Dashboard',
                 template: '<lx-dashboard></lx-dashboard>'
             }
         },
         {
             url: '/forms',
             config: {
+                title: 'Forms',
                 template: '<lx-forms></lx-forms>'
             }
         },
         {
             url: '/lists',
             config: {
+                title: 'Lists',
                 template: '<lx-lists></lx-lists>'
             }
         }

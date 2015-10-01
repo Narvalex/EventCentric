@@ -1,6 +1,10 @@
 ﻿<div class="lx-title-bar">
     <div class="row">
-        <div class="lx-logo-area col-xs-6">
+        <div class="col-xs-6">
+            <button type="button" ng-click="menuButtonClicked()"
+                    class="btn lx-menu-button">
+                <i class="fa fa-bars"></i>
+            </button>
             <img class="lx-icon" ng-src="{{iconFile}}" alt="Lex UI" title="{{appTitle}} - {{appSubtitle}}" />
             <div class="lx-title-area">
                 <p class="lx-logo-title">{{appTitle}}</p>
@@ -8,16 +12,7 @@
         </div>
 
         <div class="col-xs-6">
-                <div class="lx-right-side-controls">
-                    <span class="lx-right-side-control-can-be-hidden">
-                        <!--<button class="btn btn-info btn-sm">Button 2</button>
-                        <button class="btn btn-info btn-sm">Button 3</button>-->
-                    </span>
-                    <button type="button" ng-click="menuButtonClicked()"
-                            class="btn lx-menu-button">
-                        <i class="fa fa-bars"></i>
-                    </button>
-                </div>
+
         </div>
     </div>
 </div>

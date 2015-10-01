@@ -36,31 +36,5 @@ angular.module('lxMenu').controller('lxMenuController',
                 $scope.isVertical = data.isVertical;
                 $scope.allowHorizontalToggle = data.allowHorizontalToggle;
             });
-
-            $scope.toggleMenuOrientation = function () {
-
-                // close any open menu
-                if ($scope.openMenuScope)
-                    $scope.openMenuScope.closeMenu();
-
-                $scope.isVertical = !$scope.isVertical;
-
-                $rootScope.$broadcast('lxMessage-menuOrientationChanged',
-                {
-                    isMenuVertical: $scope.isVertical
-                });
-            };
-
-            angular.element(document).bind('click', function (e) {
-                if ($scope.openMenuScope && !$scope.isVertical) {
-                    if ($(e.target).parent().hasClass('lx-selectable-item'))
-                        return;
-                    $scope.$apply(function () {
-                        $scope.openMenuScope.closeMenu();
-                    });
-                    e.preventDefault();
-                    e.stopPropagation();
-                }
-            });
         }
     ]);

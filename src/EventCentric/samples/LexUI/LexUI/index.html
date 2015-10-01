@@ -2,7 +2,7 @@
 <html ng-app="app">
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1"> <!-- We allow user to zoom in -->
-    <title>Lex UI</title>
+    <title ng-bind="title">Lex UI</title>
     <link href="Content/bootstrap.css" rel="stylesheet" />
     <link href="Content/font-awesome.css" rel="stylesheet" />
 
@@ -25,16 +25,18 @@
     <script src="external-modules/lxLayout/lxLayoutController.js"></script>
     <script src="external-modules/lxLayout/lxLayoutDirective.js"></script>
 
-    <script src="app/appModule.js"></script>
-    <script src="app/appConfig.js"></script>
-    <script src="app/appRouteConfig.js"></script>
+    <script src="app/config/appModule.js"></script>
+    <script src="app/config/appConfig.js"></script>
+    <script src="app/config/appRouteConfig.js"></script>
+    <script src="app/config/configValue.js"></script>
+    <script src="app/config/routeMediator.js"></script>
 
     <script src="app/directives/lxDashboardDirective.js"></script>
     <script src="app/directives/lxFormsDirective.js"></script>
     <script src="app/directives/lxListsDirective.js"></script>
 </head>
 <body class="container-fluid"> <!-- The container fluid is to make use of the full screen -->
-    <lx-layout app-title="Lex UI"
+    <lx-layout app-title="{{title}}"
                app-subtitle="A Mobile User Experience!"
                icon-file="images/sample-logo.png">
 
