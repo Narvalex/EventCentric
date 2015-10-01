@@ -3,6 +3,7 @@
     position: fixed;
     width: 100%;
     max-height: 40px;
+    padding-right: 15px;
 }
 
 .lx-title-area {
@@ -22,32 +23,23 @@
     padding-top: 3px;
 }
 
-.lx-right-side-btn {
-    /*line-height: 60px;*/
-    margin-top: 5px;
-}
-
-.lx-right-side-controls > div {
+.lx-right-side-controls {
     text-align: right;
 }
 
 @media screen and (max-width: 768px) {
-    .lx-right-side-controls {
+    .lx-right-side-control-can-be-hidden  {
         display: none;
     }
 }
 
-.lx-collapsed-menu {
-    height: 100%;
-}
-
-.lx-nav-button {
+.lx-menu-button {
     height: 39px;
     width: 45px;
-    padding: 0;
     font-size: 26px;
     color: #777;
     background-color: rgba(240, 248, 255, 0.00);
+    padding: 0;
 }
 
 .lx-view {
