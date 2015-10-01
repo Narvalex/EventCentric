@@ -12,6 +12,7 @@
     position: fixed;
     width: 100%;
     padding-right: 10px;
+    z-index: 1000;
 }
 
 .lx-title-area {
@@ -56,7 +57,6 @@
 .lx-view {
     margin-left: 200px;
     margin-top: 40px;
-    padding: 20px;
     background-color: #252526;
     min-height: 100vh;
     overflow: auto;

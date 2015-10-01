@@ -7,7 +7,7 @@ angular.module('app').config(['$routeProvider', function ($routeProvider) {
             url: '/dashboard',
             config: {
                 title: 'Dashboard',
-                template: '<lx-dashboard></lx-dashboard>'
+                templateUrl: '/app/dashboard/dashboard.html'
             }
         },
         {

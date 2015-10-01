@@ -69,6 +69,7 @@
     <Content Include="app\config\appRouteConfig.js" />
     <Content Include="app\config\configValue.js" />
     <Content Include="app\config\routeMediator.js" />
+    <Content Include="app\dashboard\dashboard.html" />
     <Content Include="app\directives\lxDashboardDirective.js" />
     <Content Include="app\directives\lxFormsDirective.js" />
     <Content Include="app\directives\lxListsDirective.js" />
