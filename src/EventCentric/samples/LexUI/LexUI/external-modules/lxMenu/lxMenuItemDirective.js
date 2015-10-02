@@ -15,10 +15,6 @@ angular.module('lxMenu').directive('lxMenuItem', function () {
                 return el === ctrl.getActiveItem();
             };
 
-            scope.isVertical = function () {
-                return ctrl.isVertical() || el.parents('.lx-subitem-section').length > 0;
-            };
-
             el.on('click', function (event) { // subscribe to click event on this element
                 event.stopPropagation(); // exclusive handling of the event
                 event.preventDefault(); // prevents default behavior to ocurr

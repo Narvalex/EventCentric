@@ -20,28 +20,24 @@
 }
 
 .lx-icon {
-    display: inline-block;
     width: 40px;
     height: 40px;
-    vertical-align: top;
 }
 
 .lx-logo-title {
     color: #f1f1f1;
-    font-size: 18px;
-    padding-top: 7px;
+    font-size: 16px;
 }
 
 .lx-menu-button {
     display: inline-block;
     height: 40px;
-    width: 45px;
-    font-size: 26px;
+    width: 40px;
+    font-size: 22px;
     color: #999999;
     background-color: rgba(240, 248, 255, 0.00);
-    padding-top: 0;
-    margin-right: -1px;
-    vertical-align: top;
+    padding-top: 2.5px;
+    margin-left: -15px;
 }
 
 .lx-menu-button:hover, .lx-menu-button:focus {
@@ -61,6 +57,7 @@
     min-height: 100vh;
     overflow: auto;
     color: #f1f1f1;
+    min-width: 320px;
 
 
     -moz-transition: ease-out all 0.1s;

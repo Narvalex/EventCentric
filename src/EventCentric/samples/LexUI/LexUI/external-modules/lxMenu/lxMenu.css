@@ -4,11 +4,8 @@
     background-color: #2d2d30;
     color:  #f1f1f1;
     padding-left: 0;
-    
-}
 
-.lx-menu-area-vertical {
-    /*float: left;*/
+        /*float: left;*/
     top: 40px;
     width: 200px;
     padding-top: 10px;
@@ -17,15 +14,13 @@
     overflow-y: auto;
     overflow-x: hidden;
 
+    z-index: 1000;
+
     -moz-transition: all 0.2s ease-out;
     -o-transition: all 0.2s ease-out;
     -webkit-transition: all 0.2s ease-out;
     transition: all 0.2s ease-out;
-}
-
-.lx-menu-area-horizontal {
-    width: 100%;
-    max-height: 40px;
+    
 }
 
 .lx-menu-area.ng-hide {
@@ -105,14 +100,6 @@
 
 .lx-subitem-section {
     padding-left: 15px;
-}
-
-.lx-popup-menu {
-    position: absolute;
-    z-index: 1000;
-    background-color: #333;
-    width: 200px;
-    padding-left: 0;
 }
 
 .lx-fade-in-animation {
