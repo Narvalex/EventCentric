@@ -80,6 +80,8 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="app\app.css" />
+    <Content Include="app\appModule.js" />
+    <Content Include="app\config\routeMediator.js" />
     <Content Include="Content\bootstrap-theme.css" />
     <Content Include="Content\bootstrap-theme.min.css" />
     <Content Include="Content\bootstrap.css" />
@@ -100,8 +102,10 @@
     <Content Include="app\layout\lxMenu\lxMenuItemTemplate.html" />
     <Content Include="app\layout\lxMenu\lxMenuModule.js" />
     <Content Include="app\layout\lxMenu\lxMenuTemplate.html" />
+    <Content Include="favicon.ico" />
     <Content Include="fonts\fontawesome-webfont.svg" />
     <Content Include="fonts\glyphicons-halflings-regular.svg" />
+    <Content Include="images\sample-logo.png" />
     <Content Include="index.html" />
     <Content Include="Scripts\angular-animate.js" />
     <Content Include="Scripts\angular-animate.min.js" />
