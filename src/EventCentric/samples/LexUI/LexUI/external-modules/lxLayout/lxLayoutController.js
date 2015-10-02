@@ -37,8 +37,7 @@ angular.module('lxLayout').controller('lxLayoutController',
                 if ($(e.target).hasClass('lx-menu-button') || 
                     $(e.target).parent().hasClass('lx-menu-button') ||
                     $(e.target).hasClass('lx-menu-area') ||
-                    $(e.target).parent().hasClass('lx-selectable-item') ||
-                    $(e.target).hasClass('lx-subitem-section'))
+                    $(e.target).parents('.lx-menu-area').length)
                     return;
 
                 $scope.$apply(function () {

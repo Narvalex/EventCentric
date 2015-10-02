@@ -6,11 +6,12 @@
     padding-left: 0;
 
         /*float: left;*/
-    top: 40px;
-    width: 200px;
-    padding-top: 10px;
-    min-height: 100vh;
+    top: 0;
     bottom: 0;
+    width: 200px;
+    margin-top: 40px;
+    padding-top: 10px;
+    min-height: 1vh;
     overflow-y: auto;
     overflow-x: hidden;
 
