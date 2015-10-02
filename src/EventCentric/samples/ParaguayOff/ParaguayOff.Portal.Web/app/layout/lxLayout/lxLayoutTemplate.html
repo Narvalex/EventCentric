@@ -1,0 +1,23 @@
+﻿<div class="lx-title-bar">
+    <div class="row">
+        <div class="col-sm-6">
+            <button type="button" ng-click="menuButtonClicked()"
+                    class="btn lx-menu-button">
+                <i class="fa fa-bars"></i>
+            </button>
+            <img class="lx-icon" ng-src="{{iconFile}}" alt="Lex UI" title="{{appTitle}} - {{appSubtitle}}" />
+            <div class="lx-title-area">
+                <p class="lx-logo-title">{{appTitle}}</p>
+            </div>
+        </div>
+
+        <div class="col-sm-6 lx-menu-right-side">
+
+        </div>
+    </div>
+</div>
+<div ng-transclude></div>
+
+<div ng-view class="lx-view" 
+     ng-class="{'lx-view-full-width': !isMenuVisible}">
+</div>

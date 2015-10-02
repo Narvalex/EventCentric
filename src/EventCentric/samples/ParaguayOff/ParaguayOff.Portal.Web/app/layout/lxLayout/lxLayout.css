@@ -1,0 +1,72 @@
+﻿body {
+    background-color: #252526;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.container-fluid {
+    padding: 0;
+}
+
+.lx-title-bar {
+    top: 0;
+    background-color: #2d2d30;
+    position: fixed;
+    width: 100%;
+    padding-right: 10px;
+    z-index: 1000;
+}
+
+.lx-title-area {
+    display: inline-block;
+}
+
+.lx-icon {
+    width: 40px;
+    height: 40px;
+}
+
+.lx-logo-title {
+    color: #f1f1f1;
+    font-size: 16px;
+}
+
+.lx-menu-button {
+    display: inline-block;
+    height: 40px;
+    width: 40px;
+    font-size: 22px;
+    color: #999999;
+    background-color: rgba(240, 248, 255, 0.00);
+    padding-top: 2.5px;
+    margin-left: -15px;
+}
+
+.lx-menu-button:hover, .lx-menu-button:focus {
+    color: #c7c7c7;
+}
+
+@media screen and (max-width: 430px) {
+    .lx-menu-right-side {
+        display: none;
+    }
+}
+
+.lx-view {
+    margin-left: 200px;
+    margin-top: 40px;
+    background-color: #252526;
+    min-height: 100vh;
+    overflow: auto;
+    color: #f1f1f1;
+    min-width: 320px;
+
+
+    -moz-transition: ease-out all 0.1s;
+    -o-transition: ease-out all 0.1s;
+    -webkit-transition: ease-out all 0.1s;
+    transition: ease-out all 0.1s;
+}
+
+.lx-view-full-width {
+    margin-left: 0;
+}

@@ -1,0 +1,10 @@
+﻿<li class="lx-selectable-item" ng-click="clicked()" ng-class="{'lx-item-horizontal': !isVertical()}">
+    <div class="lx-noselect">
+        <i class="fa fa-chevron-right lx-group-indicator-left lx-menu-icon"
+           ng-class="{'fa-rotate-90': isOpen}"></i>
+        {{label}}
+    </div>
+</li>
+<div ng-show="isOpen" class="lx-subitem-section lx-fade-in-animation">
+    <ul ng-transclude></ul>
+</div>

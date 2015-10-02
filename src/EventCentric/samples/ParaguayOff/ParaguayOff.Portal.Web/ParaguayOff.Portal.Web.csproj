@@ -9,12 +9,12 @@
     <ProductVersion>
     </ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{6F222EF7-9D3A-4450-924E-20C520494925}</ProjectGuid>
+    <ProjectGuid>{35406156-E124-45AC-83B2-69457468F2C2}</ProjectGuid>
     <ProjectTypeGuids>{349c5851-65df-11da-9384-00065b846f21};{fae04ec0-301f-11d3-bf4b-00c04f79efbc}</ProjectTypeGuids>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>LexUI</RootNamespace>
-    <AssemblyName>LexUI</AssemblyName>
+    <RootNamespace>ParaguayOff.Portal.Web</RootNamespace>
+    <AssemblyName>ParaguayOff.Portal.Web</AssemblyName>
     <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
     <UseIISExpress>true</UseIISExpress>
     <IISExpressSSLPort />
@@ -66,23 +66,11 @@
     <Reference Include="System.EnterpriseServices" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="app\config\appRouteConfig.js" />
-    <Content Include="app\config\configValue.js" />
-    <Content Include="app\config\routeMediator.js" />
-    <Content Include="app\dashboard\dashboard.html" />
-    <Content Include="app\index\indexController.js" />
-    <Content Include="app\login\login.html" />
-    <Content Include="app\login\loginController.js" />
-    <Content Include="external-modules\lxMenu\lxMenuGroupDirective.js" />
-    <Content Include="external-modules\lxMenu\lxMenuGroupTemplate.html" />
     <Content Include="packages.config" />
-    <Content Include="Scripts\angular-animate.js" />
-    <Content Include="Scripts\angular-animate.min.js" />
-    <Content Include="Scripts\angular-route.js" />
-    <Content Include="Scripts\angular-route.min.js" />
-    <Content Include="Scripts\jquery-2.1.4.min.map" />
-    <Content Include="Scripts\angular-animate.min.js.map" />
+    <Content Include="Scripts\angular.min.js.map" />
     <Content Include="Scripts\angular-route.min.js.map" />
+    <Content Include="Scripts\angular-animate.min.js.map" />
+    <Content Include="Scripts\jquery-2.1.4.min.map" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
@@ -92,29 +80,36 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="app\app.css" />
-    <Content Include="app\config\appConfig.js" />
-    <Content Include="app\config\appModule.js" />
     <Content Include="Content\bootstrap-theme.css" />
     <Content Include="Content\bootstrap-theme.min.css" />
     <Content Include="Content\bootstrap.css" />
     <Content Include="Content\bootstrap.min.css" />
     <Content Include="Content\font-awesome.css" />
     <Content Include="Content\font-awesome.min.css" />
-    <Content Include="external-modules\lxLayout\lxLayout.css" />
-    <Content Include="external-modules\lxLayout\lxLayoutController.js" />
-    <Content Include="external-modules\lxLayout\lxLayoutDirective.js" />
-    <Content Include="external-modules\lxLayout\lxLayoutModule.js" />
-    <Content Include="external-modules\lxLayout\lxLayoutTemplate.html" />
-    <Content Include="external-modules\lxMenu\lxMenu.css" />
-    <Content Include="external-modules\lxMenu\lxMenuItemTemplate.html" />
-    <Content Include="external-modules\lxMenu\lxMenuTemplate.html" />
-    <Content Include="external-modules\lxMenu\lxMenuController.js" />
-    <Content Include="external-modules\lxMenu\lxMenuDirective.js" />
-    <Content Include="external-modules\lxMenu\lxMenuItemDirective.js" />
-    <Content Include="external-modules\lxMenu\lxMenuModule.js" />
-    <Content Include="favicon.ico" />
+    <Content Include="app\layout\lxLayout\lxLayout.css" />
+    <Content Include="app\layout\lxLayout\lxLayoutController.js" />
+    <Content Include="app\layout\lxLayout\lxLayoutDirective.js" />
+    <Content Include="app\layout\lxLayout\lxLayoutModule.js" />
+    <Content Include="app\layout\lxLayout\lxLayoutTemplate.html" />
+    <Content Include="app\layout\lxMenu\lxMenu.css" />
+    <Content Include="app\layout\lxMenu\lxMenuController.js" />
+    <Content Include="app\layout\lxMenu\lxMenuDirective.js" />
+    <Content Include="app\layout\lxMenu\lxMenuGroupDirective.js" />
+    <Content Include="app\layout\lxMenu\lxMenuGroupTemplate.html" />
+    <Content Include="app\layout\lxMenu\lxMenuItemDirective.js" />
+    <Content Include="app\layout\lxMenu\lxMenuItemTemplate.html" />
+    <Content Include="app\layout\lxMenu\lxMenuModule.js" />
+    <Content Include="app\layout\lxMenu\lxMenuTemplate.html" />
     <Content Include="fonts\fontawesome-webfont.svg" />
     <Content Include="fonts\glyphicons-halflings-regular.svg" />
+    <Content Include="index.html" />
+    <Content Include="Scripts\angular-animate.js" />
+    <Content Include="Scripts\angular-animate.min.js" />
+    <Content Include="Scripts\angular-mocks.js" />
+    <Content Include="Scripts\angular-route.js" />
+    <Content Include="Scripts\angular-route.min.js" />
+    <Content Include="Scripts\angular.js" />
+    <Content Include="Scripts\angular.min.js" />
     <Content Include="fonts\glyphicons-halflings-regular.woff2" />
     <Content Include="fonts\glyphicons-halflings-regular.woff" />
     <Content Include="fonts\glyphicons-halflings-regular.ttf" />
@@ -126,18 +121,11 @@
     <Content Include="fonts\fontawesome-webfont.woff" />
     <Content Include="fonts\fontawesome-webfont.ttf" />
     <Content Include="fonts\fontawesome-webfont.eot" />
-    <Content Include="images\sample-logo.png" />
-    <Content Include="index.html" />
-    <Content Include="Scripts\angular-mocks.js" />
-    <Content Include="Scripts\angular.js" />
-    <Content Include="Scripts\angular.min.js" />
-    <Content Include="Scripts\angular.min.js.map" />
-    <None Include="Scripts\jquery-2.1.4.intellisense.js" />
     <Content Include="Scripts\bootstrap.js" />
     <Content Include="Scripts\bootstrap.min.js" />
+    <None Include="Scripts\jquery-2.1.4.intellisense.js" />
     <Content Include="Scripts\jquery-2.1.4.js" />
     <Content Include="Scripts\jquery-2.1.4.min.js" />
-    <None Include="Scripts\_references.js" />
     <Content Include="Web.config" />
   </ItemGroup>
   <ItemGroup>
@@ -157,9 +145,9 @@
         <WebProjectProperties>
           <UseIIS>True</UseIIS>
           <AutoAssignPort>True</AutoAssignPort>
-          <DevelopmentServerPort>50150</DevelopmentServerPort>
+          <DevelopmentServerPort>61223</DevelopmentServerPort>
           <DevelopmentServerVPath>/</DevelopmentServerVPath>
-          <IISUrl>http://localhost:50150/</IISUrl>
+          <IISUrl>http://localhost:61223/</IISUrl>
           <NTLMAuthentication>False</NTLMAuthentication>
           <UseCustomServer>False</UseCustomServer>
           <CustomServerUrl>
