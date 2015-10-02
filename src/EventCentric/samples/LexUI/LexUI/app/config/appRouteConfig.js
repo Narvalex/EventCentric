@@ -14,14 +14,14 @@ angular.module('app').config(['$routeProvider', function ($routeProvider) {
             url: '/forms',
             config: {
                 title: 'Forms',
-                template: '<lx-forms></lx-forms>'
+                template: '<h2>Forms</h2>'
             }
         },
         {
             url: '/lists',
             config: {
                 title: 'Lists',
-                template: '<lx-lists></lx-lists>'
+                template: '<h2>Lists</h2>'
             }
         }
     ];

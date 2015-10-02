@@ -8,6 +8,7 @@
 }
 
 .lx-title-bar {
+    top: 0;
     background-color: #2d2d30;
     position: fixed;
     width: 100%;

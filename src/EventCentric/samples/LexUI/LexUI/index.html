@@ -10,51 +10,66 @@
     <link href="external-modules/lxLayout/lxLayout.css" rel="stylesheet" />
     <link href="external-modules/lxMenu/lxMenu.css" rel="stylesheet" />
 
+    <!-- 3rd party js libraries -->
     <script src="Scripts/jquery-2.1.4.js"></script>
     <script src="Scripts/angular.js"></script>
     <script src="Scripts/angular-animate.js"></script>
     <script src="Scripts/angular-route.js"></script>
 
+    <!-- menu directive -->
     <script src="external-modules/lxMenu/lxMenuModule.js"></script>
     <script src="external-modules/lxMenu/lxMenuController.js"></script>
     <script src="external-modules/lxMenu/lxMenuDirective.js"></script>
     <script src="external-modules/lxMenu/lxMenuItemDirective.js"></script>
     <script src="external-modules/lxMenu/lxMenuGroupDirective.js"></script>
 
+    <!-- layout directive -->
     <script src="external-modules/lxLayout/lxLayoutModule.js"></script>
     <script src="external-modules/lxLayout/lxLayoutController.js"></script>
     <script src="external-modules/lxLayout/lxLayoutDirective.js"></script>
 
+    <!-- app config -->
     <script src="app/config/appModule.js"></script>
     <script src="app/config/appConfig.js"></script>
     <script src="app/config/appRouteConfig.js"></script>
     <script src="app/config/configValue.js"></script>
     <script src="app/config/routeMediator.js"></script>
 
-    <script src="app/directives/lxDashboardDirective.js"></script>
-    <script src="app/directives/lxFormsDirective.js"></script>
-    <script src="app/directives/lxListsDirective.js"></script>
+    <!-- app controllers -->
+    <script src="app/index/indexController.js"></script>
+    <script src="app/login/loginController.js"></script>
 </head>
-<body class="container-fluid"> <!-- The container fluid is to make use of the full screen -->
-    <lx-layout app-title="{{title}}"
-               app-subtitle="A Mobile User Experience!"
-               icon-file="images/sample-logo.png">
+<body class="container-fluid" ng-controller="indexController"> <!-- The container fluid is to make use of the full screen -->
 
-        <lx-menu>
-            <lx-menu-item label="Dashboard" icon="fa-dashboard" route="dashboard"></lx-menu-item>
-            <lx-menu-item label="Lists" icon="fa-list" route="lists"></lx-menu-item>
-            <lx-menu-item label="Forms" icon="fa-pencil" route="forms"></lx-menu-item>
-            <lx-menu-group label="Nested Items">
-                <lx-menu-item label="SubItem1" icon="fa-unlink" route="dashboard"></lx-menu-item>
-                <lx-menu-item label="SubItem2" icon="fa-unlink" route="lists"></lx-menu-item>
-                <lx-menu-item label="SubItem3" icon="fa-unlink" route="forms"></lx-menu-item>
-            </lx-menu-group>
-            <lx-menu-group label="Nested Items">
-                <lx-menu-item label="SubItem1" icon="fa-unlink" route="dashboard"></lx-menu-item>
-                <lx-menu-item label="SubItem2" icon="fa-unlink" route="lists"></lx-menu-item>
-                <lx-menu-item label="SubItem3" icon="fa-unlink" route="forms"></lx-menu-item>
-            </lx-menu-group>
-        </lx-menu>
-    </lx-layout>
+    <div ng-switch="authState">
+        <div ng-switch-when="authorized">
+            <lx-layout app-title="{{title}}"
+                       app-subtitle="A Mobile User Experience!"
+                       icon-file="images/sample-logo.png">
+
+                <lx-menu>
+                    <lx-menu-item label="Dashboard" icon="fa-dashboard" route="dashboard"></lx-menu-item>
+                    <lx-menu-item label="Lists" icon="fa-list" route="lists"></lx-menu-item>
+                    <lx-menu-item label="Forms" icon="fa-pencil" route="forms"></lx-menu-item>
+                    <lx-menu-group label="Nested Items">
+                        <lx-menu-item label="SubItem1" icon="fa-unlink" route="dashboard"></lx-menu-item>
+                        <lx-menu-item label="SubItem2" icon="fa-unlink" route="lists"></lx-menu-item>
+                        <lx-menu-item label="SubItem3" icon="fa-unlink" route="forms"></lx-menu-item>
+                    </lx-menu-group>
+                    <lx-menu-group label="Nested Items">
+                        <lx-menu-item label="SubItem1" icon="fa-unlink" route="dashboard"></lx-menu-item>
+                        <lx-menu-item label="SubItem2" icon="fa-unlink" route="lists"></lx-menu-item>
+                        <lx-menu-item label="SubItem3" icon="fa-unlink" route="forms"></lx-menu-item>
+                    </lx-menu-group>
+                </lx-menu>
+            </lx-layout>
+        </div>
+        <div ng-switch-default>
+            <div ng-include="'app/login/login.html'"></div>
+        </div>
+    </div>
+
+    
+
 </body>
 </html>
