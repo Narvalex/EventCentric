@@ -11,7 +11,5 @@ angular.module('app').controller('loginController',
                         payload: ''
                     });
             };
-
-            
         }
     ]);

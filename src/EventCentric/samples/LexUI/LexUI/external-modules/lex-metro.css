@@ -7,6 +7,14 @@
     margin-left: 0;
 }
 
+.metro-title-large {
+    font-size: 40px;
+}
+
+.metro-title-medium {
+    font-size: 25px;
+}
+
 /* windows 8 : http://sarasoueidan.com/blog/windows8-animations/ */
 .metro-entrance {
     opacity: 0;

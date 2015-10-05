@@ -1,5 +1,5 @@
 ﻿body {
-    background-color: #252526;
+    background-color: #000000;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
@@ -54,7 +54,7 @@
 .lx-view {
     margin-left: 200px;
     margin-top: 40px;
-    background-color: #252526;
+    background-color: #000000;
     min-height: 100vh;
     overflow: auto;
     color: #f1f1f1;

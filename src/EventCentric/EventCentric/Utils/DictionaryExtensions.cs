@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace EventCentric.Utils
+﻿namespace System.Collections.Generic
 {
     /// <summary>
     /// Usability extensions for dictionaries.

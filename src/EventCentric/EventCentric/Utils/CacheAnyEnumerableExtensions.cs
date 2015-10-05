@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 
-namespace EventCentric.Utils
+namespace System.Linq
 {
     /// <summary>
     /// Prevents double enumeration (and potential roundtrip to the data source) when checking 

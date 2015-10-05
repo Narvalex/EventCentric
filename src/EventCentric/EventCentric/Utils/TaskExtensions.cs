@@ -1,7 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
-
-namespace EventCentric.Utils
+﻿namespace System.Threading.Tasks
 {
     /// <summary>
     /// Provides usability overloads for <see cref="TaskFactory"/>.

@@ -1,8 +1,7 @@
 ﻿
 <div class="container">
-    <div class="row">
-        <h2>Some tiles</h2>
-     
+    <!--<div class="row">
+        <div class="metro-title-large">Some custom tiles</div>
         <div class="metro-entrance">
             <div class="metro-tile blue" ng-click="alert('hola')">
                 <div>
@@ -29,12 +28,10 @@
                 </div>
             </div>
         </div>
-        </div>
+        </div>-->
 
-
-    <div class="row">
-        <h2>And another ones</h2>
-    
+    <!--<div class="row">
+        <div class="metro-title-medium">And another custom ones</div>
         <div class="metro-entrance">
             <div class="metro-tile blue" ng-click="alert('hola')">
                 <div>
@@ -76,6 +73,51 @@
                 </div>
             </div>
         </div>
+        </div>-->
+
+    <div class="row">
+        <div class="metro-title-large">Metro Js tiles</div>
+        <div class="metro-entrance">
+            <div class="live-tile blue" data-mode="flip" data-delay="3000">
+                <div>
+                    <a class="full text-center" href="#">
+                        <i class="fa fa-amazon"></i>
+                    </a>
+                    <p class="tile-title">Messages title</p>
+                </div>
+                <div>
+                    <p>This tile flips vertically</p>
+                </div>
+            </div>
+
+            <div class="live-tile blue" data-mode="flip" data-delay="5000">
+                <div>
+                    <a class="full text-center" href="#">
+                        <i class="fa fa-amazon"></i>
+                    </a>
+                    <p class="tile-title">Messages title</p>
+                </div>
+                <div>
+                    <p>This tile flips vertically</p>
+                </div>
+            </div>
+
+            <div class="live-tile blue" data-mode="flip" data-delay="4000">
+                <div>
+                    <a class="full text-center" href="#">
+                        <i class="fa fa-amazon"></i>
+                    </a>
+                    <p class="tile-title">Messages title</p>
+                </div>
+                <div>
+                    <p>This tile flips vertically</p>
+                </div>
+            </div>
         </div>
     </div>
+</div>
+
+<script>
+    $(".live-tile").liveTile();
+</script>
 

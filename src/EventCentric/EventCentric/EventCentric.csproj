@@ -159,6 +159,7 @@
     <Compile Include="Publishing\Publisher.cs" />
     <Compile Include="Transport\PollResponse.cs" />
     <Compile Include="Utils\CacheAnyEnumerableExtensions.cs" />
+    <Compile Include="Utils\CollectionExtensions.cs" />
     <Compile Include="Utils\DictionaryExtensions.cs" />
     <Compile Include="Utils\Ensure.cs" />
     <Compile Include="Utils\GuidProvider.cs" />

@@ -3,8 +3,8 @@ using EventCentric.Log;
 using EventCentric.Messaging;
 using EventCentric.Messaging.Events;
 using EventCentric.Repository;
-using EventCentric.Utils;
 using System;
+using System.Collections.Generic;
 
 namespace EventCentric.Queueing
 {
