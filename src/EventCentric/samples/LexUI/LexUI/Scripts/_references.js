@@ -6,6 +6,7 @@
 /// <reference path="../app/config/routemediator.js" />
 /// <reference path="../app/index/indexcontroller.js" />
 /// <reference path="../app/login/logincontroller.js" />
+/// <reference path="../app/tiles/tilescontroller.js" />
 /// <reference path="../external-modules/lxLayout/lxLayoutController.js" />
 /// <reference path="../external-modules/lxLayout/lxLayoutDirective.js" />
 /// <reference path="../external-modules/lxLayout/lxLayoutModule.js" />

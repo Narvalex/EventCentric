@@ -73,6 +73,7 @@
     <Content Include="app\login\login.html" />
     <Content Include="app\login\loginController.js" />
     <Content Include="app\tiles\tiles.html" />
+    <Content Include="app\tiles\tilesController.js" />
     <Content Include="external-modules\lxMenu\lxMenuGroupDirective.js" />
     <Content Include="external-modules\lxMenu\lxMenuGroupTemplate.html" />
     <Content Include="external-modules\metroJs\images\1pixel.gif" />

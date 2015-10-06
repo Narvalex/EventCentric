@@ -1,6 +1,7 @@
 ﻿body {
     background-color: #000000;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: #f1f1f1;
 }
 
 .container-fluid {
@@ -15,6 +16,10 @@
 h1, h2, h3, h4 {
     color: white;
     font-weight: 300;
+}
+
+a {
+    color: #1ba1e2;
 }
 
 
@@ -67,7 +72,6 @@ h1, h2, h3, h4 {
     background-color: #000000;
     min-height: 100vh;
     overflow: auto;
-    color: #f1f1f1;
     min-width: 320px;
 
 

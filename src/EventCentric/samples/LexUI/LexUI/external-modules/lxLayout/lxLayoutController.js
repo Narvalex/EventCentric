@@ -39,10 +39,14 @@ angular.module('lxLayout').controller('lxLayoutController',
                     return;
 
                 $scope.$apply(function () {
-                    checkIfSmall();
+                    var menuWasHidden = checkIfSmall();
+
+                    if (menuWasHidden) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                    }
                 });
-                e.preventDefault();
-                e.stopPropagation();
+
             });
 
             function checkWidth() {
@@ -53,12 +57,19 @@ angular.module('lxLayout').controller('lxLayoutController',
             }
 
             function checkIfSmall() {
+                var menuWasHidden = false;
                 var width = Math.max($($window).width(), $window.innerWidth);
                 if (width < 768) {
-                    $scope.isMenuVisible = false;
 
-                    broadcastMenuState();
+                    if ($scope.isMenuVisible) {
+                        $scope.isMenuVisible = false;
+                        menuWasHidden = true;
+
+                        broadcastMenuState();
+                    }
                 }
+
+                return menuWasHidden;
             }
 
             function broadcastMenuState() {
