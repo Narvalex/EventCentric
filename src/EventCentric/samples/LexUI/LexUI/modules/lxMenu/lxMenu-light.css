@@ -1,0 +1,114 @@
+﻿.lx-menu-area {
+    /*position: relative;*/
+    position: fixed;
+    background-color: #212021;
+    color:  #f1f1f1;
+    padding-left: 0;
+
+        /*float: left;*/
+    top: 0;
+    bottom: 0;
+    width: 200px;
+    margin-top: 40px;
+    padding-top: 10px;
+    min-height: 1vh;
+    overflow-y: auto;
+    overflow-x: hidden;
+
+    z-index: 1000;
+
+    -moz-transition: all 0.2s ease-out;
+    -o-transition: all 0.2s ease-out;
+    -webkit-transition: all 0.2s ease-out;
+    transition: all 0.2s ease-out;
+    
+}
+
+.lx-menu-area.ng-hide {
+    margin-left: -200px;
+}
+
+.lx-menu-area ul {
+    padding-left: 0;
+}
+
+.lx-menu-area .btn:hover {
+    color: #ccc;
+}
+
+.lx-menu {
+    list-style-type: none;
+    vertical-align: top;
+}
+
+.lx-menu ul {
+    display: inline;
+    list-style-type: none;
+    padding-left: 0;
+}
+
+.lx-menu li {
+    /* 3 times the size of the font */
+    /*line-height: 3em;*/
+    padding-top: 10px;
+    padding-bottom: 10px;
+    cursor: pointer;
+}
+
+.lx-menu li div {
+    display: inline-block;
+    width: 90%;
+    padding-left: 16px;
+}
+
+.lx-selectable-item {
+    -moz-transition: all .2s ease-in;
+    -o-transition: all .2s ease-in;
+    -webkit-transition: all .2s ease-in;
+    transition: all .2s ease-in; /* Source: http://stackoverflow.com/questions/14350126/transition-color-fade-on-hover */
+    background-color: #212021;
+}
+
+.lx-selectable-item:hover {
+    background-color: #46b8da;
+}
+
+.lx-menu-icon {
+    margin-right: 10px;
+}
+
+.lx-menu-active-indicator {
+    float: right;
+    color:  #f2f2f2;
+    margin-right: -1px;
+    margin-top: -4px;
+}
+
+.lx-noselect { /* We block the ability to select text and perform copy-pasting */
+    -webkit-touch-callout: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    -webkit-user-select: none;
+    user-select: none;
+}
+
+.lx-group-indicator-left {
+    -moz-transition: all .2s linear;
+    -o-transition: all .2s linear;
+    -webkit-transition: all .2s linear;
+    transition: all .2s linear;
+}
+
+.lx-subitem-section {
+    padding-left: 15px;
+}
+
+.lx-fade-in-animation {
+    -moz-transition: linear all 0.2s;
+    -o-transition: linear all 0.2s;
+    -webkit-transition: linear all 0.2s;
+    transition: linear all 0.2s;
+}
+.lx-fade-in-animation.ng-hide {
+    opacity: 0;
+}

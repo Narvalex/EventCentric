@@ -1,7 +1,7 @@
 ﻿'use strict';
 
 angular.module('app').factory('routeMediator',
- ['$location', '$rootScope', 'config',
+ ['$location', '$rootScope', 'config', 
      function ($location, $rootScope, config) {
          // Define the functions and properties to reveal.
          var handleRouteChangeError = false;
@@ -34,7 +34,8 @@ angular.module('app').factory('routeMediator',
 
                      console.log(msg + ' ' + current);
 
-                     $location.path('/');
+                     // This makes an infinite loop....
+                     //$location.path('/');
                  });
          }
 

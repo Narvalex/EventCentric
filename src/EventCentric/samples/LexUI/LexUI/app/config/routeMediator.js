@@ -34,7 +34,8 @@ angular.module('app').factory('routeMediator',
 
                      console.log(msg + ' ' + current);
 
-                     $location.path('/');
+                     // This makes an infinite loop....
+                     //$location.path('/');
                  });
          }
 

@@ -6,8 +6,8 @@ angular.module('app').config(['$routeProvider', function ($routeProvider) {
         {
             url: '/home',
             config: {
-                title: 'Tiles',
-                templateUrl: '/app/tiles/tiles.html'
+                title: 'Atención al cliente',
+                templateUrl: '/app/atencionAlCliente/atencionAlCliente.html'
             }
         },
         {

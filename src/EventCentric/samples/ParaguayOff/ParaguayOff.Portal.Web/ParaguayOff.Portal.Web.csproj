@@ -66,11 +66,49 @@
     <Reference Include="System.EnterpriseServices" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="app\config\appConfig.js" />
+    <Content Include="app\config\appModule.js" />
+    <Content Include="app\config\appRouteConfig.js" />
+    <Content Include="app\config\configValue.js" />
+    <Content Include="app\index\indexController.js" />
+    <Content Include="app\login\login.html" />
+    <Content Include="app\login\loginController.js" />
+    <Content Include="app\atencionAlCliente\atencionAlCliente.html" />
+    <Content Include="app\atencionAlCliente\atencionAlClienteController.js" />
+    <Content Include="Content\toastr.css" />
+    <Content Include="Content\toastr.min.css" />
+    <Content Include="images\logo\logo-small.png" />
+    <Content Include="images\logo\shopping-cart-large.png" />
+    <Content Include="images\logo\shopping-cart.jpg" />
+    <Content Include="modules\lxLayout\lxLayout-light.css" />
+    <Content Include="modules\lxLayout\lxLayout.css" />
+    <Content Include="modules\lxLayout\lxLayoutController.js" />
+    <Content Include="modules\lxLayout\lxLayoutDirective.js" />
+    <Content Include="modules\lxLayout\lxLayoutModule.js" />
+    <Content Include="modules\lxLayout\lxLayoutTemplate.html" />
+    <Content Include="modules\lxLayout\lxLayoutUtils.css" />
+    <Content Include="modules\lxMenu\lxMenu-light.css" />
+    <Content Include="modules\lxMenu\lxMenu.css" />
+    <Content Include="modules\lxMenu\lxMenuController.js" />
+    <Content Include="modules\lxMenu\lxMenuDirective.js" />
+    <Content Include="modules\lxMenu\lxMenuGroupDirective.js" />
+    <Content Include="modules\lxMenu\lxMenuGroupTemplate.html" />
+    <Content Include="modules\lxMenu\lxMenuItemDirective.js" />
+    <Content Include="modules\lxMenu\lxMenuItemTemplate.html" />
+    <Content Include="modules\lxMenu\lxMenuModule.js" />
+    <Content Include="modules\lxMenu\lxMenuTemplate.html" />
+    <Content Include="modules\metroJs\images\1pixel.gif" />
+    <Content Include="modules\metroJs\images\metroIcons.jpg" />
+    <Content Include="modules\metroJs\images\metroIcons_light.jpg" />
+    <Content Include="modules\metroJs\metroJs.css" />
+    <Content Include="modules\metroJs\metroJs.js" />
     <Content Include="packages.config" />
     <Content Include="Scripts\angular.min.js.map" />
     <Content Include="Scripts\angular-route.min.js.map" />
     <Content Include="Scripts\angular-animate.min.js.map" />
     <Content Include="Scripts\jquery-2.1.4.min.map" />
+    <Content Include="Content\toastr.scss" />
+    <Content Include="Content\toastr.less" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
@@ -79,7 +117,6 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="app\app.css" />
     <Content Include="app\appModule.js" />
     <Content Include="app\config\routeMediator.js" />
     <Content Include="Content\bootstrap-theme.css" />
@@ -88,20 +125,6 @@
     <Content Include="Content\bootstrap.min.css" />
     <Content Include="Content\font-awesome.css" />
     <Content Include="Content\font-awesome.min.css" />
-    <Content Include="app\layout\lxLayout\lxLayout.css" />
-    <Content Include="app\layout\lxLayout\lxLayoutController.js" />
-    <Content Include="app\layout\lxLayout\lxLayoutDirective.js" />
-    <Content Include="app\layout\lxLayout\lxLayoutModule.js" />
-    <Content Include="app\layout\lxLayout\lxLayoutTemplate.html" />
-    <Content Include="app\layout\lxMenu\lxMenu.css" />
-    <Content Include="app\layout\lxMenu\lxMenuController.js" />
-    <Content Include="app\layout\lxMenu\lxMenuDirective.js" />
-    <Content Include="app\layout\lxMenu\lxMenuGroupDirective.js" />
-    <Content Include="app\layout\lxMenu\lxMenuGroupTemplate.html" />
-    <Content Include="app\layout\lxMenu\lxMenuItemDirective.js" />
-    <Content Include="app\layout\lxMenu\lxMenuItemTemplate.html" />
-    <Content Include="app\layout\lxMenu\lxMenuModule.js" />
-    <Content Include="app\layout\lxMenu\lxMenuTemplate.html" />
     <Content Include="favicon.ico" />
     <Content Include="fonts\fontawesome-webfont.svg" />
     <Content Include="fonts\glyphicons-halflings-regular.svg" />
@@ -130,6 +153,9 @@
     <None Include="Scripts\jquery-2.1.4.intellisense.js" />
     <Content Include="Scripts\jquery-2.1.4.js" />
     <Content Include="Scripts\jquery-2.1.4.min.js" />
+    <None Include="Scripts\_references.js" />
+    <Content Include="Scripts\toastr.js" />
+    <Content Include="Scripts\toastr.min.js" />
     <Content Include="Web.config" />
   </ItemGroup>
   <ItemGroup>

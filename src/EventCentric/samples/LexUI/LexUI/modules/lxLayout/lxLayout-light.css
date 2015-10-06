@@ -1,0 +1,198 @@
+﻿body {
+    background-color: #f2f2f2;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.container-fluid {
+    padding: 0;
+}
+
+.row {
+    margin-right: 0;
+    margin-left: 0;
+}
+
+h1, h2, h3, h4 {
+    font-weight: 300;
+}
+
+a {
+    color: #1ba1e2;
+}
+
+.lx-noselect { /* We block the ability to select text and perform copy-pasting */
+    -webkit-touch-callout: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    -webkit-user-select: none;
+    user-select: none;
+}
+
+
+.lx-title-bar {
+    top: 0;
+    background-color: #212021;
+    position: fixed;
+    width: 100%;
+    padding-right: 10px;
+    z-index: 1000;
+}
+
+.lx-title-area {
+    display: inline-block;
+}
+
+.lx-icon {
+    width: 40px;
+    height: 40px;
+    cursor: pointer;
+}
+
+.lx-logo-title {
+    color: #f1f1f1;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.lx-menu-button {
+    display: inline-block;
+    font-size: 21px;
+    width: 40px;
+    color: #999999;
+    background-color: rgba(240, 248, 255, 0.00);
+    padding-top: 2.5px;
+    margin-left: -17.5px;
+}
+
+.lx-menu-button:hover, .lx-menu-button:focus {
+    color: #c7c7c7;
+}
+
+@media screen and (max-width: 430px) {
+    .lx-menu-right-side {
+        display: none;
+    }
+}
+
+.lx-view {
+    margin-left: 200px;
+    margin-top: 40px;
+    background-color: #f2f2f2;
+    min-height: 100vh;
+    overflow: auto;
+    min-width: 320px;
+
+
+    -moz-transition: ease-out all 0.1s;
+    -o-transition: ease-out all 0.1s;
+    -webkit-transition: ease-out all 0.1s;
+    transition: ease-out all 0.1s;
+}
+
+.lx-view-full-width {
+    margin-left: 0;
+}
+
+
+/* windows 8 : http://sarasoueidan.com/blog/windows8-animations/ */
+.lx-entrance {
+    opacity: 0;
+    -moz-transform: translateX(100px);
+    -ms-transform: translateX(100px);
+    -o-transform: translateX(100px);
+    -webkit-transform: translateX(100px);
+    transform: translateX(100px);
+    -moz-animation: start 0.5s ease-out forwards;
+    -o-animation: start 0.5s ease-out forwards;
+    -webkit-animation: start 0.5s ease-out forwards;
+    animation: start 0.5s ease-out forwards;
+    z-index: 0;
+}
+
+
+@-moz-keyframes start {
+    0% {
+        -moz-transform: translateX(100px);
+        -ms-transform: translateX(100px);
+        -o-transform: translateX(100px);
+        -webkit-transform: translateX(100px);
+        transform: translateX(100px);
+        opacity: 0;
+    }
+
+    50% {
+        -moz-transform: translateX(-15px);
+        -ms-transform: translateX(-15px);
+        -o-transform: translateX(-15px);
+        -webkit-transform: translateX(-15px);
+        transform: translateX(15px);
+        opacity: 0;
+    }
+
+    100% {
+        -moz-transform: translateX(0);
+        -ms-transform: translateX(0);
+        -o-transform: translateX(0);
+        -webkit-transform: translateX(0);
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@-webkit-keyframes start {
+    0% {
+        -moz-transform: translateX(100px);
+        -ms-transform: translateX(100px);
+        -o-transform: translateX(100px);
+        -webkit-transform: translateX(100px);
+        transform: translateX(100px);
+        opacity: 0;
+    }
+
+    50% {
+        -moz-transform: translateX(-15px);
+        -ms-transform: translateX(-15px);
+        -o-transform: translateX(-15px);
+        -webkit-transform: translateX(-15px);
+        transform: translateX(15px);
+        opacity: 0;
+    }
+
+    100% {
+        -moz-transform: translateX(0);
+        -ms-transform: translateX(0);
+        -o-transform: translateX(0);
+        -webkit-transform: translateX(0);
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes start {
+    0% {
+        -moz-transform: translateX(100px);
+        -ms-transform: translateX(100px);
+        -o-transform: translateX(100px);
+        -webkit-transform: translateX(100px);
+        transform: translateX(100px);
+        opacity: 0;
+    }
+
+    50% {
+        -moz-transform: translateX(-15px);
+        -ms-transform: translateX(-15px);
+        -o-transform: translateX(-15px);
+        -webkit-transform: translateX(-15px);
+        transform: translateX(15px);
+        opacity: 0;
+    }
+
+    100% {
+        -moz-transform: translateX(0);
+        -ms-transform: translateX(0);
+        -o-transform: translateX(0);
+        -webkit-transform: translateX(0);
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
