@@ -75,6 +75,9 @@
     <Content Include="app\login\loginController.js" />
     <Content Include="external-modules\lxMenu\lxMenuGroupDirective.js" />
     <Content Include="external-modules\lxMenu\lxMenuGroupTemplate.html" />
+    <Content Include="external-modules\metroJs\images\1pixel.gif" />
+    <Content Include="external-modules\metroJs\images\metroIcons.jpg" />
+    <Content Include="external-modules\metroJs\images\metroIcons_light.jpg" />
     <Content Include="external-modules\metroJs\MetroJs.ltt.css" />
     <Content Include="external-modules\metroJs\MetroJs.ltt.js" />
     <Content Include="external-modules\metroJs\MetroJs.ltt.min.css" />
@@ -159,7 +162,7 @@
     <VisualStudio>
       <FlavorProperties GUID="{349c5851-65df-11da-9384-00065b846f21}">
         <WebProjectProperties>
-          <UseIIS>True</UseIIS>
+          <UseIIS>False</UseIIS>
           <AutoAssignPort>True</AutoAssignPort>
           <DevelopmentServerPort>50150</DevelopmentServerPort>
           <DevelopmentServerVPath>/</DevelopmentServerVPath>

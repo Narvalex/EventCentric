@@ -5,8 +5,8 @@ angular.module('app').controller('indexController',
         function ($scope) {
             var vm = $scope;
 
-            //vm.authState = 'authorized';
-            vm.authState = '';
+            vm.authState = 'authorized';
+            //vm.authState = '';
 
             $scope.$on('loggedIn',
                 function (event, data) {

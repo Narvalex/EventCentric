@@ -8,24 +8,22 @@ angular.module('lxLayout').controller('lxLayoutController',
                 function (event, data) {
                     $location.path(data.route);
                     checkWidth();
-                    broadcastMenuState();
+                    
                 });
            
 
             $($window).on('resize.lxLayout', function () {
                 $scope.$apply(function () {
-                    checkWidth();
-                    broadcastMenuState();
+                    checkIfSmall();
                 });
             });
-
+                
             $scope.$on('$destroy', function () {
                 $($window).off('resize.lxLayout'); // remove the handler added earlier
             });
 
             $timeout(function () {
                 checkWidth();
-                broadcastMenuState();
             }, 0);
 
             $scope.menuButtonClicked = function () {
@@ -41,8 +39,7 @@ angular.module('lxLayout').controller('lxLayoutController',
                     return;
 
                 $scope.$apply(function () {
-                    checkWidth();
-                    broadcastMenuState();
+                    checkIfSmall();
                 });
                 e.preventDefault();
                 e.stopPropagation();
@@ -51,6 +48,17 @@ angular.module('lxLayout').controller('lxLayoutController',
             function checkWidth() {
                 var width = Math.max($($window).width(), $window.innerWidth);
                 $scope.isMenuVisible = (width >= 768);
+
+                broadcastMenuState();
+            }
+
+            function checkIfSmall() {
+                var width = Math.max($($window).width(), $window.innerWidth);
+                if (width < 768) {
+                    $scope.isMenuVisible = false;
+
+                    broadcastMenuState();
+                }
             }
 
             function broadcastMenuState() {
