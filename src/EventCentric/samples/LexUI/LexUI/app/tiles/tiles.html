@@ -1,49 +1,5 @@
 ﻿<div class="container">
-    <div class="lx-fadeIn-right">
+    <div class="lx-entrance">
         <h1>Metro Js Tiles</h1>
     </div>
 </div>
-<footer class="appbar">
-    <nav>
-        <ul id="menu" class="appbar-buttons">
-            <li>
-                <a href="#" class="home">
-                    <img src="../../external-modules/metroJs/images/1pixel.gif" alt="home" />
-                    <span class="charm-title">Home</span>
-                </a>
-            </li>
-            <li>
-                <a href="#" class="about">
-                    <img src="../../external-modules/metroJs/images/1pixel.gif" alt="about" />
-                    <span class="charm-title">About</span>
-                </a>
-            </li>
-        </ul>
-    </nav>
-    <a class="etc">&bull;&bull;&bull;</a>
-    <ul class="theme-options clear">
-
-    </ul>
-    <ul class="base-theme-options clear">
-
-    </ul>
-</footer>
-<script type="text/javascript">
-    var appBar, metroJs;
-    $(document).ready(function () {
-        appBar = $(".appbar").applicationBar({
-            preloadAltBaseTheme: true,
-            bindKeyboard: true,
-            metroLightUrl: 'images/metroIcons_light.jpg',
-            metroDarkUrl: 'images/metroIcons.jpg'
-        });
-        // append the theme options 
-        metroJs = jQuery.fn.metrojs;
-        metroJs.theme.appendAccentColors({
-            accentListContainer: ".theme-options"
-        });
-        metroJs.theme.appendBaseThemes({
-            baseThemeListContainer: ".base-theme-options"
-        });
-    });
-</script>

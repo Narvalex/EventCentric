@@ -3,141 +3,141 @@
 .list-tile,
 .copy-tile,
 .tile-strip .flip-list > li {
-  height: 150px;
+  height: 105px;
   margin: 5px;
   outline: 1px solid transparent;
   -webkit-box-sizing: border-box;
   -moz-box-sizing: border-box;
   box-sizing: border-box;
   padding: 0px;
-  width: 150px;
+  width: 105px;
 }
 .live-tile.half-tile,
 .list-tile.half-tile,
 .copy-tile.half-tile,
 .tile-strip .flip-list > li.half-tile {
-  height: 70px;
-  width: 70px;
+  height: 47.5px;
+  width: 47.5px;
 }
 .live-tile.half-wide,
 .list-tile.half-wide,
 .copy-tile.half-wide,
 .tile-strip .flip-list > li.half-wide {
-  width: 70px;
+  width: 47.5px;
 }
 .live-tile.two-wide,
 .list-tile.two-wide,
 .copy-tile.two-wide,
 .tile-strip .flip-list > li.two-wide {
-  width: 310px;
+  width: 220px;
 }
 .live-tile.three-wide,
 .list-tile.three-wide,
 .copy-tile.three-wide,
 .tile-strip .flip-list > li.three-wide {
-  width: 470px;
+  width: 335px;
 }
 .live-tile.four-wide,
 .list-tile.four-wide,
 .copy-tile.four-wide,
 .tile-strip .flip-list > li.four-wide {
-  width: 630px;
+  width: 450px;
 }
 .live-tile.five-wide,
 .list-tile.five-wide,
 .copy-tile.five-wide,
 .tile-strip .flip-list > li.five-wide {
-  width: 790px;
+  width: 565px;
 }
 .live-tile.six-wide,
 .list-tile.six-wide,
 .copy-tile.six-wide,
 .tile-strip .flip-list > li.six-wide {
-  width: 950px;
+  width: 680px;
 }
 .live-tile.seven-wide,
 .list-tile.seven-wide,
 .copy-tile.seven-wide,
 .tile-strip .flip-list > li.seven-wide {
-  width: 1110px;
+  width: 795px;
 }
 .live-tile.eight-wide,
 .list-tile.eight-wide,
 .copy-tile.eight-wide,
 .tile-strip .flip-list > li.eight-wide {
-  width: 1270px;
+  width: 910px;
 }
 .live-tile.nine-wide,
 .list-tile.nine-wide,
 .copy-tile.nine-wide,
 .tile-strip .flip-list > li.nine-wide {
-  width: 1430px;
+  width: 1025px;
 }
 .live-tile.ten-wide,
 .list-tile.ten-wide,
 .copy-tile.ten-wide,
 .tile-strip .flip-list > li.ten-wide {
-  width: 1590px;
+  width: 1140px;
 }
 .live-tile.half-tall,
 .list-tile.half-tall,
 .copy-tile.half-tall,
 .tile-strip .flip-list > li.half-tall {
-  height: 70px;
+  height: 47.5px;
 }
 .live-tile.two-tall,
 .list-tile.two-tall,
 .copy-tile.two-tall,
 .tile-strip .flip-list > li.two-tall {
-  height: 310px;
+  height: 220px;
 }
 .live-tile.three-tall,
 .list-tile.three-tall,
 .copy-tile.three-tall,
 .tile-strip .flip-list > li.three-tall {
-  height: 470px;
+  height: 335px;
 }
 .live-tile.four-tall,
 .list-tile.four-tall,
 .copy-tile.four-tall,
 .tile-strip .flip-list > li.four-tall {
-  height: 630px;
+  height: 450px;
 }
 .live-tile.five-tall,
 .list-tile.five-tall,
 .copy-tile.five-tall,
 .tile-strip .flip-list > li.five-tall {
-  height: 790px;
+  height: 565px;
 }
 .live-tile.six-tall,
 .list-tile.six-tall,
 .copy-tile.six-tall,
 .tile-strip .flip-list > li.six-tall {
-  height: 950px;
+  height: 680px;
 }
 .live-tile.seven-tall,
 .list-tile.seven-tall,
 .copy-tile.seven-tall,
 .tile-strip .flip-list > li.seven-tall {
-  height: 1110px;
+  height: 795px;
 }
 .live-tile.eight-tall,
 .list-tile.eight-tall,
 .copy-tile.eight-tall,
 .tile-strip .flip-list > li.eight-tall {
-  height: 1270px;
+  height: 910px;
 }
 .live-tile.nine-tall,
 .list-tile.nine-tall,
 .copy-tile.nine-tall,
 .tile-strip .flip-list > li.nine-tall {
-  height: 1430px;
+  height: 1025px;
 }
 .live-tile.ten-tall,
 .list-tile.ten-tall,
 .copy-tile.ten-tall,
 .tile-strip .flip-list > li.ten-tall {
-  height: 1590px;
+  height: 1140px;
 }
 /* End Sizes */
 /* flip-list tile grid sprite styles */
@@ -147,10 +147,10 @@
   width: 100%;
 }
 .flip-list > li {
-  height: 50px;
+  height: 35px;
   margin: 0px;
   padding: 0px;
-  width: 50px;
+  width: 35px;
 }
 .flip-list.fourTiles > li {
   border: none;
@@ -191,21 +191,21 @@
 .fourTiles .fourTiles2 a,
 .fourTiles .tile-2 img,
 .fourTiles .tile-2 a {
-  background-position: -75px 0px;
+  background-position: -52.5px 0px;
 }
 .fourTiles .fourTiles3 img,
 .fourTiles img.fourTiles3,
 .fourTiles .fourTiles3 a,
 .fourTiles .tile-3 img,
 .fourTiles .tile-3 a {
-  background-position: 0px -75px;
+  background-position: 0px -52.5px;
 }
 .fourTiles .fourTiles4 img,
 .fourTiles img.fourTiles4,
 .fourTiles .fourTiles4 a,
 .fourTiles .tile-4 img,
 .fourTiles .tile-4 a {
-  background-position: -75px -75px;
+  background-position: -52.5px -52.5px;
 }
 /* nineTile background positions */
 .nineTiles .nineTiles1 img,
@@ -220,56 +220,56 @@
 .nineTiles .nineTiles2 a,
 .nineTiles .tile-2 img,
 .nineTiles .tile-2 a {
-  background-position: -50px 0px;
+  background-position: -35px 0px;
 }
 .nineTiles .nineTiles3 img,
 .nineTiles img.nineTiles3,
 .nineTiles .nineTiles3 a,
 .nineTiles .tile-3 img,
 .nineTiles .tile-3 a {
-  background-position: -100px 0px;
+  background-position: -70px 0px;
 }
 .nineTiles .nineTiles4 img,
 .nineTiles img.nineTiles4,
 .nineTiles .nineTiles4 a,
 .nineTiles .tile-4 img,
 .nineTiles .tile-4 a {
-  background-position: 0px -50px;
+  background-position: 0px -35px;
 }
 .nineTiles .nineTiles5 img,
 .nineTiles img.nineTiles5,
 .nineTiles .nineTiles5 a,
 .nineTiles .tile-5 img,
 .nineTiles .tile-5 a {
-  background-position: -50px -50px;
+  background-position: -35px -35px;
 }
 .nineTiles .nineTiles6 img,
 .nineTiles img.nineTiles6,
 .nineTiles .nineTiles6 a,
 .nineTiles .tile-6 img,
 .nineTiles .tile-6 a {
-  background-position: -100px -50px;
+  background-position: -70px -35px;
 }
 .nineTiles .nineTiles7 img,
 .nineTiles img.nineTiles7,
 .nineTiles .nineTiles7 a,
 .nineTiles .tile-7 img,
 .nineTiles .tile-7 a {
-  background-position: 0px -100px;
+  background-position: 0px -70px;
 }
 .nineTiles .nineTiles8 img,
 .nineTiles img.nineTiles8,
 .nineTiles .nineTiles8 a,
 .nineTiles .tile-8 img,
 .nineTiles .tile-8 a {
-  background-position: -50px -100px;
+  background-position: -35px -70px;
 }
 .nineTiles .nineTiles9 img,
 .nineTiles img.nineTiles9,
 .nineTiles .nineTiles9 a,
 .nineTiles .tile-9 img,
 .nineTiles .tile-9 a {
-  background-position: -100px -100px;
+  background-position: -70px -70px;
 }
 .tile-group,
 .tile-strip {
@@ -284,98 +284,97 @@
 }
 .tile-group.one-tile,
 .tile-strip.one-tile {
-  height: 160px;
-  width: 160px;
+  height: 115px;
+  width: 115px;
 }
 .tile-group.half-wide,
 .tile-strip.half-wide {
-  width: 80px;
+  width: 57.5px;
 }
 .tile-group.one-wide,
 .tile-strip.one-wide {
-  width: 160px;
+  width: 115px;
 }
 .tile-group.two-wide,
 .tile-strip.two-wide {
-  width: 320px;
+  width: 230px;
 }
 .tile-group.three-wide,
 .tile-strip.three-wide {
-  width: 480px;
+  width: 345px;
 }
 .tile-group.four-wide,
 .tile-strip.four-wide {
-  width: 640px;
+  width: 460px;
 }
 .tile-group.five-wide,
 .tile-strip.five-wide {
-  width: 800px;
+  width: 575px;
 }
 .tile-group.six-wide,
 .tile-strip.six-wide {
-  width: 960px;
+  width: 690px;
 }
 .tile-group.seven-wide,
 .tile-strip.seven-wide {
-  width: 1120px;
+  width: 805px;
 }
 .tile-group.eight-wide,
 .tile-strip.eight-wide {
-  width: 1280px;
+  width: 920px;
 }
 .tile-group.nine-wide,
 .tile-strip.nine-wide {
-  width: 1440px;
+  width: 1035px;
 }
 .tile-group.ten-wide,
 .tile-strip.ten-wide {
-  width: 1600px;
+  width: 1150px;
 }
 .tile-group.half-tall,
 .tile-strip.half-tall {
-  height: 80px;
+  height: 57.5px;
 }
 .tile-group.one-tall,
 .tile-strip.one-tall {
-  height: 160px;
+  height: 115px;
 }
 .tile-group.two-tall,
 .tile-strip.two-tall {
-  height: 320px;
+  height: 230px;
 }
 .tile-group.three-tall,
 .tile-strip.three-tall {
-  height: 480px;
+  height: 345px;
 }
 .tile-group.four-tall,
 .tile-strip.four-tall {
-  height: 640px;
+  height: 460px;
 }
 .tile-group.five-tall,
 .tile-strip.five-tall {
-  height: 800px;
+  height: 575px;
 }
 .tile-group.six-tall,
 .tile-strip.six-tall {
-  height: 960px;
+  height: 690px;
 }
 .tile-group.seven-tall,
 .tile-strip.seven-tall {
-  height: 1120px;
+  height: 805px;
 }
 .tile-group.eight-tall,
 .tile-strip.eight-tall {
-  height: 1280px;
+  height: 920px;
 }
 .tile-group.nine-tall,
 .tile-strip.nine-tall {
-  height: 1440px;
+  height: 1035px;
 }
 .tile-group.ten-tall,
 .tile-strip.ten-tall {
-  height: 1600px;
+  height: 1150px;
 }
-
 /* liveTile styles */
 .tile-strip,
 .live-tile,
@@ -694,10 +693,10 @@ a.full-h,
 .flip-list > li > .ha.flip-back,
 .flip-list > li > .ha.flip-back img {
   /* override the values set for margin and ensure the back tile is visible  */
+
   margin: 0px !important;
   height: 100%;
 }
-
 .bounce {
   cursor: pointer;
   outline: 1px solid transparent;
@@ -811,7 +810,6 @@ a.full-h,
   -o-transform: rotateX(-10deg) rotateY(10deg);
   transform: rotateX(-10deg) rotateY(10deg);
 }
-
 .metroBig,
 .metroExtraLarge,
 .face.metroBig,
@@ -3373,4 +3371,3 @@ html body .black.accentBorderRight {
 html body .black.accentBorderTop {
   border-top-color: #000000;
 }
-

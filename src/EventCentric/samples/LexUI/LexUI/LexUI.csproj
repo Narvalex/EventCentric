@@ -69,19 +69,17 @@
     <Content Include="app\config\appRouteConfig.js" />
     <Content Include="app\config\configValue.js" />
     <Content Include="app\config\routeMediator.js" />
-    <Content Include="app\dashboard\dashboard.html" />
     <Content Include="app\index\indexController.js" />
     <Content Include="app\login\login.html" />
     <Content Include="app\login\loginController.js" />
+    <Content Include="app\tiles\tiles.html" />
     <Content Include="external-modules\lxMenu\lxMenuGroupDirective.js" />
     <Content Include="external-modules\lxMenu\lxMenuGroupTemplate.html" />
     <Content Include="external-modules\metroJs\images\1pixel.gif" />
     <Content Include="external-modules\metroJs\images\metroIcons.jpg" />
     <Content Include="external-modules\metroJs\images\metroIcons_light.jpg" />
-    <Content Include="external-modules\metroJs\MetroJs.ltt.css" />
-    <Content Include="external-modules\metroJs\MetroJs.ltt.js" />
-    <Content Include="external-modules\metroJs\MetroJs.ltt.min.css" />
-    <Content Include="external-modules\metroJs\MetroJs.ltt.min.js" />
+    <Content Include="external-modules\metroJs\metroJs.css" />
+    <Content Include="external-modules\metroJs\metroJs.js" />
     <Content Include="packages.config" />
     <Content Include="Scripts\angular-animate.js" />
     <Content Include="Scripts\angular-animate.min.js" />
@@ -98,7 +96,6 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="external-modules\lex-metro.css" />
     <Content Include="app\config\appConfig.js" />
     <Content Include="app\config\appModule.js" />
     <Content Include="Content\bootstrap-theme.css" />

@@ -4,10 +4,10 @@ angular.module('app').config(['$routeProvider', function ($routeProvider) {
 
     var routes = [
         {
-            url: '/dashboard',
+            url: '/tiles',
             config: {
-                title: 'Dashboard',
-                templateUrl: '/app/dashboard/dashboard.html'
+                title: 'Tiles',
+                templateUrl: '/app/tiles/tiles.html'
             }
         },
         {
@@ -30,6 +30,6 @@ angular.module('app').config(['$routeProvider', function ($routeProvider) {
         $routeProvider.when(route.url, route.config);
     });
 
-    $routeProvider.otherwise({ redirectTo: '/dashboard' });
+    $routeProvider.otherwise({ redirectTo: '/tiles' });
 
 }]);
