@@ -32,13 +32,12 @@
 
 .lx-menu-button {
     display: inline-block;
-    height: 40px;
+    font-size: 21px;
     width: 40px;
-    font-size: 22px;
     color: #999999;
     background-color: rgba(240, 248, 255, 0.00);
     padding-top: 2.5px;
-    margin-left: -15px;
+    margin-left: -17.5px;
 }
 
 .lx-menu-button:hover, .lx-menu-button:focus {
