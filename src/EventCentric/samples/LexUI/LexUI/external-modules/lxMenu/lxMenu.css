@@ -1,7 +1,7 @@
 ﻿.lx-menu-area {
     /*position: relative;*/
     position: fixed;
-    background-color: #2d2d30;
+    background-color: #212021;
     color:  #f1f1f1;
     padding-left: 0;
 
@@ -66,7 +66,7 @@
     -o-transition: all .2s ease-in;
     -webkit-transition: all .2s ease-in;
     transition: all .2s ease-in; /* Source: http://stackoverflow.com/questions/14350126/transition-color-fade-on-hover */
-    background-color: #2d2d30;
+    background-color: #212021;
 }
 
 .lx-selectable-item:hover {
