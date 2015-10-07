@@ -1,6 +1,7 @@
 ﻿/// <autosync enabled="true" />
 /// <reference path="../app/appModule.js" />
 /// <reference path="../app/atencionalcliente/atencionalclientecontroller.js" />
+/// <reference path="../app/atencionalcliente/formularioclientecontroller.js" />
 /// <reference path="../app/config/appconfig.js" />
 /// <reference path="../app/config/appmodule.js" />
 /// <reference path="../app/config/approuteconfig.js" />

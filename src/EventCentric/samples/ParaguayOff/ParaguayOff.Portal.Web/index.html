@@ -1,7 +1,8 @@
 ﻿<!DOCTYPE html>
 <html ng-app="app">
 <head>
-    <meta name="viewport" content="width=device-width, initial-scale=1"> <!-- We allow user to zoom in -->
+    <!--<meta name="viewport" content="width=device-width, initial-scale=1">--> <!-- We allow user to zoom in -->
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
     <title ng-bind="title">Paraguay Off</title>
     <!-- 3rd party css -->
     <link href="Content/bootstrap.css" rel="stylesheet" />
@@ -10,8 +11,10 @@
     <link href="Content/toastr.css" rel="stylesheet" />
 
     <!-- my custom css -->
+    <link href="modules/lxLayout/lxLayout.css" rel="stylesheet" />
     <link href="modules/lxLayout/lxLayout-light.css" rel="stylesheet" />
     <link href="modules/lxLayout/lxLayoutUtils.css" rel="stylesheet" />
+    <link href="modules/lxMenu/lxMenu.css" rel="stylesheet" />
     <link href="modules/lxMenu/lxMenu-light.css" rel="stylesheet" />
 </head>
 <body class="container-fluid" ng-controller="indexController"> <!-- The container fluid is to make use of the full screen -->
@@ -74,7 +77,8 @@
     <!-- app controllers -->
     <script src="app/index/indexController.js"></script>
     <script src="app/login/loginController.js"></script>
-        <!-- Tiles -->
+        <!-- Antención al cliente -->
         <script src="app/atencionAlCliente/atencionAlClienteController.js"></script>
+        <script src="app/atencionAlCliente/formularioClienteController.js"></script>
 </body>
 </html>

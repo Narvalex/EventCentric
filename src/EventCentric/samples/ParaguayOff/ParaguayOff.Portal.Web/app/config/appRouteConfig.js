@@ -10,6 +10,13 @@ angular.module('app').config(['$routeProvider', function ($routeProvider) {
                 templateUrl: '/app/atencionAlCliente/atencionAlCliente.html'
             }
         },
+            {
+                url: '/atencion-al-cliente/cliente/:clienteId',
+                config: {
+                    title: 'Atención al cliente',
+                    templateUrl: '/app/atencionAlCliente/formularioCliente.html'
+                }
+            },
         {
             url: '/forms',
             config: {

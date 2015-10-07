@@ -1,4 +1,12 @@
-﻿.lx-selectable-row {
+﻿.lx-noselect { /* We block the ability to select text and perform copy-pasting */
+    -webkit-touch-callout: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    -webkit-user-select: none;
+    user-select: none;
+}
+
+.lx-selectable-row {
     cursor: pointer;
 
     -webkit-touch-callout: none;
@@ -6,4 +14,23 @@
     -ms-user-select: none;
     -webkit-user-select: none;
     user-select: none;
+}
+
+.lx-view-content {
+    padding-left: 15px;
+    padding-right: 15px;
+}
+
+.lx-noselect-default-cursor {
+    -webkit-touch-callout: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    -webkit-user-select: none;
+    user-select: none;
+
+    cursor: default;
+}
+
+.lx-selectable-fa-icon {
+    cursor: pointer;
 }

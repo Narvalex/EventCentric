@@ -66,6 +66,8 @@
     <Reference Include="System.EnterpriseServices" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="app\atencionAlCliente\formularioClienteController.js" />
+    <Content Include="app\atencionAlCliente\formularioCliente.html" />
     <Content Include="app\config\appConfig.js" />
     <Content Include="app\config\appModule.js" />
     <Content Include="app\config\appRouteConfig.js" />

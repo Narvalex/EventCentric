@@ -13,21 +13,14 @@
     margin-left: 0;
 }
 
-h1, h2, h3, h4 {
+h1, h2, h3, h4, h5, h6 {
     color: white;
     font-weight: 300;
+    padding-bottom: 7px;
 }
 
 a {
     color: #1ba1e2;
-}
-
-.lx-noselect { /* We block the ability to select text and perform copy-pasting */
-    -webkit-touch-callout: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    -webkit-user-select: none;
-    user-select: none;
 }
 
 
@@ -74,10 +67,16 @@ a {
     .lx-menu-right-side {
         display: none;
     }
+
+    .lx-logo-title {
+        display: none;
+    }
 }
 
 .lx-view {
     padding-left: 200px;
+    margin-right: 0 !important;
+    padding-right: 0 !important;
     margin-top: 40px;
     background-color: #000000;
     min-height: 100vh;

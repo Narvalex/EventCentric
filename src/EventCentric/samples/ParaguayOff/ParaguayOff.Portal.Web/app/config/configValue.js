@@ -1,6 +1,10 @@
 ﻿(function () {
     'use strict';
 
+    // Configure Toastr
+    toastr.options.timeOut = 4000;
+    toastr.options.positionClass = 'toast-bottom-right';
+
     var keyCodes = {
         backspace: 8,
         tab: 9,
