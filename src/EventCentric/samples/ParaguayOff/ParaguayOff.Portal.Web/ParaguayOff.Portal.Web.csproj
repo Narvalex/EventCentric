@@ -99,9 +99,6 @@
     <Content Include="modules\lxMenu\lxMenuItemTemplate.html" />
     <Content Include="modules\lxMenu\lxMenuModule.js" />
     <Content Include="modules\lxMenu\lxMenuTemplate.html" />
-    <Content Include="modules\metroJs\images\1pixel.gif" />
-    <Content Include="modules\metroJs\images\metroIcons.jpg" />
-    <Content Include="modules\metroJs\images\metroIcons_light.jpg" />
     <Content Include="modules\metroJs\metroJs.css" />
     <Content Include="modules\metroJs\metroJs.js" />
     <Content Include="packages.config" />

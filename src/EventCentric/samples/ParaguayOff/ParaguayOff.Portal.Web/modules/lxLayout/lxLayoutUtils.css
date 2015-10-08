@@ -34,3 +34,9 @@
 .lx-selectable-fa-icon {
     cursor: pointer;
 }
+
+.lx-selectable-fa-icon:hover {
+    cursor: pointer;
+    color: #52B9E9;
+}
+

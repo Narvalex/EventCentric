@@ -62,10 +62,10 @@
 }
 
 .lx-selectable-item {
-    -moz-transition: all .2s ease-in;
-    -o-transition: all .2s ease-in;
-    -webkit-transition: all .2s ease-in;
-    transition: all .2s ease-in; /* Source: http://stackoverflow.com/questions/14350126/transition-color-fade-on-hover */
+    -moz-transition: all 0.2s linear;
+    -o-transition: all 0.2s linear;
+    -webkit-transition: all 0.2s linear;
+    transition: all 0.2s linear; /* Source: http://stackoverflow.com/questions/14350126/transition-color-fade-on-hover */
     background-color: #212021;
 }
 

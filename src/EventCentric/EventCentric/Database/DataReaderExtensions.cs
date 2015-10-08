@@ -258,12 +258,9 @@ namespace EventCentric.Database
         /// <param name="i">The name of the column.</param>
         public static bool SafeGetBool(this IDataReader reader, string name)
         {
-            int number;
-            int.TryParse(reader[name].ToString(), out number);
-            if (number > 0)
-                return true;
-            else
-                return false;
+            bool boolean = default(bool);
+            bool.TryParse(reader[name].ToString(), out boolean);
+            return boolean;
         }
     }
 }
