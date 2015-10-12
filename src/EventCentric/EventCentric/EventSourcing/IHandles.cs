@@ -4,6 +4,6 @@
 
     public interface IHandles<T> : IHandles where T : IEvent
     {
-        void Handle(T e);
+        void Handle(T message);
     }
 }

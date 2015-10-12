@@ -143,7 +143,7 @@
     <Compile Include="Repository\EventStoreDbContext.cs" />
     <Compile Include="Repository\Mapping\StreamEntity.cs" />
     <Compile Include="Queueing\IEventQueue.cs" />
-    <Compile Include="Processing\IEventHandler.cs" />
+    <Compile Include="Processing\ISubscribedTo.cs" />
     <Compile Include="Publishing\IEventSource.cs" />
     <Compile Include="Serialization\ITextSerializer.cs" />
     <Compile Include="Serialization\JsonTextSerializer.cs" />

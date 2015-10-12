@@ -13,24 +13,24 @@ namespace EasyTrade.EmpresasReadModel
             : base(bus, log, store)
         { }
 
-        public void Handle(DatosDeEmpresaActualizados incomingEvent)
+        public void Receive(DatosDeEmpresaActualizados @event)
         {
-            this.Handle(incomingEvent.Empresa.IdEmpresa, incomingEvent);
+            this.Handle(@event.Empresa.IdEmpresa, @event);
         }
 
-        public void Handle(EmpresaReactivada incomingEvent)
+        public void Receive(EmpresaReactivada @event)
         {
-            this.Handle(incomingEvent.IdEmpresa, incomingEvent);
+            this.Handle(@event.IdEmpresa, @event);
         }
 
-        public void Handle(EmpresaDesactivada incomingEvent)
+        public void Receive(EmpresaDesactivada @event)
         {
-            this.Handle(incomingEvent.IdEmpresa, incomingEvent);
+            this.Handle(@event.IdEmpresa, @event);
         }
 
-        public void Handle(NuevaEmpresaRegistrada incomingEvent)
+        public void Receive(NuevaEmpresaRegistrada @event)
         {
-            this.CreateNewStream(incomingEvent.Empresa.IdEmpresa, incomingEvent);
+            this.CreateNewStream(@event.Empresa.IdEmpresa, @event);
         }
     }
 }

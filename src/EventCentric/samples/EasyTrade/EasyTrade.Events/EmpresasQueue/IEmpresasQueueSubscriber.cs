@@ -3,9 +3,9 @@
 namespace EasyTrade.Events.EmpresasQueue
 {
     public interface IEmpresasQueueSubscriber :
-        IEventHandler<NuevaEmpresaRegistrada>,
-        IEventHandler<EmpresaDesactivada>,
-        IEventHandler<EmpresaReactivada>,
-        IEventHandler<DatosDeEmpresaActualizados>
+        ISubscribedTo<NuevaEmpresaRegistrada>,
+        ISubscribedTo<EmpresaDesactivada>,
+        ISubscribedTo<EmpresaReactivada>,
+        ISubscribedTo<DatosDeEmpresaActualizados>
     { }
 }
