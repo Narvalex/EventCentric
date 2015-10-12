@@ -6,7 +6,6 @@ using EventCentric.Messaging.Events;
 using EventCentric.Utils;
 using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Linq;
 
 namespace EventCentric.Processing
@@ -28,7 +27,7 @@ namespace EventCentric.Processing
     {
         private readonly IEventStore<T> store;
         private readonly Func<Guid, T> newAggregateFactory;
-        protected readonly ConcurrentDictionary<Guid, object> streamLocksById;
+        private readonly ConcurrentDictionary<string, object> streamLocksById;
         protected readonly ConcurrentBag<Guid> poisonedStreams;
 
         public EventProcessor(IBus bus, ILogger log, IEventStore<T> store)
@@ -38,7 +37,7 @@ namespace EventCentric.Processing
 
             this.store = store;
 
-            this.streamLocksById = new ConcurrentDictionary<Guid, object>();
+            this.streamLocksById = new ConcurrentDictionary<string, object>();
             this.poisonedStreams = new ConcurrentBag<Guid>();
 
             // New aggregate
@@ -51,7 +50,7 @@ namespace EventCentric.Processing
         public void Handle(NewIncomingEvents message)
         {
 #if DEBUG
-            var traces = new List<string>();
+            var traces = new System.Collections.Generic.List<string>();
             traces.Add($"Processing {message.IncomingEvents.Count()} event/s as follows:");
             foreach (var incomingEvent in message.IncomingEvents)
             {
@@ -162,8 +161,16 @@ namespace EventCentric.Processing
         /// <param name="handle">The handling action.</param>
         private void HandleSafelyWithStreamLocking(Guid id, Action handle)
         {
-            this.streamLocksById.TryAdd(id, new object());
-            lock (this.streamLocksById.TryGetValue(id))
+            /***************************************************** 
+
+               This was the old way to get a lock.
+              
+               this.streamLocksById.TryAdd(id, new object());
+               lock (this.streamLocksById.TryGetValue(id))
+
+            ******************************************************/
+
+            lock (this.streamLocksById.GetOrAdd(id.ToString(), new object()))
             {
                 try
                 {

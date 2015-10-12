@@ -70,6 +70,7 @@
     <Compile Include="Playground\GroupedEventStreams.cs" />
     <Compile Include="Playground\Helpers\TestActor.cs" />
     <Compile Include="Playground\InMemoryObjectsPerformance.cs" />
+    <Compile Include="Playground\LockingWithConcurrentDictionary.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
