@@ -60,6 +60,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="EventSourcing\EventExtensions.cs" />
     <Compile Include="Node\ApplicationServiceBase.cs" />
     <Compile Include="EventSourcing\Memento.cs" />
     <Compile Include="Node\NodeBase.cs" />
@@ -111,7 +112,6 @@
     <Compile Include="Node\NodeState.cs" />
     <Compile Include="Queueing\IQueueWriter.cs" />
     <Compile Include="Queueing\EventQueue.cs" />
-    <Compile Include="Queueing\QueuedEvent.cs" />
     <Compile Include="Queueing\QueueWriter.cs" />
     <Compile Include="Database\DbContextExtensions.cs" />
     <Compile Include="Repository\Mapping\SubscriptionEntity.cs" />

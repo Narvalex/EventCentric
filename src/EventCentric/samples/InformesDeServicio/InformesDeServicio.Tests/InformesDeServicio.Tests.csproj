@@ -3,11 +3,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{C43C0436-69D1-4EB3-BF0E-89F005C4C4C7}</ProjectGuid>
+    <ProjectGuid>{9157DBF2-7F84-499B-AD68-322105F7E897}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>EventCentric.Tests</RootNamespace>
-    <AssemblyName>EventCentric.Tests</AssemblyName>
+    <RootNamespace>InformesDeServicio.Tests</RootNamespace>
+    <AssemblyName>InformesDeServicio.Tests</AssemblyName>
     <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{3AC096D0-A1C2-E12C-1390-A8335801FDAB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
@@ -27,27 +27,15 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>full</DebugType>
+    <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <DebugSymbols>true</DebugSymbols>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
-      <HintPath>..\packages\EntityFramework.6.1.3\lib\net45\EntityFramework.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="EntityFramework.SqlServer, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
-      <HintPath>..\packages\EntityFramework.6.1.3\lib\net45\EntityFramework.SqlServer.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
     <Reference Include="System" />
-    <Reference Include="System.ComponentModel.DataAnnotations" />
-    <Reference Include="System.Configuration" />
-    <Reference Include="System.Net.Http" />
   </ItemGroup>
   <Choose>
     <When Condition="('$(VisualStudioVersion)' == '10.0' or '$(VisualStudioVersion)' == '') and '$(TargetFrameworkVersion)' == 'v3.5'">
@@ -62,23 +50,8 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
-    <Compile Include="FiniteStateMachine\Helpers\FakeBus.cs" />
-    <Compile Include="Helpers\LoggerFakes.cs" />
-    <Compile Include="Playground\GroupedEventStreams.cs" />
-    <Compile Include="Playground\Helpers\TestActor.cs" />
-    <Compile Include="Playground\InMemoryObjectsPerformance.cs" />
-    <Compile Include="Playground\LockingWithConcurrentDictionary.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="App.config" />
-    <None Include="packages.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\EventCentric\EventCentric.csproj">
-      <Project>{4b00e8dd-813c-4abb-8c87-c664d188f62c}</Project>
-      <Name>EventCentric</Name>
-    </ProjectReference>
+    <Compile Include="Publicador\PublicadorFixture.cs" />
   </ItemGroup>
   <ItemGroup />
   <Choose>

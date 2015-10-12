@@ -1,13 +1,11 @@
-﻿using EventCentric.Queueing;
+﻿using EventCentric.EventSourcing;
 using System;
 
 namespace EasyTrade.Events.EmpresasQueue
 {
-    public class EmpresaReactivada : QueuedEvent
+    public class EmpresaReactivada : Event
     {
-        public EmpresaReactivada(Guid streamId, Guid transactionId,
-            Guid IdEmpresa)
-            : base(streamId, transactionId)
+        public EmpresaReactivada(Guid IdEmpresa)
         {
             this.IdEmpresa = IdEmpresa;
         }

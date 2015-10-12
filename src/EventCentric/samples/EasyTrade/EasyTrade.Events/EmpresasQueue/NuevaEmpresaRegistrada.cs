@@ -1,14 +1,13 @@
 ﻿using EasyTrade.Events.EmpresasQueue.DTOs;
-using EventCentric.Queueing;
+using EventCentric.EventSourcing;
 using System;
 
 namespace EasyTrade.Events
 {
-    public class NuevaEmpresaRegistrada : QueuedEvent
+    public class NuevaEmpresaRegistrada : Event
     {
-        public NuevaEmpresaRegistrada(Guid streamId, Guid transactionId,
+        public NuevaEmpresaRegistrada(
             Empresa empresa, DateTime fechaRegistro)
-            : base(streamId, transactionId)
         {
             this.Empresa = empresa;
             this.FechaRegistro = fechaRegistro;
