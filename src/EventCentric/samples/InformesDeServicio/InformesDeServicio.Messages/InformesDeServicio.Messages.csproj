@@ -41,7 +41,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Publicador\Commands\RegistrarPublicador.cs" />
+    <Compile Include="Publicadores\DTOs\DatosDePublicador.cs" />
+    <Compile Include="Publicadores\InProcess\Commands\RegistrarPublicador.cs" />
+    <Compile Include="Publicadores\InProcess\IPublicadorInProcessSubscriber.cs" />
+    <Compile Include="Publicadores\Store\Events\PublicadorRegistrado.cs" />
+    <Compile Include="Publicadores\Store\IPublicadorSubscriber.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\EventCentric\EventCentric.csproj">
@@ -49,6 +53,7 @@
       <Name>EventCentric</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

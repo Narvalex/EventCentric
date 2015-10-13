@@ -3,6 +3,29 @@ using System.Linq;
 
 namespace EventCentric.Utils
 {
+    /// <summary>
+    /// A value object.
+    /// </summary>
+    /// <typeparam name="T">Any class.</typeparam>
+    /// <remarks>
+    /// // An example: 
+    /// public class Hours : ValueObject<Hours>
+    /// {
+    ///     public readonly int Amount;
+    ///     public Hours(int amount)
+    ///     {
+    ///         this.Amount = amount;
+    ///     }
+    ///     public static Hours operator -(Hours left, Hours right)
+    ///     {
+    ///         return new Hours(left.Amount - right.Amount);
+    ///     }
+    ///     protected override IEnumerable<object> GetAttributesToIncludeInEqualityCheck()
+    ///     {
+    ///         return new object[] { Amount };
+    ///     }
+    /// }
+    /// </remarks>
     public abstract class ValueObject<T> where T : ValueObject<T>
     {
         protected abstract IEnumerable<object> GetAttributesToIncludeInEqualityCheck();

@@ -69,6 +69,7 @@
     <Compile Include="Node\QueueApplicationService.cs" />
     <Compile Include="Polling\IMonitoredSubscriber.cs" />
     <Compile Include="Polling\IMonitoredSubscription.cs" />
+    <Compile Include="EventSourcing\IDomainService.cs" />
     <Compile Include="Publishing\IEventDao.cs" />
     <Compile Include="Node\QueueNode.cs" />
     <Compile Include="Config\EventStoreConfig.cs" />
@@ -163,6 +164,8 @@
     <Compile Include="Utils\DictionaryExtensions.cs" />
     <Compile Include="Utils\Ensure.cs" />
     <Compile Include="Utils\GuidProvider.cs" />
+    <Compile Include="Utils\Testing\EventExtensions.cs" />
+    <Compile Include="Utils\Testing\EventSourcedExtensions.cs" />
     <Compile Include="Utils\TimeProvider.cs" />
     <Compile Include="Utils\TaskExtensions.cs" />
     <Compile Include="Utils\ValueObject.cs" />

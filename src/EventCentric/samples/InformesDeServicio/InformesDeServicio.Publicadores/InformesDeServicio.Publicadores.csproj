@@ -4,11 +4,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{8F9E9A45-F977-45E4-ADF9-F4CC450BFC2B}</ProjectGuid>
+    <ProjectGuid>{9031C290-B032-4D84-A08E-04E381CEDEA6}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>InformesDeServicio.Publicador</RootNamespace>
-    <AssemblyName>InformesDeServicio.Publicador</AssemblyName>
+    <RootNamespace>InformesDeServicio.Publicadores</RootNamespace>
+    <AssemblyName>InformesDeServicio.Publicadores</AssemblyName>
     <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -40,13 +40,17 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Publicador.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="PublicadorAggregate.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\EventCentric\EventCentric.csproj">
       <Project>{4b00e8dd-813c-4abb-8c87-c664d188f62c}</Project>
       <Name>EventCentric</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\InformesDeServicio.Messages\InformesDeServicio.Messages.csproj">
+      <Project>{57a80777-abc3-4c1b-b666-9c1a632a038e}</Project>
+      <Name>InformesDeServicio.Messages</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
