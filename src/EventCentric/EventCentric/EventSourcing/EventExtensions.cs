@@ -4,7 +4,7 @@ namespace EventCentric.EventSourcing
 {
     public static class EventExtensions
     {
-        public static Event FormatAsQueuedEvent(this Event e, Guid transactionId, Guid streamId)
+        public static Event FormatAsEventToBeQueued(this Event e, Guid transactionId, Guid streamId)
         {
             e.TransactionId = transactionId;
             e.StreamId = streamId;

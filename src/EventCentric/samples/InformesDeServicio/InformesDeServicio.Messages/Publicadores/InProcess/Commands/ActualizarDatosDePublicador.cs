@@ -4,15 +4,15 @@ using System;
 
 namespace InformesDeServicio.Messages.Publicadores.InProcess.Commands
 {
-    public class RegistrarPublicador : Event
+    public class ActualizarDatosDePublicador : Event
     {
-        public RegistrarPublicador(Guid idPublicador, DatosDePublicador datos)
+        public ActualizarDatosDePublicador(Guid idPublicador, DatosDePublicador datosActualizados)
         {
             this.IdPublicador = idPublicador;
-            this.Datos = datos;
+            this.DatosActualizados = datosActualizados;
         }
 
         public Guid IdPublicador { get; private set; }
-        public DatosDePublicador Datos { get; private set; }
+        public DatosDePublicador DatosActualizados { get; private set; }
     }
 }

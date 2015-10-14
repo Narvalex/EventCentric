@@ -94,7 +94,7 @@ namespace EventCentric.Processing
         /// </summary>
         /// <param name="id">The id of the new stream. A brand new computed <see cref="Guid"/>.</param>
         /// <param name="@event">The first message that the new aggregate will process.</param>
-        protected void CreateNewStream(Guid id, IEvent incomingEvent)
+        protected void CreateNewStreamAndProcess(Guid id, IEvent incomingEvent)
         {
             this.HandleSafelyWithStreamLocking(id, () =>
             {
@@ -103,7 +103,7 @@ namespace EventCentric.Processing
             });
         }
 
-        protected void CreateNewStreamIfNotExists(Guid id, IEvent incomingEvent)
+        protected void CreateNewStreamIfNotExistsAndProcess(Guid id, IEvent incomingEvent)
         {
             this.HandleSafelyWithStreamLocking(id, () =>
             {
@@ -120,7 +120,7 @@ namespace EventCentric.Processing
         /// </summary>
         /// <param name="id">The id of the stream.</param>
         /// <param name="@event">The event to be handled by the aggregate of <see cref="T"/>.</param>
-        protected void Handle(Guid id, IEvent incomingEvent)
+        protected void Process(Guid id, IEvent incomingEvent)
         {
             this.HandleSafelyWithStreamLocking(id, () =>
             {

@@ -42,10 +42,18 @@
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Publicadores\DTOs\DatosDePublicador.cs" />
+    <Compile Include="Publicadores\InProcess\Commands\ActualizarDatosDePublicador.cs" />
+    <Compile Include="Publicadores\InProcess\Commands\VolverADarDeAltaAPublicador.cs" />
+    <Compile Include="Publicadores\InProcess\Commands\DarDeBajaAPublicador.cs" />
     <Compile Include="Publicadores\InProcess\Commands\RegistrarPublicador.cs" />
-    <Compile Include="Publicadores\InProcess\IPublicadorInProcessSubscriber.cs" />
-    <Compile Include="Publicadores\Store\Events\PublicadorRegistrado.cs" />
-    <Compile Include="Publicadores\Store\IPublicadorSubscriber.cs" />
+    <Compile Include="Publicadores\InProcess\IPublicadorInProcessMessageSubscriber.cs" />
+    <Compile Include="Publicadores\Stored\Events\DatosDePublicadorActualizados.cs" />
+    <Compile Include="Publicadores\Stored\Events\PublicadorVueltoADarDeAlta.cs" />
+    <Compile Include="Publicadores\Stored\Events\PublicadorDadoDeBaja.cs" />
+    <Compile Include="Publicadores\Stored\Events\PublicadorRegistrado.cs" />
+    <Compile Include="Publicadores\Stored\Events\SeIntentoVolverADarDeAltaAPublicadorQueYaEstaDadoDeAlta.cs" />
+    <Compile Include="Publicadores\Stored\Events\SeIntentoDarDeBajaAPublicadorQueYaEstaDadoDeBaja.cs" />
+    <Compile Include="Publicadores\Stored\IPublicadorStoredMessageSubscriber.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\EventCentric\EventCentric.csproj">

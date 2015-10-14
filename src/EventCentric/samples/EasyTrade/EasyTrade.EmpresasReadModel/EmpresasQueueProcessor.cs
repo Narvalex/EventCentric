@@ -15,22 +15,22 @@ namespace EasyTrade.EmpresasReadModel
 
         public void Receive(DatosDeEmpresaActualizados @event)
         {
-            this.Handle(@event.Empresa.IdEmpresa, @event);
+            this.Process(@event.Empresa.IdEmpresa, @event);
         }
 
         public void Receive(EmpresaReactivada @event)
         {
-            this.Handle(@event.IdEmpresa, @event);
+            this.Process(@event.IdEmpresa, @event);
         }
 
         public void Receive(EmpresaDesactivada @event)
         {
-            this.Handle(@event.IdEmpresa, @event);
+            this.Process(@event.IdEmpresa, @event);
         }
 
         public void Receive(NuevaEmpresaRegistrada @event)
         {
-            this.CreateNewStream(@event.Empresa.IdEmpresa, @event);
+            this.CreateNewStreamAndProcess(@event.Empresa.IdEmpresa, @event);
         }
     }
 }

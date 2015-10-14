@@ -7,7 +7,7 @@ namespace EventCentric.Utils.Testing
 {
     public static class EventSourcedExtensionsForSpecifications
     {
-        public static TAggregate On<TAggregate>(this TAggregate aggregate, IEvent e)
+        public static TAggregate GivenOn<TAggregate>(this TAggregate aggregate, IEvent e)
             where TAggregate : IEventSourced
         {
             ((dynamic)aggregate).On((dynamic)e);
@@ -34,8 +34,15 @@ namespace EventCentric.Utils.Testing
 
         public static IEventSourced ThenExpectSingle<TEvent>(this IEventSourced aggregate)
         {
-            var x = aggregate.PendingEvents.Single();
-            return aggregate;
+            var count = aggregate.PendingEvents.OfType<TEvent>().Count();
+
+            if (count <= 0)
+                throw new InvalidOperationException($"There was expected to find a single event of type '{typeof(TEvent).Name}' but none were found.");
+
+            else if (count == 1)
+                return aggregate;
+
+            throw new InvalidOperationException($"There was expected to find a single event of type '{typeof(TEvent).Name}' but there where found {count} events of that type.");
         }
 
         public static IEventSourced ThenExpectOne<TEvent>(this IEventSourced aggregate)
@@ -55,7 +62,6 @@ namespace EventCentric.Utils.Testing
                 throw new InvalidOperationException($"Aggregate of type {aggregate.GetType().Name} does not generated any event of type {typeof(TEvent).Name} so far.");
         }
 
-        // Usability overload
         public static IEventSourced AndOne<TEvent>(this IEventSourced aggregate)
            where TEvent : IEvent
         {
@@ -63,7 +69,6 @@ namespace EventCentric.Utils.Testing
             return aggregate;
         }
 
-        // Usability overload
         public static IEventSourced AndAtLeastOne<TEvent>(this IEventSourced aggregate)
            where TEvent : IEvent
         {

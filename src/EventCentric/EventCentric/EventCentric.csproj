@@ -80,6 +80,7 @@
     <Compile Include="Messaging\SynchronousBus.cs" />
     <Compile Include="Queueing\CrudEventQueue.cs" />
     <Compile Include="Queueing\CrudQueueWriter.cs" />
+    <Compile Include="Queueing\InMemoryQueueWriter.cs" />
     <Compile Include="Repository\EventuallyConsistentDbContext.cs" />
     <Compile Include="Repository\IEventuallyConsistentDbContext.cs" />
     <Compile Include="Repository\Mapping\EventuallyConsistentResultEntity.cs" />
@@ -113,7 +114,7 @@
     <Compile Include="Node\NodeState.cs" />
     <Compile Include="Queueing\IQueueWriter.cs" />
     <Compile Include="Queueing\EventQueue.cs" />
-    <Compile Include="Queueing\QueueWriter.cs" />
+    <Compile Include="Queueing\SqlQueueWriter.cs" />
     <Compile Include="Database\DbContextExtensions.cs" />
     <Compile Include="Repository\Mapping\SubscriptionEntity.cs" />
     <Compile Include="EventSourcing\Event.cs" />
@@ -164,7 +165,6 @@
     <Compile Include="Utils\DictionaryExtensions.cs" />
     <Compile Include="Utils\Ensure.cs" />
     <Compile Include="Utils\GuidProvider.cs" />
-    <Compile Include="Utils\Testing\EventExtensions.cs" />
     <Compile Include="Utils\Testing\EventSourcedExtensionsForSpecifications.cs" />
     <Compile Include="Utils\TimeProvider.cs" />
     <Compile Include="Utils\TaskExtensions.cs" />

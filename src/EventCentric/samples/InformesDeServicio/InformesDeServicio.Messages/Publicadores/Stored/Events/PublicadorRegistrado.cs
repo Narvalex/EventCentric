@@ -1,7 +1,7 @@
 ﻿using EventCentric.EventSourcing;
 using InformesDeServicio.Messages.Publicadores.DTOs;
 
-namespace InformesDeServicio.Messages.Publicadores.Store.Events
+namespace InformesDeServicio.Messages.Publicadores.Stored.Events
 {
     public class PublicadorRegistrado : Event
     {
