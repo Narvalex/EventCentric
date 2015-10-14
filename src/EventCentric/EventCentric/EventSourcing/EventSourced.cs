@@ -3,6 +3,10 @@ using System.Collections.Generic;
 
 namespace EventCentric.EventSourcing
 {
+    /// <summary>
+    /// Base class for event sourced aggregates that implements <see cref="IEventSourced"/> that contains 
+    /// some common useful functionality related to versions and rehydration from past events.
+    /// </summary>
     public abstract class EventSourced : IEventSourced, IMementoOriginator
     {
         private readonly Guid id;

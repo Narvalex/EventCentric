@@ -23,7 +23,7 @@ namespace InformesDeServicio.Tests.Publicadores.PublicadorFixture
 
             var aggregate = new Publicador(command.StreamId);
 
-            Assert.AreEqual(dto, aggregate.SingleEvent<PublicadorRegistrado>().Datos);
+            Assert.AreEqual(dto, aggregate.ExpectSingleEventOfType<PublicadorRegistrado>().Datos);
         }
 
         [TestMethod]
@@ -35,7 +35,7 @@ namespace InformesDeServicio.Tests.Publicadores.PublicadorFixture
 
 
             var aggregate = new Publicador(publicadorId);
-            aggregate.Given(e1);
+            EventSourcedExtensionsForSpecifications.On(aggregate, e1);
 
             // TODO: when... then...
             Assert.IsNotNull(aggregate);

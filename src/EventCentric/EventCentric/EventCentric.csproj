@@ -165,7 +165,7 @@
     <Compile Include="Utils\Ensure.cs" />
     <Compile Include="Utils\GuidProvider.cs" />
     <Compile Include="Utils\Testing\EventExtensions.cs" />
-    <Compile Include="Utils\Testing\EventSourcedExtensions.cs" />
+    <Compile Include="Utils\Testing\EventSourcedExtensionsForSpecifications.cs" />
     <Compile Include="Utils\TimeProvider.cs" />
     <Compile Include="Utils\TaskExtensions.cs" />
     <Compile Include="Utils\ValueObject.cs" />
