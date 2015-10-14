@@ -197,7 +197,32 @@ namespace EventCentric.Database
         /// </summary>
         /// <param name="reader">The <see cref="SqlDataReader"/> instance.</param>
         /// <param name="i">The zero-based column ordinal.</param>
-        public static DateTime? SafeGetNullableDateTime(this IDataReader reader, int i)
+        public static DateTime SafeGetDateTime(this IDataReader reader, int i)
+        {
+            if (!reader.IsDBNull(i))
+                return reader.GetDateTime(i);
+            else
+                return new DateTime();
+        }
+
+        /// <summary>
+        /// Gets the value of the specified column as a DateTime in Null-Safe mode.
+        /// </summary>
+        /// <param name="reader">The <see cref="SqlDataReader"/> instance.</param>
+        /// <param name="i">The zero-based column ordinal.</param>
+        public static DateTime SafeGetDateTime(this IDataReader reader, string name)
+        {
+            var date = DateTime.MinValue;
+            DateTime.TryParse(reader[name].ToString(), out date);
+            return date;
+        }
+
+        /// <summary>
+        /// Gets the value of the specified column as a DateTime in Null-Safe mode.
+        /// </summary>
+        /// <param name="reader">The <see cref="SqlDataReader"/> instance.</param>
+        /// <param name="i">The zero-based column ordinal.</param>
+        public static DateTime? SafeGetDateTimeThatIsNullable(this IDataReader reader, int i)
         {
             if (!reader.IsDBNull(i))
                 return reader.GetDateTime(i);
@@ -210,7 +235,7 @@ namespace EventCentric.Database
         /// </summary>
         /// <param name="reader">The <see cref="SqlDataReader"/> instance.</param>
         /// <param name="i">The zero-based column ordinal.</param>
-        public static DateTime? SafeGetDateTime(this IDataReader reader, string name)
+        public static DateTime? SafeGetDateTimeThatIsNullable(this IDataReader reader, string name)
         {
             DateTime date;
             DateTime.TryParse(reader[name].ToString(), out date);
@@ -218,24 +243,6 @@ namespace EventCentric.Database
                 return date;
             else
                 return null;
-        }
-
-        public static DateTime GetDateTime(this IDataReader reader, string name)
-        {
-            return DateTime.Parse(reader[name].ToString());
-        }
-
-        /// <summary>
-        /// Gets the value of the specified column as a DateTime in Null-Safe mode.
-        /// </summary>
-        /// <param name="reader">The <see cref="SqlDataReader"/> instance.</param>
-        /// <param name="i">The zero-based column ordinal.</param>
-        public static DateTime SafeGetDateTime(this IDataReader reader, int i)
-        {
-            if (!reader.IsDBNull(i))
-                return reader.GetDateTime(i);
-            else
-                return new DateTime();
         }
 
         /// <summary>

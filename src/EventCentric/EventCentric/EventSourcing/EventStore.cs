@@ -14,10 +14,8 @@ namespace EventCentric.EventSourcing
 {
     public class EventStore<T> : IEventStore<T> where T : class, IEventSourced
     {
-        private static readonly string _streamType = typeof(T).Name;
-
+        private static readonly string _streamType = $"{typeof(T)}_{typeof(T).GUID}";
         private readonly ILogger log;
-
         private readonly ITextSerializer serializer;
         private readonly ITimeProvider time;
         private readonly IGuidProvider guid;
@@ -148,7 +146,7 @@ namespace EventCentric.EventSourcing
 
                     foreach (var pendingEvent in pendingEvents)
                     {
-                        var @event = pendingEvent.AsStoreFormattedEvent(incomingEvent.TransactionId, this.guid.NewGuid(), _streamType);
+                        var @event = pendingEvent.FormatAsStoredEvent(incomingEvent.TransactionId, this.guid.NewGuid(), _streamType);
 
                         context.Events.Add(
                             new EventEntity

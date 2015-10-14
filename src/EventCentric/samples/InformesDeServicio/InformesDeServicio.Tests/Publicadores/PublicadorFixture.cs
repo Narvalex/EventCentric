@@ -19,11 +19,11 @@ namespace InformesDeServicio.Tests.Publicadores.PublicadorFixture
         {
             var publicadorId = Guid.NewGuid();
             var dto = new DatosDePublicador("Alexis", "Narvaez", DateTime.Now, DateTime.Now);
-            var command = new RegistrarPublicador(dto).AsInProcessFormattedEvent(publicadorId, publicadorId, publicadorId, _streamType);
+            var command = new RegistrarPublicador(dto).FormatAsInProcessEvent(publicadorId, publicadorId, publicadorId, _streamType);
 
             var aggregate = new Publicador(command.StreamId);
 
-            Assert.AreEqual(dto, aggregate.ExpectSingleEventOfType<PublicadorRegistrado>().Datos);
+            Assert.AreEqual(dto, aggregate.SingleEventOfType<PublicadorRegistrado>().Datos);
         }
 
         [TestMethod]
