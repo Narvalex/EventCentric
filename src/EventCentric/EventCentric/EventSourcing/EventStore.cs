@@ -14,7 +14,7 @@ namespace EventCentric.EventSourcing
 {
     public class EventStore<T> : IEventStore<T> where T : class, IEventSourced
     {
-        private static readonly string _streamType = $"{typeof(T)}_{typeof(T).GUID}";
+        private readonly string streamType;
         private readonly ILogger log;
         private readonly ITextSerializer serializer;
         private readonly ITimeProvider time;
@@ -28,20 +28,22 @@ namespace EventCentric.EventSourcing
         private readonly Action<T, IEventStoreDbContext> denormalizeIfApplicable;
         private readonly Action<IEvent, IEventStoreDbContext, DateTime> updateSubscriptionIfApplicable;
 
-        public EventStore(ITextSerializer serializer, Func<bool, IEventStoreDbContext> contextFactory, ITimeProvider time, IGuidProvider guid, ILogger log, bool isSubscriptor = true)
+        public EventStore(string streamType, ITextSerializer serializer, Func<bool, IEventStoreDbContext> contextFactory, ITimeProvider time, IGuidProvider guid, ILogger log, bool isSubscriptor = true)
         {
+            Ensure.NotNullEmtpyOrWhiteSpace(streamType, "streamType");
             Ensure.NotNull(serializer, "serializer");
             Ensure.NotNull(contextFactory, "contextFactory");
             Ensure.NotNull(time, "time");
             Ensure.NotNull(guid, "guid");
             Ensure.NotNull(log, "log");
 
+            this.streamType = streamType;
             this.serializer = serializer;
             this.contextFactory = contextFactory;
             this.time = time;
             this.guid = guid;
             this.log = log;
-            this.cache = new MemoryCache(_streamType);
+            this.cache = new MemoryCache(streamType);
 
             /// TODO: could be replaced with a compiled lambda to make it more performant.
             var fromMementoConstructor = typeof(T).GetConstructor(new[] { typeof(Guid), typeof(IMemento) });
@@ -107,8 +109,8 @@ namespace EventCentric.EventSourcing
             var aggregate = this.Find(id);
             if (aggregate == null)
             {
-                var ex = new StreamNotFoundException(id, _streamType);
-                this.log.Error(ex, "Stream not found exception for stream {0} with id of {1}", _streamType, id);
+                var ex = new StreamNotFoundException(id, streamType);
+                this.log.Error(ex, "Stream not found exception for stream {0} with id of {1}", streamType, id);
                 throw ex;
             }
 
@@ -146,12 +148,12 @@ namespace EventCentric.EventSourcing
 
                     foreach (var pendingEvent in pendingEvents)
                     {
-                        var @event = pendingEvent.FormatAsStoredEvent(incomingEvent.TransactionId, this.guid.NewGuid(), _streamType);
+                        var @event = pendingEvent.FormatAsStoredEvent(incomingEvent.TransactionId, this.guid.NewGuid(), streamType);
 
                         context.Events.Add(
                             new EventEntity
                             {
-                                StreamType = _streamType,
+                                StreamType = streamType,
                                 StreamId = @event.StreamId,
                                 Version = @event.Version,
                                 EventId = @event.EventId,

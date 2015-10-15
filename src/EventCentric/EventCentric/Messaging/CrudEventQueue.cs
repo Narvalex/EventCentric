@@ -1,4 +1,5 @@
 ﻿using EventCentric.EventSourcing;
+using EventCentric.Messaging.Events;
 using EventCentric.Repository;
 using EventCentric.Repository.Mapping;
 using EventCentric.Serialization;
@@ -6,15 +7,15 @@ using EventCentric.Utils;
 using System;
 using System.Linq;
 
-namespace EventCentric.Queueing
+namespace EventCentric.Messaging
 {
-    public class CrudQueueWriter<TAggregate> : QueueWriter<TAggregate>, ICrudQueueWriter
+    public class CrudEventQueue : EventQueue, ICrudEventQueue
     {
-        public CrudQueueWriter(Func<bool, IEventQueueDbContext> contextFactory, ITextSerializer serializer, ITimeProvider time, IGuidProvider guid)
-            : base(contextFactory, serializer, time, guid)
+        public CrudEventQueue(string streamType, Func<bool, IEventQueueDbContext> contextFactory, ITextSerializer serializer, ITimeProvider time, IGuidProvider guid, IBus bus)
+            : base(streamType, contextFactory, serializer, time, guid, bus)
         { }
 
-        public int Enqueue<T>(IEvent @event, Action<T> performCrudOperation) where T : IEventQueueDbContext
+        public void Enqueue<T>(IEvent @event, Action<T> performCrudOperation) where T : IEventQueueDbContext
         {
             using (var context = base.contextFactory(false))
             {
@@ -30,7 +31,7 @@ namespace EventCentric.Queueing
 
                 var now = this.time.Now;
 
-                ((Event)@event).StreamType = _streamType;
+                ((Event)@event).StreamType = base.streamType;
                 ((Event)@event).EventId = this.guid.NewGuid();
                 ((Event)@event).Version = updatedVersion;
 
@@ -51,7 +52,9 @@ namespace EventCentric.Queueing
 
                 context.SaveChanges();
 
-                return context.Events.Max(e => e.EventCollectionVersion);
+                var version = context.Events.Max(e => e.EventCollectionVersion);
+
+                this.bus.Publish(new EventStoreHasBeenUpdated(version));
             }
         }
     }

@@ -89,7 +89,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Factories\AuthorizationFactory.cs" />
+    <Compile Include="AuthorizationFactory.cs" />
+    <Compile Include="NodeNameProvider.cs" />
     <Compile Include="QueueNodeFactory.cs" />
     <Compile Include="Log\Logger.cs" />
     <Compile Include="Log\LogHub.cs" />

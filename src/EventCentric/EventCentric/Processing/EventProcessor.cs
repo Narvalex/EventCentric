@@ -22,7 +22,8 @@ namespace EventCentric.Processing
     public abstract class EventProcessor<T> : FSM,
         IMessageHandler<StartEventProcessor>,
         IMessageHandler<StopEventProcessor>,
-        IMessageHandler<NewIncomingEvents>
+        IMessageHandler<NewIncomingEvents>,
+        IMessageHandler<NewIncomingEvent>
             where T : class, IEventSourced
     {
         private readonly IEventStore<T> store;
@@ -47,6 +48,11 @@ namespace EventCentric.Processing
             this.newAggregateFactory = (id) => (T)constructor.Invoke(new object[] { id });
         }
 
+        public void Handle(NewIncomingEvent message)
+        {
+            this.HandleGracefully(message.IncomingEvent);
+        }
+
         public void Handle(NewIncomingEvents message)
         {
 #if DEBUG
@@ -61,17 +67,22 @@ namespace EventCentric.Processing
 
             foreach (var incomingEvent in message.IncomingEvents)
             {
-                try
-                {
-                    ((dynamic)this).Handle((dynamic)incomingEvent);
-                }
-                catch (Exception ex)
-                {
-                    this.bus.Publish(
-                        new IncomingEventIsPoisoned(
-                            incomingEvent,
-                            new PoisonMessageException("Poison message detected in Event Processor", ex)));
-                }
+                this.HandleGracefully(incomingEvent);
+            }
+        }
+
+        private void HandleGracefully(IEvent incomingEvent)
+        {
+            try
+            {
+                ((dynamic)this).Handle((dynamic)incomingEvent);
+            }
+            catch (Exception ex)
+            {
+                this.bus.Publish(
+                    new IncomingEventIsPoisoned(
+                        incomingEvent,
+                        new PoisonMessageException("Poison message detected in Event Processor", ex)));
             }
         }
 

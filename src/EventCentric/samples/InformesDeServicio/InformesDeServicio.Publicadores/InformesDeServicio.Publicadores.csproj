@@ -42,6 +42,7 @@
   <ItemGroup>
     <Compile Include="Publicador.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="PublicadorMemento.cs" />
     <Compile Include="PublicadorProcessor.cs" />
   </ItemGroup>
   <ItemGroup>

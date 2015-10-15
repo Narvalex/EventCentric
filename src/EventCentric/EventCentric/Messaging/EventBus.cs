@@ -1,6 +1,5 @@
 ﻿using EventCentric.EventSourcing;
 using EventCentric.Log;
-using EventCentric.Messaging;
 using EventCentric.Messaging.Commands;
 using EventCentric.Messaging.Events;
 using EventCentric.Utils;
@@ -8,33 +7,32 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 
-namespace EventCentric.Queueing
+namespace EventCentric.Messaging
 {
-    public class EventQueue : FSM, IEventQueue,
+    public class EventBus : FSM, IEventBus,
         IMessageHandler<StartEventQueue>,
         IMessageHandler<StopEventQueue>
     {
-        protected readonly IQueueWriter writer;
+        protected readonly IEventQueue writer;
         protected ConcurrentDictionary<Guid, object> streamLocksById;
 
-        public EventQueue(IBus bus, ILogger log, IQueueWriter writer)
+        public EventBus(IBus bus, ILogger log, IEventQueue queue)
             : base(bus, log)
         {
-            Ensure.NotNull(writer, "writer");
+            Ensure.NotNull(queue, "writer");
 
-            this.writer = writer;
+            this.writer = queue;
             this.streamLocksById = new ConcurrentDictionary<Guid, object>();
         }
 
-        public void Enqueue(IEvent @event)
+        public void Publish(IEvent @event)
         {
             this.streamLocksById.TryAdd(@event.StreamId, new object());
             lock (this.streamLocksById.TryGetValue(@event.StreamId))
             {
-                int version;
                 try
                 {
-                    version = this.writer.Enqueue(@event);
+                    this.writer.Enqueue(@event);
                 }
                 catch (Exception ex)
                 {
@@ -45,8 +43,6 @@ namespace EventCentric.Queueing
 #if DEBUG
                 this.log.Trace("Event type {0} is now in queue", @event.GetType().Name);
 #endif
-
-                this.bus.Publish(new EventStoreHasBeenUpdated(version));
             }
         }
 

@@ -1,9 +1,8 @@
 ﻿using EventCentric.Config;
 using EventCentric.Messaging;
-using EventCentric.NodeFactory.Factories;
+using EventCentric.Node;
 using EventCentric.NodeFactory.Log;
 using EventCentric.Publishing;
-using EventCentric.Queueing;
 using EventCentric.Repository;
 using EventCentric.Serialization;
 using EventCentric.Transport;
@@ -17,6 +16,8 @@ namespace EventCentric
     {
         public static INode CreateNode(IUnityContainer container, bool setLocalTime = true, bool setSequentialGuid = true)
         {
+            var nodeName = NodeNameProvider.ResolveNameOf<T>();
+
             System.Data.Entity.Database.SetInitializer<EventQueueDbContext>(null);
 
             var eventStoreConfig = EventStoreConfig.GetConfig();
@@ -33,17 +34,17 @@ namespace EventCentric
             var bus = new Bus();
             var log = Logger.ResolvedLogger;
 
-            var node = new QueueNode(typeof(T).Name, bus, log);
+            var node = new QueueNode(nodeName, bus, log);
 
-            var queueWriter = new QueueWriter<T>(eventQueueDbContextFactory, serializer, time, guid);
+            var eventQueue = new EventQueue(nodeName, eventQueueDbContextFactory, serializer, time, guid, bus);
             var eventDao = new EventDao(eventQueueDbContextFactory);
-            var eventBus = new EventQueue(bus, log, queueWriter);
+            var eventBus = new EventBus(bus, log, eventQueue);
             var eventPublisher = new Publisher<T>(bus, log, eventDao, eventStoreConfig.PushMaxCount, TimeSpan.FromMilliseconds(eventStoreConfig.LongPollingTimeout));
 
             var heartbeatListener = new HeartbeatListener(bus, log, time, new TimeSpan(0, 1, 0), new TimeSpan(0, 2, 0), isReadonly => new HeartbeatDbContext(isReadonly, connectionString));
 
             // Register for DI
-            container.RegisterInstance<IEventQueue>(eventBus);
+            container.RegisterInstance<IEventBus>(eventBus);
             container.RegisterInstance<IEventSource>(eventPublisher);
             container.RegisterInstance<IGuidProvider>(guid);
             container.RegisterInstance<ITimeProvider>(time);
@@ -56,6 +57,8 @@ namespace EventCentric
         /// </summary>
         public static INode CreateCrudNode<TDbContext>(IUnityContainer container, bool setLocalTime = true, bool setSequentialGuid = true) where TDbContext : IEventQueueDbContext
         {
+            var nodeName = NodeNameProvider.ResolveNameOf<T>();
+
             var eventStoreConfig = EventStoreConfig.GetConfig();
             var connectionString = eventStoreConfig.ConnectionString;
 
@@ -72,17 +75,17 @@ namespace EventCentric
             var bus = new Bus();
             var log = Logger.ResolvedLogger;
 
-            var node = new QueueNode(typeof(T).Name, bus, log);
+            var node = new QueueNode(nodeName, bus, log);
 
-            var queueWriter = new CrudQueueWriter<T>(eventQueueDbContextFactory, serializer, time, guid);
+            var eventQueue = new CrudEventQueue(nodeName, eventQueueDbContextFactory, serializer, time, guid, bus);
             var eventDao = new EventDao(eventQueueDbContextFactory);
-            var eventBus = new CrudEventQueue(bus, log, queueWriter);
+            var eventBus = new CrudEventBus(bus, log, eventQueue);
             var eventPublisher = new Publisher<T>(bus, log, eventDao, eventStoreConfig.PushMaxCount, TimeSpan.FromMilliseconds(eventStoreConfig.LongPollingTimeout));
 
             var heartbeatListener = new HeartbeatListener(bus, log, time, new TimeSpan(0, 1, 0), new TimeSpan(0, 2, 0), isReadonly => new HeartbeatDbContext(isReadonly, connectionString));
 
             // Register for DI
-            container.RegisterInstance<ICrudEventQueue>(eventBus);
+            container.RegisterInstance<ICrudEventBus>(eventBus);
             container.RegisterInstance<IEventSource>(eventPublisher);
             container.RegisterInstance<IGuidProvider>(guid);
             container.RegisterInstance<ITimeProvider>(time);

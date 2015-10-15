@@ -2,20 +2,20 @@
 using EventCentric.Repository;
 using System;
 
-namespace EventCentric.Queueing
+namespace EventCentric.Messaging
 {
-    public interface IQueueWriter
+    public interface IEventQueue
     {
         /// <summary>
         /// Enqueue a message in the queue
         /// </summary>
         /// <param name="event">The message to enqueue.</param>
         /// <returns>The event stream collection version.</returns>
-        int Enqueue(IEvent @event);
+        void Enqueue(IEvent @event);
     }
 
-    public interface ICrudQueueWriter : IQueueWriter
+    public interface ICrudEventQueue : IEventQueue
     {
-        int Enqueue<T>(IEvent @event, Action<T> performCrudOperation) where T : IEventQueueDbContext;
+        void Enqueue<T>(IEvent @event, Action<T> performCrudOperation) where T : IEventQueueDbContext;
     }
 }

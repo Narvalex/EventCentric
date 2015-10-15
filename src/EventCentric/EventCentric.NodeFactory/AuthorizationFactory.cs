@@ -1,7 +1,7 @@
 ﻿using EventCentric.Authorization;
 using EventCentric.Config;
 
-namespace EventCentric.NodeFactory.Factories
+namespace EventCentric
 {
     public class AuthorizationFactory
     {

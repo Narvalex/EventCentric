@@ -1,4 +1,5 @@
 ﻿using EventCentric.EventSourcing;
+using EventCentric.Messaging.Events;
 using EventCentric.Repository;
 using EventCentric.Repository.Mapping;
 using EventCentric.Serialization;
@@ -6,30 +7,33 @@ using EventCentric.Utils;
 using System;
 using System.Linq;
 
-namespace EventCentric.Queueing
+namespace EventCentric.Messaging
 {
-    public class QueueWriter<T> : IQueueWriter
+    public class EventQueue : Worker, IEventQueue
     {
-        protected static readonly string _streamType = typeof(T).Name;
+        protected readonly string streamType;
         protected readonly Func<bool, IEventQueueDbContext> contextFactory;
         protected readonly ITextSerializer serializer;
         protected readonly ITimeProvider time;
         protected readonly IGuidProvider guid;
 
-        public QueueWriter(Func<bool, IEventQueueDbContext> contextFactory, ITextSerializer serializer, ITimeProvider time, IGuidProvider guid)
+        public EventQueue(string streamType, Func<bool, IEventQueueDbContext> contextFactory, ITextSerializer serializer, ITimeProvider time, IGuidProvider guid, IBus bus)
+            : base(bus)
         {
+            Ensure.NotNullEmtpyOrWhiteSpace(streamType, "streamType");
             Ensure.NotNull(contextFactory, "contextFactory");
             Ensure.NotNull(serializer, "serializer");
             Ensure.NotNull(time, "time");
             Ensure.NotNull(guid, "guid");
 
+            this.streamType = streamType;
             this.contextFactory = contextFactory;
             this.serializer = serializer;
             this.time = time;
             this.guid = guid;
         }
 
-        public int Enqueue(IEvent @event)
+        public void Enqueue(IEvent @event)
         {
             using (var context = this.contextFactory(false))
             {
@@ -45,7 +49,7 @@ namespace EventCentric.Queueing
 
                 var now = this.time.Now;
 
-                ((Event)@event).StreamType = _streamType;
+                ((Event)@event).StreamType = streamType;
                 ((Event)@event).EventId = this.guid.NewGuid();
                 ((Event)@event).Version = updatedVersion;
 
@@ -64,7 +68,9 @@ namespace EventCentric.Queueing
 
                 context.SaveChanges();
 
-                return context.Events.Max(e => e.EventCollectionVersion);
+                var version = context.Events.Max(e => e.EventCollectionVersion);
+
+                this.bus.Publish(new EventStoreHasBeenUpdated(version));
             }
         }
     }

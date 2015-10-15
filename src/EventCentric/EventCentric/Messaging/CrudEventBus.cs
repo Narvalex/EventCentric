@@ -1,28 +1,25 @@
 ﻿using EventCentric.EventSourcing;
 using EventCentric.Log;
-using EventCentric.Messaging;
-using EventCentric.Messaging.Events;
 using EventCentric.Repository;
 using System;
 using System.Collections.Generic;
 
-namespace EventCentric.Queueing
+namespace EventCentric.Messaging
 {
-    public class CrudEventQueue : EventQueue, ICrudEventQueue
+    public class CrudEventBus : EventBus, ICrudEventBus
     {
-        public CrudEventQueue(IBus bus, ILogger log, ICrudQueueWriter writer)
-            : base(bus, log, writer)
+        public CrudEventBus(IBus bus, ILogger log, ICrudEventQueue queue)
+            : base(bus, log, queue)
         { }
 
-        public void Enqueue<T>(IEvent @event, Action<T> performCrudOperation) where T : IEventQueueDbContext
+        public void Publish<T>(IEvent @event, Action<T> performCrudOperation) where T : IEventQueueDbContext
         {
             base.streamLocksById.TryAdd(@event.StreamId, new object());
             lock (this.streamLocksById.TryGetValue(@event.StreamId))
             {
-                int version;
                 try
                 {
-                    version = ((ICrudQueueWriter)this.writer).Enqueue(@event, performCrudOperation);
+                    ((ICrudEventQueue)this.writer).Enqueue(@event, performCrudOperation);
                 }
                 catch (Exception ex)
                 {
@@ -33,8 +30,6 @@ namespace EventCentric.Queueing
 #if DEBUG
                 this.log.Trace("Event type {0} is now in queue", @event.GetType().Name);
 #endif
-
-                this.bus.Publish(new EventStoreHasBeenUpdated(version));
             }
         }
     }
