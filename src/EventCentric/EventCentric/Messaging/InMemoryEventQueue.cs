@@ -21,11 +21,7 @@ namespace EventCentric.Messaging
 
         public void Enqueue(IEvent @event)
         {
-            ((Event)@event).StreamType = this.appName;
-            ((Event)@event).EventId = this.guid.NewGuid();
-            ((Event)@event).Version = 0;
-
-            base.bus.Send(new NewIncomingEvent(@event));
+            base.bus.Send(new NewIncomingEvent(@event.AsQueuedEvent(this.appName, this.guid.NewGuid())));
         }
     }
 }

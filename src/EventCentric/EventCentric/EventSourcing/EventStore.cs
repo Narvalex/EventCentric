@@ -146,9 +146,9 @@ namespace EventCentric.EventSourcing
 
                     var now = this.time.Now;
 
-                    foreach (var pendingEvent in pendingEvents)
+                    foreach (var @event in pendingEvents)
                     {
-                        var @event = pendingEvent.FormatAsStoredEvent(incomingEvent.TransactionId, this.guid.NewGuid(), streamType);
+                        @event.AsStoredEvent(incomingEvent.TransactionId, this.guid.NewGuid(), streamType);
 
                         context.Events.Add(
                             new EventEntity

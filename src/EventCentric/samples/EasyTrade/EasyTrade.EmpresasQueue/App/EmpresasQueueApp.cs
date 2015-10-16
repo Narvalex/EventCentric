@@ -26,7 +26,7 @@ namespace EasyTrade.EmpresasQueue
 
             this.bus.Publish<EmpresasQueueDbContext>(
                 new DatosDeEmpresaActualizados(empresa, time.Now)
-                    .FormatAsEventToBeQueued(transactionId, dto.IdEmpresa),
+                    .AsEventToBeQueued(transactionId, dto.IdEmpresa),
                 context =>
                 {
                     AlActualizarDatosDeEmpresa.EstaDebeHaberSidoRegistrada(context, empresa.IdEmpresa);
@@ -43,7 +43,8 @@ namespace EasyTrade.EmpresasQueue
         {
             var transactionId = this.guid.NewGuid();
 
-            var @event = new EmpresaDesactivada(idEmpresa).FormatAsEventToBeQueued(transactionId, idEmpresa);
+            var @event = new EmpresaDesactivada(idEmpresa)
+                .AsEventToBeQueued(transactionId, idEmpresa);
 
             this.bus.Publish<EmpresasQueueDbContext>(@event,
                 context =>
@@ -60,7 +61,8 @@ namespace EasyTrade.EmpresasQueue
             var empresa = new Empresa(transactionId, dto.Nombre, dto.Ruc, dto.Descripcion);
 
             this.bus.Publish<EmpresasQueueDbContext>(
-                new NuevaEmpresaRegistrada(empresa, time.Now).FormatAsEventToBeQueued(transactionId, empresa.IdEmpresa),
+                new NuevaEmpresaRegistrada(empresa, time.Now)
+                    .AsEventToBeQueued(transactionId, empresa.IdEmpresa),
                 context =>
                 {
                     AlRegistrarNuevaEmpresa.ElNombreDebeSerUnico(context, empresa.Nombre);
@@ -79,7 +81,8 @@ namespace EasyTrade.EmpresasQueue
         {
             var transactionId = this.guid.NewGuid();
 
-            var @event = new EmpresaReactivada(idEmpresa).FormatAsEventToBeQueued(transactionId, idEmpresa);
+            var @event = new EmpresaReactivada(idEmpresa)
+                .AsEventToBeQueued(transactionId, idEmpresa);
 
             this.bus.Publish<EmpresasQueueDbContext>(@event,
                 context =>

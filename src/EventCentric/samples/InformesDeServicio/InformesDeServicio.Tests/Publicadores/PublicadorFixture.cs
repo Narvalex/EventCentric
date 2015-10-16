@@ -19,7 +19,7 @@ namespace InformesDeServicio.Tests.Publicadores.PublicadorFixture
         {
             var publicadorId = Guid.NewGuid();
             var dto = new DatosDePublicador("Alexis", "Narvaez", DateTime.Now, DateTime.Now);
-            var command = new RegistrarPublicador(publicadorId, dto).FormatAsInProcessEvent(publicadorId, publicadorId, publicadorId, _streamType);
+            var command = new RegistrarPublicador(publicadorId, dto).AsEventToBeQueued(publicadorId, publicadorId);
 
             var aggregate = new Publicador(command.StreamId);
             Assert.IsFalse(((PublicadorMemento)aggregate.SaveToMemento()).PublicadorEstaDadoDeAlta);

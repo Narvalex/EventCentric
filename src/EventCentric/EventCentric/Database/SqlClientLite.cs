@@ -37,7 +37,7 @@ namespace EventCentric.Database
             }
         }
 
-        public T ExecuteScalar<T>(string commandText, Func<IDataReader, T> project, params SqlParameter[] parameters)
+        public T ExecuteReaderFirstOrDefault<T>(string commandText, Func<IDataReader, T> project, params SqlParameter[] parameters)
         {
             var connection = new SqlConnection(this.connectionString);
             var command = new SqlCommand(commandText, connection);

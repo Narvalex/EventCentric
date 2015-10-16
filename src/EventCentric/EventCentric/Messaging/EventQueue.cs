@@ -49,9 +49,7 @@ namespace EventCentric.Messaging
 
                 var now = this.time.Now;
 
-                ((Event)@event).StreamType = streamType;
-                ((Event)@event).EventId = this.guid.NewGuid();
-                ((Event)@event).Version = updatedVersion;
+                @event.AsQueuedEvent(this.streamType, this.guid.NewGuid(), updatedVersion);
 
                 context.Events.Add(
                     new EventEntity

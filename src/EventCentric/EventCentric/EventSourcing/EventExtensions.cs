@@ -4,7 +4,7 @@ namespace EventCentric.EventSourcing
 {
     public static class EventExtensions
     {
-        public static Event FormatAsEventToBeQueued(this Event e, Guid transactionId, Guid streamId)
+        public static Event AsEventToBeQueued(this Event e, Guid transactionId, Guid streamId)
         {
             e.TransactionId = transactionId;
             e.StreamId = streamId;
@@ -13,17 +13,15 @@ namespace EventCentric.EventSourcing
             return e;
         }
 
-        public static Event FormatAsInProcessEvent(this Event e, Guid transactionId, Guid eventId, Guid streamId, string streamType)
+        public static Event AsQueuedEvent(this Event e, string streamType, Guid eventId, int version)
         {
-            e.TransactionId = transactionId;
-            e.EventId = eventId;
-            e.StreamId = streamId;
             e.StreamType = streamType;
-            e.Version = 0;
+            e.EventId = eventId;
+            e.Version = version;
             return e;
         }
 
-        public static Event FormatAsStoredEvent(this Event e, Guid transactionId, Guid eventId, string streamType)
+        public static Event AsStoredEvent(this Event e, Guid transactionId, Guid eventId, string streamType)
         {
             e.TransactionId = transactionId;
             e.EventId = eventId;
@@ -31,9 +29,14 @@ namespace EventCentric.EventSourcing
             return e;
         }
 
-        public static IEvent FormatAsStoredEvent(this IEvent e, Guid transactionId, Guid eventId, string streamType)
+        public static IEvent AsStoredEvent(this IEvent e, Guid transactionId, Guid eventId, string streamType)
         {
-            return ((Event)e).FormatAsStoredEvent(transactionId, eventId, streamType);
+            return ((Event)e).AsStoredEvent(transactionId, eventId, streamType);
+        }
+
+        public static IEvent AsQueuedEvent(this IEvent e, string streamType, Guid eventId, int version = 0)
+        {
+            return ((Event)e).AsQueuedEvent(streamType, eventId, version);
         }
     }
 }
