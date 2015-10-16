@@ -62,14 +62,12 @@
 }
 
 .lx-selectable-item {
-    -moz-transition: all 0.2s linear;
-    -o-transition: all 0.2s linear;
-    -webkit-transition: all 0.2s linear;
-    transition: all 0.2s linear; /* Source: http://stackoverflow.com/questions/14350126/transition-color-fade-on-hover */
     background-color: #212021;
 }
 
+/* Source: http://stackoverflow.com/questions/14350126/transition-color-fade-on-hover */
 .lx-selectable-item:hover {
+    transition: background-color 0.3s linear;
     background-color: #0f80dc;
 }
 
