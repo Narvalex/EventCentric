@@ -2,7 +2,6 @@
 using EventCentric.EventSourcing;
 using EventCentric.Log;
 using EventCentric.Messaging;
-using EventCentric.Node;
 using EventCentric.NodeFactory.Log;
 using EventCentric.Polling;
 using EventCentric.Processing;
@@ -16,11 +15,11 @@ using System;
 
 namespace EventCentric
 {
-    public class ProessorNodeFactory<TAggregate, THandler>
+    public class ProessorNodeFactory<TAggregate, TProcessor>
         where TAggregate : class, IEventSourced
-        where THandler : EventProcessor<TAggregate>
+        where TProcessor : EventProcessor<TAggregate>
     {
-        public static INode CreateNode(IUnityContainer container, bool hasSubscription, bool setLocalTime = true, bool setSequentialGuid = true)
+        public static INode CreateNode(IUnityContainer container, bool hasSubscription, Func<IBus, ILogger, IEventStore<TAggregate>, TProcessor> processorFactory = null, bool setLocalTime = true, bool setSequentialGuid = true)
         {
             var nodeName = NodeNameProvider.ResolveNameOf<TAggregate>();
 
@@ -49,15 +48,22 @@ namespace EventCentric
             var bus = new Bus();
 
             var publisher = new Publisher<TAggregate>(bus, log, eventDao, eventStoreConfig.PushMaxCount, TimeSpan.FromMilliseconds(eventStoreConfig.LongPollingTimeout));
-            var fsm = new SagaNode(nodeName, bus, log);
+            var fsm = new ProcessorNode(nodeName, bus, log);
 
             // Register processor dependencies
             container.RegisterInstance<IBus>(bus);
             container.RegisterInstance<IEventStore<TAggregate>>(eventStore);
 
-            var constructor = typeof(THandler).GetConstructor(new[] { typeof(IBus), typeof(ILogger), typeof(IEventStore<TAggregate>) });
-            Ensure.CastIsValid(constructor, "Type THandler must have a valid constructor with the following signature: .ctor(IBus, ILogger, IEventStore<T>)");
-            var processor = (THandler)constructor.Invoke(new object[] { bus, log, eventStore });
+            if (processorFactory == null)
+            {
+                var constructor = typeof(TProcessor).GetConstructor(new[] { typeof(IBus), typeof(ILogger), typeof(IEventStore<TAggregate>) });
+                Ensure.CastIsValid(constructor, "Type TProcessor must have a valid constructor with the following signature: .ctor(IBus, ILogger, IEventStore<T>)");
+                var processor = (TProcessor)constructor.Invoke(new object[] { bus, log, eventStore });
+            }
+            else
+            {
+                var processor = processorFactory.Invoke(bus, log, eventStore);
+            }
 
             // Register for DI
             container.RegisterInstance<IEventSource>(publisher);
@@ -81,7 +87,7 @@ namespace EventCentric
         /// </summary>
         /// <typeparam name="TApp">In process app.</typeparam>
         /// <returns></returns>
-        public static INode CreateNodeWithApp<TApp>(IUnityContainer container, bool hasSubscription, bool setLocalTime = true, bool setSequentialGuid = true)
+        public static INode CreateNodeWithApp<TApp>(IUnityContainer container, bool hasSubscription, Func<IBus, ILogger, IEventStore<TAggregate>, TProcessor> processorFactory = null, bool setLocalTime = true, bool setSequentialGuid = true)
         {
             var nodeName = NodeNameProvider.ResolveNameOf<TAggregate>();
             var appName = NodeNameProvider.ResolveNameOf<TApp>();
@@ -111,15 +117,22 @@ namespace EventCentric
             var bus = new Messaging.Bus();
 
             var publisher = new Publisher<TAggregate>(bus, log, eventDao, eventStoreConfig.PushMaxCount, TimeSpan.FromMilliseconds(eventStoreConfig.LongPollingTimeout));
-            var fsm = new SagaNode(NodeNameProvider.ResolveNameOf<TAggregate>(), bus, log);
+            var fsm = new ProcessorNode(NodeNameProvider.ResolveNameOf<TAggregate>(), bus, log);
 
             // Register processor dependencies
             container.RegisterInstance<IBus>(bus);
             container.RegisterInstance<IEventStore<TAggregate>>(eventStore);
 
-            var constructor = typeof(THandler).GetConstructor(new[] { typeof(IBus), typeof(ILogger), typeof(IEventStore<TAggregate>) });
-            Ensure.CastIsValid(constructor, "Type THandler must have a valid constructor with the following signature: .ctor(IBus, ILogger, IEventStore<T>)");
-            var processor = (THandler)constructor.Invoke(new object[] { bus, log, eventStore });
+            if (processorFactory == null)
+            {
+                var constructor = typeof(TProcessor).GetConstructor(new[] { typeof(IBus), typeof(ILogger), typeof(IEventStore<TAggregate>) });
+                Ensure.CastIsValid(constructor, "Type TProcessor must have a valid constructor with the following signature: .ctor(IBus, ILogger, IEventStore<T>)");
+                var processor = (TProcessor)constructor.Invoke(new object[] { bus, log, eventStore });
+            }
+            else
+            {
+                var processor = processorFactory.Invoke(bus, log, eventStore);
+            }
 
             // For nodes that polls events from subscribed sources
             if (hasSubscription)
@@ -146,7 +159,7 @@ namespace EventCentric
         /// <summary>
         /// Do not forget: System.Data.Entity.Database.SetInitializer<TDbContext>(null);
         /// </summary>
-        public static INode CreateDenormalizerNode<TDbContext>(IUnityContainer container, bool setLocalTime = true, bool setSequentialGuid = true) where TDbContext : IEventStoreDbContext
+        public static INode CreateDenormalizerNode<TDbContext>(IUnityContainer container, Func<IBus, ILogger, IEventStore<TAggregate>, TProcessor> processorFactory = null, bool setLocalTime = true, bool setSequentialGuid = true) where TDbContext : IEventStoreDbContext
         {
             var nodeName = NodeNameProvider.ResolveNameOf<TAggregate>();
 
@@ -183,15 +196,22 @@ namespace EventCentric
             var subscriptionRepository = new SubscriptionRepository(storeContextFactory, serializer, time);
             var poller = new Poller(bus, log, subscriptionRepository, http, serializer, pollerConfig.BufferQueueMaxCount, pollerConfig.EventsToFlushMaxCount);
             var publisher = new Publisher<TAggregate>(bus, log, eventDao, eventStoreConfig.PushMaxCount, TimeSpan.FromMilliseconds(eventStoreConfig.LongPollingTimeout));
-            var fsm = new SagaNode(nodeName, bus, log);
+            var fsm = new ProcessorNode(nodeName, bus, log);
 
             // Register processor dependencies
             container.RegisterInstance<IBus>(bus);
             container.RegisterInstance<IEventStore<TAggregate>>(eventStore);
 
-            var processorConstructor = typeof(THandler).GetConstructor(new[] { typeof(IBus), typeof(ILogger), typeof(IEventStore<TAggregate>) });
-            Ensure.CastIsValid(processorConstructor, "Type THandler must have a valid constructor with the following signature: .ctor(IBus, ILogger, IEventStore<T>)");
-            var processor = (THandler)processorConstructor.Invoke(new object[] { bus, log, eventStore });
+            if (processorFactory == null)
+            {
+                var processorConstructor = typeof(TProcessor).GetConstructor(new[] { typeof(IBus), typeof(ILogger), typeof(IEventStore<TAggregate>) });
+                Ensure.CastIsValid(processorConstructor, "Type THandler must have a valid constructor with the following signature: .ctor(IBus, ILogger, IEventStore<T>)");
+                var processor = (TProcessor)processorConstructor.Invoke(new object[] { bus, log, eventStore });
+            }
+            else
+            {
+                var processor = processorFactory.Invoke(bus, log, eventStore);
+            }
 
             // Register for DI
             container.RegisterInstance<IEventSource>(publisher);

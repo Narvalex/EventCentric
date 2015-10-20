@@ -126,6 +126,18 @@ namespace EventCentric.Processing
             });
         }
 
+        protected void CreateNewStreamIfNotExistsAndProcess(Guid id, IEvent incomingEvent, IDomainService service)
+        {
+            this.HandleSafelyWithStreamLocking(id, () =>
+            {
+                var aggregate = this.store.Find(id);
+                if (aggregate == null)
+                    aggregate = this.newAggregateFactory(id);
+
+                this.HandleEventAndAppendToStore(aggregate, incomingEvent, service);
+            });
+        }
+
         /// <summary>
         /// Gets a stream from the store to hydrate the event sourced aggregate of <see cref="T"/>.
         /// </summary>
@@ -160,6 +172,14 @@ namespace EventCentric.Processing
         private void HandleEventAndAppendToStore(T aggregate, IEvent incomingEvent)
         {
             ((dynamic)aggregate).Handle((dynamic)incomingEvent);
+            var version = this.store.Save(aggregate, incomingEvent);
+            this.bus.Publish(new EventStoreHasBeenUpdated(version));
+            this.PublishIncomingEventHasBeenProcessed(incomingEvent);
+        }
+
+        private void HandleEventAndAppendToStore(T aggregate, IEvent incomingEvent, IDomainService service)
+        {
+            ((dynamic)aggregate).Handle((dynamic)incomingEvent, (dynamic)service);
             var version = this.store.Save(aggregate, incomingEvent);
             this.bus.Publish(new EventStoreHasBeenUpdated(version));
             this.PublishIncomingEventHasBeenProcessed(incomingEvent);

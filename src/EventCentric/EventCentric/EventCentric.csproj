@@ -130,7 +130,7 @@
     <Compile Include="EventSourcing\IMementoOriginator.cs" />
     <Compile Include="EventSourcing\IUpdatesOn.cs" />
     <Compile Include="EventSourcing\StreamNotFoundException.cs" />
-    <Compile Include="Node\SagaNode.cs" />
+    <Compile Include="Node\ProcessorNode.cs" />
     <Compile Include="Messaging\Infrastructure\Bus.cs" />
     <Compile Include="Messaging\Infrastructure\Commands\StartEngineCommands.cs" />
     <Compile Include="Messaging\Infrastructure\Commands\StopEngineCommands.cs" />

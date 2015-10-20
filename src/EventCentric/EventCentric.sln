@@ -61,6 +61,12 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InformesDeServicio.Tests", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InformesDeServicio.Publicadores", "samples\InformesDeServicio\InformesDeServicio.Publicadores\InformesDeServicio.Publicadores.csproj", "{9031C290-B032-4D84-A08E-04E381CEDEA6}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InformesDeServicio.Publicadores.Web", "samples\InformesDeServicio\InformesDeServicio.Publicadores.Web\InformesDeServicio.Publicadores.Web.csproj", "{9F6FEABF-39CC-4BC9-920C-096EC83B4CF5}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InformesDeServicio.Publicadores.Server", "samples\InformesDeServicio\InformesDeServicio.Publicadores.Server\InformesDeServicio.Publicadores.Server.csproj", "{E70DC076-DBB3-4C8C-972E-EF454C51AD3A}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Publicadores", "Publicadores", "{89DBBE91-60CB-4EC4-B8D4-FDF6BA943D5D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -147,6 +153,14 @@ Global
 		{9031C290-B032-4D84-A08E-04E381CEDEA6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9031C290-B032-4D84-A08E-04E381CEDEA6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9031C290-B032-4D84-A08E-04E381CEDEA6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9F6FEABF-39CC-4BC9-920C-096EC83B4CF5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9F6FEABF-39CC-4BC9-920C-096EC83B4CF5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9F6FEABF-39CC-4BC9-920C-096EC83B4CF5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9F6FEABF-39CC-4BC9-920C-096EC83B4CF5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E70DC076-DBB3-4C8C-972E-EF454C51AD3A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E70DC076-DBB3-4C8C-972E-EF454C51AD3A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E70DC076-DBB3-4C8C-972E-EF454C51AD3A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E70DC076-DBB3-4C8C-972E-EF454C51AD3A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -171,7 +185,10 @@ Global
 		{9A90E6CD-252B-44AC-A302-5B034360977E} = {813D1F3D-F330-4365-910E-A4494C6ACEFD}
 		{57A80777-ABC3-4C1B-B666-9C1A632A038E} = {813D1F3D-F330-4365-910E-A4494C6ACEFD}
 		{9157DBF2-7F84-499B-AD68-322105F7E897} = {813D1F3D-F330-4365-910E-A4494C6ACEFD}
-		{9031C290-B032-4D84-A08E-04E381CEDEA6} = {813D1F3D-F330-4365-910E-A4494C6ACEFD}
+		{9031C290-B032-4D84-A08E-04E381CEDEA6} = {89DBBE91-60CB-4EC4-B8D4-FDF6BA943D5D}
+		{9F6FEABF-39CC-4BC9-920C-096EC83B4CF5} = {89DBBE91-60CB-4EC4-B8D4-FDF6BA943D5D}
+		{E70DC076-DBB3-4C8C-972E-EF454C51AD3A} = {89DBBE91-60CB-4EC4-B8D4-FDF6BA943D5D}
+		{89DBBE91-60CB-4EC4-B8D4-FDF6BA943D5D} = {813D1F3D-F330-4365-910E-A4494C6ACEFD}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		EnterpriseLibraryConfigurationToolBinariesPath = packages\Unity.2.1.505.2\lib\NET35

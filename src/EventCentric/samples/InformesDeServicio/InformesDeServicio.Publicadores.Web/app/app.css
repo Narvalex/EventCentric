@@ -1,0 +1,26 @@
+﻿
+/* NARBAR
+Answer from: Hoàng Vũ Tgtt 
+Source:  http://stackoverflow.com/questions/18599778/decreasing-height-of-bootstrap-3-0-navbar
+*/
+
+.navbar { min-height:38px;   }
+.navbar .navbar-brand{ padding: 0 12px;font-size: 16px;line-height: 38px;height: 38px; }
+.navbar .navbar-nav > li > a {  padding-top: 0; padding-bottom: 0; line-height: 38px; }
+.navbar .navbar-toggle {  margin-top: 3px; margin-bottom: 0; padding: 8px 9px; }
+.navbar .navbar-form { margin-top: 2px; margin-bottom: 0 }
+
+/* debido al navbar fixedtop */
+body {
+    margin: 40px;
+    background-color: #1e1e1e;
+}
+
+    .log {
+        font-family:Consolas;
+        color:white; 
+        white-space:pre-wrap;
+        margin-bottom: -20px;
+        font-size: 12px;
+    }
+
