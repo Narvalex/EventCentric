@@ -6,22 +6,22 @@ namespace EventCentric.Messaging
 {
     public class InMemoryEventQueue : Worker, IEventQueue
     {
-        protected readonly string appName;
+        protected readonly string streamType;
         protected readonly IGuidProvider guid;
 
         public InMemoryEventQueue(string appName, IGuidProvider guid, IBus bus)
              : base(bus)
         {
-            Ensure.NotNullEmtpyOrWhiteSpace(appName, "appName");
+            Ensure.NotNullEmtpyOrWhiteSpace(appName, "streamType");
             Ensure.NotNull(guid, "guid");
 
-            this.appName = appName;
+            this.streamType = appName;
             this.guid = guid;
         }
 
         public void Enqueue(IEvent @event)
         {
-            base.bus.Send(new NewIncomingEvent(@event.AsQueuedEvent(this.appName, this.guid.NewGuid())));
+            base.bus.Send(new NewIncomingEvent(@event.AsQueuedEvent(this.streamType, this.guid.NewGuid())));
         }
     }
 }

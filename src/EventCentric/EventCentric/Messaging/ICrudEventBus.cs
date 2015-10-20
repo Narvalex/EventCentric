@@ -6,6 +6,6 @@ namespace EventCentric.Messaging
 {
     public interface ICrudEventBus : IEventBus
     {
-        void Publish<T>(IEvent @event, Action<T> performCrudOperation) where T : IEventQueueDbContext;
+        void Publish<T>(Guid transactionId, Guid streamId, IEvent @event, Action<T> performCrudOperation) where T : IEventQueueDbContext;
     }
 }

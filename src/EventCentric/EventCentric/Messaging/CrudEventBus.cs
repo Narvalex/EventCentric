@@ -12,14 +12,14 @@ namespace EventCentric.Messaging
             : base(bus, log, queue)
         { }
 
-        public void Publish<T>(IEvent @event, Action<T> performCrudOperation) where T : IEventQueueDbContext
+        public void Publish<T>(Guid transactionId, Guid streamId, IEvent @event, Action<T> performCrudOperation) where T : IEventQueueDbContext
         {
             base.streamLocksById.TryAdd(@event.StreamId, new object());
             lock (this.streamLocksById.TryGetValue(@event.StreamId))
             {
                 try
                 {
-                    ((ICrudEventQueue)this.writer).Enqueue(@event, performCrudOperation);
+                    ((ICrudEventQueue)this.queue).Enqueue(@event.AsIncomingMessage(transactionId, streamId), performCrudOperation);
                 }
                 catch (Exception ex)
                 {

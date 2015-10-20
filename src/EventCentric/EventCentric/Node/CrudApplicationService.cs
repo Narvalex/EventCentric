@@ -10,12 +10,12 @@ namespace EventCentric.Node
     {
         protected readonly ICrudEventBus bus;
 
-        protected CrudApplicationService(ICrudEventBus queue, IGuidProvider guid, ITimeProvider time)
+        protected CrudApplicationService(ICrudEventBus bus, IGuidProvider guid, ITimeProvider time)
             : base(guid, time)
         {
-            Ensure.NotNull(queue, "queue");
+            Ensure.NotNull(bus, "bus");
 
-            this.bus = queue;
+            this.bus = bus;
         }
     }
 }

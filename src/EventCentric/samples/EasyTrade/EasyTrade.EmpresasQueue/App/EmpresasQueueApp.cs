@@ -3,7 +3,6 @@ using EasyTrade.EmpresasQueue.Especificaciones;
 using EasyTrade.Events;
 using EasyTrade.Events.EmpresasQueue;
 using EasyTrade.Events.EmpresasQueue.DTOs;
-using EventCentric.EventSourcing;
 using EventCentric.Messaging;
 using EventCentric.Node;
 using EventCentric.Utils;
@@ -24,9 +23,8 @@ namespace EasyTrade.EmpresasQueue
 
             var empresa = new Empresa(dto.IdEmpresa, dto.Nombre, dto.Ruc, dto.Descripcion);
 
-            this.bus.Publish<EmpresasQueueDbContext>(
-                new DatosDeEmpresaActualizados(empresa, time.Now)
-                    .AsEventToBeQueued(transactionId, dto.IdEmpresa),
+            this.bus.Publish<EmpresasQueueDbContext>(transactionId, dto.IdEmpresa,
+                new DatosDeEmpresaActualizados(empresa, time.Now),
                 context =>
                 {
                     AlActualizarDatosDeEmpresa.EstaDebeHaberSidoRegistrada(context, empresa.IdEmpresa);
@@ -43,10 +41,12 @@ namespace EasyTrade.EmpresasQueue
         {
             var transactionId = this.guid.NewGuid();
 
-            var @event = new EmpresaDesactivada(idEmpresa)
-                .AsEventToBeQueued(transactionId, idEmpresa);
+            var @event = new EmpresaDesactivada(idEmpresa);
 
-            this.bus.Publish<EmpresasQueueDbContext>(@event,
+            this.bus.Publish<EmpresasQueueDbContext>(
+                transactionId,
+                idEmpresa,
+                @event,
                 context =>
                 {
                     AlDesactivarEmpresa.EstaDebeHaberSidoRegistrada(context, idEmpresa);
@@ -60,9 +60,8 @@ namespace EasyTrade.EmpresasQueue
             var transactionId = this.guid.NewGuid();
             var empresa = new Empresa(transactionId, dto.Nombre, dto.Ruc, dto.Descripcion);
 
-            this.bus.Publish<EmpresasQueueDbContext>(
-                new NuevaEmpresaRegistrada(empresa, time.Now)
-                    .AsEventToBeQueued(transactionId, empresa.IdEmpresa),
+            this.bus.Publish<EmpresasQueueDbContext>(transactionId, empresa.IdEmpresa,
+                new NuevaEmpresaRegistrada(empresa, time.Now),
                 context =>
                 {
                     AlRegistrarNuevaEmpresa.ElNombreDebeSerUnico(context, empresa.Nombre);
@@ -81,10 +80,9 @@ namespace EasyTrade.EmpresasQueue
         {
             var transactionId = this.guid.NewGuid();
 
-            var @event = new EmpresaReactivada(idEmpresa)
-                .AsEventToBeQueued(transactionId, idEmpresa);
+            var @event = new EmpresaReactivada(idEmpresa);
 
-            this.bus.Publish<EmpresasQueueDbContext>(@event,
+            this.bus.Publish<EmpresasQueueDbContext>(transactionId, idEmpresa, @event,
                 context =>
                 {
                     AlReactivarEmpresa.EstaDebeHaberSidoRegistrada(context, idEmpresa);

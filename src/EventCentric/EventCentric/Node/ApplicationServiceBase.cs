@@ -7,7 +7,7 @@ namespace EventCentric
         protected readonly IGuidProvider guid;
         protected readonly ITimeProvider time;
 
-        public ApplicationServiceBase(IGuidProvider guid, ITimeProvider time)
+        protected ApplicationServiceBase(IGuidProvider guid, ITimeProvider time)
         {
             Ensure.NotNull(guid, "guid");
             Ensure.NotNull(time, "time");

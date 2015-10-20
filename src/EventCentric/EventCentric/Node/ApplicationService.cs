@@ -8,14 +8,14 @@ namespace EventCentric
     /// </summary>
     public abstract class ApplicationService : ApplicationServiceBase
     {
-        protected readonly IEventBus queue;
+        protected readonly IEventBus bus;
 
-        protected ApplicationService(IEventBus queue, IGuidProvider guid, ITimeProvider time)
+        protected ApplicationService(IEventBus bus, IGuidProvider guid, ITimeProvider time)
             : base(guid, time)
         {
-            Ensure.NotNull(queue, "queue");
+            Ensure.NotNull(bus, "bus");
 
-            this.queue = queue;
+            this.bus = bus;
         }
     }
 }

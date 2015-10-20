@@ -6,15 +6,15 @@ namespace EventCentric.Messaging
 {
     public static class EventBusExtensions
     {
-        public static void Send(this IEventBus bus, IEvent command)
+        public static void Send(this IEventBus bus, Guid transactionId, Guid streamId, IEvent command)
         {
-            bus.Publish(command);
+            bus.Publish(transactionId, streamId, command);
         }
 
-        public static void Send<T>(this ICrudEventBus bus, IEvent command, Action<T> performCrudOperation)
+        public static void Send<T>(this ICrudEventBus bus, Guid transactionId, Guid streamId, IEvent command, Action<T> performCrudOperation)
             where T : IEventQueueDbContext
         {
-            bus.Publish<T>(command, performCrudOperation);
+            bus.Publish<T>(transactionId, streamId, command, performCrudOperation);
         }
     }
 }

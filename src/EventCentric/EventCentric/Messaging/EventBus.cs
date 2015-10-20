@@ -13,7 +13,7 @@ namespace EventCentric.Messaging
         IMessageHandler<StartEventQueue>,
         IMessageHandler<StopEventQueue>
     {
-        protected readonly IEventQueue writer;
+        protected readonly IEventQueue queue;
         protected ConcurrentDictionary<Guid, object> streamLocksById;
 
         public EventBus(IBus bus, ILogger log, IEventQueue queue)
@@ -21,18 +21,18 @@ namespace EventCentric.Messaging
         {
             Ensure.NotNull(queue, "writer");
 
-            this.writer = queue;
+            this.queue = queue;
             this.streamLocksById = new ConcurrentDictionary<Guid, object>();
         }
 
-        public void Publish(IEvent @event)
+        public void Publish(Guid transactionId, Guid streamId, IEvent @event)
         {
             this.streamLocksById.TryAdd(@event.StreamId, new object());
             lock (this.streamLocksById.TryGetValue(@event.StreamId))
             {
                 try
                 {
-                    this.writer.Enqueue(@event);
+                    this.queue.Enqueue(@event.AsIncomingMessage(transactionId, streamId));
                 }
                 catch (Exception ex)
                 {
