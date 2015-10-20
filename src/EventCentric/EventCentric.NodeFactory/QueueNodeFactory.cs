@@ -1,6 +1,5 @@
 ﻿using EventCentric.Config;
 using EventCentric.Messaging;
-using EventCentric.Node;
 using EventCentric.NodeFactory.Log;
 using EventCentric.Publishing;
 using EventCentric.Repository;

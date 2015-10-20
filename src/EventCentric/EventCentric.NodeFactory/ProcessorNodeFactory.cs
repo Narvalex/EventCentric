@@ -50,10 +50,6 @@ namespace EventCentric
             var publisher = new Publisher<TAggregate>(bus, log, eventDao, eventStoreConfig.PushMaxCount, TimeSpan.FromMilliseconds(eventStoreConfig.LongPollingTimeout));
             var fsm = new ProcessorNode(nodeName, bus, log);
 
-            // Register processor dependencies
-            container.RegisterInstance<IBus>(bus);
-            container.RegisterInstance<IEventStore<TAggregate>>(eventStore);
-
             if (processorFactory == null)
             {
                 var constructor = typeof(TProcessor).GetConstructor(new[] { typeof(IBus), typeof(ILogger), typeof(IEventStore<TAggregate>) });
@@ -65,11 +61,6 @@ namespace EventCentric
                 var processor = processorFactory.Invoke(bus, log, eventStore);
             }
 
-            // Register for DI
-            container.RegisterInstance<IEventSource>(publisher);
-            container.RegisterInstance<ILogger>(log);
-            container.RegisterInstance<INode>(fsm);
-
             // For nodes that polls events from subscribed sources
             if (hasSubscription)
             {
@@ -78,6 +69,13 @@ namespace EventCentric
                 var poller = new Poller(bus, log, subscriptionRepository, http, serializer, pollerConfig.BufferQueueMaxCount, pollerConfig.EventsToFlushMaxCount);
                 container.RegisterInstance<IMonitoredSubscriber>(poller);
             }
+
+            // Register for DI
+            container.RegisterInstance<IEventSource>(publisher);
+            container.RegisterInstance<ILogger>(log);
+            container.RegisterInstance<INode>(fsm);
+            container.RegisterInstance<IBus>(bus);
+            container.RegisterInstance<IEventStore<TAggregate>>(eventStore);
 
             return fsm;
         }
@@ -117,11 +115,6 @@ namespace EventCentric
             var bus = new Messaging.Bus();
 
             var publisher = new Publisher<TAggregate>(bus, log, eventDao, eventStoreConfig.PushMaxCount, TimeSpan.FromMilliseconds(eventStoreConfig.LongPollingTimeout));
-            var fsm = new ProcessorNode(NodeNameProvider.ResolveNameOf<TAggregate>(), bus, log);
-
-            // Register processor dependencies
-            container.RegisterInstance<IBus>(bus);
-            container.RegisterInstance<IEventStore<TAggregate>>(eventStore);
 
             if (processorFactory == null)
             {
@@ -135,6 +128,7 @@ namespace EventCentric
             }
 
             // For nodes that polls events from subscribed sources
+
             if (hasSubscription)
             {
                 var pollerConfig = PollerConfig.GetConfig();
@@ -147,11 +141,18 @@ namespace EventCentric
             var eventQueue = new InMemoryEventQueue(appName, guid, bus);
             var eventBus = new EventBus(bus, log, eventQueue);
 
+
+            var fsm = new ProcessorNode(NodeNameProvider.ResolveNameOf<TAggregate>(), bus, log, hasSubscription);
+
             // Register for DI
             container.RegisterInstance<IEventBus>(eventBus);
             container.RegisterInstance<IEventSource>(publisher);
             container.RegisterInstance<ILogger>(log);
             container.RegisterInstance<INode>(fsm);
+            container.RegisterInstance<IBus>(bus);
+            container.RegisterInstance<IEventStore<TAggregate>>(eventStore);
+            container.RegisterInstance<IGuidProvider>(guid);
+            container.RegisterInstance<ITimeProvider>(time);
 
             return fsm;
         }
@@ -198,10 +199,6 @@ namespace EventCentric
             var publisher = new Publisher<TAggregate>(bus, log, eventDao, eventStoreConfig.PushMaxCount, TimeSpan.FromMilliseconds(eventStoreConfig.LongPollingTimeout));
             var fsm = new ProcessorNode(nodeName, bus, log);
 
-            // Register processor dependencies
-            container.RegisterInstance<IBus>(bus);
-            container.RegisterInstance<IEventStore<TAggregate>>(eventStore);
-
             if (processorFactory == null)
             {
                 var processorConstructor = typeof(TProcessor).GetConstructor(new[] { typeof(IBus), typeof(ILogger), typeof(IEventStore<TAggregate>) });
@@ -219,6 +216,8 @@ namespace EventCentric
             container.RegisterInstance<ILogger>(log);
             container.RegisterInstance<INode>(fsm);
             container.RegisterInstance<IMonitoredSubscriber>(poller);
+            container.RegisterInstance<IBus>(bus);
+            container.RegisterInstance<IEventStore<TAggregate>>(eventStore);
 
             return fsm;
         }

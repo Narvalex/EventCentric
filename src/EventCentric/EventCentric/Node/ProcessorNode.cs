@@ -14,10 +14,13 @@ namespace EventCentric
         IMessageHandler<EventProcessorStopped>,
         IMessageHandler<EventPublisherStopped>
     {
-        public ProcessorNode(string nodeName, IBus bus, ILogger log)
+        private bool hasPoller;
+
+        public ProcessorNode(string nodeName, IBus bus, ILogger log, bool hasPoller = true)
             : base(nodeName, bus, log)
         {
             this.State = NodeState.Down;
+            this.hasPoller = hasPoller;
         }
 
         public NodeState State { get; private set; }
@@ -61,11 +64,10 @@ namespace EventCentric
 
         protected override void OnStarting()
         {
-            this.bus.Publish(new StartEventPublisher());
+            if (!this.hasPoller)
+                this.log.Trace("No poller detected");
 
-            // No user can issue a request, the pollster will receive new events after the publisher is 
-            // up and running, so we can say that the node is up and running.
-            this.State = NodeState.UpAndRunning;
+            this.bus.Publish(new StartEventPublisher());
         }
 
         protected override void OnStopping()
@@ -94,8 +96,9 @@ namespace EventCentric
 
         public void Handle(EventPollerStarted message)
         {
-            //this.State = NodeState.UpAndRunning;
+            this.State = NodeState.UpAndRunning;
             this.log.Trace("All services are up and running");
+
         }
 
         public void Handle(EventPublisherStarted message)
@@ -105,7 +108,13 @@ namespace EventCentric
 
         public void Handle(EventProcessorStarted message)
         {
-            this.bus.Publish(new StartEventPoller());
+            if (this.hasPoller)
+                this.bus.Publish(new StartEventPoller());
+            else
+            {
+                this.State = NodeState.UpAndRunning;
+                this.log.Trace("All services are up and running");
+            }
         }
 
         public void Handle(EventPollerStopped message)

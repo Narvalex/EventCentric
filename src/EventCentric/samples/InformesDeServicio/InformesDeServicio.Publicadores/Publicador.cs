@@ -8,7 +8,8 @@ using System.Runtime.InteropServices;
 namespace InformesDeServicio.Publicadores
 {
     #region +
-    [Guid("86669D61-64CD-418D-AEE8-F781F595A975")]
+    // StreamType: Publicador_86669d61-64cd-418d-aee8-f781f595a975
+    [Guid("86669d61-64cd-418d-aee8-f781f595a975")]
     #endregion
     public class Publicador : EventSourced,
         IHandles<RegistrarPublicador>,

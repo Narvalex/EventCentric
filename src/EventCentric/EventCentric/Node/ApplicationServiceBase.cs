@@ -1,4 +1,5 @@
 ﻿using EventCentric.Utils;
+using System;
 
 namespace EventCentric
 {
@@ -15,5 +16,9 @@ namespace EventCentric
             this.guid = guid;
             this.time = time;
         }
+
+        protected Guid NewGuid { get { return this.guid.NewGuid(); } }
+
+        protected DateTime Now { get { return this.time.Now; } }
     }
 }

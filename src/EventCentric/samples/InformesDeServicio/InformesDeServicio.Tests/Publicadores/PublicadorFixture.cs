@@ -1,5 +1,4 @@
-﻿using EventCentric.EventSourcing;
-using EventCentric.Utils.Testing;
+﻿using EventCentric.Utils.Testing;
 using InformesDeServicio.Messages.Publicadores.DTOs;
 using InformesDeServicio.Messages.Publicadores.InProcess.Commands;
 using InformesDeServicio.Messages.Publicadores.Stored.Events;
@@ -18,8 +17,8 @@ namespace InformesDeServicio.Tests.Publicadores.PublicadorFixture
         public void CUANDO_se_registra_publicador_ENTONCES_quedan_registrados_sus_datos_y_es_dado_de_alta()
         {
             var publicadorId = Guid.NewGuid();
-            var dto = new DatosDePublicador("Alexis", "Narvaez", DateTime.Now, DateTime.Now);
-            var command = new RegistrarPublicador(publicadorId, dto).AsIncomingMessage(publicadorId, publicadorId);
+            var dto = new DatosDePublicador("Alexis", "Narvaez");
+            var command = new RegistrarPublicador(publicadorId, dto, DateTime.Now);
 
             var aggregate = new Publicador(command.StreamId);
             Assert.IsFalse(((PublicadorMemento)aggregate.SaveToMemento()).PublicadorEstaDadoDeAlta);
@@ -37,15 +36,15 @@ namespace InformesDeServicio.Tests.Publicadores.PublicadorFixture
         public void DADO_publicador_registrado_CUANDO_se_actualizan_los_datos_ENTONCES_la_actualizacion_se_hace_efectiva()
         {
             var publicadorId = Guid.NewGuid();
-            var dtoOriginal = new DatosDePublicador("Alexis", "Narvaez", new DateTime(2002, 1, 1), new DateTime(2002, 1, 1));
-            var dtoActualizado = new DatosDePublicador("Alexis Darien", "Narváez Gamarra", DateTime.Now, DateTime.Now);
+            var dtoOriginal = new DatosDePublicador("Alexis", "Narvaez");
+            var dtoActualizado = new DatosDePublicador("Alexis Darien", "Narváez Gamarra");
 
 
             var aggregate = new Publicador(publicadorId);
 
             aggregate
                 .GivenOn(new PublicadorRegistrado(dtoOriginal))
-                .When(new ActualizarDatosDePublicador(publicadorId, dtoActualizado))
+                .When(new ActualizarDatosDePublicador(publicadorId, dtoActualizado, DateTime.Now))
                 .ThenExpectAtLeastOne<DatosDePublicadorActualizados>()
                 .AndNotAny<PublicadorRegistrado>();
 
@@ -57,7 +56,7 @@ namespace InformesDeServicio.Tests.Publicadores.PublicadorFixture
         public void DADO_publicador_registrado_CUANDO_se_le_da_de_baja_ENTONCES_la_baja_se_hace_efectiva()
         {
             var publicadorId = Guid.NewGuid();
-            var dto = new DatosDePublicador("Alexis", "Narvaez", new DateTime(2002, 1, 1), new DateTime(2002, 1, 1));
+            var dto = new DatosDePublicador("Alexis", "Narvaez");
 
             var fechaDeBaja = DateTime.Now;
 
