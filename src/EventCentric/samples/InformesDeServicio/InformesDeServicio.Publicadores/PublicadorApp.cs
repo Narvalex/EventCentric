@@ -22,13 +22,11 @@ namespace InformesDeServicio.Publicadores
         public Guid RegistrarPublicador(RegistrarOActualizarPublicadorDto dto)
         {
             var transactionId = this.NewGuid;
-            var idPublicador = this.NewGuid;
+            var idPublicador = dto.IdPublicador;
             var now = this.Now;
 
             var datos = new DatosDePublicador(dto.Nombres, dto.Apellidos);
-
             var command = new RegistrarPublicador(idPublicador, datos, now);
-
             this.bus.Publish(transactionId, idPublicador, command);
 
             return transactionId;
@@ -40,7 +38,6 @@ namespace InformesDeServicio.Publicadores
             var now = this.Now;
 
             var datos = new DatosDePublicador(dto.Nombres, dto.Apellidos);
-
             this.bus.Publish(transactionId, dto.IdPublicador, new ActualizarDatosDePublicador(dto.IdPublicador, datos, now));
 
             return transactionId;
