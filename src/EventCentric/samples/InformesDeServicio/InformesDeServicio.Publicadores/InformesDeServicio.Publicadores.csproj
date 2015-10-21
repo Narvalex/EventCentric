@@ -41,10 +41,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DTOs\RegistrarOActualizarPublicadorDto.cs" />
-    <Compile Include="IPublicadorApp.cs" />
+    <Compile Include="App\IPublicadorApp.cs" />
     <Compile Include="Publicador.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="PublicadorApp.cs" />
+    <Compile Include="App\PublicadorApp.cs" />
     <Compile Include="PublicadorMemento.cs" />
     <Compile Include="PublicadorProcessor.cs" />
   </ItemGroup>

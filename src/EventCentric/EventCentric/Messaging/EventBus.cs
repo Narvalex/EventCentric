@@ -27,8 +27,8 @@ namespace EventCentric.Messaging
 
         public void Publish(Guid transactionId, Guid streamId, IEvent @event)
         {
-            this.streamLocksById.TryAdd(@event.StreamId, new object());
-            lock (this.streamLocksById.TryGetValue(@event.StreamId))
+            this.streamLocksById.TryAdd(streamId, new object());
+            lock (this.streamLocksById.TryGetValue(streamId))
             {
                 try
                 {

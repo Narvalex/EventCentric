@@ -1,7 +1,8 @@
 ﻿using InformesDeServicio.Publicadores.Server.App_Start;
+using Microsoft.Owin;
 using Owin;
 
-[assembly: Microsoft.Owin.OwinStartup(typeof(Startup))]
+[assembly: OwinStartup(typeof(Startup))]
 namespace InformesDeServicio.Publicadores.Server.App_Start
 {
     public partial class Startup

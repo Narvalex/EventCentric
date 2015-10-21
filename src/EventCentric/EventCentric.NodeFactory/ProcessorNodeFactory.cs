@@ -15,11 +15,11 @@ using System;
 
 namespace EventCentric
 {
-    public class ProessorNodeFactory<TAggregate, TProcessor>
+    public class ProcessorNodeFactory<TAggregate, TProcessor>
         where TAggregate : class, IEventSourced
         where TProcessor : EventProcessor<TAggregate>
     {
-        public static INode CreateNode(IUnityContainer container, bool hasSubscription, Func<IBus, ILogger, IEventStore<TAggregate>, TProcessor> processorFactory = null, bool setLocalTime = true, bool setSequentialGuid = true)
+        public static INode CreateNode(IUnityContainer container, bool isSubscriptor, Func<IBus, ILogger, IEventStore<TAggregate>, TProcessor> processorFactory = null, bool setLocalTime = true, bool setSequentialGuid = true)
         {
             var nodeName = NodeNameProvider.ResolveNameOf<TAggregate>();
 
@@ -36,14 +36,17 @@ namespace EventCentric
             Func<bool, EventQueueDbContext> queueContextFactory = isReadOnly => new EventQueueDbContext(isReadOnly, connectionString);
 
             var log = Logger.ResolvedLogger;
+
             var serializer = new JsonTextSerializer();
+            container.RegisterInstance<ITextSerializer>(serializer);
+
             var time = setLocalTime ? new LocalTimeProvider() as ITimeProvider : new UtcTimeProvider() as ITimeProvider;
             var guid = setSequentialGuid ? new SequentialGuid() as IGuidProvider : new DefaultGuidProvider() as IGuidProvider;
 
             var subscriptionRepository = new SubscriptionRepository(storeContextFactory, serializer, time);
             var eventDao = new EventDao(queueContextFactory);
 
-            var eventStore = new EventStore<TAggregate>(nodeName, serializer, storeContextFactory, time, guid, log);
+            var eventStore = new EventStore<TAggregate>(nodeName, serializer, storeContextFactory, time, guid, log, isSubscriptor);
 
             var bus = new Bus();
 
@@ -62,7 +65,7 @@ namespace EventCentric
             }
 
             // For nodes that polls events from subscribed sources
-            if (hasSubscription)
+            if (isSubscriptor)
             {
                 var pollerConfig = PollerConfig.GetConfig();
                 var http = new HttpLongPoller(bus, log, TimeSpan.FromMilliseconds(pollerConfig.Timeout));
@@ -85,7 +88,7 @@ namespace EventCentric
         /// </summary>
         /// <typeparam name="TApp">In process app.</typeparam>
         /// <returns></returns>
-        public static INode CreateNodeWithApp<TApp>(IUnityContainer container, bool hasSubscription, Func<IBus, ILogger, IEventStore<TAggregate>, TProcessor> processorFactory = null, bool setLocalTime = true, bool setSequentialGuid = true)
+        public static INode CreateNodeWithApp<TApp>(IUnityContainer container, bool isSubscriptor, Func<IBus, ILogger, IEventStore<TAggregate>, TProcessor> processorFactory = null, bool setLocalTime = true, bool setSequentialGuid = true)
         {
             var nodeName = NodeNameProvider.ResolveNameOf<TAggregate>();
             var appName = NodeNameProvider.ResolveNameOf<TApp>();
@@ -103,16 +106,19 @@ namespace EventCentric
             Func<bool, EventQueueDbContext> queueContextFactory = isReadOnly => new EventQueueDbContext(isReadOnly, connectionString);
 
             var log = Logger.ResolvedLogger;
+
             var serializer = new JsonTextSerializer();
+            container.RegisterInstance<ITextSerializer>(serializer);
+
             var time = setLocalTime ? new LocalTimeProvider() as ITimeProvider : new UtcTimeProvider() as ITimeProvider;
             var guid = setSequentialGuid ? new SequentialGuid() as IGuidProvider : new DefaultGuidProvider() as IGuidProvider;
 
             var subscriptionRepository = new SubscriptionRepository(storeContextFactory, serializer, time);
             var eventDao = new EventDao(queueContextFactory);
 
-            var eventStore = new EventStore<TAggregate>(nodeName, serializer, storeContextFactory, time, guid, log);
+            var eventStore = new EventStore<TAggregate>(nodeName, serializer, storeContextFactory, time, guid, log, isSubscriptor);
 
-            var bus = new Messaging.Bus();
+            var bus = new Bus();
 
             var publisher = new Publisher<TAggregate>(bus, log, eventDao, eventStoreConfig.PushMaxCount, TimeSpan.FromMilliseconds(eventStoreConfig.LongPollingTimeout));
 
@@ -129,7 +135,7 @@ namespace EventCentric
 
             // For nodes that polls events from subscribed sources
 
-            if (hasSubscription)
+            if (isSubscriptor)
             {
                 var pollerConfig = PollerConfig.GetConfig();
                 var http = new HttpLongPoller(bus, log, TimeSpan.FromMilliseconds(pollerConfig.Timeout));
@@ -142,7 +148,7 @@ namespace EventCentric
             var eventBus = new EventBus(bus, log, eventQueue);
 
 
-            var fsm = new ProcessorNode(NodeNameProvider.ResolveNameOf<TAggregate>(), bus, log, hasSubscription);
+            var fsm = new ProcessorNode(NodeNameProvider.ResolveNameOf<TAggregate>(), bus, log, isSubscriptor);
 
             // Register for DI
             container.RegisterInstance<IEventBus>(eventBus);

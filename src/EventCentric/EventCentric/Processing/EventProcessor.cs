@@ -75,14 +75,22 @@ namespace EventCentric.Processing
         {
             try
             {
-                ((dynamic)this).Handle((dynamic)incomingEvent);
+#if DEBUG
+                this.log.Trace($"Processor is now handling message '{incomingEvent.GetType().Name}' with id {incomingEvent.EventId}");
+#endif
+                ((dynamic)this).Receive((dynamic)incomingEvent);
+#if DEBUG
+                this.log.Trace($"Processor successfully handled message '{incomingEvent.GetType().Name}' with id {incomingEvent.EventId}");
+#endif
             }
             catch (Exception ex)
             {
+                var exception = new PoisonMessageException("Poison message detected in Event Processor", ex);
+
+                this.log.Error(exception, $"Poison message of type {incomingEvent.GetType().Name} detected in Event Processor");
+
                 this.bus.Publish(
-                    new IncomingEventIsPoisoned(
-                        incomingEvent,
-                        new PoisonMessageException("Poison message detected in Event Processor", ex)));
+                    new IncomingEventIsPoisoned(incomingEvent, exception));
             }
         }
 

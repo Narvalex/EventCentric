@@ -8,7 +8,6 @@ namespace InformesDeServicio.Publicadores.Server.App_Start
     /// </summary>
     public class UnityConfig
     {
-        #region Unity Container
         private static Lazy<IUnityContainer> container = new Lazy<IUnityContainer>(() =>
         {
             var container = new UnityContainer();
@@ -26,6 +25,5 @@ namespace InformesDeServicio.Publicadores.Server.App_Start
         {
             return container.Value;
         }
-        #endregion
     }
 }

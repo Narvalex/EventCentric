@@ -17,7 +17,10 @@ namespace EventCentric
             this.time = time;
         }
 
-        protected Guid NewGuid { get { return this.guid.NewGuid(); } }
+        protected Guid NewGuid()
+        {
+            return this.guid.NewGuid();
+        }
 
         protected DateTime Now { get { return this.time.Now; } }
     }

@@ -15,7 +15,7 @@ namespace EasyTrade.EmpresasReadModel
                 {
                     System.Data.Entity.Database.SetInitializer<EmpresasReadModelDbContext>(null);
 
-                    var node = ProessorNodeFactory<EmpresasQueueDenormalizer, EmpresasQueueProcessor>
+                    var node = ProcessorNodeFactory<EmpresasQueueDenormalizer, EmpresasQueueProcessor>
                             .CreateDenormalizerNode<EmpresasReadModelDbContext>(container);
 
                     var config = container.Resolve<IEventStoreConfig>();

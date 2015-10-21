@@ -4,7 +4,7 @@
     {
         public static string ResolveNameOf<T>()
         {
-            return $"{typeof(T)}_{typeof(T).GUID}";
+            return $"{typeof(T).Name}_{typeof(T).GUID}";
         }
     }
 }

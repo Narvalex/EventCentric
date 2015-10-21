@@ -21,7 +21,7 @@ namespace InformesDeServicio.Publicadores
 
         public Guid RegistrarPublicador(RegistrarOActualizarPublicadorDto dto)
         {
-            var transactionId = this.NewGuid;
+            var transactionId = this.NewGuid();
             var idPublicador = dto.IdPublicador;
             var now = this.Now;
 
@@ -34,7 +34,7 @@ namespace InformesDeServicio.Publicadores
 
         public Guid ActualizarDatosDePublicador(RegistrarOActualizarPublicadorDto dto)
         {
-            var transactionId = this.NewGuid;
+            var transactionId = this.NewGuid();
             var now = this.Now;
 
             var datos = new DatosDePublicador(dto.Nombres, dto.Apellidos);
@@ -45,7 +45,7 @@ namespace InformesDeServicio.Publicadores
 
         public Guid DarDeBajaAPublicador(Guid idPublicador)
         {
-            var transactionId = this.NewGuid;
+            var transactionId = this.NewGuid();
             var commmand = new DarDeBajaAPublicador(idPublicador, this.Now);
             this.bus.Publish(transactionId, idPublicador, commmand);
             return transactionId;
@@ -53,7 +53,7 @@ namespace InformesDeServicio.Publicadores
 
         public Guid VolverADarDeAltaAPublicador(Guid idPublicador)
         {
-            var transactionId = this.NewGuid;
+            var transactionId = this.NewGuid();
             var command = new VolverADarDeAltaAPublicador(idPublicador, this.Now);
             this.bus.Publish(transactionId, idPublicador, command);
             return transactionId;

@@ -11,7 +11,7 @@ namespace InformesDeServicio.Publicadores.Server
         {
             Initialize(() =>
             {
-                var node = ProessorNodeFactory<Publicador, PublicadorProcessor>
+                var node = ProcessorNodeFactory<Publicador, PublicadorProcessor>
                         .CreateNodeWithApp<PublicadorApp>(container, false);
 
                 var app = new PublicadorApp(container.Resolve<IEventBus>(), container.Resolve<IGuidProvider>(), container.Resolve<ITimeProvider>());
