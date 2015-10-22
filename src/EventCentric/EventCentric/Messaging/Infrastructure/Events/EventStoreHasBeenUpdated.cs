@@ -2,11 +2,11 @@
 {
     public class EventStoreHasBeenUpdated : IMessage
     {
-        public EventStoreHasBeenUpdated(int eventCollectionVersion)
+        public EventStoreHasBeenUpdated(long eventCollectionVersion)
         {
             this.EventCollectionVersion = eventCollectionVersion;
         }
 
-        public int EventCollectionVersion { get; private set; }
+        public long EventCollectionVersion { get; private set; }
     }
 }

@@ -73,7 +73,7 @@ namespace EventCentric.Transport
                         this.log.Trace($"{response.Content.ReadAsStringAsync().Result}");
                         using (var context = this.contextFactory(false))
                         {
-                            var subscription = context.SubscriberHeartbeats.Single(s => s.SubscriberName == name);
+                            var subscription = context.SubscribersHeartbeats.Single(s => s.SubscriberName == name);
                             var now = this.time.Now;
                             subscription.UpdateTime = now;
                             subscription.HeartbeatCount = subscription.HeartbeatCount + 1;
@@ -91,7 +91,7 @@ namespace EventCentric.Transport
                     {
                         using (var context = this.contextFactory(false))
                         {
-                            var subscription = context.SubscriberHeartbeats.Single(s => s.SubscriberName == name);
+                            var subscription = context.SubscribersHeartbeats.Single(s => s.SubscriberName == name);
                             var now = this.time.Now;
                             subscription.UpdateTime = now;
 
@@ -116,10 +116,10 @@ namespace EventCentric.Transport
             {
                 using (var context = this.contextFactory(true))
                 {
-                    if (!context.SubscriberHeartbeats.Any())
+                    if (!context.SubscribersHeartbeats.Any())
                         return null;
 
-                    var entities = context.SubscriberHeartbeats.ToArray();
+                    var entities = context.SubscribersHeartbeats.ToArray();
                     return entities.Select(e => new Tuple<string, string>(e.SubscriberName, e.Url)).ToArray();
                 }
             }

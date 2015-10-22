@@ -20,9 +20,11 @@ namespace EventCentric.Publishing
         private readonly IEventDao dao;
         private readonly int eventsToPushMaxCount;
         private readonly TimeSpan longPollingTimeout;
-        private readonly object lockObject = new object();
+        private long eventCollectionVersion = 0;
 
-        private volatile int eventCollectionVersion = 0;
+        // locks
+        private readonly object updatelockObject = new object();
+        private static readonly object _eventCollectionVersionLock = new object();
 
         public Publisher(IBus bus, ILogger log, IEventDao dao, int eventsToPushMaxCount, TimeSpan pollTimeout)
             : base(bus, log)
@@ -35,12 +37,30 @@ namespace EventCentric.Publishing
             this.longPollingTimeout = pollTimeout;
         }
 
+        private long EventCollectionVersion
+        {
+            get
+            {
+                lock (_eventCollectionVersionLock)
+                {
+                    return this.eventCollectionVersion;
+                }
+            }
+            set
+            {
+                lock (_eventCollectionVersionLock)
+                {
+                    this.eventCollectionVersion = value;
+                }
+            }
+        }
+
         public void Handle(EventStoreHasBeenUpdated message)
         {
-            lock (this.lockObject)
+            lock (this.updatelockObject)
             {
-                if (message.EventCollectionVersion > this.eventCollectionVersion)
-                    this.eventCollectionVersion = message.EventCollectionVersion;
+                if (message.EventCollectionVersion > this.EventCollectionVersion)
+                    this.EventCollectionVersion = message.EventCollectionVersion;
             }
         }
 
@@ -66,7 +86,7 @@ namespace EventCentric.Publishing
             var stopwatch = Stopwatch.StartNew();
             while (!this.stopping && stopwatch.Elapsed < this.longPollingTimeout)
             {
-                if (this.eventCollectionVersion <= lastReceivedVersion)
+                if (this.EventCollectionVersion <= lastReceivedVersion)
                     Thread.Sleep(100);
                 else
                 {
@@ -78,7 +98,7 @@ namespace EventCentric.Publishing
                 }
             }
 
-            return new PollResponse(false, newEventsWereFound, _streamType, newEvents, lastReceivedVersion, this.eventCollectionVersion);
+            return new PollResponse(false, newEventsWereFound, _streamType, newEvents, lastReceivedVersion, this.EventCollectionVersion);
         }
 
         protected override void OnStarting()

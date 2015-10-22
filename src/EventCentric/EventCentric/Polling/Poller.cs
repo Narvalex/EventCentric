@@ -169,8 +169,8 @@ namespace EventCentric.Polling
 
             if (!response.ErrorDetected)
             {
-                subscription.consumerVersion = response.ConsumerVersion;
-                subscription.producerVersion = response.ProducerVersion;
+                subscription.ConsumerVersion = response.ConsumerVersion;
+                subscription.ProducerVersion = response.ProducerVersion;
             }
 
             subscription.IsPolling = false;

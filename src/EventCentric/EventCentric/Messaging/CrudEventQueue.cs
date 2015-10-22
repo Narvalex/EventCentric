@@ -23,22 +23,19 @@ namespace EventCentric.Messaging
                                       .Where(e => e.StreamId == @event.StreamId)
                                       .AsCachedAnyEnumerable();
 
-                var currentVersion = 0;
+                long currentVersion = 0;
                 if (versions.Any())
                     currentVersion = versions.Max(e => e.Version);
 
-                var updatedVersion = currentVersion + 1;
+                long updatedVersion = currentVersion + 1;
 
                 var now = this.time.Now;
 
-                ((Event)@event).StreamType = base.streamType;
-                ((Event)@event).EventId = this.guid.NewGuid();
-                ((Event)@event).Version = updatedVersion;
+                @event.AsQueuedEvent(base.streamType, this.guid.NewGuid(), updatedVersion, now);
 
                 context.Events.Add(
                     new EventEntity
                     {
-                        StreamType = @event.StreamType,
                         StreamId = @event.StreamId,
                         Version = @event.Version,
                         EventId = @event.EventId,

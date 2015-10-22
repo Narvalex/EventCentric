@@ -6,8 +6,8 @@ namespace EventCentric.Publishing
 
     public interface IEventDao
     {
-        List<NewRawEvent> FindEvents(int fromEventCollectionVersion, int quantity);
+        List<NewRawEvent> FindEvents(long fromEventCollectionVersion, int quantity);
 
-        int GetEventCollectionVersion();
+        long GetEventCollectionVersion();
     }
 }

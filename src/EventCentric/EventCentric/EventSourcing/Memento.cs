@@ -2,11 +2,11 @@
 {
     public class Memento : IMemento
     {
-        public Memento(int version)
+        public Memento(long version)
         {
             this.Version = version;
         }
 
-        public int Version { get; private set; }
+        public long Version { get; private set; }
     }
 }

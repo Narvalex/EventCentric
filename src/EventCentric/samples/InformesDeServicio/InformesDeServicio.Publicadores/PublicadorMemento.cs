@@ -4,7 +4,7 @@ namespace InformesDeServicio.Publicadores
 {
     public class PublicadorMemento : Memento
     {
-        public PublicadorMemento(int version, bool publicadorEstaDadoDeAlta)
+        public PublicadorMemento(long version, bool publicadorEstaDadoDeAlta)
             : base(version)
         {
             this.PublicadorEstaDadoDeAlta = publicadorEstaDadoDeAlta;

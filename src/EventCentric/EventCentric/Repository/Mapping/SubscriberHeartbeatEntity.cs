@@ -7,7 +7,7 @@ namespace EventCentric.Repository.Mapping
     {
         public string SubscriberName { get; set; }
         public string Url { get; set; }
-        public int HeartbeatCount { get; set; }
+        public long HeartbeatCount { get; set; }
         public DateTime LastHeartbeatTime { get; set; }
         public DateTime UpdateTime { get; set; }
         public DateTime CreationDate { get; set; }
@@ -21,7 +21,7 @@ namespace EventCentric.Repository.Mapping
             this.HasKey(t => t.SubscriberName);
 
             // Table & Column mappings
-            this.ToTable("SubscriberHeartbeats", "EventStore");
+            this.ToTable("SubscribersHeartbeats", "EventStore");
             this.Property(t => t.SubscriberName).HasColumnName("SubscriberName");
             this.Property(t => t.Url).HasColumnName("Url");
             this.Property(t => t.HeartbeatCount).HasColumnName("HeartbeatCount");

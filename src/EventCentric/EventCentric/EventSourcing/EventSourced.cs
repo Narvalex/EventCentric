@@ -10,7 +10,7 @@ namespace EventCentric.EventSourcing
     public abstract class EventSourced : IEventSourced, IMementoOriginator
     {
         private readonly Guid id;
-        private int version = 0;
+        private long version = 0;
         private List<IEvent> pendingEvents = new List<IEvent>();
 
         protected EventSourced(Guid id)
@@ -36,7 +36,7 @@ namespace EventCentric.EventSourcing
             get { return this.id; }
         }
 
-        public int Version
+        public long Version
         {
             get { return this.version; }
         }

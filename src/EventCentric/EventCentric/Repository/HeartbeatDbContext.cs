@@ -14,7 +14,7 @@ namespace EventCentric.Repository
         //    : base(false, "server=(local);Database=ClientesClient;User Id=sa;pwd =123456")
         //{ }
 
-        public IDbSet<SubscriberHeartbeatEntity> SubscriberHeartbeats { get; set; }
+        public IDbSet<SubscriberHeartbeatEntity> SubscribersHeartbeats { get; set; }
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {

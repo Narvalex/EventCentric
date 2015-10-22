@@ -15,7 +15,7 @@ namespace EventCentric.EventSourcing
         /// <summary>
         /// Gets the aggregate's version. As the aggregate is being updated and events being generated, the version is incremented. 
         /// </summary>
-        int Version { get; }
+        long Version { get; }
 
         /// <summary>
         /// Gets the collection of new events since the aggregate was hydrated, as a consequence of message handling.

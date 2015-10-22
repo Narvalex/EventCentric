@@ -41,7 +41,7 @@ namespace EventCentric.Messaging
                                       .Where(e => e.StreamId == @event.StreamId)
                                       .AsCachedAnyEnumerable();
 
-                var currentVersion = 0;
+                long currentVersion = 0;
                 if (versions.Any())
                     currentVersion = versions.Max(e => e.Version);
 
@@ -49,12 +49,11 @@ namespace EventCentric.Messaging
 
                 var now = this.time.Now;
 
-                @event.AsQueuedEvent(this.streamType, this.guid.NewGuid(), updatedVersion);
+                @event.AsQueuedEvent(this.streamType, this.guid.NewGuid(), updatedVersion, now);
 
                 context.Events.Add(
                     new EventEntity
                     {
-                        StreamType = @event.StreamType,
                         StreamId = @event.StreamId,
                         Version = @event.Version,
                         EventId = @event.EventId,

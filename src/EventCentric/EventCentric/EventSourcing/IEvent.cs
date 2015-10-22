@@ -18,10 +18,19 @@ namespace EventCentric.EventSourcing
         /// <summary>
         /// The version of the stream when the event happened.
         /// </summary>
-        int Version { get; }
+        long Version { get; }
 
-        int EventCollectionVersion { get; }
+        /// <summary>
+        /// The version of the event from the store perspective.
+        /// </summary>
+        long EventCollectionVersion { get; }
 
-        int ProcessorBufferVersion { get; }
+        /// <summary>
+        /// The lowest version of the event collection version that the processor was consuming from source. This 
+        /// is useful in orther to resume an interrupted polling, for instance, when the system restarts.
+        /// </summary>
+        long ProcessorBufferVersion { get; }
+
+        DateTime Timestamp { get; }
     }
 }

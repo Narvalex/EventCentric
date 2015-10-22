@@ -19,7 +19,7 @@ namespace EventCentric.Publishing
         /// FindEvents
         /// </summary>
         /// <returns>Events if found, otherwise return empty list.</returns>
-        public List<NewRawEvent> FindEvents(int lastReceivedVersion, int quantity)
+        public List<NewRawEvent> FindEvents(long lastReceivedVersion, int quantity)
         {
             using (var context = this.contextFactory(true))
             {
@@ -38,7 +38,7 @@ namespace EventCentric.Publishing
             }
         }
 
-        public int GetEventCollectionVersion()
+        public long GetEventCollectionVersion()
         {
             using (var context = this.contextFactory(true))
             {

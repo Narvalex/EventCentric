@@ -7,9 +7,9 @@ namespace EventCentric.Repository.Mapping
     public partial class StreamEntity
     {
         public Guid StreamId { get; set; }
-        public int Version { get; set; }
+        public long Version { get; set; }
         public string Memento { get; set; }
-        public int StreamCollectionVersion { get; set; }
+        public long StreamCollectionVersion { get; set; }
         public DateTime CreationDate { get; set; }
         public DateTime UpdateTime { get; set; }
     }

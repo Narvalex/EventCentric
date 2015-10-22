@@ -4,8 +4,9 @@ namespace EventCentric.EventSourcing
 {
     public static class EventExtensions
     {
-        public static Event AsIncomingMessage(this Event e, Guid transactionId, Guid streamId)
+        public static IEvent AsIncomingMessage(this IEvent message, Guid transactionId, Guid streamId)
         {
+            var e = (Event)message;
             e.TransactionId = transactionId;
             e.StreamId = streamId;
             e.StreamType = string.Empty;
@@ -13,35 +14,24 @@ namespace EventCentric.EventSourcing
             return e;
         }
 
-        public static IEvent AsIncomingMessage(this IEvent e, Guid transactionId, Guid streamId)
+        public static IEvent AsQueuedEvent(this IEvent @event, string streamType, Guid eventId, long version, DateTime timestamp)
         {
-            return ((Event)e).AsIncomingMessage(transactionId, streamId);
-        }
-
-        public static Event AsQueuedEvent(this Event e, string streamType, Guid eventId, int version)
-        {
+            var e = (Event)@event;
             e.StreamType = streamType;
             e.EventId = eventId;
             e.Version = version;
+            e.Timestamp = timestamp;
             return e;
         }
 
-        public static IEvent AsQueuedEvent(this IEvent e, string streamType, Guid eventId, int version = 0)
+        public static IEvent AsStoredEvent(this IEvent @event, Guid transactionId, Guid eventId, string streamType, DateTime timestamp)
         {
-            return ((Event)e).AsQueuedEvent(streamType, eventId, version);
-        }
-
-        public static Event AsStoredEvent(this Event e, Guid transactionId, Guid eventId, string streamType)
-        {
+            var e = (Event)@event;
             e.TransactionId = transactionId;
             e.EventId = eventId;
             e.StreamType = streamType;
+            e.Timestamp = timestamp;
             return e;
-        }
-
-        public static IEvent AsStoredEvent(this IEvent e, Guid transactionId, Guid eventId, string streamType)
-        {
-            return ((Event)e).AsStoredEvent(transactionId, eventId, streamType);
         }
     }
 }

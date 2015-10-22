@@ -19,7 +19,7 @@ namespace EventCentric
         where TAggregate : class, IEventSourced
         where TProcessor : EventProcessor<TAggregate>
     {
-        public static INode CreateNode(IUnityContainer container, bool isSubscriptor, Func<IBus, ILogger, IEventStore<TAggregate>, TProcessor> processorFactory = null, bool setLocalTime = true, bool setSequentialGuid = true)
+        public static INode CreateNode(IUnityContainer container, bool isSubscriptor, Func<IBus, ILogger, IEventStore<TAggregate>, TProcessor> processorFactory = null, bool enableHeartbeatingListener = false, bool setLocalTime = true, bool setSequentialGuid = true)
         {
             var nodeName = NodeNameProvider.ResolveNameOf<TAggregate>();
 
@@ -73,6 +73,11 @@ namespace EventCentric
                 container.RegisterInstance<IMonitoredSubscriber>(poller);
             }
 
+            if (enableHeartbeatingListener)
+            {
+                var heartbeatListener = new HeartbeatListener(bus, log, time, new TimeSpan(0, 1, 0), new TimeSpan(0, 2, 0), isReadonly => new HeartbeatDbContext(isReadonly, connectionString));
+            }
+
             // Register for DI
             container.RegisterInstance<IEventSource>(publisher);
             container.RegisterInstance<ILogger>(log);
@@ -88,10 +93,10 @@ namespace EventCentric
         /// </summary>
         /// <typeparam name="TApp">In process app.</typeparam>
         /// <returns></returns>
-        public static INode CreateNodeWithApp<TApp>(IUnityContainer container, bool isSubscriptor, Func<IBus, ILogger, IEventStore<TAggregate>, TProcessor> processorFactory = null, bool setLocalTime = true, bool setSequentialGuid = true)
+        public static INode CreateNodeWithApp<TApp>(IUnityContainer container, bool isSubscriptor, Func<IBus, ILogger, IEventStore<TAggregate>, TProcessor> processorFactory = null, bool enableHeartbeatingListener = false, bool setLocalTime = true, bool setSequentialGuid = true)
         {
             var nodeName = NodeNameProvider.ResolveNameOf<TAggregate>();
-            var appName = NodeNameProvider.ResolveNameOf<TApp>();
+            var streamType = NodeNameProvider.ResolveNameOf<TApp>();
 
             System.Data.Entity.Database.SetInitializer<EventStoreDbContext>(null);
             System.Data.Entity.Database.SetInitializer<EventQueueDbContext>(null);
@@ -143,8 +148,13 @@ namespace EventCentric
                 container.RegisterInstance<IMonitoredSubscriber>(poller);
             }
 
+            if (enableHeartbeatingListener)
+            {
+                var heartbeatListener = new HeartbeatListener(bus, log, time, new TimeSpan(0, 1, 0), new TimeSpan(0, 2, 0), isReadonly => new HeartbeatDbContext(isReadonly, connectionString));
+            }
+
             // Event Queue feature
-            var eventQueue = new InMemoryEventQueue(appName, guid, bus);
+            var eventQueue = new InMemoryEventQueue(streamType, guid, bus, time);
             var eventBus = new EventBus(bus, log, eventQueue);
 
 

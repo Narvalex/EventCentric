@@ -5,12 +5,23 @@ namespace EventCentric.Polling
 {
     public class SubscriptionBuffer : IMonitoredSubscription
     {
-        public SubscriptionBuffer(string streamType, string url, string token, int currentBufferVersion, bool isPoisoned)
+        private long currentBufferVersion;
+        private long consumerVersion;
+        private long producerVersion;
+
+        // Locks
+        private static object _currentBufferVersionLock = new object();
+
+        private static object _consumerVersionLock = new object();
+        private static object _producerVersionLock = new object();
+
+
+        public SubscriptionBuffer(string streamType, string url, string token, long currentBufferVersion, bool isPoisoned)
         {
             this.StreamType = streamType;
             this.Url = url;
             this.Token = token;
-            this.CurrentBufferVersion = currentBufferVersion;
+            this.currentBufferVersion = currentBufferVersion;
             this.IsPolling = false;
             this.IsPoisoned = isPoisoned;
             this.NewEventsQueue = new ConcurrentQueue<NewRawEvent>();
@@ -25,7 +36,24 @@ namespace EventCentric.Polling
         /// The processor buffer version is the lowest event collection version that the processor was handling when starting from cold.
         /// When is on running, is the lastest buffer version that was polled.
         /// </summary>
-        public volatile int CurrentBufferVersion;
+        public long CurrentBufferVersion
+        {
+            get
+            {
+                lock (_currentBufferVersionLock)
+                {
+                    return this.currentBufferVersion;
+                }
+            }
+            set
+            {
+                lock (_currentBufferVersionLock)
+                {
+                    this.currentBufferVersion = value;
+                }
+            }
+        }
+
         public volatile bool IsPolling;
         public volatile bool IsPoisoned;
 
@@ -39,18 +67,41 @@ namespace EventCentric.Polling
         /// </summary>
         public volatile ConcurrentBag<EventInProcessorBucket> EventsInProcessorBag;
 
-        // Metrics;
-        internal volatile int consumerVersion;
-        internal volatile int producerVersion;
-
-        public int ConsumerVersion
+        // Metrics
+        public long ConsumerVersion
         {
-            get { return this.consumerVersion; }
+            get
+            {
+                lock (_consumerVersionLock)
+                {
+                    return this.consumerVersion;
+                }
+            }
+            set
+            {
+                lock (_consumerVersionLock)
+                {
+                    this.consumerVersion = value;
+                }
+            }
         }
 
-        public int ProducerVersion
+        public long ProducerVersion
         {
-            get { return this.producerVersion; }
+            get
+            {
+                lock (_producerVersionLock)
+                {
+                    return this.producerVersion;
+                }
+            }
+            set
+            {
+                lock (_producerVersionLock)
+                {
+                    this.producerVersion = value;
+                }
+            }
         }
 
         public decimal UpToDatePercentage

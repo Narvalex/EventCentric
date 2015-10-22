@@ -2,13 +2,13 @@
 {
     public class IncomingEventHasBeenProcessed : IMessage
     {
-        public IncomingEventHasBeenProcessed(string streamType, int eventCollectionVersion)
+        public IncomingEventHasBeenProcessed(string streamType, long eventCollectionVersion)
         {
             this.StreamType = streamType;
             this.EventCollectionVersion = eventCollectionVersion;
         }
 
         public string StreamType { get; private set; }
-        public int EventCollectionVersion { get; private set; }
+        public long EventCollectionVersion { get; private set; }
     }
 }

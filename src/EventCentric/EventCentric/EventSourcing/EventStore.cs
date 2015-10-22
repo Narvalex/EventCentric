@@ -117,7 +117,7 @@ namespace EventCentric.EventSourcing
             return aggregate;
         }
 
-        public int Save(T eventSourced, IEvent incomingEvent)
+        public long Save(T eventSourced, IEvent incomingEvent)
         {
             var pendingEvents = eventSourced.PendingEvents;
             if (pendingEvents.Length == 0)
@@ -132,7 +132,7 @@ namespace EventCentric.EventSourcing
                                           .Where(e => e.StreamId == eventSourced.Id)
                                           .AsCachedAnyEnumerable();
 
-                    var currentVersion = 0;
+                    long currentVersion = 0;
                     if (versions.Any())
                         currentVersion = versions.Max(e => e.Version);
 
@@ -148,12 +148,11 @@ namespace EventCentric.EventSourcing
 
                     foreach (var @event in pendingEvents)
                     {
-                        @event.AsStoredEvent(incomingEvent.TransactionId, this.guid.NewGuid(), streamType);
+                        @event.AsStoredEvent(incomingEvent.TransactionId, this.guid.NewGuid(), streamType, now);
 
                         context.Events.Add(
                             new EventEntity
                             {
-                                StreamType = streamType,
                                 StreamId = @event.StreamId,
                                 Version = @event.Version,
                                 EventId = @event.EventId,

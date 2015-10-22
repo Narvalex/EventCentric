@@ -29,7 +29,7 @@ namespace EventCentric.Transport
             this.log = log;
         }
 
-        public void PollSubscription(string streamType, string url, string token, int fromVersion)
+        public void PollSubscription(string streamType, string url, string token, long fromVersion)
         {
             // when poll arives, publish in bus.
 

@@ -3,8 +3,8 @@
     public interface IMonitoredSubscription
     {
         string ProducerName { get; }
-        int ConsumerVersion { get; }
-        int ProducerVersion { get; }
+        long ConsumerVersion { get; }
+        long ProducerVersion { get; }
         decimal UpToDatePercentage { get; }
     }
 }

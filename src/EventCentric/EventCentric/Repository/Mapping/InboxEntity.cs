@@ -10,9 +10,9 @@ namespace EventCentric.Repository.Mapping
         public Guid TransactionId { get; set; }
         public string StreamType { get; set; }
         public Guid StreamId { get; set; }
-        public int Version { get; set; }
+        public long Version { get; set; }
         public string EventType { get; set; }
-        public int EventCollectionVersion { get; set; }
+        public long EventCollectionVersion { get; set; }
         public bool Ignored { get; set; }
         public DateTime CreationDate { get; set; }
         public string Payload { get; set; }
