@@ -206,7 +206,7 @@ namespace EventCentric
             Func<bool, IEventStoreDbContext> dbContextFactory = isReadOnly => (TDbContext)dbContextConstructor.Invoke(new object[] { isReadOnly, connectionString });
             var eventStore = new EventStore<TAggregate>(nodeName, serializer, dbContextFactory, time, guid, log);
 
-            var bus = new Messaging.Bus();
+            var bus = new Bus();
 
             var http = new HttpLongPoller(bus, log, TimeSpan.FromMilliseconds(pollerConfig.Timeout));
 
