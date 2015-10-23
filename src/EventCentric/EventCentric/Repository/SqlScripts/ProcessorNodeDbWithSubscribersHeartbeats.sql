@@ -90,6 +90,7 @@ CREATE TABLE[EventStore].[Subscriptions](
 	[Token] [nvarchar] (max) NOT NULL,
     [ProcessorBufferVersion] [bigint] NOT NULL,
     [IsPoisoned] [bit] NOT NULL,
+	[WasCanceled] [bit] NOT NULL,
     [PoisonEventCollectionVersion] [bigint] NULL,
     [DeadLetterPayload] [nvarchar] (max) NULL,
     [ExceptionMessage] [nvarchar] (max) NULL,

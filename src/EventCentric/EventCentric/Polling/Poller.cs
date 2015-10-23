@@ -6,6 +6,7 @@ using EventCentric.Messaging.Events;
 using EventCentric.Serialization;
 using EventCentric.Transport;
 using EventCentric.Utils;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
@@ -150,7 +151,23 @@ namespace EventCentric.Polling
         public void Handle(PollResponseWasReceived message)
         {
             var response = message.Response;
-            var subscription = this.bufferPool.Where(s => s.StreamType == response.StreamType).Single();
+
+            SubscriptionBuffer subscription;
+            try
+            {
+                subscription = this.bufferPool.Where(s => s.StreamType == response.StreamType).Single();
+            }
+            catch (Exception ex)
+            {
+                var errorMessage = $@"An error ocureed while receiving poll response message. Check if the stream type matches that of the subscribed source. Remote message type that probably was not found is '{response.StreamType}'";
+                this.log.Error(ex, errorMessage);
+
+                this.bus.Publish(
+                    new FatalErrorOcurred(
+                        new FatalErrorException(errorMessage, ex)));
+
+                throw;
+            }
 
             if (response.NewEventsWereFound)
             {

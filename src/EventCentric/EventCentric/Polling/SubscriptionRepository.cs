@@ -32,7 +32,7 @@ namespace EventCentric.Polling
 
             using (var context = this.contextFactory(true))
             {
-                var subscriptionsQuery = context.Subscriptions.Where(s => !s.IsPoisoned);
+                var subscriptionsQuery = context.Subscriptions.Where(s => !s.IsPoisoned && !s.WasCanceled);
                 if (subscriptionsQuery.Any())
                     foreach (var s in subscriptionsQuery)
                         // We substract one version in order to set the current version bellow the last one, in case that first event

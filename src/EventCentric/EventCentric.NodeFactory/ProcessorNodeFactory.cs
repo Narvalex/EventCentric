@@ -50,7 +50,7 @@ namespace EventCentric
 
             var bus = new Bus();
 
-            var publisher = new Publisher<TAggregate>(bus, log, eventDao, eventStoreConfig.PushMaxCount, TimeSpan.FromMilliseconds(eventStoreConfig.LongPollingTimeout));
+            var publisher = new Publisher(nodeName, bus, log, eventDao, eventStoreConfig.PushMaxCount, TimeSpan.FromMilliseconds(eventStoreConfig.LongPollingTimeout));
             var fsm = new ProcessorNode(nodeName, bus, log);
 
             if (processorFactory == null)
@@ -125,7 +125,7 @@ namespace EventCentric
 
             var bus = new Bus();
 
-            var publisher = new Publisher<TAggregate>(bus, log, eventDao, eventStoreConfig.PushMaxCount, TimeSpan.FromMilliseconds(eventStoreConfig.LongPollingTimeout));
+            var publisher = new Publisher(nodeName, bus, log, eventDao, eventStoreConfig.PushMaxCount, TimeSpan.FromMilliseconds(eventStoreConfig.LongPollingTimeout));
 
             if (processorFactory == null)
             {
@@ -212,7 +212,7 @@ namespace EventCentric
 
             var subscriptionRepository = new SubscriptionRepository(storeContextFactory, serializer, time);
             var poller = new Poller(bus, log, subscriptionRepository, http, serializer, pollerConfig.BufferQueueMaxCount, pollerConfig.EventsToFlushMaxCount);
-            var publisher = new Publisher<TAggregate>(bus, log, eventDao, eventStoreConfig.PushMaxCount, TimeSpan.FromMilliseconds(eventStoreConfig.LongPollingTimeout));
+            var publisher = new Publisher(nodeName, bus, log, eventDao, eventStoreConfig.PushMaxCount, TimeSpan.FromMilliseconds(eventStoreConfig.LongPollingTimeout));
             var fsm = new ProcessorNode(nodeName, bus, log);
 
             if (processorFactory == null)

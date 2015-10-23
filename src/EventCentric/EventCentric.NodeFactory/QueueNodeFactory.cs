@@ -38,7 +38,7 @@ namespace EventCentric
             var eventQueue = new EventQueue(nodeName, eventQueueDbContextFactory, serializer, time, guid, bus);
             var eventDao = new EventDao(eventQueueDbContextFactory);
             var eventBus = new EventBus(bus, log, eventQueue);
-            var eventPublisher = new Publisher<T>(bus, log, eventDao, eventStoreConfig.PushMaxCount, TimeSpan.FromMilliseconds(eventStoreConfig.LongPollingTimeout));
+            var eventPublisher = new Publisher(nodeName, bus, log, eventDao, eventStoreConfig.PushMaxCount, TimeSpan.FromMilliseconds(eventStoreConfig.LongPollingTimeout));
 
             var heartbeatListener = new HeartbeatListener(bus, log, time, new TimeSpan(0, 1, 0), new TimeSpan(0, 2, 0), isReadonly => new HeartbeatDbContext(isReadonly, connectionString));
 
@@ -79,7 +79,7 @@ namespace EventCentric
             var eventQueue = new CrudEventQueue(nodeName, eventQueueDbContextFactory, serializer, time, guid, bus);
             var eventDao = new EventDao(eventQueueDbContextFactory);
             var eventBus = new CrudEventBus(bus, log, eventQueue);
-            var eventPublisher = new Publisher<T>(bus, log, eventDao, eventStoreConfig.PushMaxCount, TimeSpan.FromMilliseconds(eventStoreConfig.LongPollingTimeout));
+            var eventPublisher = new Publisher(nodeName, bus, log, eventDao, eventStoreConfig.PushMaxCount, TimeSpan.FromMilliseconds(eventStoreConfig.LongPollingTimeout));
 
             var heartbeatListener = new HeartbeatListener(bus, log, time, new TimeSpan(0, 1, 0), new TimeSpan(0, 2, 0), isReadonly => new HeartbeatDbContext(isReadonly, connectionString));
 

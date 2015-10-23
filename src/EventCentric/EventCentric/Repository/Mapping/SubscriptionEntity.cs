@@ -10,6 +10,7 @@ namespace EventCentric.Repository.Mapping
         public string Token { get; set; }
         public long ProcessorBufferVersion { get; set; }
         public bool IsPoisoned { get; set; }
+        public bool WasCanceled { get; set; }
         public long? PoisonEventCollectionVersion { get; set; }
         public string DeadLetterPayload { get; set; }
         public string ExceptionMessage { get; set; }
@@ -35,6 +36,9 @@ namespace EventCentric.Repository.Mapping
             this.Property(t => t.IsPoisoned)
                 .IsRequired();
 
+            this.Property(t => t.WasCanceled)
+                .IsRequired();
+
             // Table & Column Mappings
             this.ToTable("Subscriptions", "EventStore");
             this.Property(t => t.StreamType).HasColumnName("StreamType");
@@ -42,6 +46,7 @@ namespace EventCentric.Repository.Mapping
             this.Property(t => t.Token).HasColumnName("Token");
             this.Property(t => t.ProcessorBufferVersion).HasColumnName("ProcessorBufferVersion");
             this.Property(t => t.IsPoisoned).HasColumnName("IsPoisoned");
+            this.Property(t => t.WasCanceled).HasColumnName("WasCanceled");
             this.Property(t => t.PoisonEventCollectionVersion).HasColumnName("PoisonEventCollectionVersion");
             this.Property(t => t.DeadLetterPayload).HasColumnName("DeadLetterPayload");
             this.Property(t => t.ExceptionMessage).HasColumnName("ExceptionMessage");

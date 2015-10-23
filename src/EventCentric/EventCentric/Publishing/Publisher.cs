@@ -11,12 +11,12 @@ using System.Threading;
 
 namespace EventCentric.Publishing
 {
-    public class Publisher<T> : FSM, IEventSource,
+    public class Publisher : FSM, IEventSource,
         IMessageHandler<StartEventPublisher>,
         IMessageHandler<StopEventPublisher>,
         IMessageHandler<EventStoreHasBeenUpdated>
     {
-        private static readonly string _streamType = typeof(T).Name;
+        private readonly string streamType;
         private readonly IEventDao dao;
         private readonly int eventsToPushMaxCount;
         private readonly TimeSpan longPollingTimeout;
@@ -26,12 +26,14 @@ namespace EventCentric.Publishing
         private readonly object updatelockObject = new object();
         private static readonly object _eventCollectionVersionLock = new object();
 
-        public Publisher(IBus bus, ILogger log, IEventDao dao, int eventsToPushMaxCount, TimeSpan pollTimeout)
+        public Publisher(string streamType, IBus bus, ILogger log, IEventDao dao, int eventsToPushMaxCount, TimeSpan pollTimeout)
             : base(bus, log)
         {
+            Ensure.NotNullEmtpyOrWhiteSpace(streamType, "streamType");
             Ensure.NotNull(dao, "dao");
             Ensure.Positive(eventsToPushMaxCount, "eventsToPushMaxCount");
 
+            this.streamType = streamType;
             this.dao = dao;
             this.eventsToPushMaxCount = eventsToPushMaxCount;
             this.longPollingTimeout = pollTimeout;
@@ -98,7 +100,7 @@ namespace EventCentric.Publishing
                 }
             }
 
-            return new PollResponse(false, newEventsWereFound, _streamType, newEvents, lastReceivedVersion, this.EventCollectionVersion);
+            return new PollResponse(false, newEventsWereFound, streamType, newEvents, lastReceivedVersion, this.EventCollectionVersion);
         }
 
         protected override void OnStarting()

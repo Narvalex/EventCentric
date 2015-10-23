@@ -221,8 +221,10 @@ namespace EventCentric.EventSourcing
                     return context.Events.Max(e => e.EventCollectionVersion);
                 }
             }
-            catch
+            catch (Exception ex)
             {
+                this.log.Error(ex, $"An error ocurred while storing events while processing incoming event of type '{incomingEvent.GetType().Name}'");
+
                 // Mark cache as stale
                 var item = (Tuple<IMemento, DateTime?>)this.cache.Get(key);
                 if (item != null && item.Item2.HasValue)

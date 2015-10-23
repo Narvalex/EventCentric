@@ -3,10 +3,12 @@
 
     angular.module('app').controller('logController', logController);
 
-    logController.$inject = ['$scope', '$http'];
+    logController.$inject = ['$scope', '$http', '$rootScope'];
 
-    function logController($scope, $http) {
+    function logController($scope, $http, $rootScope) {
         var vm = $scope;
+
+        $rootScope.appTitle = 'Publicador Node';
 
         activate();
 
