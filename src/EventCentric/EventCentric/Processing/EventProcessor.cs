@@ -98,66 +98,16 @@ namespace EventCentric.Processing
         {
             base.log.Trace("Starting processor");
             base.Start();
-            base.log.Trace("Processor started");
             base.bus.Publish(new EventProcessorStarted());
+            base.log.Trace("Processor started");
         }
 
         public void Handle(StopEventProcessor message)
         {
+            this.log.Trace("Stopping event processor");
             base.Stop();
             this.bus.Publish(new EventProcessorStopped());
-        }
-
-        /// <summary>
-        /// Creates a new stream in the store.
-        /// </summary>
-        /// <param name="id">The id of the new stream. A brand new computed <see cref="Guid"/>.</param>
-        /// <param name="@event">The first message that the new aggregate will process.</param>
-        protected void CreateNewStreamAndProcess(Guid id, IEvent incomingEvent)
-        {
-            this.HandleSafelyWithStreamLocking(id, () =>
-            {
-                var aggregate = this.newAggregateFactory(id);
-                this.HandleEventAndAppendToStore(aggregate, incomingEvent);
-            });
-        }
-
-        protected void CreateNewStreamIfNotExistsAndProcess(Guid id, IEvent incomingEvent)
-        {
-            this.HandleSafelyWithStreamLocking(id, () =>
-            {
-                var aggregate = this.store.Find(id);
-                if (aggregate == null)
-                    aggregate = this.newAggregateFactory(id);
-
-                this.HandleEventAndAppendToStore(aggregate, incomingEvent);
-            });
-        }
-
-        protected void CreateNewStreamIfNotExistsAndProcess(Guid id, IEvent incomingEvent, IDomainService service)
-        {
-            this.HandleSafelyWithStreamLocking(id, () =>
-            {
-                var aggregate = this.store.Find(id);
-                if (aggregate == null)
-                    aggregate = this.newAggregateFactory(id);
-
-                this.HandleEventAndAppendToStore(aggregate, incomingEvent, service);
-            });
-        }
-
-        /// <summary>
-        /// Gets a stream from the store to hydrate the event sourced aggregate of <see cref="T"/>.
-        /// </summary>
-        /// <param name="id">The id of the stream.</param>
-        /// <param name="@event">The event to be handled by the aggregate of <see cref="T"/>.</param>
-        protected void Process(Guid id, IEvent incomingEvent)
-        {
-            this.HandleSafelyWithStreamLocking(id, () =>
-            {
-                var aggregate = this.store.Get(id);
-                this.HandleEventAndAppendToStore(aggregate, incomingEvent);
-            });
+            this.log.Trace("Event processor stopped");
         }
 
         /// <summary>
@@ -168,28 +118,6 @@ namespace EventCentric.Processing
         /// <param name="@event">The <see cref="IEvent"/> to be igonred.</param>
         protected void Ignore(IEvent incomingEvent)
         {
-            this.PublishIncomingEventHasBeenProcessed(incomingEvent);
-        }
-
-        /// <summary>
-        /// Handles and event and updates the stream
-        /// </summary>
-        /// <param name="aggregate">The aggregate.</param>
-        /// <param name="@event">The event.</param>
-        /// <returns>The updated stream version.</returns>
-        private void HandleEventAndAppendToStore(T aggregate, IEvent incomingEvent)
-        {
-            ((dynamic)aggregate).Handle((dynamic)incomingEvent);
-            var version = this.store.Save(aggregate, incomingEvent);
-            this.bus.Publish(new EventStoreHasBeenUpdated(version));
-            this.PublishIncomingEventHasBeenProcessed(incomingEvent);
-        }
-
-        private void HandleEventAndAppendToStore(T aggregate, IEvent incomingEvent, IDomainService service)
-        {
-            ((dynamic)aggregate).Handle((dynamic)incomingEvent, (dynamic)service);
-            var version = this.store.Save(aggregate, incomingEvent);
-            this.bus.Publish(new EventStoreHasBeenUpdated(version));
             this.PublishIncomingEventHasBeenProcessed(incomingEvent);
         }
 
@@ -231,5 +159,653 @@ namespace EventCentric.Processing
         {
             this.bus.Publish(new IncomingEventHasBeenProcessed(incomingEvent.StreamType, incomingEvent.EventCollectionVersion));
         }
+
+        #region CreateNewStreamIfNotExistsAndProcess
+
+        protected void CreateNewStreamIfNotExistsAndProcess(Guid id, IEvent incomingEvent)
+        {
+            this.HandleSafelyWithStreamLocking(id, () =>
+            {
+                var aggregate = this.store.Find(id);
+                if (aggregate == null)
+                    aggregate = this.newAggregateFactory(id);
+
+                this.HandleAndUpdate(incomingEvent, aggregate);
+            });
+        }
+
+        protected void CreateNewStreamIfNotExistsAndProcess(Guid id, IEvent incomingEvent, IDomainService s1)
+        {
+            this.HandleSafelyWithStreamLocking(id, () =>
+            {
+                var aggregate = this.store.Find(id);
+                if (aggregate == null)
+                    aggregate = this.newAggregateFactory(id);
+
+                this.HandleAndUpdate(incomingEvent, aggregate, s1);
+            });
+        }
+
+        protected void CreateNewStreamIfNotExistsAndProcess(Guid id, IEvent incomingEvent, IDomainService s1, IDomainService s2)
+        {
+            this.HandleSafelyWithStreamLocking(id, () =>
+            {
+                var aggregate = this.store.Find(id);
+                if (aggregate == null)
+                    aggregate = this.newAggregateFactory(id);
+
+                this.HandleAndUpdate(incomingEvent, aggregate, s1, s2);
+            });
+        }
+
+        protected void CreateNewStreamIfNotExistsAndProcess(Guid id, IEvent incomingEvent, IDomainService s1, IDomainService s2, IDomainService s3)
+        {
+            this.HandleSafelyWithStreamLocking(id, () =>
+            {
+                var aggregate = this.store.Find(id);
+                if (aggregate == null)
+                    aggregate = this.newAggregateFactory(id);
+
+                this.HandleAndUpdate(incomingEvent, aggregate, s1, s2, s3);
+            });
+        }
+
+        protected void CreateNewStreamIfNotExistsAndProcess(Guid id, IEvent incomingEvent, IDomainService s1, IDomainService s2, IDomainService s3, IDomainService s4)
+        {
+            this.HandleSafelyWithStreamLocking(id, () =>
+            {
+                var aggregate = this.store.Find(id);
+                if (aggregate == null)
+                    aggregate = this.newAggregateFactory(id);
+
+                this.HandleAndUpdate(incomingEvent, aggregate, s1, s2, s3, s4);
+            });
+        }
+
+        protected void CreateNewStreamIfNotExistsAndProcess(Guid id, IEvent incomingEvent, IDomainService s1, IDomainService s2, IDomainService s3, IDomainService s4, IDomainService s5)
+        {
+            this.HandleSafelyWithStreamLocking(id, () =>
+            {
+                var aggregate = this.store.Find(id);
+                if (aggregate == null)
+                    aggregate = this.newAggregateFactory(id);
+
+                this.HandleAndUpdate(incomingEvent, aggregate, s1, s2, s3, s4, s5);
+            });
+        }
+
+        protected void CreateNewStreamIfNotExistsAndProcess(Guid id, IEvent incomingEvent, IDomainService s1, IDomainService s2, IDomainService s3, IDomainService s4, IDomainService s5, IDomainService s6)
+        {
+            this.HandleSafelyWithStreamLocking(id, () =>
+            {
+                var aggregate = this.store.Find(id);
+                if (aggregate == null)
+                    aggregate = this.newAggregateFactory(id);
+
+                this.HandleAndUpdate(incomingEvent, aggregate, s1, s2, s3, s4, s5, s6);
+            });
+        }
+
+        protected void CreateNewStreamIfNotExistsAndProcess(Guid id, IEvent incomingEvent, IDomainService s1, IDomainService s2, IDomainService s3, IDomainService s4, IDomainService s5, IDomainService s6, IDomainService s7)
+        {
+            this.HandleSafelyWithStreamLocking(id, () =>
+            {
+                var aggregate = this.store.Find(id);
+                if (aggregate == null)
+                    aggregate = this.newAggregateFactory(id);
+
+                this.HandleAndUpdate(incomingEvent, aggregate, s1, s2, s3, s4, s5, s6, s7);
+            });
+        }
+
+        protected void CreateNewStreamIfNotExistsAndProcess(Guid id, IEvent incomingEvent, IDomainService s1, IDomainService s2, IDomainService s3, IDomainService s4, IDomainService s5, IDomainService s6, IDomainService s7, IDomainService s8)
+        {
+            this.HandleSafelyWithStreamLocking(id, () =>
+            {
+                var aggregate = this.store.Find(id);
+                if (aggregate == null)
+                    aggregate = this.newAggregateFactory(id);
+
+                this.HandleAndUpdate(incomingEvent, aggregate, s1, s2, s3, s4, s5, s6, s7, s8);
+            });
+        }
+
+        protected void CreateNewStreamIfNotExistsAndProcess(Guid id, IEvent incomingEvent, IDomainService s1, IDomainService s2, IDomainService s3, IDomainService s4, IDomainService s5, IDomainService s6, IDomainService s7, IDomainService s8, IDomainService s9)
+        {
+            this.HandleSafelyWithStreamLocking(id, () =>
+            {
+                var aggregate = this.store.Find(id);
+                if (aggregate == null)
+                    aggregate = this.newAggregateFactory(id);
+
+                this.HandleAndUpdate(incomingEvent, aggregate, s1, s2, s3, s4, s5, s6, s7, s8, s9);
+            });
+        }
+
+        protected void CreateNewStreamIfNotExistsAndProcess(Guid id, IEvent incomingEvent, IDomainService s1, IDomainService s2, IDomainService s3, IDomainService s4, IDomainService s5, IDomainService s6, IDomainService s7, IDomainService s8, IDomainService s9, IDomainService s10)
+        {
+            this.HandleSafelyWithStreamLocking(id, () =>
+            {
+                var aggregate = this.store.Find(id);
+                if (aggregate == null)
+                    aggregate = this.newAggregateFactory(id);
+
+                this.HandleAndUpdate(incomingEvent, aggregate, s1, s2, s3, s4, s5, s6, s7, s8, s9, s10);
+            });
+        }
+
+        protected void CreateNewStreamIfNotExistsAndProcess(Guid id, IEvent incomingEvent, IDomainService s1, IDomainService s2, IDomainService s3, IDomainService s4, IDomainService s5, IDomainService s6, IDomainService s7, IDomainService s8, IDomainService s9, IDomainService s10, IDomainService s11)
+        {
+            this.HandleSafelyWithStreamLocking(id, () =>
+            {
+                var aggregate = this.store.Find(id);
+                if (aggregate == null)
+                    aggregate = this.newAggregateFactory(id);
+
+                this.HandleAndUpdate(incomingEvent, aggregate, s1, s2, s3, s4, s5, s6, s7, s8, s9, s10, s11);
+            });
+        }
+
+        protected void CreateNewStreamIfNotExistsAndProcess(Guid id, IEvent incomingEvent, IDomainService s1, IDomainService s2, IDomainService s3, IDomainService s4, IDomainService s5, IDomainService s6, IDomainService s7, IDomainService s8, IDomainService s9, IDomainService s10, IDomainService s11, IDomainService s12)
+        {
+            this.HandleSafelyWithStreamLocking(id, () =>
+            {
+                var aggregate = this.store.Find(id);
+                if (aggregate == null)
+                    aggregate = this.newAggregateFactory(id);
+
+                this.HandleAndUpdate(incomingEvent, aggregate, s1, s2, s3, s4, s5, s6, s7, s8, s9, s10, s11, s12);
+            });
+        }
+
+        protected void CreateNewStreamIfNotExistsAndProcess(Guid id, IEvent incomingEvent, IDomainService s1, IDomainService s2, IDomainService s3, IDomainService s4, IDomainService s5, IDomainService s6, IDomainService s7, IDomainService s8, IDomainService s9, IDomainService s10, IDomainService s11, IDomainService s12, IDomainService s13)
+        {
+            this.HandleSafelyWithStreamLocking(id, () =>
+            {
+                var aggregate = this.store.Find(id);
+                if (aggregate == null)
+                    aggregate = this.newAggregateFactory(id);
+
+                this.HandleAndUpdate(incomingEvent, aggregate, s1, s2, s3, s4, s5, s6, s7, s8, s9, s10, s11, s12, s13);
+            });
+        }
+
+        protected void CreateNewStreamIfNotExistsAndProcess(Guid id, IEvent incomingEvent, IDomainService s1, IDomainService s2, IDomainService s3, IDomainService s4, IDomainService s5, IDomainService s6, IDomainService s7, IDomainService s8, IDomainService s9, IDomainService s10, IDomainService s11, IDomainService s12, IDomainService s13, IDomainService s14)
+        {
+            this.HandleSafelyWithStreamLocking(id, () =>
+            {
+                var aggregate = this.store.Find(id);
+                if (aggregate == null)
+                    aggregate = this.newAggregateFactory(id);
+
+                this.HandleAndUpdate(incomingEvent, aggregate, s1, s2, s3, s4, s5, s6, s7, s8, s9, s10, s11, s12, s13, s14);
+            });
+        }
+
+        protected void CreateNewStreamIfNotExistsAndProcess(Guid id, IEvent incomingEvent, IDomainService s1, IDomainService s2, IDomainService s3, IDomainService s4, IDomainService s5, IDomainService s6, IDomainService s7, IDomainService s8, IDomainService s9, IDomainService s10, IDomainService s11, IDomainService s12, IDomainService s13, IDomainService s14, IDomainService s15)
+        {
+            this.HandleSafelyWithStreamLocking(id, () =>
+            {
+                var aggregate = this.store.Find(id);
+                if (aggregate == null)
+                    aggregate = this.newAggregateFactory(id);
+
+                this.HandleAndUpdate(incomingEvent, aggregate, s1, s2, s3, s4, s5, s6, s7, s8, s9, s10, s11, s12, s13, s14, s15);
+            });
+        }
+
+        protected void CreateNewStreamIfNotExistsAndProcess(Guid id, IEvent incomingEvent, IDomainService s1, IDomainService s2, IDomainService s3, IDomainService s4, IDomainService s5, IDomainService s6, IDomainService s7, IDomainService s8, IDomainService s9, IDomainService s10, IDomainService s11, IDomainService s12, IDomainService s13, IDomainService s14, IDomainService s15, IDomainService s16)
+        {
+            this.HandleSafelyWithStreamLocking(id, () =>
+            {
+                var aggregate = this.store.Find(id);
+                if (aggregate == null)
+                    aggregate = this.newAggregateFactory(id);
+
+                this.HandleAndUpdate(incomingEvent, aggregate, s1, s2, s3, s4, s5, s6, s7, s8, s9, s10, s11, s12, s13, s14, s15, s16);
+            });
+        }
+
+        #endregion
+
+        #region CreateNewStreamAndProcess
+
+        /// <summary>
+        /// Creates a new stream in the store.
+        /// </summary>
+        /// <param name="id">The id of the new stream. A brand new computed <see cref="Guid"/>.</param>
+        /// <param name="@event">The first message that the new aggregate will process.</param>
+        protected void CreateNewStreamAndProcess(Guid id, IEvent incomingEvent)
+        {
+            this.HandleSafelyWithStreamLocking(id, () =>
+            {
+                var aggregate = this.newAggregateFactory(id);
+                this.HandleAndUpdate(incomingEvent, aggregate);
+            });
+        }
+
+        protected void CreateNewStreamAndProcess(Guid id, IEvent incomingEvent, IDomainService s1)
+        {
+            this.HandleSafelyWithStreamLocking(id, () =>
+            {
+                var aggregate = this.newAggregateFactory(id);
+                this.HandleAndUpdate(incomingEvent, aggregate, s1);
+            });
+        }
+
+        protected void CreateNewStreamAndProcess(Guid id, IEvent incomingEvent, IDomainService s1, IDomainService s2)
+        {
+            this.HandleSafelyWithStreamLocking(id, () =>
+            {
+                var aggregate = this.newAggregateFactory(id);
+                this.HandleAndUpdate(incomingEvent, aggregate, s1, s2);
+            });
+        }
+
+        protected void CreateNewStreamAndProcess(Guid id, IEvent incomingEvent, IDomainService s1, IDomainService s2, IDomainService s3)
+        {
+            this.HandleSafelyWithStreamLocking(id, () =>
+            {
+                var aggregate = this.newAggregateFactory(id);
+                this.HandleAndUpdate(incomingEvent, aggregate, s1, s2, s3);
+            });
+        }
+
+        protected void CreateNewStreamAndProcess(Guid id, IEvent incomingEvent, IDomainService s1, IDomainService s2, IDomainService s3, IDomainService s4)
+        {
+            this.HandleSafelyWithStreamLocking(id, () =>
+            {
+                var aggregate = this.newAggregateFactory(id);
+                this.HandleAndUpdate(incomingEvent, aggregate, s1, s2, s3, s4);
+            });
+        }
+
+        protected void CreateNewStreamAndProcess(Guid id, IEvent incomingEvent, IDomainService s1, IDomainService s2, IDomainService s3, IDomainService s4, IDomainService s5)
+        {
+            this.HandleSafelyWithStreamLocking(id, () =>
+            {
+                var aggregate = this.newAggregateFactory(id);
+                this.HandleAndUpdate(incomingEvent, aggregate, s1, s2, s3, s4, s5);
+            });
+        }
+
+        protected void CreateNewStreamAndProcess(Guid id, IEvent incomingEvent, IDomainService s1, IDomainService s2, IDomainService s3, IDomainService s4, IDomainService s5, IDomainService s6)
+        {
+            this.HandleSafelyWithStreamLocking(id, () =>
+            {
+                var aggregate = this.newAggregateFactory(id);
+                this.HandleAndUpdate(incomingEvent, aggregate, s1, s2, s3, s4, s5, s6);
+            });
+        }
+
+        protected void CreateNewStreamAndProcess(Guid id, IEvent incomingEvent, IDomainService s1, IDomainService s2, IDomainService s3, IDomainService s4, IDomainService s5, IDomainService s6, IDomainService s7)
+        {
+            this.HandleSafelyWithStreamLocking(id, () =>
+            {
+                var aggregate = this.newAggregateFactory(id);
+                this.HandleAndUpdate(incomingEvent, aggregate, s1, s2, s3, s4, s5, s6, s7);
+            });
+        }
+
+        protected void CreateNewStreamAndProcess(Guid id, IEvent incomingEvent, IDomainService s1, IDomainService s2, IDomainService s3, IDomainService s4, IDomainService s5, IDomainService s6, IDomainService s7, IDomainService s8)
+        {
+            this.HandleSafelyWithStreamLocking(id, () =>
+            {
+                var aggregate = this.newAggregateFactory(id);
+                this.HandleAndUpdate(incomingEvent, aggregate, s1, s2, s3, s4, s5, s6, s7, s8);
+            });
+        }
+
+        protected void CreateNewStreamAndProcess(Guid id, IEvent incomingEvent, IDomainService s1, IDomainService s2, IDomainService s3, IDomainService s4, IDomainService s5, IDomainService s6, IDomainService s7, IDomainService s8, IDomainService s9)
+        {
+            this.HandleSafelyWithStreamLocking(id, () =>
+            {
+                var aggregate = this.newAggregateFactory(id);
+                this.HandleAndUpdate(incomingEvent, aggregate, s1, s2, s3, s4, s5, s6, s7, s8, s9);
+            });
+        }
+
+        protected void CreateNewStreamAndProcess(Guid id, IEvent incomingEvent, IDomainService s1, IDomainService s2, IDomainService s3, IDomainService s4, IDomainService s5, IDomainService s6, IDomainService s7, IDomainService s8, IDomainService s9, IDomainService s10)
+        {
+            this.HandleSafelyWithStreamLocking(id, () =>
+            {
+                var aggregate = this.newAggregateFactory(id);
+                this.HandleAndUpdate(incomingEvent, aggregate, s1, s2, s3, s4, s5, s6, s7, s8, s9, s10);
+            });
+        }
+
+        protected void CreateNewStreamAndProcess(Guid id, IEvent incomingEvent, IDomainService s1, IDomainService s2, IDomainService s3, IDomainService s4, IDomainService s5, IDomainService s6, IDomainService s7, IDomainService s8, IDomainService s9, IDomainService s10, IDomainService s11)
+        {
+            this.HandleSafelyWithStreamLocking(id, () =>
+            {
+                var aggregate = this.newAggregateFactory(id);
+                this.HandleAndUpdate(incomingEvent, aggregate, s1, s2, s3, s4, s5, s6, s7, s8, s9, s10, s11);
+            });
+        }
+
+        protected void CreateNewStreamAndProcess(Guid id, IEvent incomingEvent, IDomainService s1, IDomainService s2, IDomainService s3, IDomainService s4, IDomainService s5, IDomainService s6, IDomainService s7, IDomainService s8, IDomainService s9, IDomainService s10, IDomainService s11, IDomainService s12)
+        {
+            this.HandleSafelyWithStreamLocking(id, () =>
+            {
+                var aggregate = this.newAggregateFactory(id);
+                this.HandleAndUpdate(incomingEvent, aggregate, s1, s2, s3, s4, s5, s6, s7, s8, s9, s10, s11, s12);
+            });
+        }
+
+        protected void CreateNewStreamAndProcess(Guid id, IEvent incomingEvent, IDomainService s1, IDomainService s2, IDomainService s3, IDomainService s4, IDomainService s5, IDomainService s6, IDomainService s7, IDomainService s8, IDomainService s9, IDomainService s10, IDomainService s11, IDomainService s12, IDomainService s13)
+        {
+            this.HandleSafelyWithStreamLocking(id, () =>
+            {
+                var aggregate = this.newAggregateFactory(id);
+                this.HandleAndUpdate(incomingEvent, aggregate, s1, s2, s3, s4, s5, s6, s7, s8, s9, s10, s11, s12, s13);
+            });
+        }
+
+        protected void CreateNewStreamAndProcess(Guid id, IEvent incomingEvent, IDomainService s1, IDomainService s2, IDomainService s3, IDomainService s4, IDomainService s5, IDomainService s6, IDomainService s7, IDomainService s8, IDomainService s9, IDomainService s10, IDomainService s11, IDomainService s12, IDomainService s13, IDomainService s14)
+        {
+            this.HandleSafelyWithStreamLocking(id, () =>
+            {
+                var aggregate = this.newAggregateFactory(id);
+                this.HandleAndUpdate(incomingEvent, aggregate, s1, s2, s3, s4, s5, s6, s7, s8, s9, s10, s11, s12, s13, s14);
+            });
+        }
+
+        protected void CreateNewStreamAndProcess(Guid id, IEvent incomingEvent, IDomainService s1, IDomainService s2, IDomainService s3, IDomainService s4, IDomainService s5, IDomainService s6, IDomainService s7, IDomainService s8, IDomainService s9, IDomainService s10, IDomainService s11, IDomainService s12, IDomainService s13, IDomainService s14, IDomainService s15)
+        {
+            this.HandleSafelyWithStreamLocking(id, () =>
+            {
+                var aggregate = this.newAggregateFactory(id);
+                this.HandleAndUpdate(incomingEvent, aggregate, s1, s2, s3, s4, s5, s6, s7, s8, s9, s10, s11, s12, s13, s14, s15);
+            });
+        }
+
+        protected void CreateNewStreamAndProcess(Guid id, IEvent incomingEvent, IDomainService s1, IDomainService s2, IDomainService s3, IDomainService s4, IDomainService s5, IDomainService s6, IDomainService s7, IDomainService s8, IDomainService s9, IDomainService s10, IDomainService s11, IDomainService s12, IDomainService s13, IDomainService s14, IDomainService s15, IDomainService s16)
+        {
+            this.HandleSafelyWithStreamLocking(id, () =>
+            {
+                var aggregate = this.newAggregateFactory(id);
+                this.HandleAndUpdate(incomingEvent, aggregate, s1, s2, s3, s4, s5, s6, s7, s8, s9, s10, s11, s12, s13, s14, s15, s16);
+            });
+        }
+
+        #endregion
+
+        #region Process
+        /// <summary>
+        /// Gets a stream from the store to hydrate the event sourced aggregate of <see cref="T"/>.
+        /// </summary>
+        /// <param name="id">The id of the stream.</param>
+        /// <param name="@event">The event to be handled by the aggregate of <see cref="T"/>.</param>
+        protected void Process(Guid id, IEvent incomingEvent)
+        {
+            this.HandleSafelyWithStreamLocking(id, () =>
+            {
+                var aggregate = this.store.Get(id);
+                this.HandleAndUpdate(incomingEvent, aggregate);
+            });
+        }
+
+        protected void Process(Guid id, IEvent incomingEvent, IDomainService s1)
+        {
+            this.HandleSafelyWithStreamLocking(id, () =>
+            {
+                var aggregate = this.store.Get(id);
+                this.HandleAndUpdate(incomingEvent, aggregate, s1);
+            });
+        }
+
+        protected void Process(Guid id, IEvent incomingEvent, IDomainService s1, IDomainService s2)
+        {
+            this.HandleSafelyWithStreamLocking(id, () =>
+            {
+                var aggregate = this.store.Get(id);
+                this.HandleAndUpdate(incomingEvent, aggregate, s1, s2);
+            });
+        }
+
+        protected void Process(Guid id, IEvent incomingEvent, IDomainService s1, IDomainService s2, IDomainService s3)
+        {
+            this.HandleSafelyWithStreamLocking(id, () =>
+            {
+                var aggregate = this.store.Get(id);
+                this.HandleAndUpdate(incomingEvent, aggregate, s1, s2, s3);
+            });
+        }
+
+        protected void Process(Guid id, IEvent incomingEvent, IDomainService s1, IDomainService s2, IDomainService s3, IDomainService s4)
+        {
+            this.HandleSafelyWithStreamLocking(id, () =>
+            {
+                var aggregate = this.store.Get(id);
+                this.HandleAndUpdate(incomingEvent, aggregate, s1, s2, s3, s4);
+            });
+        }
+
+        protected void Process(Guid id, IEvent incomingEvent, IDomainService s1, IDomainService s2, IDomainService s3, IDomainService s4, IDomainService s5)
+        {
+            this.HandleSafelyWithStreamLocking(id, () =>
+            {
+                var aggregate = this.store.Get(id);
+                this.HandleAndUpdate(incomingEvent, aggregate, s1, s2, s3, s4, s5);
+            });
+        }
+
+        protected void Process(Guid id, IEvent incomingEvent, IDomainService s1, IDomainService s2, IDomainService s3, IDomainService s4, IDomainService s5, IDomainService s6)
+        {
+            this.HandleSafelyWithStreamLocking(id, () =>
+            {
+                var aggregate = this.store.Get(id);
+                this.HandleAndUpdate(incomingEvent, aggregate, s1, s2, s3, s4, s5, s6);
+            });
+        }
+
+        protected void Process(Guid id, IEvent incomingEvent, IDomainService s1, IDomainService s2, IDomainService s3, IDomainService s4, IDomainService s5, IDomainService s6, IDomainService s7)
+        {
+            this.HandleSafelyWithStreamLocking(id, () =>
+            {
+                var aggregate = this.store.Get(id);
+                this.HandleAndUpdate(incomingEvent, aggregate, s1, s2, s3, s4, s5, s6, s7);
+            });
+        }
+
+        protected void Process(Guid id, IEvent incomingEvent, IDomainService s1, IDomainService s2, IDomainService s3, IDomainService s4, IDomainService s5, IDomainService s6, IDomainService s7, IDomainService s8)
+        {
+            this.HandleSafelyWithStreamLocking(id, () =>
+            {
+                var aggregate = this.store.Get(id);
+                this.HandleAndUpdate(incomingEvent, aggregate, s1, s2, s3, s4, s5, s6, s7, s8);
+            });
+        }
+
+        protected void Process(Guid id, IEvent incomingEvent, IDomainService s1, IDomainService s2, IDomainService s3, IDomainService s4, IDomainService s5, IDomainService s6, IDomainService s7, IDomainService s8, IDomainService s9)
+        {
+            this.HandleSafelyWithStreamLocking(id, () =>
+            {
+                var aggregate = this.store.Get(id);
+                this.HandleAndUpdate(incomingEvent, aggregate, s1, s2, s3, s4, s5, s6, s7, s8, s9);
+            });
+        }
+
+        protected void Process(Guid id, IEvent incomingEvent, IDomainService s1, IDomainService s2, IDomainService s3, IDomainService s4, IDomainService s5, IDomainService s6, IDomainService s7, IDomainService s8, IDomainService s9, IDomainService s10)
+        {
+            this.HandleSafelyWithStreamLocking(id, () =>
+            {
+                var aggregate = this.store.Get(id);
+                this.HandleAndUpdate(incomingEvent, aggregate, s1, s2, s3, s4, s5, s6, s7, s8, s9, s10);
+            });
+        }
+
+        protected void Process(Guid id, IEvent incomingEvent, IDomainService s1, IDomainService s2, IDomainService s3, IDomainService s4, IDomainService s5, IDomainService s6, IDomainService s7, IDomainService s8, IDomainService s9, IDomainService s10, IDomainService s11)
+        {
+            this.HandleSafelyWithStreamLocking(id, () =>
+            {
+                var aggregate = this.store.Get(id);
+                this.HandleAndUpdate(incomingEvent, aggregate, s1, s2, s3, s4, s5, s6, s7, s8, s9, s10, s11);
+            });
+        }
+
+        protected void Process(Guid id, IEvent incomingEvent, IDomainService s1, IDomainService s2, IDomainService s3, IDomainService s4, IDomainService s5, IDomainService s6, IDomainService s7, IDomainService s8, IDomainService s9, IDomainService s10, IDomainService s11, IDomainService s12)
+        {
+            this.HandleSafelyWithStreamLocking(id, () =>
+            {
+                var aggregate = this.store.Get(id);
+                this.HandleAndUpdate(incomingEvent, aggregate, s1, s2, s3, s4, s5, s6, s7, s8, s9, s10, s11, s12);
+            });
+        }
+
+        protected void Process(Guid id, IEvent incomingEvent, IDomainService s1, IDomainService s2, IDomainService s3, IDomainService s4, IDomainService s5, IDomainService s6, IDomainService s7, IDomainService s8, IDomainService s9, IDomainService s10, IDomainService s11, IDomainService s12, IDomainService s13)
+        {
+            this.HandleSafelyWithStreamLocking(id, () =>
+            {
+                var aggregate = this.store.Get(id);
+                this.HandleAndUpdate(incomingEvent, aggregate, s1, s2, s3, s4, s5, s6, s7, s8, s9, s10, s11, s12, s13);
+            });
+        }
+
+        protected void Process(Guid id, IEvent incomingEvent, IDomainService s1, IDomainService s2, IDomainService s3, IDomainService s4, IDomainService s5, IDomainService s6, IDomainService s7, IDomainService s8, IDomainService s9, IDomainService s10, IDomainService s11, IDomainService s12, IDomainService s13, IDomainService s14)
+        {
+            this.HandleSafelyWithStreamLocking(id, () =>
+            {
+                var aggregate = this.store.Get(id);
+                this.HandleAndUpdate(incomingEvent, aggregate, s1, s2, s3, s4, s5, s6, s7, s8, s9, s10, s11, s12, s13, s14);
+            });
+        }
+
+        protected void Process(Guid id, IEvent incomingEvent, IDomainService s1, IDomainService s2, IDomainService s3, IDomainService s4, IDomainService s5, IDomainService s6, IDomainService s7, IDomainService s8, IDomainService s9, IDomainService s10, IDomainService s11, IDomainService s12, IDomainService s13, IDomainService s14, IDomainService s15)
+        {
+            this.HandleSafelyWithStreamLocking(id, () =>
+            {
+                var aggregate = this.store.Get(id);
+                this.HandleAndUpdate(incomingEvent, aggregate, s1, s2, s3, s4, s5, s6, s7, s8, s9, s10, s11, s12, s13, s14, s15);
+            });
+        }
+
+        protected void Process(Guid id, IEvent incomingEvent, IDomainService s1, IDomainService s2, IDomainService s3, IDomainService s4, IDomainService s5, IDomainService s6, IDomainService s7, IDomainService s8, IDomainService s9, IDomainService s10, IDomainService s11, IDomainService s12, IDomainService s13, IDomainService s14, IDomainService s15, IDomainService s16)
+        {
+            this.HandleSafelyWithStreamLocking(id, () =>
+            {
+                var aggregate = this.store.Get(id);
+                this.HandleAndUpdate(incomingEvent, aggregate, s1, s2, s3, s4, s5, s6, s7, s8, s9, s10, s11, s12, s13, s14, s15, s16);
+            });
+        }
+
+        #endregion
+
+        /// <summary>
+        /// Handles and event and updates the stream
+        /// </summary>
+        /// <param name="aggregate">The aggregate.</param>
+        /// <param name="@event">The event.</param>
+        /// <returns>The updated stream version.</returns>
+        private void UpdateStream(T aggregate, IEvent incomingEvent)
+        {
+            var version = this.store.Save(aggregate, incomingEvent);
+            this.bus.Publish(new EventStoreHasBeenUpdated(version));
+            this.PublishIncomingEventHasBeenProcessed(incomingEvent);
+        }
+
+        #region HandleAndUpdate
+        private void HandleAndUpdate(IEvent incomingEvent, T aggregate)
+        {
+            ((dynamic)aggregate).Handle((dynamic)incomingEvent);
+            this.UpdateStream(aggregate, incomingEvent);
+        }
+
+        private void HandleAndUpdate(IEvent incomingEvent, T aggregate, IDomainService s1)
+        {
+            ((dynamic)aggregate).Handle((dynamic)incomingEvent, (dynamic)s1);
+            this.UpdateStream(aggregate, incomingEvent);
+        }
+
+        private void HandleAndUpdate(IEvent incomingEvent, T aggregate, IDomainService s1, IDomainService s2)
+        {
+            ((dynamic)aggregate).Handle((dynamic)incomingEvent, (dynamic)s1, (dynamic)s2);
+            this.UpdateStream(aggregate, incomingEvent);
+        }
+
+        private void HandleAndUpdate(IEvent incomingEvent, T aggregate, IDomainService s1, IDomainService s2, IDomainService s3)
+        {
+            ((dynamic)aggregate).Handle((dynamic)incomingEvent, (dynamic)s1, (dynamic)s2, (dynamic)s3);
+            this.UpdateStream(aggregate, incomingEvent);
+        }
+
+        private void HandleAndUpdate(IEvent incomingEvent, T aggregate, IDomainService s1, IDomainService s2, IDomainService s3, IDomainService s4)
+        {
+            ((dynamic)aggregate).Handle((dynamic)incomingEvent, (dynamic)s1, (dynamic)s2, (dynamic)s3, (dynamic)s4);
+            this.UpdateStream(aggregate, incomingEvent);
+        }
+
+        private void HandleAndUpdate(IEvent incomingEvent, T aggregate, IDomainService s1, IDomainService s2, IDomainService s3, IDomainService s4, IDomainService s5)
+        {
+            ((dynamic)aggregate).Handle((dynamic)incomingEvent, (dynamic)s1, (dynamic)s2, (dynamic)s3, (dynamic)s4, (dynamic)s5);
+            this.UpdateStream(aggregate, incomingEvent);
+        }
+
+        private void HandleAndUpdate(IEvent incomingEvent, T aggregate, IDomainService s1, IDomainService s2, IDomainService s3, IDomainService s4, IDomainService s5, IDomainService s6)
+        {
+            ((dynamic)aggregate).Handle((dynamic)incomingEvent, (dynamic)s1, (dynamic)s2, (dynamic)s3, (dynamic)s4, (dynamic)s5, (dynamic)s6);
+            this.UpdateStream(aggregate, incomingEvent);
+        }
+
+        private void HandleAndUpdate(IEvent incomingEvent, T aggregate, IDomainService s1, IDomainService s2, IDomainService s3, IDomainService s4, IDomainService s5, IDomainService s6, IDomainService s7)
+        {
+            ((dynamic)aggregate).Handle((dynamic)incomingEvent, (dynamic)s1, (dynamic)s2, (dynamic)s3, (dynamic)s4, (dynamic)s5, (dynamic)s6, (dynamic)s7);
+            this.UpdateStream(aggregate, incomingEvent);
+        }
+
+        private void HandleAndUpdate(IEvent incomingEvent, T aggregate, IDomainService s1, IDomainService s2, IDomainService s3, IDomainService s4, IDomainService s5, IDomainService s6, IDomainService s7, IDomainService s8)
+        {
+            ((dynamic)aggregate).Handle((dynamic)incomingEvent, (dynamic)s1, (dynamic)s2, (dynamic)s3, (dynamic)s4, (dynamic)s5, (dynamic)s6, (dynamic)s7, (dynamic)s8);
+            this.UpdateStream(aggregate, incomingEvent);
+        }
+
+        private void HandleAndUpdate(IEvent incomingEvent, T aggregate, IDomainService s1, IDomainService s2, IDomainService s3, IDomainService s4, IDomainService s5, IDomainService s6, IDomainService s7, IDomainService s8, IDomainService s9)
+        {
+            ((dynamic)aggregate).Handle((dynamic)incomingEvent, (dynamic)s1, (dynamic)s2, (dynamic)s3, (dynamic)s4, (dynamic)s5, (dynamic)s6, (dynamic)s7, (dynamic)s8, (dynamic)s9);
+            this.UpdateStream(aggregate, incomingEvent);
+        }
+
+        private void HandleAndUpdate(IEvent incomingEvent, T aggregate, IDomainService s1, IDomainService s2, IDomainService s3, IDomainService s4, IDomainService s5, IDomainService s6, IDomainService s7, IDomainService s8, IDomainService s9, IDomainService s10)
+        {
+            ((dynamic)aggregate).Handle((dynamic)incomingEvent, (dynamic)s1, (dynamic)s2, (dynamic)s3, (dynamic)s4, (dynamic)s5, (dynamic)s6, (dynamic)s7, (dynamic)s8, (dynamic)s9, (dynamic)s10);
+            this.UpdateStream(aggregate, incomingEvent);
+        }
+
+        private void HandleAndUpdate(IEvent incomingEvent, T aggregate, IDomainService s1, IDomainService s2, IDomainService s3, IDomainService s4, IDomainService s5, IDomainService s6, IDomainService s7, IDomainService s8, IDomainService s9, IDomainService s10, IDomainService s11)
+        {
+            ((dynamic)aggregate).Handle((dynamic)incomingEvent, (dynamic)s1, (dynamic)s2, (dynamic)s3, (dynamic)s4, (dynamic)s5, (dynamic)s6, (dynamic)s7, (dynamic)s8, (dynamic)s9, (dynamic)s10, (dynamic)s11);
+            this.UpdateStream(aggregate, incomingEvent);
+        }
+
+        private void HandleAndUpdate(IEvent incomingEvent, T aggregate, IDomainService s1, IDomainService s2, IDomainService s3, IDomainService s4, IDomainService s5, IDomainService s6, IDomainService s7, IDomainService s8, IDomainService s9, IDomainService s10, IDomainService s11, IDomainService s12)
+        {
+            ((dynamic)aggregate).Handle((dynamic)incomingEvent, (dynamic)s1, (dynamic)s2, (dynamic)s3, (dynamic)s4, (dynamic)s5, (dynamic)s6, (dynamic)s7, (dynamic)s8, (dynamic)s9, (dynamic)s10, (dynamic)s11, (dynamic)s12);
+            this.UpdateStream(aggregate, incomingEvent);
+        }
+
+        private void HandleAndUpdate(IEvent incomingEvent, T aggregate, IDomainService s1, IDomainService s2, IDomainService s3, IDomainService s4, IDomainService s5, IDomainService s6, IDomainService s7, IDomainService s8, IDomainService s9, IDomainService s10, IDomainService s11, IDomainService s12, IDomainService s13)
+        {
+            ((dynamic)aggregate).Handle((dynamic)incomingEvent, (dynamic)s1, (dynamic)s2, (dynamic)s3, (dynamic)s4, (dynamic)s5, (dynamic)s6, (dynamic)s7, (dynamic)s8, (dynamic)s9, (dynamic)s10, (dynamic)s11, (dynamic)s12, (dynamic)s13);
+            this.UpdateStream(aggregate, incomingEvent);
+        }
+
+        private void HandleAndUpdate(IEvent incomingEvent, T aggregate, IDomainService s1, IDomainService s2, IDomainService s3, IDomainService s4, IDomainService s5, IDomainService s6, IDomainService s7, IDomainService s8, IDomainService s9, IDomainService s10, IDomainService s11, IDomainService s12, IDomainService s13, IDomainService s14)
+        {
+            ((dynamic)aggregate).Handle((dynamic)incomingEvent, (dynamic)s1, (dynamic)s2, (dynamic)s3, (dynamic)s4, (dynamic)s5, (dynamic)s6, (dynamic)s7, (dynamic)s8, (dynamic)s9, (dynamic)s10, (dynamic)s11, (dynamic)s12, (dynamic)s13, (dynamic)s14);
+            this.UpdateStream(aggregate, incomingEvent);
+        }
+
+        private void HandleAndUpdate(IEvent incomingEvent, T aggregate, IDomainService s1, IDomainService s2, IDomainService s3, IDomainService s4, IDomainService s5, IDomainService s6, IDomainService s7, IDomainService s8, IDomainService s9, IDomainService s10, IDomainService s11, IDomainService s12, IDomainService s13, IDomainService s14, IDomainService s15)
+        {
+            ((dynamic)aggregate).Handle((dynamic)incomingEvent, (dynamic)s1, (dynamic)s2, (dynamic)s3, (dynamic)s4, (dynamic)s5, (dynamic)s6, (dynamic)s7, (dynamic)s8, (dynamic)s9, (dynamic)s10, (dynamic)s11, (dynamic)s12, (dynamic)s13, (dynamic)s14, (dynamic)s15);
+            this.UpdateStream(aggregate, incomingEvent);
+        }
+
+        private void HandleAndUpdate(IEvent incomingEvent, T aggregate, IDomainService s1, IDomainService s2, IDomainService s3, IDomainService s4, IDomainService s5, IDomainService s6, IDomainService s7, IDomainService s8, IDomainService s9, IDomainService s10, IDomainService s11, IDomainService s12, IDomainService s13, IDomainService s14, IDomainService s15, IDomainService s16)
+        {
+            ((dynamic)aggregate).Handle((dynamic)incomingEvent, (dynamic)s1, (dynamic)s2, (dynamic)s3, (dynamic)s4, (dynamic)s5, (dynamic)s6, (dynamic)s7, (dynamic)s8, (dynamic)s9, (dynamic)s10, (dynamic)s11, (dynamic)s12, (dynamic)s13, (dynamic)s14, (dynamic)s15, (dynamic)s16);
+            this.UpdateStream(aggregate, incomingEvent);
+        }
+        #endregion
     }
 }

@@ -36,6 +36,7 @@ namespace EventCentric
             Func<bool, EventQueueDbContext> queueContextFactory = isReadOnly => new EventQueueDbContext(isReadOnly, connectionString);
 
             var log = Logger.ResolvedLogger;
+            container.RegisterInstance<ILogger>(log);
 
             var serializer = new JsonTextSerializer();
             container.RegisterInstance<ITextSerializer>(serializer);
@@ -47,12 +48,18 @@ namespace EventCentric
             var eventDao = new EventDao(queueContextFactory);
 
             var eventStore = new EventStore<TAggregate>(nodeName, serializer, storeContextFactory, time, guid, log, isSubscriptor);
+            container.RegisterInstance<IEventStore<TAggregate>>(eventStore);
 
             var bus = new Bus();
+            container.RegisterInstance<IBus>(bus);
 
             var publisher = new Publisher(nodeName, bus, log, eventDao, eventStoreConfig.PushMaxCount, TimeSpan.FromMilliseconds(eventStoreConfig.LongPollingTimeout));
-            var fsm = new ProcessorNode(nodeName, bus, log);
+            container.RegisterInstance<IEventSource>(publisher);
 
+            var fsm = new ProcessorNode(nodeName, bus, log);
+            container.RegisterInstance<INode>(fsm);
+
+            // Processor factory
             if (processorFactory == null)
             {
                 var constructor = typeof(TProcessor).GetConstructor(new[] { typeof(IBus), typeof(ILogger), typeof(IEventStore<TAggregate>) });
@@ -68,7 +75,7 @@ namespace EventCentric
             if (isSubscriptor)
             {
                 var pollerConfig = PollerConfig.GetConfig();
-                var http = new HttpLongPoller(bus, log, TimeSpan.FromMilliseconds(pollerConfig.Timeout));
+                var http = new HttpLongPoller(bus, log, TimeSpan.FromMilliseconds(pollerConfig.Timeout), nodeName);
                 var poller = new Poller(bus, log, subscriptionRepository, http, serializer, pollerConfig.BufferQueueMaxCount, pollerConfig.EventsToFlushMaxCount);
                 container.RegisterInstance<IMonitoredSubscriber>(poller);
             }
@@ -77,13 +84,6 @@ namespace EventCentric
             {
                 var heartbeatListener = new HeartbeatListener(bus, log, time, new TimeSpan(0, 1, 0), new TimeSpan(0, 2, 0), isReadonly => new HeartbeatDbContext(isReadonly, connectionString));
             }
-
-            // Register for DI
-            container.RegisterInstance<IEventSource>(publisher);
-            container.RegisterInstance<ILogger>(log);
-            container.RegisterInstance<INode>(fsm);
-            container.RegisterInstance<IBus>(bus);
-            container.RegisterInstance<IEventStore<TAggregate>>(eventStore);
 
             return fsm;
         }
@@ -111,21 +111,37 @@ namespace EventCentric
             Func<bool, EventQueueDbContext> queueContextFactory = isReadOnly => new EventQueueDbContext(isReadOnly, connectionString);
 
             var log = Logger.ResolvedLogger;
+            container.RegisterInstance<ILogger>(log);
 
             var serializer = new JsonTextSerializer();
             container.RegisterInstance<ITextSerializer>(serializer);
 
             var time = setLocalTime ? new LocalTimeProvider() as ITimeProvider : new UtcTimeProvider() as ITimeProvider;
+            container.RegisterInstance<ITimeProvider>(time);
+
             var guid = setSequentialGuid ? new SequentialGuid() as IGuidProvider : new DefaultGuidProvider() as IGuidProvider;
+            container.RegisterInstance<IGuidProvider>(guid);
 
             var subscriptionRepository = new SubscriptionRepository(storeContextFactory, serializer, time);
             var eventDao = new EventDao(queueContextFactory);
 
             var eventStore = new EventStore<TAggregate>(nodeName, serializer, storeContextFactory, time, guid, log, isSubscriptor);
+            container.RegisterInstance<IEventStore<TAggregate>>(eventStore);
 
             var bus = new Bus();
+            container.RegisterInstance<IBus>(bus);
 
             var publisher = new Publisher(nodeName, bus, log, eventDao, eventStoreConfig.PushMaxCount, TimeSpan.FromMilliseconds(eventStoreConfig.LongPollingTimeout));
+            container.RegisterInstance<IEventSource>(publisher);
+
+            // Event Queue feature
+            var eventQueue = new InMemoryEventQueue(streamType, guid, bus, time);
+
+            var eventBus = new EventBus(bus, log, eventQueue);
+            container.RegisterInstance<IEventBus>(eventBus);
+
+            var fsm = new ProcessorNode(NodeNameProvider.ResolveNameOf<TAggregate>(), bus, log, isSubscriptor);
+            container.RegisterInstance<INode>(fsm);
 
             if (processorFactory == null)
             {
@@ -143,7 +159,7 @@ namespace EventCentric
             if (isSubscriptor)
             {
                 var pollerConfig = PollerConfig.GetConfig();
-                var http = new HttpLongPoller(bus, log, TimeSpan.FromMilliseconds(pollerConfig.Timeout));
+                var http = new HttpLongPoller(bus, log, TimeSpan.FromMilliseconds(pollerConfig.Timeout), nodeName);
                 var poller = new Poller(bus, log, subscriptionRepository, http, serializer, pollerConfig.BufferQueueMaxCount, pollerConfig.EventsToFlushMaxCount);
                 container.RegisterInstance<IMonitoredSubscriber>(poller);
             }
@@ -152,23 +168,6 @@ namespace EventCentric
             {
                 var heartbeatListener = new HeartbeatListener(bus, log, time, new TimeSpan(0, 1, 0), new TimeSpan(0, 2, 0), isReadonly => new HeartbeatDbContext(isReadonly, connectionString));
             }
-
-            // Event Queue feature
-            var eventQueue = new InMemoryEventQueue(streamType, guid, bus, time);
-            var eventBus = new EventBus(bus, log, eventQueue);
-
-
-            var fsm = new ProcessorNode(NodeNameProvider.ResolveNameOf<TAggregate>(), bus, log, isSubscriptor);
-
-            // Register for DI
-            container.RegisterInstance<IEventBus>(eventBus);
-            container.RegisterInstance<IEventSource>(publisher);
-            container.RegisterInstance<ILogger>(log);
-            container.RegisterInstance<INode>(fsm);
-            container.RegisterInstance<IBus>(bus);
-            container.RegisterInstance<IEventStore<TAggregate>>(eventStore);
-            container.RegisterInstance<IGuidProvider>(guid);
-            container.RegisterInstance<ITimeProvider>(time);
 
             return fsm;
         }
@@ -184,6 +183,8 @@ namespace EventCentric
             System.Data.Entity.Database.SetInitializer<EventQueueDbContext>(null);
 
             var eventStoreConfig = EventStoreConfig.GetConfig();
+            container.RegisterInstance<IEventStoreConfig>(eventStoreConfig);
+
             var pollerConfig = PollerConfig.GetConfig();
 
             var connectionString = eventStoreConfig.ConnectionString;
@@ -194,6 +195,8 @@ namespace EventCentric
             Func<bool, EventQueueDbContext> queueContextFactory = isReadOnly => new EventQueueDbContext(isReadOnly, connectionString);
 
             var log = Logger.ResolvedLogger;
+            container.RegisterInstance<ILogger>(log);
+
             var serializer = new JsonTextSerializer();
             var time = setLocalTime ? new LocalTimeProvider() as ITimeProvider : new UtcTimeProvider() as ITimeProvider;
             var guid = setSequentialGuid ? new SequentialGuid() as IGuidProvider : new DefaultGuidProvider() as IGuidProvider;
@@ -205,15 +208,23 @@ namespace EventCentric
             Ensure.CastIsValid(dbContextConstructor, "Type TDbContext must have a constructor with the following signature: ctor(bool, string)");
             Func<bool, IEventStoreDbContext> dbContextFactory = isReadOnly => (TDbContext)dbContextConstructor.Invoke(new object[] { isReadOnly, connectionString });
             var eventStore = new EventStore<TAggregate>(nodeName, serializer, dbContextFactory, time, guid, log);
+            container.RegisterInstance<IEventStore<TAggregate>>(eventStore);
 
             var bus = new Bus();
+            container.RegisterInstance<IBus>(bus);
 
-            var http = new HttpLongPoller(bus, log, TimeSpan.FromMilliseconds(pollerConfig.Timeout));
+            var http = new HttpLongPoller(bus, log, TimeSpan.FromMilliseconds(pollerConfig.Timeout), nodeName);
 
             var subscriptionRepository = new SubscriptionRepository(storeContextFactory, serializer, time);
+
             var poller = new Poller(bus, log, subscriptionRepository, http, serializer, pollerConfig.BufferQueueMaxCount, pollerConfig.EventsToFlushMaxCount);
+            container.RegisterInstance<IMonitoredSubscriber>(poller);
+
             var publisher = new Publisher(nodeName, bus, log, eventDao, eventStoreConfig.PushMaxCount, TimeSpan.FromMilliseconds(eventStoreConfig.LongPollingTimeout));
+            container.RegisterInstance<IEventSource>(publisher);
+
             var fsm = new ProcessorNode(nodeName, bus, log);
+            container.RegisterInstance<INode>(fsm);
 
             if (processorFactory == null)
             {
@@ -225,15 +236,6 @@ namespace EventCentric
             {
                 var processor = processorFactory.Invoke(bus, log, eventStore);
             }
-
-            // Register for DI
-            container.RegisterInstance<IEventSource>(publisher);
-            container.RegisterInstance<IEventStoreConfig>(eventStoreConfig);
-            container.RegisterInstance<ILogger>(log);
-            container.RegisterInstance<INode>(fsm);
-            container.RegisterInstance<IMonitoredSubscriber>(poller);
-            container.RegisterInstance<IBus>(bus);
-            container.RegisterInstance<IEventStore<TAggregate>>(eventStore);
 
             return fsm;
         }

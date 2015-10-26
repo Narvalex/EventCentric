@@ -17,16 +17,19 @@ namespace EventCentric.Transport
     {
         private readonly TimeSpan timeout;
         private readonly ILogger log;
+        private readonly string pollerName;
 
-        public HttpLongPoller(IBus bus, ILogger log, TimeSpan timeout)
+        public HttpLongPoller(IBus bus, ILogger log, TimeSpan timeout, string pollerName)
             : base(bus)
         {
+            Ensure.NotNullEmtpyOrWhiteSpace(pollerName, "pollerName");
             Ensure.NotNull(log, "log");
             if (timeout.TotalSeconds <= 1)
                 throw new ArgumentOutOfRangeException("timeout", "The timeout value must be greater than one second.");
 
             this.timeout = timeout;
             this.log = log;
+            this.pollerName = pollerName;
         }
 
         public void PollSubscription(string streamType, string url, string token, long fromVersion)
@@ -37,7 +40,7 @@ namespace EventCentric.Transport
             {
                 try
                 {
-                    var result = httpClient.GetAsync(string.Format("{0}/{1}", url, fromVersion)).Result;
+                    var result = httpClient.GetAsync($"{url}/{fromVersion}/{this.pollerName}").Result;
                     if (!result.IsSuccessStatusCode)
                         throw new InvalidOperationException(string.Format("The status code was: {0}", result.StatusCode.ToString()));
 

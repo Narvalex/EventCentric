@@ -17,10 +17,11 @@ namespace EasyTrade.EmpresasQueue.Web.Controllers
         }
 
         [HttpGet]
-        [Route("eventsource/events/{eventBufferVersion}")]
-        public IHttpActionResult Events(int eventBufferVersion)
+        [Route("eventsource/events/{eventBufferVersion}/{consumerName}")]
+        public IHttpActionResult Events(int eventBufferVersion, string consumerName)
         {
-            return this.Ok(this.source.PollEvents(eventBufferVersion));
+            var response = this.source.PollEvents(eventBufferVersion, consumerName);
+            return this.Ok(response);
         }
     }
 }

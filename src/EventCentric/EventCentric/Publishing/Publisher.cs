@@ -81,7 +81,7 @@ namespace EventCentric.Publishing
         /// <remarks>
         /// Timeout implementation inspired by: http://stackoverflow.com/questions/5018921/implement-c-sharp-timeout
         /// </remarks>
-        public PollResponse PollEvents(int lastReceivedVersion)
+        public PollResponse PollEvents(int lastReceivedVersion, string consumerName)
         {
             bool newEventsWereFound = false;
             var newEvents = new List<NewRawEvent>();
@@ -95,7 +95,7 @@ namespace EventCentric.Publishing
                     newEvents = this.dao.FindEvents(lastReceivedVersion, eventsToPushMaxCount);
                     newEventsWereFound = newEvents.Count > 0 ? true : false;
 
-                    this.log.Trace("Pushing {0} event/s", newEvents.Count);
+                    this.log.Trace($"Pushing {newEvents.Count} event/s to {consumerName}");
                     break;
                 }
             }
@@ -127,6 +127,7 @@ namespace EventCentric.Publishing
         protected override void OnStopping()
         {
             this.bus.Publish(new EventPublisherStopped());
+            this.log.Trace("Event publishers stopped");
         }
     }
 }

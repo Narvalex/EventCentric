@@ -242,8 +242,8 @@ namespace EventCentric.Polling
             Task.Factory.StartNewLongRunning(() => this.DispatchEventsFromBufferPool());
 
             // Ensure to start everything;
-            this.log.Trace("Pollster started");
             this.bus.Publish(new EventPollerStarted());
+            this.log.Trace("Pollster started");
         }
 
         protected override void OnStopping()
