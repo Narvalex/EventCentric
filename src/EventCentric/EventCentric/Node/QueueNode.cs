@@ -55,7 +55,7 @@ namespace EventCentric
         protected override void OnStarting()
         {
             this.bus.Publish(
-                new StartServices(),
+                new StartHeartbeatListener(),
                 new StartEventPublisher());
 
             // we can safely go from here...

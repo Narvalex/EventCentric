@@ -75,7 +75,7 @@ namespace EventCentric.Publishing
         public void Handle(StartEventPublisher message)
         {
             this.log.Trace("Starting publisher");
-            base.Start();
+            base.Start(); 
         }
 
         /// <remarks>
@@ -88,7 +88,9 @@ namespace EventCentric.Publishing
             var stopwatch = Stopwatch.StartNew();
             while (!this.stopping && stopwatch.Elapsed < this.longPollingTimeout)
             {
-                if (this.EventCollectionVersion <= lastReceivedVersion)
+                // last received version could be somehow less than 0. I found once that was -1, 
+                // and was always pushing "0 events", as the signal r tracing showed (27/10/2015) 
+                if (this.EventCollectionVersion <= lastReceivedVersion || lastReceivedVersion <= 0)
                     Thread.Sleep(100);
                 else
                 {

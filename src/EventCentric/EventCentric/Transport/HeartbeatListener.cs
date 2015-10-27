@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 namespace EventCentric.Transport
 {
     public class HeartbeatListener : FSM,
-        IMessageHandler<StartServices>
+        IMessageHandler<StartHeartbeatListener>
     {
         private readonly Func<bool, HeartbeatDbContext> contextFactory;
         private Tuple<string, string>[] subscribersNamesAndUrls;
@@ -142,7 +142,7 @@ namespace EventCentric.Transport
             return client;
         }
 
-        public void Handle(StartServices message)
+        public void Handle(StartHeartbeatListener message)
         {
             this.Start();
         }

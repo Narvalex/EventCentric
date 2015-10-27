@@ -56,7 +56,7 @@ namespace EventCentric
             var publisher = new Publisher(nodeName, bus, log, eventDao, eventStoreConfig.PushMaxCount, TimeSpan.FromMilliseconds(eventStoreConfig.LongPollingTimeout));
             container.RegisterInstance<IEventSource>(publisher);
 
-            var fsm = new ProcessorNode(nodeName, bus, log);
+            var fsm = new ProcessorNode(nodeName, bus, log, isSubscriptor, enableHeartbeatingListener);
             container.RegisterInstance<INode>(fsm);
 
             // Processor factory
@@ -140,7 +140,7 @@ namespace EventCentric
             var eventBus = new EventBus(bus, log, eventQueue);
             container.RegisterInstance<IEventBus>(eventBus);
 
-            var fsm = new ProcessorNode(NodeNameProvider.ResolveNameOf<TAggregate>(), bus, log, isSubscriptor);
+            var fsm = new ProcessorNode(NodeNameProvider.ResolveNameOf<TAggregate>(), bus, log, isSubscriptor, enableHeartbeatingListener);
             container.RegisterInstance<INode>(fsm);
 
             if (processorFactory == null)
@@ -223,7 +223,7 @@ namespace EventCentric
             var publisher = new Publisher(nodeName, bus, log, eventDao, eventStoreConfig.PushMaxCount, TimeSpan.FromMilliseconds(eventStoreConfig.LongPollingTimeout));
             container.RegisterInstance<IEventSource>(publisher);
 
-            var fsm = new ProcessorNode(nodeName, bus, log);
+            var fsm = new ProcessorNode(nodeName, bus, log, true, false);
             container.RegisterInstance<INode>(fsm);
 
             if (processorFactory == null)

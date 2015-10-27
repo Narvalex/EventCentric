@@ -15,12 +15,14 @@ namespace EventCentric
         IMessageHandler<EventPublisherStopped>
     {
         private bool hasPoller;
+        private bool listenHeartbeating;
 
-        public ProcessorNode(string nodeName, IBus bus, ILogger log, bool hasPoller = true)
+        public ProcessorNode(string nodeName, IBus bus, ILogger log, bool hasPoller, bool listenHeartbeating)
             : base(nodeName, bus, log)
         {
             this.State = NodeState.Down;
             this.hasPoller = hasPoller;
+            this.listenHeartbeating = listenHeartbeating;
         }
 
         public NodeState State { get; private set; }
@@ -66,6 +68,9 @@ namespace EventCentric
         {
             if (!this.hasPoller)
                 this.log.Trace("No poller detected");
+
+            if (this.listenHeartbeating)
+                this.bus.Publish(new StartHeartbeatListener());
 
             this.bus.Publish(new StartEventPublisher());
         }

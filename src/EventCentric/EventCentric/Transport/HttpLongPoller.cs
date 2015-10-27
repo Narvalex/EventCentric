@@ -38,9 +38,10 @@ namespace EventCentric.Transport
 
             using (var httpClient = this.CreateHttpClient(token))
             {
+                var dynamicUrl = $"{url}/{fromVersion}/{this.pollerName}";
                 try
                 {
-                    var result = httpClient.GetAsync($"{url}/{fromVersion}/{this.pollerName}").Result;
+                    var result = httpClient.GetAsync(dynamicUrl).Result;
                     if (!result.IsSuccessStatusCode)
                         throw new InvalidOperationException(string.Format("The status code was: {0}", result.StatusCode.ToString()));
 
@@ -50,7 +51,7 @@ namespace EventCentric.Transport
                 }
                 catch (Exception ex)
                 {
-                    this.log.Error(ex, "Error while polling {0}, from {1}, from version {2}", streamType, url, fromVersion);
+                    this.log.Error(ex, $"Error while polling {streamType} located on {dynamicUrl}");
                     // To have a break;
                     Thread.Sleep(10000);
                     this.bus.Publish(new PollResponseWasReceived(new PollResponse(true, false, streamType, null, 0, 0)));
