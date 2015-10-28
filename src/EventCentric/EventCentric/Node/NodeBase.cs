@@ -9,7 +9,7 @@ namespace EventCentric
         protected NodeBase(string name, IBus bus, ILogger log)
             : base(bus, log)
         {
-            Ensure.NotNullEmtpyOrWhiteSpace(name, "name");
+            Ensure.NotNullNeitherEmtpyNorWhiteSpace(name, "name");
 
             this.Name = name;
         }

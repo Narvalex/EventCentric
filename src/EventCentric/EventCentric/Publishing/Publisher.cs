@@ -29,7 +29,7 @@ namespace EventCentric.Publishing
         public Publisher(string streamType, IBus bus, ILogger log, IEventDao dao, int eventsToPushMaxCount, TimeSpan pollTimeout)
             : base(bus, log)
         {
-            Ensure.NotNullEmtpyOrWhiteSpace(streamType, "streamType");
+            Ensure.NotNullNeitherEmtpyNorWhiteSpace(streamType, "streamType");
             Ensure.NotNull(dao, "dao");
             Ensure.Positive(eventsToPushMaxCount, "eventsToPushMaxCount");
 
@@ -75,13 +75,13 @@ namespace EventCentric.Publishing
         public void Handle(StartEventPublisher message)
         {
             this.log.Trace("Starting publisher");
-            base.Start(); 
+            base.Start();
         }
 
         /// <remarks>
         /// Timeout implementation inspired by: http://stackoverflow.com/questions/5018921/implement-c-sharp-timeout
         /// </remarks>
-        public PollResponse PollEvents(int lastReceivedVersion, string consumerName)
+        public PollResponse PollEvents(long lastReceivedVersion, string consumerName)
         {
             bool newEventsWereFound = false;
             var newEvents = new List<NewRawEvent>();
@@ -90,7 +90,7 @@ namespace EventCentric.Publishing
             {
                 // last received version could be somehow less than 0. I found once that was -1, 
                 // and was always pushing "0 events", as the signal r tracing showed (27/10/2015) 
-                if (this.EventCollectionVersion <= lastReceivedVersion || lastReceivedVersion <= 0)
+                if (this.EventCollectionVersion <= lastReceivedVersion || this.EventCollectionVersion == 0)
                     Thread.Sleep(100);
                 else
                 {

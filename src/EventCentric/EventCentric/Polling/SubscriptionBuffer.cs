@@ -104,14 +104,11 @@ namespace EventCentric.Polling
             }
         }
 
-        public decimal UpToDatePercentage
-        {
-            get { return (this.consumerVersion * 100) / this.producerVersion; }
-        }
+        public decimal UpToDatePercentage =>
+            this.producerVersion == 0 ? 0
+                                      : (this.consumerVersion * 100) / this.producerVersion;
 
-        public string ProducerName
-        {
-            get { return this.StreamType; }
-        }
+
+        public string ProducerName => this.StreamType;
     }
 }

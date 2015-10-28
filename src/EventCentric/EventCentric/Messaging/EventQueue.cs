@@ -20,7 +20,7 @@ namespace EventCentric.Messaging
         public EventQueue(string streamType, Func<bool, IEventQueueDbContext> contextFactory, ITextSerializer serializer, ITimeProvider time, IGuidProvider guid, IBus bus)
             : base(bus)
         {
-            Ensure.NotNullEmtpyOrWhiteSpace(streamType, "streamType");
+            Ensure.NotNullNeitherEmtpyNorWhiteSpace(streamType, "streamType");
             Ensure.NotNull(contextFactory, "contextFactory");
             Ensure.NotNull(serializer, "serializer");
             Ensure.NotNull(time, "time");

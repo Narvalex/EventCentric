@@ -22,7 +22,7 @@ namespace EventCentric.Transport
         public HttpLongPoller(IBus bus, ILogger log, TimeSpan timeout, string pollerName)
             : base(bus)
         {
-            Ensure.NotNullEmtpyOrWhiteSpace(pollerName, "pollerName");
+            Ensure.NotNullNeitherEmtpyNorWhiteSpace(pollerName, "pollerName");
             Ensure.NotNull(log, "log");
             if (timeout.TotalSeconds <= 1)
                 throw new ArgumentOutOfRangeException("timeout", "The timeout value must be greater than one second.");

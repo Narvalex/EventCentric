@@ -14,7 +14,7 @@ namespace EventCentric.Messaging
         public InMemoryEventQueue(string streamType, IGuidProvider guid, IBus bus, ITimeProvider time)
              : base(bus)
         {
-            Ensure.NotNullEmtpyOrWhiteSpace(streamType, "streamType");
+            Ensure.NotNullNeitherEmtpyNorWhiteSpace(streamType, "streamType");
             Ensure.NotNull(guid, "guid");
             Ensure.NotNull(time, "time");
 

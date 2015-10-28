@@ -30,12 +30,12 @@ namespace EventCentric.EventSourcing
 
         public EventStore(string streamType, ITextSerializer serializer, Func<bool, IEventStoreDbContext> contextFactory, ITimeProvider time, IGuidProvider guid, ILogger log, bool isSubscriptor = true)
         {
-            Ensure.NotNullEmtpyOrWhiteSpace(streamType, "streamType");
-            Ensure.NotNull(serializer, "serializer");
-            Ensure.NotNull(contextFactory, "contextFactory");
-            Ensure.NotNull(time, "time");
-            Ensure.NotNull(guid, "guid");
-            Ensure.NotNull(log, "log");
+            Ensure.NotNullNeitherEmtpyNorWhiteSpace(streamType, nameof(streamType));
+            Ensure.NotNull(serializer, nameof(serializer));
+            Ensure.NotNull(contextFactory, nameof(contextFactory));
+            Ensure.NotNull(time, nameof(time));
+            Ensure.NotNull(guid, nameof(guid));
+            Ensure.NotNull(log, nameof(log));
 
             this.streamType = streamType;
             this.serializer = serializer;
