@@ -20,11 +20,10 @@ namespace EventCentric.Publishing
         private readonly IEventDao dao;
         private readonly int eventsToPushMaxCount;
         private readonly TimeSpan longPollingTimeout;
-        private long eventCollectionVersion = 0;
 
         // locks
-        private readonly object updatelockObject = new object();
-        private static readonly object _eventCollectionVersionLock = new object();
+        private readonly object updateVersionlock = new object();
+        private long eventCollectionVersion = 0;
 
         public Publisher(string streamType, IBus bus, ILogger log, IEventDao dao, int eventsToPushMaxCount, TimeSpan pollTimeout)
             : base(bus, log)
@@ -39,30 +38,12 @@ namespace EventCentric.Publishing
             this.longPollingTimeout = pollTimeout;
         }
 
-        private long EventCollectionVersion
-        {
-            get
-            {
-                lock (_eventCollectionVersionLock)
-                {
-                    return this.eventCollectionVersion;
-                }
-            }
-            set
-            {
-                lock (_eventCollectionVersionLock)
-                {
-                    this.eventCollectionVersion = value;
-                }
-            }
-        }
-
         public void Handle(EventStoreHasBeenUpdated message)
         {
-            lock (this.updatelockObject)
+            lock (this.updateVersionlock)
             {
-                if (message.EventCollectionVersion > this.EventCollectionVersion)
-                    this.EventCollectionVersion = message.EventCollectionVersion;
+                if (message.EventCollectionVersion > this.eventCollectionVersion)
+                    this.eventCollectionVersion = message.EventCollectionVersion;
             }
         }
 
@@ -83,14 +64,23 @@ namespace EventCentric.Publishing
         /// </remarks>
         public PollResponse PollEvents(long lastReceivedVersion, string consumerName)
         {
-            bool newEventsWereFound = false;
             var newEvents = new List<NewRawEvent>();
+
+            // last received version could be somehow less than 0. I found once that was -1, 
+            // and was always pushing "0 events", as the signal r tracing showed (27/10/2015) 
+            if (lastReceivedVersion < 0)
+                lastReceivedVersion = 0;
+
+            // the consumer says that is more updated than the source. That is an error
+            if (this.eventCollectionVersion < lastReceivedVersion)
+                return new PollResponse(true, false, this.streamType, newEvents, lastReceivedVersion, this.eventCollectionVersion);
+
+            bool newEventsWereFound = false;
             var stopwatch = Stopwatch.StartNew();
             while (!this.stopping && stopwatch.Elapsed < this.longPollingTimeout)
             {
-                // last received version could be somehow less than 0. I found once that was -1, 
-                // and was always pushing "0 events", as the signal r tracing showed (27/10/2015) 
-                if (this.EventCollectionVersion <= lastReceivedVersion || this.EventCollectionVersion == 0)
+                if (this.eventCollectionVersion == lastReceivedVersion)
+                    // consumer is up to date, and now is waiting until something happens!
                     Thread.Sleep(100);
                 else
                 {
@@ -102,7 +92,7 @@ namespace EventCentric.Publishing
                 }
             }
 
-            return new PollResponse(false, newEventsWereFound, streamType, newEvents, lastReceivedVersion, this.EventCollectionVersion);
+            return new PollResponse(false, newEventsWereFound, this.streamType, newEvents, lastReceivedVersion, this.eventCollectionVersion);
         }
 
         protected override void OnStarting()

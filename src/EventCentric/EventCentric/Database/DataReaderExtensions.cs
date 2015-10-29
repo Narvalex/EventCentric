@@ -11,263 +11,158 @@ namespace EventCentric.Database
     /// </remarks>
     public static class DataReaderExtensions
     {
-        /// <summary>
-        /// Gets the value of the specified column as a string in Null-Safe mode.
-        /// </summary>
-        /// <param name="reader">The <see cref="SqlDataReader"/> instance.</param>
-        /// <param name="i">The zero-based column ordinal.</param>
-        public static string SafeGetString(this IDataReader reader, int i)
-        {
-            if (!reader.IsDBNull(i))
-                return reader.GetString(i);
-            else
-                return string.Empty;
-        }
+        #region Decimal
 
-        /// <summary>
-        /// Gets the value of the specified column as a string in Null-Safe mode.
-        /// </summary>
-        /// <param name="reader">The <see cref="SqlDataReader"/> instance.</param>
-        /// <param name="name">The column name.</param>
-        public static string SafeGetString(this IDataReader reader, string name)
-        {
-            if (reader[name] is DBNull)
-                return string.Empty;
+        public static decimal GetDecimal(this IDataReader reader, string name) => (decimal)reader[name];
 
-            return reader[name].ToString();
-        }
-
-        public static string GetString(this IDataReader reader, string name)
-        {
-            return reader[name].ToString();
-        }
-
-        /// <summary>
-        /// Gets the value of the specified column as a string in Null-Safe mode. Also trims the string to eliminate white spaces.
-        /// </summary>
-        /// <param name="reader">The <see cref="SqlDataReader"/> instance.</param>
-        /// <param name="i">The zero-based column ordinal.</param>
-        public static string SafeGetStringAndTrim(this IDataReader reader, int i)
-        {
-            if (!reader.IsDBNull(i))
-                return reader.GetString(i).Trim();
-            else
-                return string.Empty;
-        }
-
-        /// <summary>
-        /// Gets the value of the specified column as a string in Null-Safe mode. Also trims the string to eliminate white spaces.
-        /// </summary>
-        /// <param name="reader">The <see cref="SqlDataReader"/> instance.</param>
-        /// <param name="name">The zero-based column ordinal.</param>
-        public static string SafeGetStringAndTrim(this IDataReader reader, string name)
-        {
-            if (reader[name] is DBNull)
-                return string.Empty;
-
-            return reader[name].ToString().Trim();
-        }
-
-        /// <summary>
-        /// Gets the value of the specified column as a an int in Null-Safe mode.
-        /// </summary>
-        /// <param name="reader">The <see cref="SqlDataReader"/> instance.</param>
-        /// <param name="i">The zero-based column ordinal.</param>
-        public static int SafeGetInt32(this IDataReader reader, int i)
-        {
-            if (!reader.IsDBNull(i))
-                return reader.GetInt32(i);
-            else
-                return default(int);
-        }
-
-        /// <summary>
-        /// Gets the value of the specified column as a an int in Null-Safe mode.
-        /// </summary>
-        /// <param name="reader">The <see cref="SqlDataReader"/> instance.</param>
-        /// <param name="name">The column name.</param>
-        public static int SafeGetInt32(this IDataReader reader, string name)
-        {
-            int number;
-            int.TryParse(reader[name].ToString(), out number);
-            return number;
-        }
-
-        /// <summary>
-        /// Gets the value of the specified column as a long in Null-Safe mode.
-        /// </summary>
-        /// <param name="reader">The <see cref="SqlDataReader"/> instance.</param>
-        /// <param name="i">The zero-based column ordinal.</param>
-        public static long SafeGetInt64(this IDataReader reader, int i)
-        {
-            if (!reader.IsDBNull(i))
-                return reader.GetInt64(i);
-            else
-                return default(int);
-        }
-
-        /// <summary>
-        /// Gets the value of the specified column as a long in Null-Safe mode.
-        /// </summary>
-        /// <param name="reader">The <see cref="SqlDataReader"/> instance.</param>
-        /// <param name="i">The zero-based column ordinal.</param>
-        public static long SafeGetInt64(this IDataReader reader, string name)
-        {
-            long number;
-            long.TryParse(reader[name].ToString(), out number);
-            return number;
-        }
-
-        public static long GetInt64(this IDataReader reader, string name)
-        {
-            return long.Parse(reader[name].ToString());
-        }
-
-        /// <summary>
-        /// Gets the value of the specified column as a decimal in Null-Safe mode.
-        /// </summary>
-        /// <param name="reader">The <see cref="SqlDataReader"/> instance.</param>
-        /// <param name="i">The zero-based column ordinal.</param>
         public static decimal SafeGetDecimal(this IDataReader reader, int i)
-        {
-            if (!reader.IsDBNull(i))
-                return reader.GetDecimal(i);
-            else
-                return default(decimal);
-        }
+            => reader.IsDBNull(i) ? default(decimal)
+                                  : reader.GetDecimal(i);
 
-        /// <summary>
-        /// Gets the value of the specified column as a float in Null-Safe mode.
-        /// </summary>
-        /// <param name="reader">The <see cref="SqlDataReader"/> instance.</param>
-        /// <param name="i">The zero-based column ordinal.</param>
+        public static decimal SafeGetDecimal(this IDataReader reader, string name)
+            => reader.SafeGetDecimal(reader.GetOrdinal(name));
+
+        public static decimal? SafeGetDecimalOrNull(this IDataReader reader, int i) => reader[reader.GetName(i)] as decimal?;
+
+        public static decimal? SafeGetDecimalOrNull(this IDataReader reader, string name) => reader[name] as decimal?;
+
+        #endregion
+
+        #region String
+
+        public static string GetString(this IDataReader reader, string name) => reader[name] as string;
+
+        public static string SafeGetString(this IDataReader reader, int i)
+            => reader.IsDBNull(i) ? string.Empty
+                                   : reader.GetString(i);
+
+        public static string SafeGetString(this IDataReader reader, string name)
+            => reader.SafeGetString(reader.GetOrdinal(name));
+
+        public static string SafeGetStringAndTrim(this IDataReader reader, int i)
+            => reader.SafeGetString(i).Trim();
+
+        public static string SafeGetStringAndTrim(this IDataReader reader, string name)
+            => reader.SafeGetString(name).Trim();
+
+        #endregion
+
+        #region Int32
+
+        public static int GetInt32(this IDataReader reader, string name) => (int)reader[name];
+
+        public static int SafeGetInt32(this IDataReader reader, int i)
+            => reader.IsDBNull(i) ? default(int)
+                                  : reader.GetInt32(i);
+
+        public static int SafeGetInt32(this IDataReader reader, string name)
+            => reader.SafeGetInt32(reader.GetOrdinal(name));
+
+        public static int? SafeGetInt32OrNull(this IDataReader reader, int i) => reader[reader.GetName(i)] as int?;
+
+        public static int? SafeGetInt32OrNull(this IDataReader reader, string name) => reader[name] as int?;
+
+        #endregion
+
+        #region Int64
+
+        public static long GetInt64(this IDataReader reader, string name) => (long)reader[name];
+
+        public static long SafeGetInt64(this IDataReader reader, int i)
+            => reader.IsDBNull(i) ? default(long)
+                                  : reader.GetInt64(i);
+
+        public static long SafeGetInt64(this IDataReader reader, string name)
+            => reader.SafeGetInt64(reader.GetOrdinal(name));
+
+        public static long? SafeGetInt64OrNull(this IDataReader reader, int i) => reader[reader.GetName(i)] as long?;
+
+        public static long? SafeGetInt64OrNull(this IDataReader reader, string name) => reader[name] as long?;
+
+        #endregion
+
+        #region Float
+
+        public static float GetFloat(this IDataReader reader, string name) => (float)reader[name];
+
         public static float SafeGetFloat(this IDataReader reader, int i)
-        {
-            if (!reader.IsDBNull(i))
-                return reader.GetFloat(i);
-            else
-                return default(float);
-        }
+            => reader.IsDBNull(i) ? default(float)
+                                  : reader.GetFloat(i);
 
-        /// <summary>
-        /// Gets the value of the specified column as a double in Null-Safe mode.
-        /// </summary>
-        /// <param name="reader">The <see cref="SqlDataReader"/> instance.</param>
-        /// <param name="i">The zero-based column ordinal.</param>
+        public static float SafeGetFloat(this IDataReader reader, string name)
+            => reader.SafeGetFloat(reader.GetOrdinal(name));
+
+        public static float? SafeGetFloatOrNull(this IDataReader reader, int i) => reader[reader.GetName(i)] as float?;
+
+        public static float? SafeGetFloatOrNull(this IDataReader reader, string name) => reader[name] as float?;
+
+        #endregion
+
+        #region Double
+
+        public static double GetDouble(this IDataReader reader, string name) => (double)reader[name];
+
         public static double SafeGetDouble(this IDataReader reader, int i)
-        {
-            if (!reader.IsDBNull(i))
-                return reader.GetDouble(i);
-            else
-                return default(float);
-        }
+            => reader.IsDBNull(i) ? default(double)
+                                  : reader.GetDouble(i);
 
-        /// <summary>
-        /// Gets the value of the specified column as a double in Null-Safe mode.
-        /// </summary>
-        /// <param name="reader">The <see cref="SqlDataReader"/> instance.</param>
-        /// <param name="i">The zero-based column ordinal.</param>
         public static double SafeGetDouble(this IDataReader reader, string name)
-        {
-            double number;
-            double.TryParse(reader[name].ToString(), out number);
-            return number;
-        }
+            => reader.SafeGetDouble(reader.GetOrdinal(name));
 
-        /// <summary>
-        /// Gets the value of the specified column as a GUID in Null-Safe mode.
-        /// </summary>
-        /// <param name="reader">The <see cref="SqlDataReader"/> instance.</param>
-        /// <param name="i">The zero-based column ordinal.</param>
+        public static double? SafeGetDoubleOrNull(this IDataReader reader, int i) => reader[reader.GetName(i)] as double?;
+
+        public static double? SafeGetDoubleOrNull(this IDataReader reader, string name) => reader[name] as double?;
+
+        #endregion
+
+        #region Guid
+        public static Guid GetGuid(this IDataReader reader, string name) => (Guid)reader[name];
+
         public static Guid SafeGetGuid(this IDataReader reader, int i)
-        {
-            if (!reader.IsDBNull(i))
-                return reader.GetGuid(i);
-            else
-                return default(Guid);
-        }
+            => reader.IsDBNull(i) ? default(Guid)
+                                  : reader.GetGuid(i);
 
-        public static Guid GetGuid(this IDataReader reader, string name)
-        {
-            return new Guid(reader[name].ToString());
-        }
+        public static Guid SafeGetGuid(this IDataReader reader, string name)
+            => reader.SafeGetGuid(reader.GetOrdinal(name));
 
-        /// <summary>
-        /// Gets the value of the specified column as a DateTime in Null-Safe mode.
-        /// </summary>
-        /// <param name="reader">The <see cref="SqlDataReader"/> instance.</param>
-        /// <param name="i">The zero-based column ordinal.</param>
+        public static Guid? SafeGetGuidOrNull(this IDataReader reader, int i) => reader[reader.GetName(i)] as Guid?;
+
+        public static Guid? SafeGetGuidOrNull(this IDataReader reader, string name) => reader[name] as Guid?;
+
+        #endregion
+
+        #region DateTime
+
+        public static DateTime GetDateTime(this IDataReader reader, string name) => (DateTime)reader[name];
+
         public static DateTime SafeGetDateTime(this IDataReader reader, int i)
-        {
-            if (!reader.IsDBNull(i))
-                return reader.GetDateTime(i);
-            else
-                return new DateTime();
-        }
+            => reader.IsDBNull(i) ? default(DateTime)
+                                  : reader.GetDateTime(i);
 
-        /// <summary>
-        /// Gets the value of the specified column as a DateTime in Null-Safe mode.
-        /// </summary>
-        /// <param name="reader">The <see cref="SqlDataReader"/> instance.</param>
-        /// <param name="i">The zero-based column ordinal.</param>
         public static DateTime SafeGetDateTime(this IDataReader reader, string name)
-        {
-            var date = DateTime.MinValue;
-            DateTime.TryParse(reader[name].ToString(), out date);
-            return date;
-        }
+            => reader.SafeGetDateTime(reader.GetOrdinal(name));
 
-        /// <summary>
-        /// Gets the value of the specified column as a DateTime in Null-Safe mode.
-        /// </summary>
-        /// <param name="reader">The <see cref="SqlDataReader"/> instance.</param>
-        /// <param name="i">The zero-based column ordinal.</param>
-        public static DateTime? SafeGetDateTimeThatIsNullable(this IDataReader reader, int i)
-        {
-            if (!reader.IsDBNull(i))
-                return reader.GetDateTime(i);
-            else
-                return null;
-        }
+        public static DateTime? SafeGetDateTimeOrNull(this IDataReader reader, int i) => reader[reader.GetName(i)] as DateTime?;
 
-        /// <summary>
-        /// Gets the value of the specified column as a DateTime in Null-Safe mode.
-        /// </summary>
-        /// <param name="reader">The <see cref="SqlDataReader"/> instance.</param>
-        /// <param name="i">The zero-based column ordinal.</param>
-        public static DateTime? SafeGetDateTimeThatIsNullable(this IDataReader reader, string name)
-        {
-            DateTime date;
-            DateTime.TryParse(reader[name].ToString(), out date);
-            if (date != DateTime.MinValue)
-                return date;
-            else
-                return null;
-        }
+        public static DateTime? SafeGetDateTimeOrNull(this IDataReader reader, string name) => reader[name] as DateTime?;
 
-        /// <summary>
-        /// Gets the value of the specified column as a DateTime in Null-Safe mode.
-        /// </summary>
-        /// <param name="reader">The <see cref="SqlDataReader"/> instance.</param>
-        /// <param name="i">The zero-based column ordinal.</param>
-        public static bool SafeGetBool(this IDataReader reader, int i)
-        {
-            if (!reader.IsDBNull(i))
-                return reader.GetBoolean(i);
-            else
-                return default(bool);
-        }
+        #endregion
 
-        /// <summary>
-        /// Gets the value of the specified column as a DateTime in Null-Safe mode.
-        /// </summary>
-        /// <param name="reader">The <see cref="SqlDataReader"/> instance.</param>
-        /// <param name="i">The name of the column.</param>
-        public static bool SafeGetBool(this IDataReader reader, string name)
-        {
-            bool boolean = default(bool);
-            bool.TryParse(reader[name].ToString(), out boolean);
-            return boolean;
-        }
+        #region Bool
+
+        public static bool GetBoolean(this IDataReader reader, string name) => (bool)reader[name];
+
+        public static bool SafeGetBoolean(this IDataReader reader, int i)
+            => reader.IsDBNull(i) ? default(bool)
+                                  : reader.GetBoolean(i);
+
+        public static bool SafeGetBoolean(this IDataReader reader, string name)
+            => reader.SafeGetBoolean(reader.GetOrdinal(name));
+
+        public static bool? SafeGetBooleanOrNull(this IDataReader reader, int i) => reader[reader.GetName(i)] as bool?;
+
+        public static bool? SafeGetBooleanOrNull(this IDataReader reader, string name) => reader[name] as bool?;
+
+        #endregion
     }
 }
