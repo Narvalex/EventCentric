@@ -9,13 +9,6 @@ namespace EventCentric.Polling
         private long consumerVersion;
         private long producerVersion;
 
-        // Locks
-        private static object _currentBufferVersionLock = new object();
-
-        private static object _consumerVersionLock = new object();
-        private static object _producerVersionLock = new object();
-
-
         public SubscriptionBuffer(string streamType, string url, string token, long currentBufferVersion, bool isPoisoned)
         {
             this.StreamType = streamType;
@@ -28,31 +21,15 @@ namespace EventCentric.Polling
             this.EventsInProcessorBag = new ConcurrentBag<EventInProcessorBucket>();
         }
 
-        public string StreamType { get; private set; }
-        public string Url { get; private set; }
-        public string Token { get; private set; }
+        public string StreamType { get; }
+        public string Url { get; }
+        public string Token { get; }
 
         /// <summary>
         /// The processor buffer version is the lowest event collection version that the processor was handling when starting from cold.
         /// When is on running, is the lastest buffer version that was polled.
         /// </summary>
-        public long CurrentBufferVersion
-        {
-            get
-            {
-                lock (_currentBufferVersionLock)
-                {
-                    return this.currentBufferVersion;
-                }
-            }
-            set
-            {
-                lock (_currentBufferVersionLock)
-                {
-                    this.currentBufferVersion = value;
-                }
-            }
-        }
+        public long CurrentBufferVersion { get; set; }
 
         public volatile bool IsPolling;
         public volatile bool IsPoisoned;
@@ -68,41 +45,9 @@ namespace EventCentric.Polling
         public volatile ConcurrentBag<EventInProcessorBucket> EventsInProcessorBag;
 
         // Metrics
-        public long ConsumerVersion
-        {
-            get
-            {
-                lock (_consumerVersionLock)
-                {
-                    return this.consumerVersion;
-                }
-            }
-            set
-            {
-                lock (_consumerVersionLock)
-                {
-                    this.consumerVersion = value;
-                }
-            }
-        }
+        public long ConsumerVersion { get; set; }
 
-        public long ProducerVersion
-        {
-            get
-            {
-                lock (_producerVersionLock)
-                {
-                    return this.producerVersion;
-                }
-            }
-            set
-            {
-                lock (_producerVersionLock)
-                {
-                    this.producerVersion = value;
-                }
-            }
-        }
+        public long ProducerVersion { get; set; }
 
         public decimal UpToDatePercentage =>
             this.producerVersion == 0 ? 0
