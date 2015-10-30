@@ -50,6 +50,10 @@ namespace EventCentric.Processing
 
         public void Handle(NewIncomingEvent message)
         {
+#if DEBUG
+            this.log.Trace($"Processing an event fom {message.IncomingEvent.StreamType}");
+#endif
+
             this.HandleGracefully(message.IncomingEvent);
         }
 
@@ -96,18 +100,25 @@ namespace EventCentric.Processing
 
         public void Handle(StartEventProcessor message)
         {
-            base.log.Trace("Starting processor");
             base.Start();
-            base.bus.Publish(new EventProcessorStarted());
-            base.log.Trace("Processor started");
         }
 
         public void Handle(StopEventProcessor message)
         {
-            this.log.Trace("Stopping event processor");
             base.Stop();
-            this.bus.Publish(new EventProcessorStopped());
+        }
+
+        protected override void OnStarting()
+        {
+            base.log.Trace("Event processor started");
+            base.bus.Publish(new EventProcessorStarted());
+
+        }
+
+        protected override void OnStopping()
+        {
             this.log.Trace("Event processor stopped");
+            this.bus.Publish(new EventProcessorStopped());
         }
 
         /// <summary>

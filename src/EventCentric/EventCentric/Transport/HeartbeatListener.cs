@@ -41,6 +41,12 @@ namespace EventCentric.Transport
         {
             this.subscribersNamesAndUrls = this.GetSubscribersNamesAndUrls();
             this.RequestHeartbeats();
+            this.log.Trace("Heartbeat listener started");
+        }
+
+        protected override void OnStopping()
+        {
+            this.log.Trace("Heartbeat listener stopped");
         }
 
         private void RequestHeartbeats()

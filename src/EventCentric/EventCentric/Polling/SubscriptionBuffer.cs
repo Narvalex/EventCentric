@@ -6,8 +6,6 @@ namespace EventCentric.Polling
     public class SubscriptionBuffer : IMonitoredSubscription
     {
         private long currentBufferVersion;
-        private long consumerVersion;
-        private long producerVersion;
 
         public SubscriptionBuffer(string streamType, string url, string token, long currentBufferVersion, bool isPoisoned)
         {
@@ -50,8 +48,8 @@ namespace EventCentric.Polling
         public long ProducerVersion { get; set; }
 
         public decimal UpToDatePercentage =>
-            this.producerVersion == 0 ? 0
-                                      : (this.consumerVersion * 100) / this.producerVersion;
+            this.ProducerVersion == 0 ? 0
+                                      : (this.ConsumerVersion * 100) / this.ProducerVersion;
 
 
         public string ProducerName => this.StreamType;

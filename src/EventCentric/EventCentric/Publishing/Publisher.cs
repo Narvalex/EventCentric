@@ -49,13 +49,11 @@ namespace EventCentric.Publishing
 
         public void Handle(StopEventPublisher message)
         {
-            this.log.Trace("Stopping publisher");
             base.Stop();
         }
 
         public void Handle(StartEventPublisher message)
         {
-            this.log.Trace("Starting publisher");
             base.Start();
         }
 
@@ -118,8 +116,8 @@ namespace EventCentric.Publishing
 
         protected override void OnStopping()
         {
+            this.log.Trace("Publisher stopped");
             this.bus.Publish(new EventPublisherStopped());
-            this.log.Trace("Event publishers stopped");
         }
     }
 }

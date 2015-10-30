@@ -33,7 +33,7 @@ namespace EventCentric
             if (this.State == NodeState.Down)
             {
                 this.State = NodeState.Starting;
-                this.log.Trace("Starting client node");
+                this.log.Trace($"Starting queue node {this.Name}");
                 base.Start();
 
                 // Check if is started to release thread.
@@ -54,6 +54,8 @@ namespace EventCentric
 
         protected override void OnStarting()
         {
+            base.OnStarting();
+
             this.bus.Publish(
                 new StartHeartbeatListener(),
                 new StartEventPublisher());

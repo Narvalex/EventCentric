@@ -42,7 +42,7 @@ namespace EventCentric
             if (this.State == NodeState.Down)
             {
                 this.State = NodeState.Starting;
-                this.log.Trace("Starting node");
+                this.log.Trace($"Starting node {this.Name}");
                 base.Start();
 
                 // Check if is started to release thread.
@@ -66,6 +66,8 @@ namespace EventCentric
 
         protected override void OnStarting()
         {
+            base.OnStarting();
+
             if (!this.hasPoller)
                 this.log.Trace("No poller detected");
 

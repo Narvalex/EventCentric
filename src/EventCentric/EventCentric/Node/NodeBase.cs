@@ -15,5 +15,17 @@ namespace EventCentric
         }
 
         public string Name { get; private set; }
+
+        protected override void OnStarting()
+        {
+            var isRelease = true;
+#if DEBUG
+            isRelease = false;
+#endif
+            if (isRelease)
+                this.log.Trace($"REALEASE build detected");
+            else
+                this.log.Trace($"DEBUG build detected");
+        }
     }
 }

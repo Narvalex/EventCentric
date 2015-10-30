@@ -224,14 +224,11 @@ namespace EventCentric.Polling
 
         public void Handle(StopEventPoller message)
         {
-            this.log.Trace("Stopping poller");
             base.Stop();
-            this.log.Trace("Poller stopped");
         }
 
         public void Handle(StartEventPoller message)
         {
-            this.log.Trace("Starting poller");
             base.Start();
         }
 
@@ -242,13 +239,14 @@ namespace EventCentric.Polling
             Task.Factory.StartNewLongRunning(() => this.DispatchEventsFromBufferPool());
 
             // Ensure to start everything;
+            this.log.Trace("Poller started");
             this.bus.Publish(new EventPollerStarted());
-            this.log.Trace("Pollster started");
         }
 
         protected override void OnStopping()
         {
             // Ensure to stop everything;
+            this.log.Trace("Poller stopped");
             this.bus.Publish(new EventPollerStopped());
         }
 
