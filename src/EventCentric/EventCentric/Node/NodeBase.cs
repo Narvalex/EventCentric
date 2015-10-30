@@ -23,7 +23,7 @@ namespace EventCentric
             isRelease = false;
 #endif
             if (isRelease)
-                this.log.Trace($"REALEASE build detected");
+                this.log.Trace($"RELEASE build detected");
             else
                 this.log.Trace($"DEBUG build detected");
         }
