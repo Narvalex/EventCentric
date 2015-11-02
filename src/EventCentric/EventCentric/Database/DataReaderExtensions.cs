@@ -49,7 +49,8 @@ namespace EventCentric.Database
 
         #region Int32
 
-        public static int GetInt32(this IDataReader reader, string name) => (int)reader[name];
+        public static int GetInt32(this IDataReader reader, string name)
+            => (int)reader[name];
 
         public static int SafeGetInt32(this IDataReader reader, int i)
             => reader.IsDBNull(i) ? default(int)
