@@ -117,15 +117,27 @@ namespace EventCentric.Polling
 
             var processorBufferVersion = rawEvents.Min(e => e.EventCollectionVersion);
 
-#if DEBUG
-            this.log.Trace("Flushing {0} event/s of {1} queue with {2} event/s pulled from {3}", rawEvents.Count, buffer.StreamType, eventsInQueueCount, buffer.Url);
-#endif
-
             // Reset the bag;
             buffer.EventsInProcessorBag = new ConcurrentBag<EventInProcessorBucket>();
             var streams = rawEvents.Select(raw =>
             {
-                var incomingEvent = this.serializer.Deserialize<IEvent>(raw.Payload);
+                IEvent incomingEvent;
+
+                try
+                {
+                    incomingEvent = this.serializer.Deserialize<IEvent>(raw.Payload);
+                }
+                catch (Exception ex)
+                {
+                    var errorMessage = $"An error occurred while trying to deserialize a payload from an incoming event. Check the inner exception for more information. System will shut down.";
+                    this.log.Error(ex, errorMessage);
+
+                    this.bus.Publish(
+                        new FatalErrorOcurred(
+                            new FatalErrorException(errorMessage, ex)));
+
+                    throw;
+                }
 
                 ((Event)incomingEvent).EventCollectionVersion = raw.EventCollectionVersion;
                 ((Event)incomingEvent).ProcessorBufferVersion = processorBufferVersion;
@@ -145,6 +157,8 @@ namespace EventCentric.Polling
             foreach (var stream in streams)
                 this.bus.Publish(new NewIncomingEvents(stream.Events.OrderBy(x => x.Version).ToArray()));
 
+            this.log.Trace($"Flushing {rawEvents.Count} event/s of {buffer.StreamType} queue with {eventsInQueueCount} event/s pulled from {buffer.Url}");
+
             return true;
         }
 
@@ -159,7 +173,7 @@ namespace EventCentric.Polling
             }
             catch (Exception ex)
             {
-                var errorMessage = $@"An error ocureed while receiving poll response message. Check if the stream type matches that of the subscribed source. Remote message type that probably was not found is '{response.StreamType}'";
+                var errorMessage = $@"An error occurred while receiving poll response message. Check if the stream type matches that of the subscribed source. Remote message type that probably was not found is '{response.StreamType}'";
                 this.log.Error(ex, errorMessage);
 
                 this.bus.Publish(
@@ -256,6 +270,7 @@ namespace EventCentric.Polling
             {
                 Task.Factory.StartNewLongRunning(() =>
                 {
+
                     while (!base.stopping)
                     {
                         var isStarving = !this.TryFlush(buffer);
@@ -263,6 +278,7 @@ namespace EventCentric.Polling
                         if (isStarving)
                             Thread.Sleep(100);
                     }
+
                 });
             }
         }
