@@ -10,9 +10,9 @@ using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace EventCentric.Transport
+namespace EventCentric
 {
-    public class HeartbeatListener : FSM,
+    public class HeartbeatListener : NodeWorker,
         IMessageHandler<StartHeartbeatListener>
     {
         private readonly Func<bool, HeartbeatDbContext> contextFactory;

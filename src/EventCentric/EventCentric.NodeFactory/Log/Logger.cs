@@ -1,7 +1,6 @@
 ﻿using EventCentric.Log;
 using System;
 using System.Collections.Concurrent;
-using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -14,11 +13,12 @@ namespace EventCentric.NodeFactory.Log
         private static int _nextMessageId = 0;
 
         private readonly ConcurrentQueue<Message> messageQueue = new ConcurrentQueue<Message>();
-        private static readonly int _processId = Process.GetCurrentProcess().Id;
 
         private readonly int messageMaxCount = 300;
 
         private static readonly Logger _logger = new Logger();
+
+        private readonly LogMessageBuilder messageBuilder = new LogMessageBuilder();
 
         private Logger()
         { }
@@ -30,7 +30,7 @@ namespace EventCentric.NodeFactory.Log
             this.messageQueue.Enqueue(new Message
             {
                 id = this.GetMessageId(),
-                message = this.BuildMessage("ERROR", format, args)
+                message = this.messageBuilder.BuildMessage("ERROR", format, args)
             });
 
             this.Flush();
@@ -41,7 +41,7 @@ namespace EventCentric.NodeFactory.Log
             this.messageQueue.Enqueue(new Message
             {
                 id = this.GetMessageId(),
-                message = this.BuildMessage(ex, "ERROR", format, args)
+                message = this.messageBuilder.BuildMessage(ex, "ERROR", format, args)
             });
 
             this.Flush();
@@ -52,7 +52,7 @@ namespace EventCentric.NodeFactory.Log
             this.messageQueue.Enqueue(new Message
             {
                 id = this.GetMessageId(),
-                message = this.BuildMessage("TRACE", format, args)
+                message = this.messageBuilder.BuildMessage("TRACE", format, args)
             });
 
             this.Flush();
@@ -81,34 +81,7 @@ namespace EventCentric.NodeFactory.Log
             return Interlocked.Increment(ref _nextMessageId);
         }
 
-        private string BuildMessage(string level, string format, params object[] args)
-        {
-            return string.Format("[{0:00000},{1:00},{2:HH:mm:ss.fff},{3}] {4}",
-                                    _processId,
-                                    Thread.CurrentThread.ManagedThreadId,
-                                    DateTime.Now,
-                                    level,
-                                    args.Length == 0 ? format : string.Format(format, args));
-        }
 
-        private string BuildMessage(Exception ex, string level, string format, params object[] args)
-        {
-            var stringBuilder = new StringBuilder();
-            while (ex != null)
-            {
-                stringBuilder.AppendLine();
-                stringBuilder.AppendLine(ex.ToString());
-                ex = ex.InnerException;
-            }
-
-            return string.Format("[{0:00000},{1:00},{2:HH:mm:ss.fff},{3}] {4}\nEXCEPTION(S) OCCURRED:{5}",
-                                 _processId,
-                                 Thread.CurrentThread.ManagedThreadId,
-                                 DateTime.Now,
-                                 level,
-                                 args.Length == 0 ? format : string.Format(format, args),
-                                 stringBuilder);
-        }
 
         public void Trace(params string[] lines)
         {

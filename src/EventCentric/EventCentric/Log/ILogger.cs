@@ -6,7 +6,7 @@ namespace EventCentric.Log
     {
         void Trace(string format, params object[] args);
 
-        void Trace(string[] texts);
+        void Trace(string[] lines);
 
         void Error(string format, params object[] args);
 

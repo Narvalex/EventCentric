@@ -15,7 +15,7 @@ using System.Threading.Tasks;
 
 namespace EventCentric.Polling
 {
-    public class Poller : FSM, IMonitoredSubscriber,
+    public class Poller : NodeWorker, IMonitoredSubscriber,
         IMessageHandler<StartEventPoller>,
         IMessageHandler<StopEventPoller>,
         IMessageHandler<PollResponseWasReceived>,
@@ -73,7 +73,7 @@ namespace EventCentric.Polling
             foreach (var subscription in this.bufferPool)
             {
                 subscriptionCount += 1;
-                this.log.Trace(" Subscription {0} | Name: {1} | {1}", subscriptionCount, subscription.StreamType, subscription.Url);
+                this.log.Trace($" Subscription {subscriptionCount} | Name: {subscription.StreamType} | {subscription.Url} | Buffer version: {subscription.CurrentBufferVersion}");
             }
         }
 

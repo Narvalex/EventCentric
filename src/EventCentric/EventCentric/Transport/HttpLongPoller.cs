@@ -7,10 +7,6 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading;
 
-// More info: http://stackoverflow.com/questions/17700089/whats-the-best-way-to-target-multiple-versions-of-the-net-framework
-// and: https://msdn.microsoft.com/en-us/library/aa691098(v=vs.71).aspx
-
-
 namespace EventCentric.Transport
 {
     public class HttpLongPoller : Worker, IHttpLongPoller
@@ -35,7 +31,6 @@ namespace EventCentric.Transport
         public void PollSubscription(string streamType, string url, string token, long fromVersion)
         {
             // when poll arives, publish in bus.
-
             using (var httpClient = this.CreateHttpClient(token))
             {
                 var dynamicUrl = $"{url}/{fromVersion}/{this.pollerName}";
@@ -52,6 +47,7 @@ namespace EventCentric.Transport
                 catch (Exception ex)
                 {
                     this.log.Error(ex, $"Error while polling {streamType} located on {dynamicUrl}");
+
                     // To have a break;
                     Thread.Sleep(10000);
                     this.bus.Publish(new PollResponseWasReceived(new PollResponse(true, false, streamType, null, 0, 0)));

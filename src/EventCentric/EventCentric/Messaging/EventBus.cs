@@ -9,7 +9,7 @@ using System.Collections.Generic;
 
 namespace EventCentric.Messaging
 {
-    public class EventBus : FSM, IEventBus,
+    public class EventBus : NodeWorker, IEventBus,
         IMessageHandler<StartEventQueue>,
         IMessageHandler<StopEventQueue>
     {

@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace EventCentric.Utils.Testing
 {
-    public static class EventSourcedExtensionsForSpecifications
+    public static class EventSourcedAggregateExtensions
     {
         public static TAggregate GivenOn<TAggregate>(this TAggregate aggregate, IEvent e)
             where TAggregate : IEventSourced

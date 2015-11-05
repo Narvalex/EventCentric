@@ -5,6 +5,7 @@ using InformesDeServicio.Messages.Publicadores.Stored.Events;
 using InformesDeServicio.Publicadores;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
+using System.Linq;
 
 namespace InformesDeServicio.Tests.Publicadores.PublicadorFixture
 {
@@ -50,6 +51,29 @@ namespace InformesDeServicio.Tests.Publicadores.PublicadorFixture
 
             Assert.AreNotEqual(dtoOriginal, aggregate.SingleEventOfType<DatosDePublicadorActualizados>().DatosActualizados);
             Assert.AreEqual(dtoActualizado, aggregate.SingleEventOfType<DatosDePublicadorActualizados>().DatosActualizados);
+        }
+
+        [TestMethod]
+        public void ProcessorTest_DADO_publicador_registrado_CUANDO_se_actualizan_los_datos_ENTONCES_la_actualizacion_se_hace_efectiva()
+        {
+            var publicadorId = Guid.NewGuid();
+            var sut = new EventProcessorTestHelper<Publicador, PublicadorProcessor>(publicadorId);
+            var processor = new PublicadorProcessor(sut.Bus, sut.Log, sut.EventStore);
+            sut.Setup(processor);
+
+            var dtoOriginal = new DatosDePublicador("Alexis", "Narvaez");
+            var dtoActualizado = new DatosDePublicador("Alexis Darien", "Narváez Gamarra");
+
+            sut.Given(new PublicadorRegistrado(dtoOriginal));
+            var aggregate = sut.When(new ActualizarDatosDePublicador(publicadorId, dtoActualizado, DateTime.Now))
+                               .ThenExpectAtLeastOne<DatosDePublicadorActualizados>()
+                               .AndNotAny<PublicadorRegistrado>();
+
+            var persistedMemento = sut.ThenPersistsNewSerializedMemento<PublicadorMemento>();
+            var persistedEvents = sut.ThenPersistsNewSerializedEvents();
+
+            Assert.IsNotNull(persistedMemento);
+            Assert.IsTrue(persistedEvents.Count() == aggregate.PendingEvents.Count());
         }
 
         [TestMethod]

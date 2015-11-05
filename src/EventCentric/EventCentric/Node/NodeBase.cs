@@ -4,7 +4,7 @@ using EventCentric.Utils;
 
 namespace EventCentric
 {
-    public abstract class NodeBase : FSM
+    public abstract class NodeBase : NodeWorker
     {
         protected NodeBase(string name, IBus bus, ILogger log)
             : base(bus, log)

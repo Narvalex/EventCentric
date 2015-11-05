@@ -62,6 +62,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="EventSourcing\EventExtensions.cs" />
+    <Compile Include="Log\ConsoleLogger.cs" />
+    <Compile Include="Log\LogMessageBuilder.cs" />
     <Compile Include="Messaging\EventBusExtensions.cs" />
     <Compile Include="Messaging\Infrastructure\Events\NewIncomingEvent.cs" />
     <Compile Include="Messaging\Infrastructure\InMemoryVersioning.cs" />
@@ -153,11 +155,11 @@
     <Compile Include="Serialization\JsonTextSerializer.cs" />
     <Compile Include="Serialization\TextSerializerExtensions.cs" />
     <Compile Include="Transport\EventInProcessorBucket.cs" />
-    <Compile Include="Transport\HeartbeatListener.cs" />
+    <Compile Include="Node\HeartbeatListener.cs" />
     <Compile Include="Transport\HttpLongPoller.cs" />
     <Compile Include="Transport\IHttpLongPoller.cs" />
     <Compile Include="Transport\NewRawEvent.cs" />
-    <Compile Include="Messaging\Infrastructure\FSM.cs" />
+    <Compile Include="Messaging\Infrastructure\NodeWorker.cs" />
     <Compile Include="Processing\EventProcessor.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Publishing\Publisher.cs" />
@@ -167,7 +169,8 @@
     <Compile Include="Utils\DictionaryExtensions.cs" />
     <Compile Include="Utils\Ensure.cs" />
     <Compile Include="Utils\GuidProvider.cs" />
-    <Compile Include="Utils\Testing\EventSourcedExtensionsForSpecifications.cs" />
+    <Compile Include="Utils\Testing\EventProcessorTestHelper.cs" />
+    <Compile Include="Utils\Testing\EventSourcedAggregateExtensions.cs" />
     <Compile Include="Utils\TimeProvider.cs" />
     <Compile Include="Utils\TaskExtensions.cs" />
     <Compile Include="Utils\ValueObject.cs" />

@@ -11,7 +11,7 @@ using System.Threading;
 
 namespace EventCentric.Publishing
 {
-    public class Publisher : FSM, IEventSource,
+    public class Publisher : NodeWorker, IEventSource,
         IMessageHandler<StartEventPublisher>,
         IMessageHandler<StopEventPublisher>,
         IMessageHandler<EventStoreHasBeenUpdated>

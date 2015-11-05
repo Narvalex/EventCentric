@@ -4,7 +4,7 @@ using EventCentric.Utils;
 
 namespace EventCentric.Messaging
 {
-    public abstract class FSM : Worker,
+    public abstract class NodeWorker : Worker,
         IMessageHandler<FatalErrorOcurred>
     {
         protected volatile bool stopping;
@@ -13,7 +13,7 @@ namespace EventCentric.Messaging
         protected FatalErrorException fatalException = null;
         protected ILogger log;
 
-        protected FSM(IBus bus, ILogger log)
+        protected NodeWorker(IBus bus, ILogger log)
             : base(bus)
         {
             Ensure.NotNull(log, "log");
