@@ -152,7 +152,9 @@
     <Compile Include="Processing\ISubscribedTo.cs" />
     <Compile Include="Publishing\IEventSource.cs" />
     <Compile Include="Serialization\ITextSerializer.cs" />
+    <Compile Include="Serialization\JsonTextSerializerWithIdentedFormatting.cs" />
     <Compile Include="Serialization\JsonTextSerializer.cs" />
+    <Compile Include="Serialization\TextSerializerExtensionsForDataContract.cs" />
     <Compile Include="Serialization\TextSerializerExtensions.cs" />
     <Compile Include="Transport\EventInProcessorBucket.cs" />
     <Compile Include="Node\HeartbeatListener.cs" />
@@ -173,7 +175,6 @@
     <Compile Include="Utils\Testing\EventSourcedAggregateExtensions.cs" />
     <Compile Include="Utils\TimeProvider.cs" />
     <Compile Include="Utils\TaskExtensions.cs" />
-    <Compile Include="Utils\ValueObject.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Config\ConfigTemplate.xml">

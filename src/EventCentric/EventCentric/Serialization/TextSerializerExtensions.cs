@@ -1,6 +1,4 @@
 ﻿using System.IO;
-using System.Runtime.Serialization.Json;
-using System.Text;
 
 namespace EventCentric.Serialization
 {
@@ -21,16 +19,6 @@ namespace EventCentric.Serialization
             }
         }
 
-        public static string SerializeDataContract<T>(this ITextSerializer s, T data)
-        {
-            var serializer = new DataContractJsonSerializer(typeof(T));
-            using (var memoryStream = new MemoryStream())
-            {
-                serializer.WriteObject(memoryStream, data);
-                return Encoding.UTF8.GetString(memoryStream.ToArray());
-            }
-        }
-
         /// <summary>
         /// Deserializes the specified string into an object of type <typeparamref name="T"/>.
         /// </summary>
@@ -43,13 +31,7 @@ namespace EventCentric.Serialization
             }
         }
 
-        public static T DeserializeDataContract<T>(this ITextSerializer s, string serialized)
-        {
-            var serializer = new DataContractJsonSerializer(typeof(T));
-            using (var memoryStream = new MemoryStream(Encoding.UTF8.GetBytes(serialized)))
-            {
-                return (T)serializer.ReadObject(memoryStream);
-            }
-        }
+        public static T SerializeAndDeserialize<T>(this ITextSerializer serializer, T data)
+            => serializer.Deserialize<T>(serializer.Serialize(data));
     }
 }

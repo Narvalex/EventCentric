@@ -7,29 +7,29 @@ namespace EventCentric.EventSourcing
     [Serializable]
     public class StreamNotFoundException : Exception
     {
-        private readonly Guid entityId;
-        private readonly string entityType;
+        private readonly Guid streamId;
+        private readonly string streamType;
 
         public StreamNotFoundException()
         { }
 
         public StreamNotFoundException(Guid entityId) : base(entityId.ToString())
         {
-            this.entityId = entityId;
+            this.streamId = entityId;
         }
 
         public StreamNotFoundException(Guid entityId, string entityType)
             : base(entityType + ": " + entityId.ToString())
         {
-            this.entityId = entityId;
-            this.entityType = entityType;
+            this.streamId = entityId;
+            this.streamType = entityType;
         }
 
         public StreamNotFoundException(Guid entityId, string entityType, string message, Exception inner)
             : base(message, inner)
         {
-            this.entityId = entityId;
-            this.entityType = entityType;
+            this.streamId = entityId;
+            this.streamType = entityType;
         }
 
         protected StreamNotFoundException(
@@ -39,26 +39,26 @@ namespace EventCentric.EventSourcing
             if (info == null)
                 throw new ArgumentNullException("info");
 
-            this.entityId = Guid.Parse(info.GetString("entityId"));
-            this.entityType = info.GetString("entityType");
+            this.streamId = Guid.Parse(info.GetString("streamId"));
+            this.streamType = info.GetString("streamType");
         }
 
-        public Guid EntityId
+        public Guid StreamId
         {
-            get { return this.entityId; }
+            get { return this.streamId; }
         }
 
-        public string EntityType
+        public string StreamType
         {
-            get { return this.entityType; }
+            get { return this.streamType; }
         }
 
         [SecurityPermission(SecurityAction.Demand, SerializationFormatter = true)]
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);
-            info.AddValue("entityId", this.entityId.ToString());
-            info.AddValue("entityType", this.entityType);
+            info.AddValue("streamId", this.streamId.ToString());
+            info.AddValue("streamType", this.streamType);
         }
     }
 }

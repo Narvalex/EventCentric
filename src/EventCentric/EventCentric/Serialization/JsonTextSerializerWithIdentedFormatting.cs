@@ -4,11 +4,11 @@ using System.Runtime.Serialization;
 
 namespace EventCentric.Serialization
 {
-    public class JsonTextSerializer : ITextSerializer
+    public class JsonTextSerializerWithIdentedFormatting : ITextSerializer
     {
         private readonly JsonSerializer serializer;
 
-        public JsonTextSerializer()
+        public JsonTextSerializerWithIdentedFormatting()
         : this(JsonSerializer.Create(new JsonSerializerSettings
         {
             // Allows deserializing to the actual runtime type
@@ -18,7 +18,7 @@ namespace EventCentric.Serialization
         }))
         { }
 
-        public JsonTextSerializer(JsonSerializer serializer)
+        public JsonTextSerializerWithIdentedFormatting(JsonSerializer serializer)
         {
             this.serializer = serializer;
         }
@@ -26,6 +26,8 @@ namespace EventCentric.Serialization
         public void Serialize(TextWriter writer, object graph)
         {
             var jsonWriter = new JsonTextWriter(writer);
+
+            jsonWriter.Formatting = Formatting.Indented;
 
             this.serializer.Serialize(jsonWriter, graph);
 

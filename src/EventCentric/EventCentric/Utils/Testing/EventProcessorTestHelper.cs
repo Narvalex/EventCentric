@@ -114,19 +114,15 @@ namespace EventCentric.Utils.Testing
 
             long IEventStore<TAggregate>.Save(TAggregate eventSourced, IEvent incomingEvent)
             {
-                var events = eventSourced.PendingEvents
+                var events = eventSourced
+                            .PendingEvents
                             .ToList()
-                            .Select(e =>
-                            {
-                                var serialized = this.serializer.Serialize(e);
-                                return this.serializer.Deserialize<IEvent>(serialized);
-                            });
+                            .Select(e => this.serializer.SerializeAndDeserialize(e));
 
                 this.AppendedStream.AddRange(events);
                 this.UpdatedAggregate = eventSourced;
                 var memento = ((IMementoOriginator)eventSourced).SaveToMemento();
-                var serializedMemento = this.serializer.Serialize(memento);
-                this.UpdatedSnapshot = this.serializer.Deserialize<IMemento>(serializedMemento);
+                this.UpdatedSnapshot = this.serializer.SerializeAndDeserialize(memento);
 
                 return events.Max(e => e.Version);
             }
