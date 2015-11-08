@@ -35,12 +35,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventCentric.Heartbeating",
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Empresas", "Empresas", "{34EB9962-7371-4522-ACAC-B0A6442762CD}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{565E3089-FA64-4C48-B794-FEE52A806DDF}"
-	ProjectSection(SolutionItems) = preProject
-		SQLQuery1.sql = SQLQuery1.sql
-		WebEssentials2015-Settings.json = WebEssentials2015-Settings.json
-	EndProjectSection
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventCentric.Authorization", "EventCentric.Authorization\EventCentric.Authorization.csproj", "{39A21D07-83A2-402A-9AAF-56B3A225487A}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EasyTrade.InventarioQueue", "samples\EasyTrade\EasyTrade.InventarioQueue\EasyTrade.InventarioQueue.csproj", "{FDDE5257-CA89-4BFD-8249-ADC922F7FF13}"
