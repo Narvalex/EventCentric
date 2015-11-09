@@ -103,6 +103,10 @@
       <Project>{39a21d07-83a2-402a-9aaf-56b3a225487a}</Project>
       <Name>EventCentric.Authorization</Name>
     </ProjectReference>
+    <ProjectReference Include="..\EventCentric.Heartbeating\EventCentric.Heartbeating.csproj">
+      <Project>{6c42f2eb-a742-4982-bf98-76b7b82871e5}</Project>
+      <Name>EventCentric.Heartbeating</Name>
+    </ProjectReference>
     <ProjectReference Include="..\EventCentric\EventCentric.csproj">
       <Project>{4b00e8dd-813c-4abb-8c87-c664d188f62c}</Project>
       <Name>EventCentric</Name>

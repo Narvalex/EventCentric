@@ -47,6 +47,7 @@ namespace EventCentric.Transport
                 catch (Exception ex)
                 {
                     this.log.Error(ex, $"Error while polling {streamType} located on {dynamicUrl}");
+                    this.log.Trace($"An error has been detected while polling {streamType} located on {dynamicUrl} but a retry will be performed every 10 seconds");
 
                     // To have a break;
                     Thread.Sleep(10000);

@@ -61,6 +61,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InformesDeServicio.Publicad
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Publicadores", "Publicadores", "{89DBBE91-60CB-4EC4-B8D4-FDF6BA943D5D}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Docs", "Docs", "{7B295ED5-3D1D-4696-B767-21792E717374}"
+	ProjectSection(SolutionItems) = preProject
+		..\Docs\AboutHeartbeatController.txt = ..\Docs\AboutHeartbeatController.txt
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

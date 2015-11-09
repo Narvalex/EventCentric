@@ -157,7 +157,6 @@
     <Compile Include="Serialization\TextSerializerExtensionsForDataContract.cs" />
     <Compile Include="Serialization\TextSerializerExtensions.cs" />
     <Compile Include="Transport\EventInProcessorBucket.cs" />
-    <Compile Include="Node\HeartbeatListener.cs" />
     <Compile Include="Transport\HttpLongPoller.cs" />
     <Compile Include="Transport\IHttpLongPoller.cs" />
     <Compile Include="Transport\NewRawEvent.cs" />
