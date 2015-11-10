@@ -14,11 +14,13 @@ namespace EventCentric.Utils.Testing
         where TAggregate : class, IEventSourced
         where TProcessor : EventProcessor<TAggregate>
     {
-        private readonly EventStoreStub eventStore;
+        private readonly ITextSerializer serializer;
+        private readonly EventStoreStub store;
 
-        public EventProcessorTestHelper(Guid streamId)
+        public EventProcessorTestHelper(Guid? defaultStreamId = null)
         {
-            this.eventStore = new EventStoreStub(streamId);
+            this.serializer = new JsonTextSerializer();
+            this.store = new EventStoreStub(defaultStreamId, this.serializer);
             this.Bus = new BusStub();
             this.Log = new ConsoleLogger();
         }
@@ -27,29 +29,29 @@ namespace EventCentric.Utils.Testing
 
         public ILogger Log { get; }
 
-        public IEventStore<TAggregate> EventStore => this.eventStore;
+        public IEventStore<TAggregate> Store => this.store;
 
         public TProcessor Processor { get; private set; }
 
         public void Setup(TProcessor processor) => this.Processor = processor;
 
         public void Given(params IEvent[] eventStream)
-            => this.eventStore
+            => this.store
                    .ActualStream
-                   .AddRange(eventStream);
+                   .AddRange(eventStream.Select(e => this.serializer.SerializeAndDeserialize(e)));
 
         public void Given(IMemento memento)
-            => this.eventStore.ActualSnapshot = memento;
+            => this.store.ActualSnapshot = this.serializer.SerializeAndDeserialize(memento);
 
         public TAggregate When(IEvent @event)
         {
-            this.Processor.Handle(new NewIncomingEvent(@event));
-            return this.eventStore.UpdatedAggregate;
+            this.Processor.Handle(new NewIncomingEvent(this.serializer.SerializeAndDeserialize(@event)));
+            return this.store.UpdatedAggregate;
         }
 
-        public TMemento ThenPersistsNewSerializedMemento<TMemento>() => (TMemento)this.eventStore.UpdatedSnapshot;
+        public TMemento ThenPersistsNewSerializedMemento<TMemento>() => (TMemento)this.store.UpdatedSnapshot;
 
-        public IEnumerable<IEvent> ThenPersistsNewSerializedEvents() => this.eventStore.AppendedStream;
+        public IEnumerable<IEvent> ThenPersistsNewSerializedEvents() => this.store.AppendedStream;
 
         public class BusStub : IBus, IBusRegistry
         {
@@ -65,7 +67,7 @@ namespace EventCentric.Utils.Testing
         public class EventStoreStub : IEventStore<TAggregate>
         {
             private readonly Guid streamId;
-            public ITextSerializer serializer = new JsonTextSerializer();
+            public ITextSerializer serializer;
 
             public readonly List<IEvent> ActualStream = new List<IEvent>();
             public IMemento ActualSnapshot = null;
@@ -78,9 +80,10 @@ namespace EventCentric.Utils.Testing
             private readonly Func<Guid, IEnumerable<IEvent>, TAggregate> aggregateFactory;
             private readonly Func<Guid, IMemento, TAggregate> originatorAggregateFactory;
 
-            public EventStoreStub(Guid streamId)
+            public EventStoreStub(Guid? streamId, ITextSerializer serializer)
             {
-                this.streamId = streamId;
+                this.streamId = streamId == null ? Guid.Empty : streamId.Value;
+                this.serializer = serializer;
 
                 var fromMementoConstructor = typeof(TAggregate).GetConstructor(new[] { typeof(Guid), typeof(IMemento) });
                 Ensure.CastIsValid(fromMementoConstructor, "Type T must have a constructor with the following signature: .ctor(Guid, IMemento)");

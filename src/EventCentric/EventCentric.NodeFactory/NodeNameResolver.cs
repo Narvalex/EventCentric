@@ -1,10 +1,10 @@
 ﻿namespace EventCentric
 {
-    public static class NodeNameProvider
+    public static class NodeNameResolver
     {
         public static string ResolveNameOf<T>()
         {
-            return $"{typeof(T).Name}_{typeof(T).GUID}";
+            return $"{typeof(T).FullName}_{typeof(T).GUID}";
         }
     }
 }

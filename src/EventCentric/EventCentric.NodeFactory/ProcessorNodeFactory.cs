@@ -21,7 +21,7 @@ namespace EventCentric
     {
         public static INode CreateNode(IUnityContainer container, bool isSubscriptor, Func<IBus, ILogger, IEventStore<TAggregate>, TProcessor> processorFactory = null, bool enableHeartbeatingListener = false, bool setLocalTime = true, bool setSequentialGuid = true)
         {
-            var nodeName = NodeNameProvider.ResolveNameOf<TAggregate>();
+            var nodeName = NodeNameResolver.ResolveNameOf<TAggregate>();
 
             System.Data.Entity.Database.SetInitializer<EventStoreDbContext>(null);
             System.Data.Entity.Database.SetInitializer<EventQueueDbContext>(null);
@@ -95,8 +95,8 @@ namespace EventCentric
         /// <returns></returns>
         public static INode CreateNodeWithApp<TApp>(IUnityContainer container, bool isSubscriptor, Func<IBus, ILogger, IEventStore<TAggregate>, TProcessor> processorFactory = null, bool enableHeartbeatingListener = false, bool setLocalTime = true, bool setSequentialGuid = true)
         {
-            var nodeName = NodeNameProvider.ResolveNameOf<TAggregate>();
-            var streamType = NodeNameProvider.ResolveNameOf<TApp>();
+            var nodeName = NodeNameResolver.ResolveNameOf<TAggregate>();
+            var streamType = NodeNameResolver.ResolveNameOf<TApp>();
 
             System.Data.Entity.Database.SetInitializer<EventStoreDbContext>(null);
             System.Data.Entity.Database.SetInitializer<EventQueueDbContext>(null);
@@ -140,7 +140,7 @@ namespace EventCentric
             var eventBus = new EventBus(bus, log, eventQueue);
             container.RegisterInstance<IEventBus>(eventBus);
 
-            var fsm = new ProcessorNode(NodeNameProvider.ResolveNameOf<TAggregate>(), bus, log, isSubscriptor, enableHeartbeatingListener);
+            var fsm = new ProcessorNode(NodeNameResolver.ResolveNameOf<TAggregate>(), bus, log, isSubscriptor, enableHeartbeatingListener);
             container.RegisterInstance<INode>(fsm);
 
             if (processorFactory == null)
@@ -177,7 +177,7 @@ namespace EventCentric
         /// </summary>
         public static INode CreateDenormalizerNode<TDbContext>(IUnityContainer container, Func<IBus, ILogger, IEventStore<TAggregate>, TProcessor> processorFactory = null, bool setLocalTime = true, bool setSequentialGuid = true) where TDbContext : IEventStoreDbContext
         {
-            var nodeName = NodeNameProvider.ResolveNameOf<TAggregate>();
+            var nodeName = NodeNameResolver.ResolveNameOf<TAggregate>();
 
             System.Data.Entity.Database.SetInitializer<EventStoreDbContext>(null);
             System.Data.Entity.Database.SetInitializer<EventQueueDbContext>(null);

@@ -13,7 +13,7 @@ namespace EasyTrade.EmpresasQueue.Web.App_Start
             var container = new UnityContainer();
 
             // Node initializer
-            EmpresasQueueNodeInitializer.Initialize(container);
+            //EmpresasQueueNodeInitializer.Initialize(container);
 
             return container;
         });

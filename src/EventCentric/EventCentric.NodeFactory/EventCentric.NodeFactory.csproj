@@ -90,7 +90,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AuthorizationFactory.cs" />
-    <Compile Include="NodeNameProvider.cs" />
+    <Compile Include="NodeNameResolver.cs" />
     <Compile Include="QueueNodeFactory.cs" />
     <Compile Include="Log\Logger.cs" />
     <Compile Include="Log\LogHub.cs" />

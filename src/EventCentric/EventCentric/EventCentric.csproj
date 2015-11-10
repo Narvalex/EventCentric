@@ -67,9 +67,7 @@
     <Compile Include="Messaging\EventBusExtensions.cs" />
     <Compile Include="Messaging\Infrastructure\Events\NewIncomingEvent.cs" />
     <Compile Include="Messaging\Infrastructure\InMemoryVersioning.cs" />
-    <Compile Include="Node\ApplicationServiceBase.cs" />
     <Compile Include="EventSourcing\Memento.cs" />
-    <Compile Include="Node\CrudApplicationService.cs" />
     <Compile Include="Node\NodeBase.cs" />
     <Compile Include="Node\NodeInitializer.cs" />
     <Compile Include="Node\ApplicationService.cs" />
@@ -84,8 +82,6 @@
     <Compile Include="Database\DataReaderExtensions.cs" />
     <Compile Include="Log\ILogger.cs" />
     <Compile Include="Messaging\Infrastructure\SynchronousBus.cs" />
-    <Compile Include="Messaging\CrudEventBus.cs" />
-    <Compile Include="Messaging\CrudEventQueue.cs" />
     <Compile Include="Messaging\InMemoryEventQueue.cs" />
     <Compile Include="Repository\EventuallyConsistentDbContext.cs" />
     <Compile Include="Repository\IEventuallyConsistentDbContext.cs" />
@@ -93,7 +89,6 @@
     <Compile Include="Repository\Mapping\SubscriberHeartbeatEntity.cs" />
     <Compile Include="Database\OptimizedDbContext.cs" />
     <Compile Include="Repository\HeartbeatDbContext.cs" />
-    <Compile Include="Messaging\ICrudEventBus.cs" />
     <Compile Include="Config\IEventStoreConfig.cs" />
     <Compile Include="Database\SqlClientLite.cs" />
     <Compile Include="Database\TransientFaultHandlingDbConfiguration.cs" />
@@ -179,9 +174,10 @@
     <Content Include="Config\ConfigTemplate.xml">
       <SubType>Designer</SubType>
     </Content>
+    <Content Include="Repository\SqlScripts\DenormalizerNodeDb.sql" />
     <Content Include="Repository\SqlScripts\ProcessorNodeDbWithSubscribersHeartbeats.sql" />
     <Content Include="Repository\SqlScripts\QueueNodeDb.sql" />
-    <Content Include="Repository\SqlScripts\DenormalizerNodeDb.sql" />
+    <Content Include="Repository\SqlScripts\DenormalizerNodeDbWithEventualConsistencyResults.sql" />
     <Content Include="Repository\SqlScripts\ProcessorNodeDb.sql" />
   </ItemGroup>
   <ItemGroup>
