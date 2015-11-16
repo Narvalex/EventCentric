@@ -45,7 +45,7 @@ namespace EventCentric.Utils.Testing
         public void Given(Guid streamId, params IEvent[] eventStream)
         {
             this.store
-                   .Stream
+                   .Streams
                    .AddRange(eventStream.Select(e => this.serializer.SerializeAndDeserialize(e)));
             this.store.streamId = streamId;
         }
@@ -82,16 +82,44 @@ namespace EventCentric.Utils.Testing
             return this.store.Aggregate;
         }
 
-        public TMemento ThenPersistsNewSerializedMemento<TMemento>() => (TMemento)this.store.Snapshot;
+        public TAggregate When(params IEvent[] events)
+        {
+            foreach (var @event in events)
+                this.When(@event);
 
-        public IEnumerable<IEvent> ThenPersistsNewSerializedEvents() => this.store.Stream;
+            return this.store.Aggregate;
+        }
+
+        public TMemento ThenPersistsSnapshot<TMemento>() => (TMemento)this.store.Snapshot;
+
+        public IEnumerable<IEvent> ThenPersistsEvents() => this.store.Streams;
+
+        public void ThenUpdatesOneStream()
+        {
+            var streamCount = this.store.GetStreamCount();
+            if (streamCount == 1)
+                return;
+
+            throw new InvalidOperationException(
+                $"There was expected one stream to be updated, but {streamCount} streams where updated.");
+        }
+
+        public void ThenUpdatesMultipleStreams(int quantity)
+        {
+            var streamCount = this.store.GetStreamCount();
+            if (streamCount == quantity)
+                return;
+
+            throw new InvalidOperationException(
+                $"There was expected {quantity} streams to be updated, but {streamCount} stream/s was/where updated.");
+        }
 
         public class EventStoreStub : IEventStore<TAggregate>
         {
             internal Guid streamId;
             internal ITextSerializer serializer;
 
-            internal readonly List<IEvent> Stream = new List<IEvent>();
+            internal readonly List<IEvent> Streams = new List<IEvent>();
             internal IMemento Snapshot = null;
 
             internal TAggregate Aggregate = null;
@@ -112,12 +140,20 @@ namespace EventCentric.Utils.Testing
                 this.aggregateFactory = (id, streamOfEvents) => (TAggregate)fromStreamConstructor.Invoke(new object[] { id, streamOfEvents });
             }
 
+            public int GetStreamCount()
+            // More info: http://stackoverflow.com/questions/489258/linq-distinct-on-a-particular-property
+            => this.Streams
+                    .GroupBy(s => s.StreamId)
+                    .Select(g => g.First())
+                    .ToList()
+                    .Count();
+
             TAggregate IEventStore<TAggregate>.Find(Guid id)
             {
                 if (this.Snapshot != null)
                     return this.originatorAggregateFactory(id, this.Snapshot);
 
-                return this.Stream.Count > 0 ? this.aggregateFactory.Invoke(id, this.Stream)
+                return this.Streams.Count > 0 ? this.aggregateFactory.Invoke(id, this.Streams)
                                      : default(TAggregate);
             }
 
@@ -139,7 +175,7 @@ namespace EventCentric.Utils.Testing
                             .ToList()
                             .Select(e => this.serializer.SerializeAndDeserialize(e));
 
-                this.Stream.AddRange(events);
+                this.Streams.AddRange(events);
                 this.Aggregate = eventSourced;
                 var memento = ((IMementoOriginator)eventSourced).SaveToMemento();
                 this.Snapshot = this.serializer.SerializeAndDeserialize(memento);
