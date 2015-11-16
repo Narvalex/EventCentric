@@ -3,7 +3,7 @@
 namespace EventCentric.Messaging.Infrastructure
 {
     /// <summary>
-    /// In memeory versioning, based on: https://msdn.microsoft.com/en-us/library/system.datetime.ticks.aspx
+    /// In memory versioning, based on: https://msdn.microsoft.com/en-us/library/system.datetime.ticks.aspx
     /// </summary>
     public class InMemoryVersioning
     {
