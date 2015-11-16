@@ -57,7 +57,7 @@ namespace InformesDeServicio.Tests.Publicadores.PublicadorFixture
         public void ProcessorTest_DADO_publicador_registrado_CUANDO_se_actualizan_los_datos_ENTONCES_la_actualizacion_se_hace_efectiva()
         {
             var publicadorId = Guid.NewGuid();
-            var sut = new EventProcessorTestHelper<Publicador, PublicadorProcessor>(publicadorId);
+            var sut = new EventProcessorTestHelper<Publicador, PublicadorProcessor>();
             var processor = new PublicadorProcessor(sut.Bus, sut.Log, sut.Store);
             sut.Setup(processor);
 

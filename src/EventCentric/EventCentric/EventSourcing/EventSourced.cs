@@ -16,6 +16,7 @@ namespace EventCentric.EventSourcing
         protected EventSourced(Guid id)
         {
             this.id = id;
+            this.OnHydrationStarted();
         }
 
         protected EventSourced(Guid id, IEnumerable<IEvent> streamOfEvents)
@@ -31,20 +32,16 @@ namespace EventCentric.EventSourcing
             this.version = memento.Version;
         }
 
-        public Guid Id
-        {
-            get { return this.id; }
-        }
+        public Guid Id => this.id;
 
-        public long Version
-        {
-            get { return this.version; }
-        }
+        public long Version => this.version;
 
-        public IEvent[] PendingEvents
-        {
-            get { return this.pendingEvents.ToArray(); }
-        }
+        public IEvent[] PendingEvents => this.pendingEvents.ToArray();
+
+        /// <summary>
+        /// Afther the aggregate id is set this method will be called.
+        /// </summary>
+        protected virtual void OnHydrationStarted() { }
 
         protected void Update(Event @event)
         {
@@ -66,9 +63,6 @@ namespace EventCentric.EventSourcing
             this.version = @event.Version;
         }
 
-        public virtual IMemento SaveToMemento()
-        {
-            return new Memento(this.version);
-        }
+        public virtual IMemento SaveToMemento() => new Memento(this.version);
     }
 }

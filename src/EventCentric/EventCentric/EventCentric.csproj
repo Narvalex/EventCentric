@@ -62,6 +62,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="EventSourcing\EventExtensions.cs" />
+    <Compile Include="EventSourcing\ValueObject.cs" />
     <Compile Include="Log\ConsoleLogger.cs" />
     <Compile Include="Log\LogMessageBuilder.cs" />
     <Compile Include="Messaging\EventBusExtensions.cs" />
@@ -71,6 +72,7 @@
     <Compile Include="Node\NodeBase.cs" />
     <Compile Include="Node\NodeInitializer.cs" />
     <Compile Include="Node\ApplicationService.cs" />
+    <Compile Include="Node\NodeNameResolver.cs" />
     <Compile Include="Polling\IMonitoredSubscriber.cs" />
     <Compile Include="Polling\IMonitoredSubscription.cs" />
     <Compile Include="EventSourcing\IDomainService.cs" />
@@ -165,6 +167,8 @@
     <Compile Include="Utils\DictionaryExtensions.cs" />
     <Compile Include="Utils\Ensure.cs" />
     <Compile Include="Utils\GuidProvider.cs" />
+    <Compile Include="Utils\Testing\BusStub.cs" />
+    <Compile Include="Utils\Testing\EventDenormalizerTestHelper.cs" />
     <Compile Include="Utils\Testing\EventProcessorTestHelper.cs" />
     <Compile Include="Utils\Testing\EventSourcedAggregateExtensions.cs" />
     <Compile Include="Utils\TimeProvider.cs" />

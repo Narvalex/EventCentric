@@ -31,7 +31,7 @@ namespace EventCentric.Processing
         private readonly ConcurrentDictionary<string, object> streamLocksById;
         protected readonly ConcurrentBag<Guid> poisonedStreams;
 
-        public EventProcessor(IBus bus, ILogger log, IEventStore<T> store)
+        protected EventProcessor(IBus bus, ILogger log, IEventStore<T> store)
             : base(bus, log)
         {
             Ensure.NotNull(store, "store");

@@ -1,0 +1,79 @@
+﻿using EventCentric.EventSourcing;
+using EventCentric.Log;
+using EventCentric.Messaging.Events;
+using EventCentric.Processing;
+using EventCentric.Repository;
+using EventCentric.Repository.Mapping;
+using EventCentric.Serialization;
+using System;
+
+namespace EventCentric.Utils.Testing
+{
+    public class EventDenormalizerTestHelper<TAggregate, TProcessor, TDbContext>
+        where TAggregate : class, IEventSourced
+        where TProcessor : EventProcessor<TAggregate>
+        where TDbContext : IEventStoreDbContext
+    {
+        private readonly ITextSerializer serializer;
+
+        public EventDenormalizerTestHelper(string connectionString)
+        {
+            this.serializer = new JsonTextSerializer();
+            this.Bus = new BusStub();
+            this.Log = new ConsoleLogger();
+            this.Time = new LocalTimeProvider();
+            this.Guid = new SequentialGuid();
+            this.NodeName = NodeNameResolver.ResolveNameOf<TAggregate>();
+
+            var dbContextConstructor = typeof(TDbContext).GetConstructor(new[] { typeof(bool), typeof(string) });
+            Ensure.CastIsValid(dbContextConstructor, "Type TDbContext must have a constructor with the following signature: ctor(bool, string)");
+            this.DbContextFactory = isReadOnly => (TDbContext)dbContextConstructor.Invoke(new object[] { isReadOnly, connectionString });
+            this.Store = new EventStore<TAggregate>(this.NodeName, serializer, this.DbContextFactory, this.Time, this.Guid, this.Log);
+
+            using (var context = this.DbContextFactory.Invoke(false))
+            {
+                context.Subscriptions.Add(new SubscriptionEntity
+                {
+                    StreamType = this.NodeName,
+                    Url = "localhost",
+                    Token = "#token",
+                    ProcessorBufferVersion = 0,
+                    IsPoisoned = false,
+                    WasCanceled = false,
+                    CreationDate = this.Time.Now,
+                    UpdateTime = this.Time.Now
+                });
+
+                context.SaveChanges();
+            }
+        }
+
+        public string NodeName { get; }
+
+        public ITimeProvider Time { get; }
+
+        public IGuidProvider Guid { get; }
+
+        public BusStub Bus { get; }
+
+        public ILogger Log { get; }
+
+        public TProcessor Processor { get; private set; }
+
+        public Func<bool, IEventStoreDbContext> DbContextFactory { get; }
+
+        public IEventStore<TAggregate> Store { get; }
+
+        public void Setup(TProcessor processor) => this.Processor = processor;
+
+        public EventDenormalizerTestHelper<TAggregate, TProcessor, TDbContext> Given(IEvent @event)
+            => this.When(@event);
+
+        public EventDenormalizerTestHelper<TAggregate, TProcessor, TDbContext> When(IEvent @event)
+        {
+            ((Event)@event).StreamType = this.NodeName;
+            this.Processor.Handle(new NewIncomingEvent(this.serializer.SerializeAndDeserialize(@event)));
+            return this;
+        }
+    }
+}
