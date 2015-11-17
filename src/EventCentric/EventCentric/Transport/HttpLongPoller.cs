@@ -5,6 +5,7 @@ using EventCentric.Utils;
 using System;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Text.RegularExpressions;
 using System.Threading;
 
 namespace EventCentric.Transport
@@ -25,7 +26,9 @@ namespace EventCentric.Transport
 
             this.timeout = timeout;
             this.log = log;
-            this.pollerName = pollerName;
+
+            var regex = new Regex("[^a-zA-Z0-9]");
+            this.pollerName = regex.Replace(pollerName, "");
         }
 
         public void PollSubscription(string streamType, string url, string token, long fromVersion)
