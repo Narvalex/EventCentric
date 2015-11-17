@@ -27,10 +27,11 @@ namespace EventCentric.Utils.Testing
 
             var dbContextConstructor = typeof(TDbContext).GetConstructor(new[] { typeof(bool), typeof(string) });
             Ensure.CastIsValid(dbContextConstructor, "Type TDbContext must have a constructor with the following signature: ctor(bool, string)");
-            this.DbContextFactory = isReadOnly => (TDbContext)dbContextConstructor.Invoke(new object[] { isReadOnly, connectionString });
-            this.Store = new EventStore<TAggregate>(this.NodeName, serializer, this.DbContextFactory, this.Time, this.Guid, this.Log);
+            this.EventStoreDbContextFactory = isReadOnly => (TDbContext)dbContextConstructor.Invoke(new object[] { isReadOnly, connectionString });
+            this.ReadModelDbContextFactory = () => (TDbContext)dbContextConstructor.Invoke(new object[] { true, connectionString });
+            this.Store = new EventStore<TAggregate>(this.NodeName, serializer, this.EventStoreDbContextFactory, this.Time, this.Guid, this.Log);
 
-            using (var context = this.DbContextFactory.Invoke(false))
+            using (var context = this.EventStoreDbContextFactory.Invoke(false))
             {
                 context.Subscriptions.Add(new SubscriptionEntity
                 {
@@ -60,7 +61,9 @@ namespace EventCentric.Utils.Testing
 
         public TProcessor Processor { get; private set; }
 
-        public Func<bool, IEventStoreDbContext> DbContextFactory { get; }
+        public Func<bool, IEventStoreDbContext> EventStoreDbContextFactory { get; }
+
+        public Func<TDbContext> ReadModelDbContextFactory { get; }
 
         public IEventStore<TAggregate> Store { get; }
 
@@ -70,11 +73,26 @@ namespace EventCentric.Utils.Testing
             => this.When(@event);
 
         public EventDenormalizerTestHelper<TAggregate, TProcessor, TDbContext> When(IEvent @event)
+            => this.When(@event, this.Guid.NewGuid());
+
+        public EventDenormalizerTestHelper<TAggregate, TProcessor, TDbContext> Given(IEvent @event, Guid transactionId)
+            => this.When(@event, transactionId);
+
+        public EventDenormalizerTestHelper<TAggregate, TProcessor, TDbContext> When(IEvent @event, Guid transactionId)
         {
             ((Event)@event).StreamType = this.NodeName;
             ((Event)@event).EventId = this.Guid.NewGuid();
+            ((Event)@event).TransactionId = transactionId;
             this.Processor.Handle(new NewIncomingEvent(this.serializer.SerializeAndDeserialize(@event)));
             return this;
+        }
+
+        public void Then(Action<TDbContext> readModelQueryPredicate)
+        {
+            using (var context = this.ReadModelDbContextFactory.Invoke())
+            {
+                readModelQueryPredicate(context);
+            }
         }
     }
 }
