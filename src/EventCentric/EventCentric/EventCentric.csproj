@@ -167,6 +167,7 @@
     <Compile Include="Utils\DictionaryExtensions.cs" />
     <Compile Include="Utils\Ensure.cs" />
     <Compile Include="Utils\GuidProvider.cs" />
+    <Compile Include="Utils\Testing\ApplicationServiceTestHelper.cs" />
     <Compile Include="Utils\Testing\BusStub.cs" />
     <Compile Include="Utils\Testing\EventDenormalizerTestHelper.cs" />
     <Compile Include="Utils\Testing\EventProcessorTestHelper.cs" />
