@@ -3,9 +3,9 @@ using EventCentric.Messaging;
 using EventCentric.Messaging.Events;
 using EventCentric.Utils;
 using System;
+using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
-using System.Text.RegularExpressions;
 using System.Threading;
 
 namespace EventCentric.Transport
@@ -27,8 +27,8 @@ namespace EventCentric.Transport
             this.timeout = timeout;
             this.log = log;
 
-            var regex = new Regex("[^a-zA-Z0-9]");
-            this.pollerName = regex.Replace(pollerName, "");
+            // More info:http://stackoverflow.com/questions/3210393/how-do-i-remove-all-non-alphanumeric-characters-from-a-string-except-dash
+            this.pollerName = new string(pollerName.Where(x => x != '.').ToArray());
         }
 
         public void PollSubscription(string streamType, string url, string token, long fromVersion)
