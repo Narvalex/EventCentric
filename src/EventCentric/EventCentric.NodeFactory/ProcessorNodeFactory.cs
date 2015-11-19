@@ -93,7 +93,8 @@ namespace EventCentric
         /// </summary>
         /// <typeparam name="TApp">In process app.</typeparam>
         /// <returns></returns>
-        public static INode CreateNodeWithApp<TApp>(IUnityContainer container, bool isSubscriptor, Func<IBus, ILogger, IEventStore<TAggregate>, TProcessor> processorFactory = null, bool enableHeartbeatingListener = false, bool setLocalTime = true, bool setSequentialGuid = true)
+        public static INode CreateNodeWithApp<TApp>(IUnityContainer container, bool isSubscriptor, Func<TApp> appFactory, Func<IBus, ILogger, IEventStore<TAggregate>, TProcessor> processorFactory = null, bool enableHeartbeatingListener = false, bool setLocalTime = true, bool setSequentialGuid = true)
+            where TApp : ApplicationService
         {
             var nodeName = NodeNameResolver.ResolveNameOf<TAggregate>();
             var streamType = NodeNameResolver.ResolveNameOf<TApp>();
@@ -168,6 +169,8 @@ namespace EventCentric
             {
                 var heartbeatListener = new HeartbeatListener(bus, log, time, new TimeSpan(0, 1, 0), new TimeSpan(0, 10, 0), isReadonly => new HeartbeatDbContext(isReadonly, connectionString));
             }
+
+            container.RegisterInstance<TApp>(appFactory.Invoke());
 
             return fsm;
         }

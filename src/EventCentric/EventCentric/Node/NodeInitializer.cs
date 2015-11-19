@@ -4,12 +4,12 @@ using System.Data.Entity;
 
 namespace EventCentric
 {
-    public class NodeInitializer
+    public static class NodeInitializer
     {
         private static object _lockObject = new object();
         private static INode _node = null;
 
-        protected static void Initialize(Func<INode> nodeFactory)
+        public static void Initialize(Func<INode> nodeFactory)
         {
             lock (_lockObject)
             {
