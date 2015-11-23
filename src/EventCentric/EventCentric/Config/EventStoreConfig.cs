@@ -1,4 +1,5 @@
-﻿using System;
+﻿using EventCentric.Utils;
+using System;
 using System.Configuration;
 
 namespace EventCentric.Config
@@ -9,31 +10,21 @@ namespace EventCentric.Config
 
         public static IEventStoreConfig GetConfig()
         {
-            return ConfigurationManager.GetSection("eventStoreConfig") as EventStoreConfig;
+            var config = ConfigurationManager.GetSection("eventStoreConfig") as EventStoreConfig;
+            Ensure.NotNull(config, "Event Store configuration");
+            return config;
         }
 
         [ConfigurationProperty("connectionString", IsRequired = true)]
-        public string ConnectionString
-        {
-            get { return this["connectionString"] as string; }
-        }
+        public string ConnectionString => this["connectionString"] as string;
 
         [ConfigurationProperty("pushMaxCount", IsRequired = true)]
-        public int PushMaxCount
-        {
-            get { return Convert.ToInt32(this["pushMaxCount"]); }
-        }
+        public int PushMaxCount => Convert.ToInt32(this["pushMaxCount"]);
 
         [ConfigurationProperty("longPollingTimeout", IsRequired = true)]
-        public double LongPollingTimeout
-        {
-            get { return Convert.ToDouble(this["longPollingTimeout"]); }
-        }
+        public double LongPollingTimeout => Convert.ToDouble(this["longPollingTimeout"]);
 
         [ConfigurationProperty("token", IsRequired = true)]
-        public string Token
-        {
-            get { return this["token"] as string; }
-        }
+        public string Token => this["token"] as string;
     }
 }

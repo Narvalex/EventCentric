@@ -12,14 +12,15 @@ using EventCentric.Transport;
 using EventCentric.Utils;
 using Microsoft.Practices.Unity;
 using System;
+using System.Data.Entity;
 
 namespace EventCentric
 {
-    public class ProcessorNodeFactory<TAggregate, TProcessor>
+    public static class ProcessorNodeFactory<TAggregate, TProcessor>
         where TAggregate : class, IEventSourced
         where TProcessor : EventProcessor<TAggregate>
     {
-        public static INode CreateNode(IUnityContainer container, bool isSubscriptor, Func<IBus, ILogger, IEventStore<TAggregate>, TProcessor> processorFactory = null, bool enableHeartbeatingListener = false, bool setLocalTime = true, bool setSequentialGuid = true)
+        public static INode CreateNode(IUnityContainer container, bool isSubscriptor = true, Func<IBus, ILogger, IEventStore<TAggregate>, TProcessor> processorFactory = null, bool enableHeartbeatingListener = false, bool setLocalTime = true, bool setSequentialGuid = true)
         {
             var nodeName = NodeNameResolver.ResolveNameOf<TAggregate>();
 
@@ -93,7 +94,7 @@ namespace EventCentric
         /// </summary>
         /// <typeparam name="TApp">In process app.</typeparam>
         /// <returns></returns>
-        public static INode CreateNodeWithApp<TApp>(IUnityContainer container, bool isSubscriptor, Func<TApp> appFactory, Func<IBus, ILogger, IEventStore<TAggregate>, TProcessor> processorFactory = null, bool enableHeartbeatingListener = false, bool setLocalTime = true, bool setSequentialGuid = true)
+        public static INode CreateNodeWithApp<TApp>(IUnityContainer container, bool isSubscriptor = true, Func<TApp> appFactory = null, Func<IBus, ILogger, IEventStore<TAggregate>, TProcessor> processorFactory = null, bool enableHeartbeatingListener = false, bool setLocalTime = true, bool setSequentialGuid = true)
             where TApp : ApplicationService
         {
             var nodeName = NodeNameResolver.ResolveNameOf<TAggregate>();
@@ -170,7 +171,16 @@ namespace EventCentric
                 var heartbeatListener = new HeartbeatListener(bus, log, time, new TimeSpan(0, 1, 0), new TimeSpan(0, 10, 0), isReadonly => new HeartbeatDbContext(isReadonly, connectionString));
             }
 
-            container.RegisterInstance<TApp>(appFactory.Invoke());
+            if (appFactory == null)
+            {
+                var constructor = typeof(TApp).GetConstructor(new[] { typeof(IEventBus), typeof(IGuidProvider), typeof(ITimeProvider) });
+                Ensure.CastIsValid(constructor, "Type TApp must have a valid constructor with the following signature: .ctor(IEventBus, IGuidProvider, ITimeProvider)");
+                container.RegisterInstance<TApp>((TApp)constructor.Invoke(new object[] { eventBus, guid, time }));
+            }
+            else
+            {
+                container.RegisterInstance<TApp>(appFactory.Invoke());
+            }
 
             return fsm;
         }
@@ -178,12 +188,14 @@ namespace EventCentric
         /// <summary>
         /// Do not forget: System.Data.Entity.Database.SetInitializer<TDbContext>(null);
         /// </summary>
-        public static INode CreateDenormalizerNode<TDbContext>(IUnityContainer container, Func<IBus, ILogger, IEventStore<TAggregate>, TProcessor> processorFactory = null, bool setLocalTime = true, bool setSequentialGuid = true) where TDbContext : IEventStoreDbContext
+        public static INode CreateDenormalizerNode<TDbContext>(IUnityContainer container, Func<IBus, ILogger, IEventStore<TAggregate>, TProcessor> processorFactory = null, bool setLocalTime = true, bool setSequentialGuid = true)
+            where TDbContext : DbContext, IEventStoreDbContext
         {
             var nodeName = NodeNameResolver.ResolveNameOf<TAggregate>();
 
             System.Data.Entity.Database.SetInitializer<EventStoreDbContext>(null);
             System.Data.Entity.Database.SetInitializer<EventQueueDbContext>(null);
+            System.Data.Entity.Database.SetInitializer<TDbContext>(null);
 
             var eventStoreConfig = EventStoreConfig.GetConfig();
             container.RegisterInstance<IEventStoreConfig>(eventStoreConfig);

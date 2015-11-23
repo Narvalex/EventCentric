@@ -11,11 +11,15 @@ namespace EventCentric.Repository
     {
         private readonly TimeSpan timeout;
 
-        public EventuallyConsistentDbContext(TimeSpan timeout, bool isReadOnly, string nameOrconnectionString)
-            : base(isReadOnly, nameOrconnectionString)
+        public EventuallyConsistentDbContext(TimeSpan timeout, bool isReadOnly, string connectionString)
+            : base(isReadOnly, connectionString)
         {
             this.timeout = timeout;
         }
+
+        public EventuallyConsistentDbContext(string connectionString)
+            : base(connectionString)
+        { }
 
         public IDbSet<EventuallyConsistentResult> EventuallyConsistentResults { get; set; }
 

@@ -6,13 +6,13 @@ namespace EventCentric.Repository
 {
     public class HeartbeatDbContext : OptimizedDbContext
     {
-        public HeartbeatDbContext(bool isReadonly, string nameOrConnectionString)
-            : base(isReadonly, nameOrConnectionString)
+        public HeartbeatDbContext(bool isReadonly, string connectionString)
+            : base(isReadonly, connectionString)
         { }
 
-        //public HeartbeatDbContext()
-        //    : base(false, "server=(local);Database=ClientesClient;User Id=sa;pwd =123456")
-        //{ }
+        public HeartbeatDbContext(string connectionString)
+            : base(connectionString)
+        { }
 
         public IDbSet<SubscriberHeartbeatEntity> SubscribersHeartbeats { get; set; }
 

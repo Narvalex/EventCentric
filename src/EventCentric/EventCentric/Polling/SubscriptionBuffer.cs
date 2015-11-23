@@ -41,12 +41,12 @@ namespace EventCentric.Polling
         public volatile ConcurrentBag<EventInProcessorBucket> EventsInProcessorBag;
 
         // Metrics
-        public long ConsumerVersion { get; set; }
+        public long ConsumerVersion { get; internal set; }
 
-        public long ProducerVersion { get; set; }
+        public long ProducerVersion { get; internal set; }
 
         public decimal UpToDatePercentage =>
-            this.ProducerVersion == 0 ? 0
+            this.ProducerVersion == 0 ? 100
                                       : (this.ConsumerVersion * 100) / this.ProducerVersion;
 
 

@@ -8,11 +8,15 @@ namespace EventCentric.Database
     /// </summary>
     public abstract class OptimizedDbContext : DbContext
     {
-        public OptimizedDbContext(bool isReadOnly, string nameOrConnectionString)
-            : base(nameOrConnectionString)
+        public OptimizedDbContext(bool isReadOnly, string connectionString)
+            : base(connectionString)
         {
             if (isReadOnly)
                 this.Configuration.AutoDetectChangesEnabled = false;
         }
+
+        public OptimizedDbContext(string connectionString)
+            : base(connectionString)
+        { }
     }
 }

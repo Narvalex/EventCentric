@@ -10,7 +10,7 @@ using System;
 
 namespace EventCentric
 {
-    public class QueueNodeFactory<T>
+    public static class QueueNodeFactory<T>
     {
         public static INode CreateNode(IUnityContainer container, bool setLocalTime = true, bool setSequentialGuid = true)
         {

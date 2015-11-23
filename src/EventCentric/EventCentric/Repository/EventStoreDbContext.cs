@@ -6,8 +6,12 @@ namespace EventCentric.Repository
 {
     public class EventStoreDbContext : OptimizedDbContext, IEventStoreDbContext
     {
-        public EventStoreDbContext(bool isReadOnly, string nameOrconnectionString)
-            : base(isReadOnly, nameOrconnectionString)
+        public EventStoreDbContext(bool isReadOnly, string connectionString)
+            : base(isReadOnly, connectionString)
+        { }
+
+        public EventStoreDbContext(string connectionString)
+            : base(connectionString)
         { }
 
         public IDbSet<EventEntity> Events { get; set; }

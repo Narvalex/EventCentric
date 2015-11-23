@@ -6,8 +6,12 @@ namespace EventCentric.Repository
 {
     public class EventQueueDbContext : OptimizedDbContext, IEventQueueDbContext
     {
-        public EventQueueDbContext(bool isReadOnly, string nameOrconnectionString)
-            : base(isReadOnly, nameOrconnectionString)
+        public EventQueueDbContext(bool isReadOnly, string connectionString)
+            : base(isReadOnly, connectionString)
+        { }
+
+        public EventQueueDbContext(string connectionString)
+            : base(connectionString)
         { }
 
         public IDbSet<EventEntity> Events { get; set; }
