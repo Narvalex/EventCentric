@@ -80,7 +80,7 @@ namespace EventCentric.Polling
         public bool TryFill()
         {
             var subscriptonsReadyForPolling = this.bufferPool
-                                                  .Where(s => !s.IsPolling && !s.IsPoisoned && s.NewEventsQueue.Count < queueMaxCount)
+                                                  .Where(s => s.Url != "self" && !s.IsPolling && !s.IsPoisoned && s.NewEventsQueue.Count < queueMaxCount)
                                                   .ToArray();
 
             if (!subscriptonsReadyForPolling.Any())
@@ -222,17 +222,27 @@ namespace EventCentric.Polling
         {
             lock (this.lockObject)
             {
-                var poisonedSubscription = this.bufferPool.Where(s => s.StreamType == message.PoisonedEvent.StreamType).Single();
-                if (poisonedSubscription.IsPoisoned == true)
-                    return;
+                try
+                {
+                    var poisonedSubscription = this.bufferPool.Where(s => s.StreamType == message.PoisonedEvent.StreamType).Single();
+                    if (poisonedSubscription.IsPoisoned == true)
+                        return;
 
-                poisonedSubscription.IsPoisoned = true;
+                    poisonedSubscription.IsPoisoned = true;
 
-                this.repository.FlagSubscriptionAsPoisoned(message.PoisonedEvent, message.Exception);
+                    this.repository.FlagSubscriptionAsPoisoned(message.PoisonedEvent, message.Exception);
 
-                this.bus.Publish(
-                    new FatalErrorOcurred(
-                        new FatalErrorException("Fatal error: Inconming event is poisoned.", message.Exception)));
+                    this.bus.Publish(
+                        new FatalErrorOcurred(
+                            new FatalErrorException("Fatal error: Inconming event is poisoned.", message.Exception)));
+                }
+                catch (Exception ex)
+                {
+                    this.bus.Publish(
+                        new FatalErrorOcurred(
+                            new FatalErrorException($"An error ocurred while attempting to log poisoned message. {ex.Message}",
+                                new FatalErrorException("Fatal error: Inconming event is poisoned.", message.Exception))));
+                }
             }
         }
 

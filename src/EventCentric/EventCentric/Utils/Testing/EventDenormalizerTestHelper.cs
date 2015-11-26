@@ -14,6 +14,7 @@ namespace EventCentric.Utils.Testing
         where TProcessor : EventProcessor<TAggregate>
         where TDbContext : IEventStoreDbContext
     {
+        private object dao;
         private readonly ITextSerializer serializer;
 
         public EventDenormalizerTestHelper(string connectionString)
@@ -25,10 +26,10 @@ namespace EventCentric.Utils.Testing
             this.Guid = new SequentialGuid();
             this.NodeName = NodeNameResolver.ResolveNameOf<TAggregate>();
 
-            var dbContextConstructor = typeof(TDbContext).GetConstructor(new[] { typeof(bool), typeof(string) });
-            Ensure.CastIsValid(dbContextConstructor, "Type TDbContext must have a constructor with the following signature: ctor(bool, string)");
-            this.EventStoreDbContextFactory = isReadOnly => (TDbContext)dbContextConstructor.Invoke(new object[] { isReadOnly, connectionString });
-            this.ReadModelDbContextFactory = () => (TDbContext)dbContextConstructor.Invoke(new object[] { true, connectionString });
+            var dbContextConstructor = typeof(TDbContext).GetConstructor(new[] { typeof(string) });
+            Ensure.CastIsValid(dbContextConstructor, "Type TDbContext must have a constructor with the following signature: ctor(string)");
+            this.EventStoreDbContextFactory = isReadOnly => (TDbContext)dbContextConstructor.Invoke(new object[] { connectionString });
+            this.ReadModelDbContextFactory = () => (TDbContext)dbContextConstructor.Invoke(new object[] { connectionString });
             this.Store = new EventStore<TAggregate>(this.NodeName, serializer, this.EventStoreDbContextFactory, this.Time, this.Guid, this.Log);
 
             using (var context = this.EventStoreDbContextFactory.Invoke(false))
@@ -69,20 +70,17 @@ namespace EventCentric.Utils.Testing
 
         public void Setup(TProcessor processor) => this.Processor = processor;
 
+        public void Setup<TDao>(TDao dao) where TDao : class => this.dao = dao;
+
+        public void Then<TDao>(Action<TDao> thenPredicate) where TDao : class => thenPredicate.Invoke((TDao)this.dao);
+
         public EventDenormalizerTestHelper<TAggregate, TProcessor, TDbContext> Given(IEvent @event)
             => this.When(@event);
 
         public EventDenormalizerTestHelper<TAggregate, TProcessor, TDbContext> When(IEvent @event)
-            => this.When(@event, this.Guid.NewGuid());
-
-        public EventDenormalizerTestHelper<TAggregate, TProcessor, TDbContext> Given(IEvent @event, Guid transactionId)
-            => this.When(@event, transactionId);
-
-        public EventDenormalizerTestHelper<TAggregate, TProcessor, TDbContext> When(IEvent @event, Guid transactionId)
         {
             ((Event)@event).StreamType = this.NodeName;
             ((Event)@event).EventId = this.Guid.NewGuid();
-            ((Event)@event).TransactionId = transactionId;
             this.Processor.Handle(new NewIncomingEvent(this.serializer.SerializeAndDeserialize(@event)));
             return this;
         }

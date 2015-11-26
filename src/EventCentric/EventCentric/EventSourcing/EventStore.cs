@@ -26,9 +26,8 @@ namespace EventCentric.EventSourcing
 
         private readonly Func<bool, IEventStoreDbContext> contextFactory;
         private readonly Action<T, IEventStoreDbContext> denormalizeIfApplicable;
-        private readonly Action<IEvent, IEventStoreDbContext, DateTime> updateSubscriptionIfApplicable;
 
-        public EventStore(string streamType, ITextSerializer serializer, Func<bool, IEventStoreDbContext> contextFactory, ITimeProvider time, IGuidProvider guid, ILogger log, bool isSubscriptor = true)
+        public EventStore(string streamType, ITextSerializer serializer, Func<bool, IEventStoreDbContext> contextFactory, ITimeProvider time, IGuidProvider guid, ILogger log)
         {
             Ensure.NotNullNeitherEmtpyNorWhiteSpace(streamType, nameof(streamType));
             Ensure.NotNull(serializer, nameof(serializer));
@@ -58,16 +57,6 @@ namespace EventCentric.EventSourcing
                 this.denormalizeIfApplicable = (aggregate, context) => ((IDenormalizer)aggregate).Denormalize(context);
             else
                 this.denormalizeIfApplicable = (aggregate, context) => { };
-
-            if (isSubscriptor)
-                this.updateSubscriptionIfApplicable = (incomingEvent, context, now) =>
-                {
-                    var subscription = context.Subscriptions.Where(s => s.StreamType == incomingEvent.StreamType).Single();
-                    subscription.ProcessorBufferVersion = incomingEvent.ProcessorBufferVersion;
-                    subscription.UpdateTime = now;
-                };
-            else
-                this.updateSubscriptionIfApplicable = (incomingEvent, context, now) => { };
         }
 
         public T Find(Guid id)
@@ -181,7 +170,16 @@ namespace EventCentric.EventSourcing
                     context.Inbox.Add(message);
 
                     // Update subscription
-                    this.updateSubscriptionIfApplicable(incomingEvent, context, now);
+                    try
+                    {
+                        var subscription = context.Subscriptions.Where(s => s.StreamType == incomingEvent.StreamType).Single();
+                        subscription.ProcessorBufferVersion = incomingEvent.ProcessorBufferVersion;
+                        subscription.UpdateTime = now;
+                    }
+                    catch (Exception ex)
+                    {
+                        throw new InvalidOperationException($"The incoming event belongs to a an stream type of {incomingEvent.StreamType}, but the event store could not found a subscription for that stream type.", ex);
+                    }
 
 
                     // Cache Memento And Publish Stream

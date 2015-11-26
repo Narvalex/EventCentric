@@ -86,7 +86,7 @@
     <Compile Include="Messaging\Infrastructure\SynchronousBus.cs" />
     <Compile Include="Messaging\InMemoryEventQueue.cs" />
     <Compile Include="Repository\EventuallyConsistentDbContext.cs" />
-    <Compile Include="Repository\IEventuallyConsistentDbContext.cs" />
+    <Compile Include="Repository\ViewDao.cs" />
     <Compile Include="Repository\Mapping\EventuallyConsistentResultEntity.cs" />
     <Compile Include="Repository\Mapping\SubscriberHeartbeatEntity.cs" />
     <Compile Include="Database\OptimizedDbContext.cs" />
@@ -170,6 +170,7 @@
     <Compile Include="Utils\Testing\ApplicationServiceTestHelper.cs" />
     <Compile Include="Utils\Testing\BusStub.cs" />
     <Compile Include="Utils\Testing\EventDenormalizerTestHelper.cs" />
+    <Compile Include="Utils\Testing\EventExtensions.cs" />
     <Compile Include="Utils\Testing\EventProcessorTestHelper.cs" />
     <Compile Include="Utils\Testing\EventSourcedAggregateExtensions.cs" />
     <Compile Include="Utils\TimeProvider.cs" />
