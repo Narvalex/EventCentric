@@ -182,6 +182,11 @@ namespace EventCentric.Utils.Testing
 
                 return events.Max(e => e.Version);
             }
+
+            public bool IsDuplicate(IEvent incomingEvent)
+            {
+                throw new NotImplementedException();
+            }
         }
     }
 }

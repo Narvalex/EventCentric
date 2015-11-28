@@ -80,7 +80,9 @@ namespace EventCentric.Publishing
                 if (this.eventCollectionVersion == lastReceivedVersion)
                     // consumer is up to date, and now is waiting until something happens!
                     Thread.Sleep(100);
-                else
+
+                // weird error, but is crash proof. Once i had an error where in an infinite loop there was an error saying: Pushing 0 events to....
+                else if (this.eventCollectionVersion > lastReceivedVersion)
                 {
                     newEvents = this.dao.FindEvents(lastReceivedVersion, eventsToPushMaxCount);
                     newEventsWereFound = newEvents.Count > 0 ? true : false;
@@ -88,6 +90,9 @@ namespace EventCentric.Publishing
                     this.log.Trace($"Pushing {newEvents.Count} event/s to {consumerName}");
                     break;
                 }
+                else
+                    // bizzare, but helpful to avoid infinite loops
+                    break;
             }
 
             return new PollResponse(false, newEventsWereFound, this.streamType, newEvents, lastReceivedVersion, this.eventCollectionVersion);

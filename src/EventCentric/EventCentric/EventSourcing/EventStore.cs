@@ -126,7 +126,7 @@ namespace EventCentric.EventSourcing
                         currentVersion = versions.Max(e => e.Version);
 
                     // Check if incoming event is duplicate
-                    if (context.Inbox.Any(e => e.EventId == incomingEvent.EventId))
+                    if (this.IsDuplicate(incomingEvent, context))
                         // Incoming event is duplicate
                         return currentVersion;
 
@@ -237,5 +237,16 @@ namespace EventCentric.EventSourcing
                 throw;
             }
         }
+
+        public bool IsDuplicate(IEvent incomingEvent)
+        {
+            using (var context = this.contextFactory.Invoke(true))
+            {
+                return this.IsDuplicate(incomingEvent, context);
+            }
+        }
+
+        private bool IsDuplicate(IEvent incomingEvent, IEventStoreDbContext context)
+            => context.Inbox.Any(e => e.EventId == incomingEvent.EventId);
     }
 }

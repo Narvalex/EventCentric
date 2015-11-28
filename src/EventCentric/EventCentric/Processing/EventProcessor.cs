@@ -89,6 +89,21 @@ namespace EventCentric.Processing
             }
             catch (Exception ex)
             {
+                try
+                {
+                    if (this.store.IsDuplicate(incomingEvent))
+                    {
+                        this.Ignore(incomingEvent);
+                        return;
+                    }
+
+                }
+                catch (Exception otherEx)
+                {
+                    this.bus.Publish(
+                        new FatalErrorOcurred(new FatalErrorException($"Error while trying to check if an event is duplicate", otherEx)));
+                }
+
                 var exception = new PoisonMessageException("Poison message detected in Event Processor", ex);
 
                 this.log.Error(exception, $"Poison message of type {incomingEvent.GetType().Name} detected in Event Processor");
@@ -124,7 +139,7 @@ namespace EventCentric.Processing
         /// <summary>
         /// Mark as ignored in the inbox table and in the subscription table. 
         /// This node is not subscribed to this event, but is interested in other events that
-        /// happened in the source.
+        /// happened in the source. Or is DUPLICATE
         /// </summary>
         /// <param name="@event">The <see cref="IEvent"/> to be igonred.</param>
         protected void Ignore(IEvent incomingEvent)

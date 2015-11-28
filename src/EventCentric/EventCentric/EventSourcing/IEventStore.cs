@@ -26,5 +26,7 @@ namespace EventCentric.EventSourcing
         /// <param name="incomingEvent">The correlated <see cref="IEvent"/></param>
         /// <returns>The event collection version.</returns>
         long Save(T eventSourced, IEvent incomingEvent);
+
+        bool IsDuplicate(IEvent incomingEvent);
     }
 }
