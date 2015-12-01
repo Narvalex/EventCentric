@@ -126,10 +126,6 @@ create table [EventStore].[EventuallyConsistentResults] (
     primary key ([TransactionId])
 );
 
--- Create your View schema here
-IF NOT EXISTS (SELECT * FROM sys.schemas WHERE name = N'View')
-EXECUTE sp_executesql N'CREATE SCHEMA [View] AUTHORIZATION [dbo]';
-
 -- CREATE YOUR VIEW TABLES HERE
 
 

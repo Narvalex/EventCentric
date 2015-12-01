@@ -22,6 +22,12 @@ namespace EventCentric.Utils
                 throw new ArgumentOutOfRangeException(argumentName, argumentName + " should be positive.");
         }
 
+        public static void Positive(double number, string argumentName)
+        {
+            if (number <= 0)
+                throw new ArgumentOutOfRangeException(argumentName, argumentName + " should be positive.");
+        }
+
         public static void NotNullNeitherEmtpyNorWhiteSpace(string text, string argumentName)
         {
             if (string.IsNullOrEmpty(text) || string.IsNullOrWhiteSpace(text))
