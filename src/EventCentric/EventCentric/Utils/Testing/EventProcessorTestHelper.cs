@@ -50,13 +50,14 @@ namespace EventCentric.Utils.Testing
             this.store.streamId = streamId;
         }
 
-        public void Given(Guid streamId, IMemento memento)
+        public void Given<TMemento>(Guid streamId, TMemento memento) where TMemento : IMemento
         {
             this.store.Snapshot = this.serializer.SerializeAndDeserialize(memento);
             this.store.streamId = streamId;
         }
 
-        public void Given(Guid streamId, Func<IMemento, bool> mementoEqualityChecker, params IEvent[] eventStream)
+        public void Given<TMemento>(Guid streamId, Func<TMemento, bool> mementoEqualityChecker, params IEvent[] eventStream)
+            where TMemento : IMemento
         {
             this.Given(streamId, eventStream);
 
@@ -66,14 +67,14 @@ namespace EventCentric.Utils.Testing
             var mementoFromEventStreamRehydration = this.serializer.SerializeAndDeserialize(((IMementoOriginator)this.Aggregate).SaveToMemento());
 
             // we check first if the memento is what expected.
-            if (mementoEqualityChecker.Invoke(mementoFromEventStreamRehydration))
+            if (mementoEqualityChecker.Invoke((TMemento)mementoFromEventStreamRehydration))
             {
                 // we check secondly if the aggregate can rehydrate from given memento
                 this.Given(streamId, mementoFromEventStreamRehydration);
                 return;
             }
 
-            throw new InvalidOperationException("The memento from event stream rehydration is not equal to expected");
+            throw new InvalidOperationException("The memento from event stream rehydration is not as expected");
         }
 
         public TAggregate When(IEvent @event)
