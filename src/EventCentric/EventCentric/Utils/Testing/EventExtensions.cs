@@ -11,5 +11,12 @@ namespace EventCentric.Utils.Testing
             e.TransactionId = fixedTransactionId;
             return e;
         }
+
+        public static TEvent AsEventWithFixedStreamId<TEvent>(this TEvent e, Guid fixedStreamId)
+            where TEvent : Event
+        {
+            e.StreamId = fixedStreamId;
+            return e;
+        }
     }
 }

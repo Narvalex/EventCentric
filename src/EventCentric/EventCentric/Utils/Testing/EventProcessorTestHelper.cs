@@ -117,6 +117,8 @@ namespace EventCentric.Utils.Testing
 
         public class EventStoreStub : IEventStore<TAggregate>
         {
+            private static string _streamName = typeof(TAggregate).Name;
+
             internal Guid streamId;
             internal ITextSerializer serializer;
 
@@ -174,7 +176,8 @@ namespace EventCentric.Utils.Testing
                 var events = eventSourced
                             .PendingEvents
                             .ToList()
-                            .Select(e => this.serializer.SerializeAndDeserialize(e));
+                            .Select(e => this.serializer.SerializeAndDeserialize(
+                                e.AsStoredEvent(incomingEvent.TransactionId, Guid.NewGuid(), _streamName, DateTime.Now)));
 
                 this.Streams.AddRange(events);
                 this.Aggregate = eventSourced;

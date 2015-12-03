@@ -77,6 +77,14 @@ namespace EventCentric.Utils.Testing
         public EventDenormalizerTestHelper<TAggregate, TProcessor, TDbContext> Given(IEvent @event)
             => this.When(@event);
 
+        public EventDenormalizerTestHelper<TAggregate, TProcessor, TDbContext> Given(params IEvent[] events)
+        {
+            foreach (var e in events)
+                this.When(e);
+
+            return this;
+        }
+
         public EventDenormalizerTestHelper<TAggregate, TProcessor, TDbContext> When(IEvent @event)
         {
             ((Event)@event).StreamType = this.NodeName;
