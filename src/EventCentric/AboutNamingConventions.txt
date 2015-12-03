@@ -1,0 +1,34 @@
+En español:
+
+---------------------------------------------------------------------------------
+Proyectos
+---------------------------------------------------------------------------------
+
+1. Crear los tres proyectos con los nombres asi: 
+	- Dominio.Aggregate
+	- Dominio.Aggregate.Server
+	- Dominio.Aggregate.Web
+
+2. Luego, en propiedades del proyecto, renombrar a cada uno el default namespace:
+	- Dominio.AggregateNode
+	- Dominio.AggregateNode.Server
+	- Dominio.AggregateNode.Web
+
+---------------------------------------------------------------------------------
+Base de Datos
+---------------------------------------------------------------------------------
+1. Las bases de datos podrian nombrarse asi
+	- Dominio@Agregate
+	- Dominio@AgregateView
+
+2. Las tablas de vista, simplemente asi
+	- dbo.TablaDeVista
+
+---------------------------------------------------------------------------------
+Los worker roles en IIS
+---------------------------------------------------------------------------------
+- Creo que es mejor separado de puntos, igual que en los proyectos.
+
+
+
+		

@@ -65,6 +65,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Docs", "Docs", "{7B295ED5-3
 	ProjectSection(SolutionItems) = preProject
 		AboutEventSourceController.txt = AboutEventSourceController.txt
 		..\Docs\AboutHeartbeatController.txt = ..\Docs\AboutHeartbeatController.txt
+		AboutNamingConventions.txt = AboutNamingConventions.txt
 		AboutStreamTypeResolver.txt = AboutStreamTypeResolver.txt
 	EndProjectSection
 EndProject

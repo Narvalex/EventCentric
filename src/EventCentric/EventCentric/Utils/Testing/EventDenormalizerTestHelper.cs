@@ -75,7 +75,12 @@ namespace EventCentric.Utils.Testing
         public void Then<TDao>(Action<TDao> thenPredicate) where TDao : class => thenPredicate.Invoke((TDao)this.dao);
 
         public EventDenormalizerTestHelper<TAggregate, TProcessor, TDbContext> Given(IEvent @event)
-            => this.When(@event);
+        {
+            if (@event.TransactionId == default(Guid))
+                @event.AsEventWithFixedTransactionId(this.Guid.NewGuid());
+
+            return this.When(@event);
+        }
 
         public EventDenormalizerTestHelper<TAggregate, TProcessor, TDbContext> Given(params IEvent[] events)
         {
