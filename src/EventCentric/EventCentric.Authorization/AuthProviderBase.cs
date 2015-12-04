@@ -2,25 +2,8 @@
 
 namespace EventCentric.Authorization
 {
-    public interface IIdentity
+    public abstract class AuthProviderBase : IAuthProvider
     {
-        bool IsAuthorized(string token);
-
-        string GetClientIpAddress();
-    }
-
-    public class Identity : IIdentity
-    {
-        private static string _token;
-
-        private Identity()
-        { }
-
-        public bool IsAuthorized(string token)
-        {
-            return token == _token ? true : false;
-        }
-
         /// <summary>
         /// Gets the client ip adress. 
         /// More info: http://stackoverflow.com/questions/735350/how-to-get-a-users-client-ip-address-in-asp-net
@@ -40,14 +23,6 @@ namespace EventCentric.Authorization
             return context.Request.ServerVariables["REMOTE_ADDR"];
         }
 
-        public static void Configure(string token)
-        {
-            _token = $"Bearer {token}";
-        }
-
-        public static IIdentity Resolve()
-        {
-            return new Identity();
-        }
+        public abstract bool IsAuthorized(string token);
     }
 }

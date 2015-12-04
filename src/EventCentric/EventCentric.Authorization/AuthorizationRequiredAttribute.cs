@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -16,11 +17,11 @@ namespace EventCentric.Authorization
     /// </remarks>
     public class AuthorizationRequiredAttribute : AuthorizeAttribute
     {
-        private readonly IIdentity identity;
+        private readonly IAuthProvider identity;
 
-        public AuthorizationRequiredAttribute()
+        public AuthorizationRequiredAttribute(Func<IAuthProvider> identityResolver)
         {
-            this.identity = Identity.Resolve();
+            this.identity = identityResolver();
         }
 
         private string responseReason = string.Empty;

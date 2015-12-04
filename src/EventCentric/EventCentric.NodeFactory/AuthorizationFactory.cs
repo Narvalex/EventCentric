@@ -7,7 +7,7 @@ namespace EventCentric
     {
         public static void SetToken(IEventStoreConfig config)
         {
-            Identity.Configure(config.Token);
+            SimpleAuthProvider.Configure(config.Token);
         }
     }
 }
