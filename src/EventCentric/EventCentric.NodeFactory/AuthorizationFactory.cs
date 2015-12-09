@@ -6,8 +6,6 @@ namespace EventCentric
     public static class AuthorizationFactory
     {
         public static void SetToken(IEventStoreConfig config)
-        {
-            SimpleAuthProvider.Configure(config.Token);
-        }
+            => AuthorizeEventSourcingAttribute.Configure(config.Token);
     }
 }

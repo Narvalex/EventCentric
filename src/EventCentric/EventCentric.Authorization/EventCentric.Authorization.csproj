@@ -54,10 +54,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AuthorizationRequiredAttribute.cs" />
-    <Compile Include="AuthProviderBase.cs" />
-    <Compile Include="IAuthProvider.cs" />
-    <Compile Include="SimpleAuthProvider.cs" />
+    <Compile Include="AuthorizeBaseAttribute.cs" />
+    <Compile Include="ClientIp.cs" />
+    <Compile Include="AuthorizeEventSourcingAttribute.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
