@@ -10,7 +10,7 @@ namespace EventCentric
         private static INode _node = null;
         private static bool isRunning = false;
 
-        public static void Initialize(Func<INode> nodeFactory)
+        public static void Run(Func<INode> nodeFactory)
         {
             lock (_lockObject)
             {
