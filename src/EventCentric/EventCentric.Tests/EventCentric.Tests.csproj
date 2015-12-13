@@ -67,7 +67,6 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
-    <Compile Include="Helpers\LoggerFakes.cs" />
     <Compile Include="Playground\GroupedEventStreams.cs" />
     <Compile Include="Playground\Helpers\TestActor.cs" />
     <Compile Include="Playground\InMemoryObjectsPerformance.cs" />
