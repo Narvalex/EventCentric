@@ -51,6 +51,7 @@ CREATE TABLE [EventStore].[Events](
 	[EventType] [nvarchar] (255) NOT NULL,
 	[CorrelationId] [uniqueidentifier] NULL,
     [EventCollectionVersion] [bigint] IDENTITY(1,1) NOT NULL,
+	CONSTRAINT EventStore_Events_EventCollectionVersion UNIQUE(EventCollectionVersion),
     [CreationDate] [datetime] NOT NULL,
 	[Payload] [nvarchar] (max) NOT NULL
 
@@ -68,6 +69,7 @@ CREATE TABLE[EventStore].[Streams](
     [Version] [bigint] NOT NULL,
     [Memento] [nvarchar](max) NULL,
     [StreamCollectionVersion] [bigint] IDENTITY(1,1) NOT NULL,
+	CONSTRAINT EventStore_Streams_StreamCollectionVersion UNIQUE(StreamCollectionVersion),
     [CreationDate] [datetime] NOT NULL,
     [UpdateTime] [datetime] NOT NULL
 PRIMARY KEY CLUSTERED

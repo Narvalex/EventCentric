@@ -57,6 +57,7 @@ CREATE TABLE [EventStore].[Events](
 	[EventType] [nvarchar] (255) NOT NULL,
 	[CorrelationId] [uniqueidentifier] NULL,
     [EventCollectionVersion] [bigint] IDENTITY(1,1) NOT NULL,
+	CONSTRAINT EventStore_Events_EventCollectionVersion UNIQUE(EventCollectionVersion),
     [CreationDate] [datetime] NOT NULL,
 	[Payload] [nvarchar] (max) NOT NULL
 
@@ -74,6 +75,7 @@ CREATE TABLE[EventStore].[Streams](
     [Version] [bigint] NOT NULL,
     [Memento] [nvarchar](max) NULL,
     [StreamCollectionVersion] [bigint] IDENTITY(1,1) NOT NULL,
+	CONSTRAINT EventStore_Streams_StreamCollectionVersion UNIQUE(StreamCollectionVersion),
     [CreationDate] [datetime] NOT NULL,
     [UpdateTime] [datetime] NOT NULL
 PRIMARY KEY CLUSTERED
@@ -107,7 +109,7 @@ IF NOT EXISTS(SELECT* FROM sys.objects WHERE object_id = OBJECT_ID(N'[EventStore
 CREATE TABLE[EventStore].[Inbox](
 	[InboxId] [bigint] IDENTITY(1,1) NOT NULL,
     [EventId] [uniqueidentifier] NOT NULL,
-CONSTRAINT EventStore_Inbox_EventId UNIQUE(EventId),
+	CONSTRAINT EventStore_Inbox_EventId UNIQUE(EventId),
     [TransactionId] [uniqueidentifier] NOT NULL,
 	[StreamType] [nvarchar] (255) NOT NULL,
     [StreamId] [uniqueidentifier] NOT NULL,

@@ -51,6 +51,7 @@ CREATE TABLE [EventStore].[Events](
 	[EventType] [nvarchar] (255) NOT NULL,
 	[CorrelationId] [uniqueidentifier] NULL,
     [EventCollectionVersion] [bigint] IDENTITY(1,1) NOT NULL,
+	CONSTRAINT EventStore_Events_EventCollectionVersion UNIQUE(EventCollectionVersion),
     [CreationDate] [datetime] NOT NULL,
 	[Payload] [nvarchar] (max) NOT NULL
 
