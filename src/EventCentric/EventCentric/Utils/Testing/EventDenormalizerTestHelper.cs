@@ -1,5 +1,6 @@
 ﻿using EventCentric.EventSourcing;
 using EventCentric.Log;
+using EventCentric.Messaging;
 using EventCentric.Messaging.Events;
 using EventCentric.Processing;
 using EventCentric.Repository;
@@ -17,7 +18,7 @@ namespace EventCentric.Utils.Testing
         private object dao;
         private readonly ITextSerializer serializer;
 
-        public EventDenormalizerTestHelper(string connectionString)
+        public EventDenormalizerTestHelper(string connectionString, Func<IBus, ILogger, IEventStore<TAggregate>, TProcessor> processorFactory = null)
         {
             this.serializer = new JsonTextSerializer();
             this.Bus = new BusStub();
@@ -48,6 +49,15 @@ namespace EventCentric.Utils.Testing
 
                 context.SaveChanges();
             }
+
+            if (processorFactory == null)
+            {
+                var processorConstructor = typeof(TProcessor).GetConstructor(new[] { typeof(IBus), typeof(ILogger), typeof(IEventStore<TAggregate>) });
+                Ensure.CastIsValid(processorConstructor, "Type TProcessor must have a constructor with the following signature: .ctor(IBus, ILogger, IEventStore<TAggregate>)");
+                this.Processor = (TProcessor)processorConstructor.Invoke(new object[] { this.Bus, this.Log, this.Store });
+            }
+            else
+                this.Processor = processorFactory.Invoke(this.Bus, this.Log, this.Store);
         }
 
         public string NodeName { get; }
@@ -60,15 +70,13 @@ namespace EventCentric.Utils.Testing
 
         public ILogger Log { get; }
 
-        public TProcessor Processor { get; private set; }
+        public TProcessor Processor { get; }
 
         public Func<bool, IEventStoreDbContext> EventStoreDbContextFactory { get; }
 
         public Func<TDbContext> ReadModelDbContextFactory { get; }
 
         public IEventStore<TAggregate> Store { get; }
-
-        public void Setup(TProcessor processor) => this.Processor = processor;
 
         public void Setup<TDao>(TDao dao) where TDao : class => this.dao = dao;
 

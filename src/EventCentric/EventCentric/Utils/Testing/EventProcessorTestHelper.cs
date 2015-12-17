@@ -1,5 +1,6 @@
 ﻿using EventCentric.EventSourcing;
 using EventCentric.Log;
+using EventCentric.Messaging;
 using EventCentric.Messaging.Events;
 using EventCentric.Processing;
 using EventCentric.Serialization;
@@ -16,7 +17,7 @@ namespace EventCentric.Utils.Testing
         private readonly ITextSerializer serializer;
         private readonly EventStoreStub store;
 
-        public EventProcessorTestHelper()
+        public EventProcessorTestHelper(Func<IBus, ILogger, IEventStore<TAggregate>, TProcessor> processorFactory = null)
         {
             this.serializer = new JsonTextSerializer();
             this.store = new EventStoreStub(this.serializer);
@@ -26,8 +27,16 @@ namespace EventCentric.Utils.Testing
             // to check default values of an aggregate
             var constructor = typeof(TAggregate).GetConstructor(new[] { typeof(Guid) });
             Ensure.CastIsValid(constructor, "Type T must have a constructor with the following signature: .ctor(Guid)");
-
             this.store.Aggregate = (TAggregate)constructor.Invoke(new object[] { Guid.Empty });
+
+            if (processorFactory == null)
+            {
+                var processorConstructor = typeof(TProcessor).GetConstructor(new[] { typeof(IBus), typeof(ILogger), typeof(IEventStore<TAggregate>) });
+                Ensure.CastIsValid(processorConstructor, "Type TProcessor must have a constructor with the following signature: .ctor(IBus, ILogger, IEventStore<TAggregate>)");
+                this.Processor = (TProcessor)processorConstructor.Invoke(new object[] { this.Bus, this.Log, this.store });
+            }
+            else
+                this.Processor = processorFactory.Invoke(this.Bus, this.Log, this.store);
         }
 
         public BusStub Bus { get; }
@@ -36,11 +45,9 @@ namespace EventCentric.Utils.Testing
 
         public IEventStore<TAggregate> Store => this.store;
 
-        public TProcessor Processor { get; private set; }
+        public TProcessor Processor { get; }
 
         public TAggregate Aggregate => this.store.Aggregate;
-
-        public void Setup(TProcessor processor) => this.Processor = processor;
 
         public void Given(Guid streamId, params IEvent[] eventStream)
         {
