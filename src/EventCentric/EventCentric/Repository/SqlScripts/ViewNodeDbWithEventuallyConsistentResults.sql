@@ -53,6 +53,7 @@ CREATE TABLE [EventStore].[Events](
     [EventCollectionVersion] [bigint] IDENTITY(1,1) NOT NULL,
 	CONSTRAINT EventStore_Events_EventCollectionVersion UNIQUE(EventCollectionVersion),
     [CreationDate] [datetime] NOT NULL,
+	[RowVersion] [rowversion] NOT NULL,
 	[Payload] [nvarchar] (max) NOT NULL
 
 PRIMARY KEY CLUSTERED 

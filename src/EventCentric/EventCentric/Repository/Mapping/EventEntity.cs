@@ -14,6 +14,7 @@ namespace EventCentric.Repository.Mapping
         public Guid? CorrelationId { get; set; }
         public long EventCollectionVersion { get; set; }
         public DateTime CreationDate { get; set; }
+        public byte[] RowVersion { get; set; }
         public string Payload { get; set; }
     }
 
@@ -38,6 +39,8 @@ namespace EventCentric.Repository.Mapping
             this.Property(t => t.Payload)
                 .IsRequired();
 
+            this.Property(t => t.RowVersion).IsRowVersion();
+
 
             // Table & Column Mappings
             this.ToTable("Events", "EventStore");
@@ -49,6 +52,7 @@ namespace EventCentric.Repository.Mapping
             this.Property(t => t.CorrelationId).HasColumnName("CorrelationId");
             this.Property(t => t.EventCollectionVersion).HasColumnName("EventCollectionVersion");
             this.Property(t => t.CreationDate).HasColumnName("CreationDate");
+            this.Property(t => t.RowVersion).HasColumnName("RowVersion");
             this.Property(t => t.Payload).HasColumnName("Payload");
         }
     }
