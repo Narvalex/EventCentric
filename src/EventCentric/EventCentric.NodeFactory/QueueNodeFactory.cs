@@ -12,7 +12,7 @@ namespace EventCentric
 {
     public static class QueueNodeFactory<T>
     {
-        public static INode CreateNode(IUnityContainer container, bool setLocalTime = true, bool setSequentialGuid = true)
+        public static INode CreateNode(IUnityContainer container, bool setSequentialGuid = true)
         {
             var nodeName = NodeNameResolver.ResolveNameOf<T>();
 
@@ -26,7 +26,7 @@ namespace EventCentric
             Func<bool, EventQueueDbContext> eventQueueDbContextFactory = isReadOnly => new EventQueueDbContext(isReadOnly, connectionString);
 
             var serializer = new JsonTextSerializer();
-            var time = setLocalTime ? new LocalTimeProvider() as ITimeProvider : new UtcTimeProvider() as ITimeProvider;
+            var time = new UtcTimeProvider() as IUtcTimeProvider;
             var guid = setSequentialGuid ? new SequentialGuid() as IGuidProvider : new DefaultGuidProvider() as IGuidProvider;
 
             var bus = new Bus();
@@ -45,7 +45,7 @@ namespace EventCentric
             container.RegisterInstance<IEventBus>(eventBus);
             container.RegisterInstance<IEventSource>(eventPublisher);
             container.RegisterInstance<IGuidProvider>(guid);
-            container.RegisterInstance<ITimeProvider>(time);
+            container.RegisterInstance<IUtcTimeProvider>(time);
 
             return node;
         }

@@ -20,7 +20,7 @@ namespace EventCentric
         where TAggregate : class, IEventSourced
         where TProcessor : EventProcessor<TAggregate>
     {
-        public static INode CreateNode(IUnityContainer container, bool isSubscriptor = true, Func<IBus, ILogger, IEventStore<TAggregate>, TProcessor> processorFactory = null, bool enableHeartbeatingListener = false, bool setLocalTime = true, bool setSequentialGuid = true)
+        public static INode CreateNode(IUnityContainer container, bool isSubscriptor = true, Func<IBus, ILogger, IEventStore<TAggregate>, TProcessor> processorFactory = null, bool enableHeartbeatingListener = false, bool setSequentialGuid = true)
         {
             var nodeName = NodeNameResolver.ResolveNameOf<TAggregate>();
 
@@ -42,7 +42,7 @@ namespace EventCentric
             var serializer = new JsonTextSerializer();
             container.RegisterInstance<ITextSerializer>(serializer);
 
-            var time = setLocalTime ? new LocalTimeProvider() as ITimeProvider : new UtcTimeProvider() as ITimeProvider;
+            var time = new UtcTimeProvider() as IUtcTimeProvider;
             var guid = setSequentialGuid ? new SequentialGuid() as IGuidProvider : new DefaultGuidProvider() as IGuidProvider;
 
             var subscriptionRepository = new SubscriptionRepository(storeContextFactory, serializer, time);
@@ -89,7 +89,7 @@ namespace EventCentric
             return fsm;
         }
 
-        public static INode CreateNodeWithApp<TApp>(IUnityContainer container, bool isSubscriptor = true, Func<TApp> appFactory = null, Func<IBus, ILogger, IEventStore<TAggregate>, TProcessor> processorFactory = null, bool enableHeartbeatingListener = false, bool setLocalTime = true, bool setSequentialGuid = true)
+        public static INode CreateNodeWithApp<TApp>(IUnityContainer container, bool isSubscriptor = true, Func<TApp> appFactory = null, Func<IBus, ILogger, IEventStore<TAggregate>, TProcessor> processorFactory = null, bool enableHeartbeatingListener = false, bool setSequentialGuid = true)
             where TApp : ApplicationService
         {
             var nodeName = NodeNameResolver.ResolveNameOf<TAggregate>();
@@ -113,8 +113,8 @@ namespace EventCentric
             var serializer = new JsonTextSerializer();
             container.RegisterInstance<ITextSerializer>(serializer);
 
-            var time = setLocalTime ? new LocalTimeProvider() as ITimeProvider : new UtcTimeProvider() as ITimeProvider;
-            container.RegisterInstance<ITimeProvider>(time);
+            var time = new UtcTimeProvider() as IUtcTimeProvider;
+            container.RegisterInstance<IUtcTimeProvider>(time);
 
             var guid = setSequentialGuid ? new SequentialGuid() as IGuidProvider : new DefaultGuidProvider() as IGuidProvider;
             container.RegisterInstance<IGuidProvider>(guid);
@@ -168,7 +168,7 @@ namespace EventCentric
 
             if (appFactory == null)
             {
-                var constructor = typeof(TApp).GetConstructor(new[] { typeof(IEventBus), typeof(IGuidProvider), typeof(ITimeProvider) });
+                var constructor = typeof(TApp).GetConstructor(new[] { typeof(IEventBus), typeof(IGuidProvider), typeof(IUtcTimeProvider) });
                 Ensure.CastIsValid(constructor, "Type TApp must have a valid constructor with the following signature: .ctor(IEventBus, IGuidProvider, ITimeProvider)");
                 container.RegisterInstance<TApp>((TApp)constructor.Invoke(new object[] { eventBus, guid, time }));
             }
@@ -180,7 +180,7 @@ namespace EventCentric
             return fsm;
         }
 
-        public static INode CreateDenormalizerNode<TDbContext>(IUnityContainer container, Func<IBus, ILogger, IEventStore<TAggregate>, TProcessor> processorFactory = null, bool setLocalTime = true, bool setSequentialGuid = true)
+        public static INode CreateDenormalizerNode<TDbContext>(IUnityContainer container, Func<IBus, ILogger, IEventStore<TAggregate>, TProcessor> processorFactory = null, bool setSequentialGuid = true)
             where TDbContext : DbContext, IEventStoreDbContext
         {
             var nodeName = NodeNameResolver.ResolveNameOf<TAggregate>();
@@ -205,7 +205,7 @@ namespace EventCentric
             container.RegisterInstance<ILogger>(log);
 
             var serializer = new JsonTextSerializer();
-            var time = setLocalTime ? new LocalTimeProvider() as ITimeProvider : new UtcTimeProvider() as ITimeProvider;
+            var time = new UtcTimeProvider() as IUtcTimeProvider;
             var guid = setSequentialGuid ? new SequentialGuid() as IGuidProvider : new DefaultGuidProvider() as IGuidProvider;
 
 
@@ -247,7 +247,7 @@ namespace EventCentric
             return fsm;
         }
 
-        public static INode CreateDenormalizerNodeWithDao<TEventuallyConsistentDbContext, TDao>(IUnityContainer container, Func<TEventuallyConsistentDbContext> eventuallyConsistentDbContextFactory = null, Func<Func<TEventuallyConsistentDbContext>, TDao> daoFactory = null, Func<IBus, ILogger, IEventStore<TAggregate>, TProcessor> processorFactory = null, bool setLocalTime = true, bool setSequentialGuid = true)
+        public static INode CreateDenormalizerNodeWithDao<TEventuallyConsistentDbContext, TDao>(IUnityContainer container, Func<TEventuallyConsistentDbContext> eventuallyConsistentDbContextFactory = null, Func<Func<TEventuallyConsistentDbContext>, TDao> daoFactory = null, Func<IBus, ILogger, IEventStore<TAggregate>, TProcessor> processorFactory = null, bool setSequentialGuid = true)
            where TEventuallyConsistentDbContext : EventuallyConsistentDbContext, IEventStoreDbContext
         {
             var nodeName = NodeNameResolver.ResolveNameOf<TAggregate>();
@@ -272,7 +272,7 @@ namespace EventCentric
             container.RegisterInstance<ILogger>(log);
 
             var serializer = new JsonTextSerializer();
-            var time = setLocalTime ? new LocalTimeProvider() as ITimeProvider : new UtcTimeProvider() as ITimeProvider;
+            var time = new UtcTimeProvider() as IUtcTimeProvider;
             var guid = setSequentialGuid ? new SequentialGuid() as IGuidProvider : new DefaultGuidProvider() as IGuidProvider;
 
 

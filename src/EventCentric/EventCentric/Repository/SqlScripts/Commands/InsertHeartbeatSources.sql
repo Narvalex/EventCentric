@@ -11,8 +11,8 @@ insert into EventStore.SubscribersHeartbeats
     ,Url
     ,HeartbeatCount
     ,LastHeartbeatTime
-    ,UpdateTime
-    ,CreationDate
+    ,UpdateLocalTime
+    ,CreationLocalTime
 )
 values
 (

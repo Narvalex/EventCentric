@@ -9,9 +9,9 @@ namespace EventCentric.Messaging
     {
         private readonly string streamType;
         private readonly IGuidProvider guid;
-        private readonly ITimeProvider time;
+        private readonly IUtcTimeProvider time;
 
-        public InMemoryEventQueue(string streamType, IGuidProvider guid, IBus bus, ITimeProvider time)
+        public InMemoryEventQueue(string streamType, IGuidProvider guid, IBus bus, IUtcTimeProvider time)
              : base(bus)
         {
             Ensure.NotNullNeitherEmtpyNorWhiteSpace(streamType, "streamType");
@@ -25,7 +25,8 @@ namespace EventCentric.Messaging
 
         public void Enqueue(IEvent @event)
         {
-            base.bus.Send(new NewIncomingEvent(@event.AsQueuedEvent(this.streamType, this.guid.NewGuid(), InMemoryVersioning.GetNextVersion(), this.time.Now)));
+            var now = this.time.Now;
+            base.bus.Send(new NewIncomingEvent(@event.AsQueuedEvent(this.streamType, this.guid.NewGuid(), InMemoryVersioning.GetNextVersion(), now, now.ToLocalTime())));
         }
     }
 }

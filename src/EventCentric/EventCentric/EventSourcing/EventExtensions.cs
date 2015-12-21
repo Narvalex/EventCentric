@@ -16,23 +16,25 @@ namespace EventCentric.EventSourcing
             return e;
         }
 
-        public static IEvent AsQueuedEvent(this IEvent @event, string streamType, Guid eventId, long version, DateTime timestamp)
+        public static IEvent AsQueuedEvent(this IEvent @event, string streamType, Guid eventId, long version, DateTime utcTime, DateTime localTime)
         {
             var e = (Event)@event;
             e.StreamType = streamType;
             e.EventId = eventId;
             e.Version = version;
-            e.Timestamp = timestamp;
+            e.LocalTime = localTime;
+            e.UtcTime = utcTime;
             return e;
         }
 
-        public static IEvent AsStoredEvent(this IEvent @event, Guid transactionId, Guid eventId, string streamType, DateTime timestamp)
+        public static IEvent AsStoredEvent(this IEvent @event, Guid transactionId, Guid eventId, string streamType, DateTime utcTime, DateTime localTime)
         {
             var e = (Event)@event;
             e.TransactionId = transactionId;
             e.EventId = eventId;
             e.StreamType = streamType;
-            e.Timestamp = timestamp;
+            e.LocalTime = localTime;
+            e.UtcTime = utcTime;
             return e;
         }
     }

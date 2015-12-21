@@ -17,7 +17,7 @@ namespace EventCentric.EventSourcing
         private readonly string streamType;
         private readonly ILogger log;
         private readonly ITextSerializer serializer;
-        private readonly ITimeProvider time;
+        private readonly IUtcTimeProvider time;
         private readonly IGuidProvider guid;
         private readonly ObjectCache cache;
 
@@ -27,7 +27,7 @@ namespace EventCentric.EventSourcing
         private readonly Func<bool, IEventStoreDbContext> contextFactory;
         private readonly Action<T, IEventStoreDbContext> denormalizeIfApplicable;
 
-        public EventStore(string streamType, ITextSerializer serializer, Func<bool, IEventStoreDbContext> contextFactory, ITimeProvider time, IGuidProvider guid, ILogger log)
+        public EventStore(string streamType, ITextSerializer serializer, Func<bool, IEventStoreDbContext> contextFactory, IUtcTimeProvider time, IGuidProvider guid, ILogger log)
         {
             Ensure.NotNullNeitherEmtpyNorWhiteSpace(streamType, nameof(streamType));
             Ensure.NotNull(serializer, nameof(serializer));
@@ -134,10 +134,11 @@ namespace EventCentric.EventSourcing
                         throw new EventStoreConcurrencyException();
 
                     var now = this.time.Now;
+                    var localNow = this.time.Now.ToLocalTime();
 
                     foreach (var @event in pendingEvents)
                     {
-                        @event.AsStoredEvent(incomingEvent.TransactionId, this.guid.NewGuid(), streamType, now);
+                        @event.AsStoredEvent(incomingEvent.TransactionId, this.guid.NewGuid(), streamType, now, localNow);
 
                         context.Events.Add(
                             new EventEntity
@@ -148,7 +149,8 @@ namespace EventCentric.EventSourcing
                                 TransactionId = @event.TransactionId,
                                 EventType = @event.GetType().Name,
                                 CorrelationId = incomingEvent.EventId,
-                                CreationDate = now,
+                                LocalTime = localNow,
+                                UtcTime = now,
                                 Payload = this.serializer.Serialize(@event)
                             });
                     }
@@ -163,7 +165,7 @@ namespace EventCentric.EventSourcing
                         Version = incomingEvent.Version,
                         EventType = incomingEvent.GetType().Name,
                         EventCollectionVersion = incomingEvent.EventCollectionVersion,
-                        CreationDate = now,
+                        LocalTime = localNow,
                         Ignored = false,
                         Payload = this.serializer.Serialize(incomingEvent)
                     };
@@ -174,7 +176,7 @@ namespace EventCentric.EventSourcing
                     {
                         var subscription = context.Subscriptions.Where(s => s.StreamType == incomingEvent.StreamType).Single();
                         subscription.ProcessorBufferVersion = incomingEvent.ProcessorBufferVersion;
-                        subscription.UpdateTime = now;
+                        subscription.UpdateLocalTime = now;
                     }
                     catch (Exception ex)
                     {
@@ -195,14 +197,14 @@ namespace EventCentric.EventSourcing
                             StreamId = eventSourced.Id,
                             Version = eventSourced.Version,
                             Memento = serializedMemento,
-                            CreationDate = now,
-                            UpdateTime = now
+                            CreationLocalTime = localNow,
+                            UpdateLocalTime = localNow
                         },
                         stream =>
                         {
                             stream.Version = eventSourced.Version;
                             stream.Memento = serializedMemento;
-                            stream.UpdateTime = now;
+                            stream.UpdateLocalTime = localNow;
                         });
 
                     // Cache in memory

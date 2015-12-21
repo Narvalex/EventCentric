@@ -9,8 +9,8 @@ namespace EventCentric.Repository.Mapping
         public string Url { get; set; }
         public long HeartbeatCount { get; set; }
         public DateTime LastHeartbeatTime { get; set; }
-        public DateTime UpdateTime { get; set; }
-        public DateTime CreationDate { get; set; }
+        public DateTime UpdateLocalTime { get; set; }
+        public DateTime CreationLocalTime { get; set; }
     }
 
     public class SubscriberHeartbeatEntityMap : EntityTypeConfiguration<SubscriberHeartbeatEntity>
@@ -26,8 +26,8 @@ namespace EventCentric.Repository.Mapping
             this.Property(t => t.Url).HasColumnName("Url");
             this.Property(t => t.HeartbeatCount).HasColumnName("HeartbeatCount");
             this.Property(t => t.LastHeartbeatTime).HasColumnName("LastHeartbeatTime");
-            this.Property(t => t.UpdateTime).HasColumnName("UpdateTime");
-            this.Property(t => t.CreationDate).HasColumnName("CreationDate");
+            this.Property(t => t.UpdateLocalTime).HasColumnName("UpdateLocalTime");
+            this.Property(t => t.CreationLocalTime).HasColumnName("CreationLocalTime");
         }
     }
 }

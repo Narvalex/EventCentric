@@ -13,9 +13,9 @@ namespace EventCentric.Polling
     {
         private readonly Func<bool, EventStoreDbContext> contextFactory;
         private readonly ITextSerializer serializer;
-        private readonly ITimeProvider time;
+        private readonly IUtcTimeProvider time;
 
-        public SubscriptionRepository(Func<bool, EventStoreDbContext> contextFactory, ITextSerializer serializer, ITimeProvider time)
+        public SubscriptionRepository(Func<bool, EventStoreDbContext> contextFactory, ITextSerializer serializer, IUtcTimeProvider time)
         {
             Ensure.NotNull(contextFactory, "contextFactory");
             Ensure.NotNull(serializer, "serializer");
@@ -49,7 +49,7 @@ namespace EventCentric.Polling
             {
                 var subscription = context.Subscriptions.Where(s => s.StreamType == poisonedEvent.StreamType).Single();
                 subscription.IsPoisoned = true;
-                subscription.UpdateTime = this.time.Now;
+                subscription.UpdateLocalTime = this.time.Now;
                 subscription.PoisonEventCollectionVersion = poisonedEvent.EventCollectionVersion;
                 try
                 {

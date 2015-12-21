@@ -20,6 +20,7 @@ namespace EventCentric.EventSourcing
 
         public long Version { get; set; }
 
-        public DateTime Timestamp { get; set; }
+        public DateTime LocalTime { get; set; }
+        public DateTime UtcTime { get; set; }
     }
 }

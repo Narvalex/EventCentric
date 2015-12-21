@@ -11,7 +11,7 @@ namespace EventCentric.Utils.Testing
 
         public ApplicationServiceTestHelper()
         {
-            this.Time = new LocalTimeProvider();
+            this.Time = new UtcTimeProvider();
             this.Guid = new SequentialGuid();
             this.eventBus = new EventBusStub();
         }
@@ -19,7 +19,7 @@ namespace EventCentric.Utils.Testing
         public void Setup(TApp app)
             => this.App = app;
 
-        public ITimeProvider Time { get; }
+        public IUtcTimeProvider Time { get; }
 
         public IGuidProvider Guid { get; }
 

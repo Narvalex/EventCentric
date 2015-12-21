@@ -11,8 +11,8 @@ insert into EventStore.Subscriptions
 	ProcessorBufferVersion,
 	IsPoisoned,
 	WasCanceled,
-	CreationDate,
-	UpdateTime
+	CreationLocalTime,
+	UpdateLocalTime
 )
 values
 (

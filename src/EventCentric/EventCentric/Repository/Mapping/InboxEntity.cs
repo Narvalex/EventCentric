@@ -14,7 +14,7 @@ namespace EventCentric.Repository.Mapping
         public string EventType { get; set; }
         public long EventCollectionVersion { get; set; }
         public bool Ignored { get; set; }
-        public DateTime CreationDate { get; set; }
+        public DateTime LocalTime { get; set; }
         public string Payload { get; set; }
     }
 
@@ -54,7 +54,7 @@ namespace EventCentric.Repository.Mapping
             this.Property(t => t.EventType).HasColumnName("EventType");
             this.Property(t => t.EventCollectionVersion).HasColumnName("EventCollectionVersion");
             this.Property(t => t.Ignored).HasColumnName("Ignored");
-            this.Property(t => t.CreationDate).HasColumnName("CreationDate");
+            this.Property(t => t.LocalTime).HasColumnName("LocalTime");
             this.Property(t => t.Payload).HasColumnName("Payload");
         }
     }

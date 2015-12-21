@@ -10,8 +10,8 @@ namespace EventCentric.Repository.Mapping
         public long Version { get; set; }
         public string Memento { get; set; }
         public long StreamCollectionVersion { get; set; }
-        public DateTime CreationDate { get; set; }
-        public DateTime UpdateTime { get; set; }
+        public DateTime CreationLocalTime { get; set; }
+        public DateTime UpdateLocalTime { get; set; }
     }
 
     public class StreamEntityMap : EntityTypeConfiguration<StreamEntity>
@@ -30,8 +30,8 @@ namespace EventCentric.Repository.Mapping
             this.Property(t => t.Version).HasColumnName("Version");
             this.Property(t => t.Memento).HasColumnName("Memento");
             this.Property(t => t.StreamCollectionVersion).HasColumnName("StreamCollectionVersion");
-            this.Property(t => t.CreationDate).HasColumnName("CreationDate");
-            this.Property(t => t.UpdateTime).HasColumnName("UpdateTime");
+            this.Property(t => t.CreationLocalTime).HasColumnName("CreationLocalTime");
+            this.Property(t => t.UpdateLocalTime).HasColumnName("UpdateLocalTime");
         }
     }
 

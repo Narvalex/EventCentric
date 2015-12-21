@@ -2,33 +2,14 @@
 
 namespace EventCentric.Utils
 {
-    public interface ITimeProvider
+    public interface IUtcTimeProvider
     {
         DateTime Now { get; }
 
         DateTimeOffset OffSetNow { get; }
     }
 
-    public class LocalTimeProvider : ITimeProvider
-    {
-        public DateTime Now
-        {
-            get
-            {
-                return DateTime.Now;
-            }
-        }
-
-        public DateTimeOffset OffSetNow
-        {
-            get
-            {
-                return DateTimeOffset.Now;
-            }
-        }
-    }
-
-    public class UtcTimeProvider : ITimeProvider
+    public class UtcTimeProvider : IUtcTimeProvider
     {
         public DateTime Now
         {

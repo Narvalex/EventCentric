@@ -23,7 +23,7 @@ namespace EventCentric.Utils.Testing
             this.serializer = new JsonTextSerializer();
             this.Bus = new BusStub();
             this.Log = new ConsoleLogger();
-            this.Time = new LocalTimeProvider();
+            this.Time = new UtcTimeProvider();
             this.Guid = new SequentialGuid();
             this.NodeName = NodeNameResolver.ResolveNameOf<TAggregate>();
 
@@ -43,8 +43,8 @@ namespace EventCentric.Utils.Testing
                     ProcessorBufferVersion = 0,
                     IsPoisoned = false,
                     WasCanceled = false,
-                    CreationDate = this.Time.Now,
-                    UpdateTime = this.Time.Now
+                    CreationLocalTime = this.Time.Now,
+                    UpdateLocalTime = this.Time.Now
                 });
 
                 context.SaveChanges();
@@ -62,7 +62,7 @@ namespace EventCentric.Utils.Testing
 
         public string NodeName { get; }
 
-        public ITimeProvider Time { get; }
+        public IUtcTimeProvider Time { get; }
 
         public IGuidProvider Guid { get; }
 

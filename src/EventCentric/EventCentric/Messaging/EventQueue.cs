@@ -14,10 +14,10 @@ namespace EventCentric.Messaging
         protected readonly string streamType;
         protected readonly Func<bool, IEventQueueDbContext> contextFactory;
         protected readonly ITextSerializer serializer;
-        protected readonly ITimeProvider time;
+        protected readonly IUtcTimeProvider time;
         protected readonly IGuidProvider guid;
 
-        public EventQueue(string streamType, Func<bool, IEventQueueDbContext> contextFactory, ITextSerializer serializer, ITimeProvider time, IGuidProvider guid, IBus bus)
+        public EventQueue(string streamType, Func<bool, IEventQueueDbContext> contextFactory, ITextSerializer serializer, IUtcTimeProvider time, IGuidProvider guid, IBus bus)
             : base(bus)
         {
             Ensure.NotNullNeitherEmtpyNorWhiteSpace(streamType, "streamType");
@@ -48,8 +48,9 @@ namespace EventCentric.Messaging
                 var updatedVersion = currentVersion + 1;
 
                 var now = this.time.Now;
+                var localNow = now.ToLocalTime();
 
-                @event.AsQueuedEvent(this.streamType, this.guid.NewGuid(), updatedVersion, now);
+                @event.AsQueuedEvent(this.streamType, this.guid.NewGuid(), updatedVersion, now, localNow);
 
                 context.Events.Add(
                     new EventEntity
@@ -59,7 +60,8 @@ namespace EventCentric.Messaging
                         EventId = @event.EventId,
                         TransactionId = @event.TransactionId,
                         EventType = @event.GetType().Name,
-                        CreationDate = now,
+                        LocalTime = localNow,
+                        UtcTime = now,
                         Payload = this.serializer.Serialize(@event)
                     });
 

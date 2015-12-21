@@ -19,9 +19,9 @@ namespace EventCentric
         private Tuple<string, string>[] subscribersNamesAndUrls;
         private readonly TimeSpan timeout;
         private readonly TimeSpan interval;
-        private readonly ITimeProvider time;
+        private readonly IUtcTimeProvider time;
 
-        public HeartbeatListener(IBus bus, ILogger log, ITimeProvider time, TimeSpan timeout, TimeSpan interval, Func<bool, HeartbeatDbContext> contextFactory)
+        public HeartbeatListener(IBus bus, ILogger log, IUtcTimeProvider time, TimeSpan timeout, TimeSpan interval, Func<bool, HeartbeatDbContext> contextFactory)
             : base(bus, log)
         {
             Ensure.NotNull(contextFactory, "contextFactory");
@@ -81,7 +81,7 @@ namespace EventCentric
                         {
                             var subscription = context.SubscribersHeartbeats.Single(s => s.SubscriberName == name);
                             var now = this.time.Now;
-                            subscription.UpdateTime = now;
+                            subscription.UpdateLocalTime = now;
                             subscription.HeartbeatCount = subscription.HeartbeatCount + 1;
                             subscription.LastHeartbeatTime = now;
 
@@ -99,7 +99,7 @@ namespace EventCentric
                         {
                             var subscription = context.SubscribersHeartbeats.Single(s => s.SubscriberName == name);
                             var now = this.time.Now;
-                            subscription.UpdateTime = now;
+                            subscription.UpdateLocalTime = now;
 
                             context.SaveChanges();
                         }

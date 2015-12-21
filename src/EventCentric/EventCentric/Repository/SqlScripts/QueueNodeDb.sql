@@ -52,7 +52,8 @@ CREATE TABLE [EventStore].[Events](
 	[CorrelationId] [uniqueidentifier] NULL,
     [EventCollectionVersion] [bigint] IDENTITY(1,1) NOT NULL,
 	CONSTRAINT EventStore_Events_EventCollectionVersion UNIQUE(EventCollectionVersion),
-    [CreationDate] [datetime] NOT NULL,
+    [LocalTime] [datetime] NOT NULL,
+	[UtcTime] [datetime] NOT NULL,
 	[RowVersion] [rowversion] NOT NULL,
 	[Payload] [nvarchar] (max) NOT NULL
 
@@ -71,8 +72,9 @@ create table [EventStore].[SubscribersHeartbeats] (
     [Url] [nvarchar](max) null,
     [HeartbeatCount] [bigint] not null,
     [LastHeartbeatTime] [datetime] not null,
-    [UpdateTime] [datetime] not null,
-    [CreationDate] [datetime] not null,
+    [UpdateLocalTime] [datetime] not null,
+    [CreationLocalTime] [datetime] not null,
     primary key ([SubscriberName])
 );
+
 

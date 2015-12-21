@@ -14,8 +14,8 @@ namespace EventCentric.Repository.Mapping
         public long? PoisonEventCollectionVersion { get; set; }
         public string DeadLetterPayload { get; set; }
         public string ExceptionMessage { get; set; }
-        public DateTime CreationDate { get; set; }
-        public DateTime UpdateTime { get; set; }
+        public DateTime CreationLocalTime { get; set; }
+        public DateTime UpdateLocalTime { get; set; }
     }
 
     public class SubscriptionEntityMap : EntityTypeConfiguration<SubscriptionEntity>
@@ -50,8 +50,8 @@ namespace EventCentric.Repository.Mapping
             this.Property(t => t.PoisonEventCollectionVersion).HasColumnName("PoisonEventCollectionVersion");
             this.Property(t => t.DeadLetterPayload).HasColumnName("DeadLetterPayload");
             this.Property(t => t.ExceptionMessage).HasColumnName("ExceptionMessage");
-            this.Property(t => t.CreationDate).HasColumnName("CreationDate");
-            this.Property(t => t.UpdateTime).HasColumnName("UpdateTime");
+            this.Property(t => t.CreationLocalTime).HasColumnName("CreationLocalTime");
+            this.Property(t => t.UpdateLocalTime).HasColumnName("UpdateLocalTime");
         }
     }
 }

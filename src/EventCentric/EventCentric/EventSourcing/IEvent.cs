@@ -31,6 +31,8 @@ namespace EventCentric.EventSourcing
         /// </summary>
         long ProcessorBufferVersion { get; }
 
-        DateTime Timestamp { get; }
+        DateTime LocalTime { get; }
+
+        DateTime UtcTime { get; }
     }
 }

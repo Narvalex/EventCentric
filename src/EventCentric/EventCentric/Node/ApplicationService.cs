@@ -10,10 +10,10 @@ namespace EventCentric
     public abstract class ApplicationService
     {
         protected readonly IGuidProvider guid;
-        protected readonly ITimeProvider time;
+        protected readonly IUtcTimeProvider time;
         protected readonly IEventBus bus;
 
-        protected ApplicationService(IEventBus bus, IGuidProvider guid, ITimeProvider time)
+        protected ApplicationService(IEventBus bus, IGuidProvider guid, IUtcTimeProvider time)
         {
             Ensure.NotNull(guid, "guid");
             Ensure.NotNull(time, "time");

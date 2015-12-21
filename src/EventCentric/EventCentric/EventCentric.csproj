@@ -174,7 +174,7 @@
     <Compile Include="Utils\Testing\EventExtensions.cs" />
     <Compile Include="Utils\Testing\EventProcessorTestHelper.cs" />
     <Compile Include="Utils\Testing\EventSourcedAggregateExtensions.cs" />
-    <Compile Include="Utils\TimeProvider.cs" />
+    <Compile Include="Utils\UtcTimeProvider.cs" />
     <Compile Include="Utils\TaskExtensions.cs" />
   </ItemGroup>
   <ItemGroup>

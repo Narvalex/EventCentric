@@ -52,7 +52,8 @@ CREATE TABLE [EventStore].[Events](
 	[CorrelationId] [uniqueidentifier] NULL,
     [EventCollectionVersion] [bigint] IDENTITY(1,1) NOT NULL,
 	CONSTRAINT EventStore_Events_EventCollectionVersion UNIQUE(EventCollectionVersion),
-    [CreationDate] [datetime] NOT NULL,
+    [LocalTime] [datetime] NOT NULL,
+	[UtcTime] [datetime] NOT NULL,
 	[RowVersion] [rowversion] NOT NULL,
 	[Payload] [nvarchar] (max) NOT NULL
 
@@ -71,8 +72,8 @@ CREATE TABLE[EventStore].[Streams](
     [Memento] [nvarchar](max) NULL,
     [StreamCollectionVersion] [bigint] IDENTITY(1,1) NOT NULL,
 	CONSTRAINT EventStore_Streams_StreamCollectionVersion UNIQUE(StreamCollectionVersion),
-    [CreationDate] [datetime] NOT NULL,
-    [UpdateTime] [datetime] NOT NULL
+    [CreationLocalTime] [datetime] NOT NULL,
+    [UpdateLocalTime] [datetime] NOT NULL
 PRIMARY KEY CLUSTERED
 (
     [StreamId] ASC
@@ -91,8 +92,8 @@ CREATE TABLE[EventStore].[Subscriptions](
     [PoisonEventCollectionVersion] [bigint] NULL,
     [DeadLetterPayload] [nvarchar] (max) NULL,
     [ExceptionMessage] [nvarchar] (max) NULL,
-    [CreationDate] [datetime] NOT NULL,
-    [UpdateTime] [datetime] NOT NULL
+    [CreationLocalTime] [datetime] NOT NULL,
+    [UpdateLocalTime] [datetime] NOT NULL
 PRIMARY KEY CLUSTERED
 (
     [StreamType] ASC
@@ -104,7 +105,7 @@ IF NOT EXISTS(SELECT* FROM sys.objects WHERE object_id = OBJECT_ID(N'[EventStore
 CREATE TABLE[EventStore].[Inbox](
 	[InboxId] [bigint] IDENTITY(1,1) NOT NULL,
     [EventId] [uniqueidentifier] NOT NULL,
-CONSTRAINT EventStore_Inbox_EventId UNIQUE(EventId),
+	CONSTRAINT EventStore_Inbox_EventId UNIQUE(EventId),
     [TransactionId] [uniqueidentifier] NOT NULL,
 	[StreamType] [nvarchar] (255) NOT NULL,
     [StreamId] [uniqueidentifier] NOT NULL,
@@ -112,7 +113,7 @@ CONSTRAINT EventStore_Inbox_EventId UNIQUE(EventId),
     [EventType] [nvarchar] (255) NOT NULL,
     [EventCollectionVersion] [bigint] NOT NULL,
     [Ignored] [bit] NULL,
-    [CreationDate] [datetime] NOT NULL,
+    [CreationLocalTime] [datetime] NOT NULL,
 	[Payload] [nvarchar] (max) NOT NULL
 
 PRIMARY KEY CLUSTERED
