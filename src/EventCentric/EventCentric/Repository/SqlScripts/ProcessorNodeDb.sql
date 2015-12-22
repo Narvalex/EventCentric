@@ -12,7 +12,7 @@ declare @dbName varchar(max);
 --==========================
 -- 1/2 CHANGE DB NAME HERE
 --==========================
-set @dbName = N'InsertDbNameHere';
+set @dbName = N'{dbName}';
 
 
 -- Create database
@@ -39,7 +39,7 @@ GO
 --==========================
 -- 2/2 CHANGE DB NAME HERE
 --==========================
-USE [InsertDbNameHere]
+USE [{dbName}]
 GO
 
 -- Create EventStore schema

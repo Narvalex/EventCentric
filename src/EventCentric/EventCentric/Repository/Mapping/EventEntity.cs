@@ -4,6 +4,7 @@ using System.Data.Entity.ModelConfiguration;
 
 namespace EventCentric.Repository.Mapping
 {
+    // About unique constraints vs indexes: https://technet.microsoft.com/en-us/library/aa224827(v=sql.80).aspx
     public class EventEntity
     {
         public Guid StreamId { get; set; }

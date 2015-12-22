@@ -2,10 +2,9 @@
 
 namespace EventCentric.EventSourcing
 {
+    // Do not chage the public getters in orther to avoid serialization problems
     public class Event : IEvent
     {
-        // Do not chage the public getters in orther to avoid serialization problems
-
         public long EventCollectionVersion { get; set; }
 
         public Guid TransactionId { get; set; }
@@ -21,6 +20,7 @@ namespace EventCentric.EventSourcing
         public long Version { get; set; }
 
         public DateTime LocalTime { get; set; }
+
         public DateTime UtcTime { get; set; }
     }
 }

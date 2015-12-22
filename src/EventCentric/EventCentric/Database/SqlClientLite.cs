@@ -146,6 +146,18 @@ namespace EventCentric.Database
             DropDatabase(this.ConnectionString);
         }
 
+        public string GetDbName()
+        {
+            var builder = new SqlConnectionStringBuilder(this.ConnectionString);
+            return builder.InitialCatalog;
+        }
+
+        public string GetDbName(string connectionString)
+        {
+            var builder = new SqlConnectionStringBuilder(connectionString);
+            return builder.InitialCatalog;
+        }
+
         public static void DropDatabase(string connectionString)
         {
             var builder = new SqlConnectionStringBuilder(connectionString);

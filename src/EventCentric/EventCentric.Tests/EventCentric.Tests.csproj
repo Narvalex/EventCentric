@@ -67,12 +67,15 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
+    <Compile Include="EventSourcing\EventStoreFixture.cs" />
+    <Compile Include="EventSourcing\Helpers\InventoryTestAggregate.cs" />
     <Compile Include="Playground\GroupedEventStreams.cs" />
     <Compile Include="Playground\Helpers\TestActor.cs" />
     <Compile Include="Playground\InMemoryObjectsPerformance.cs" />
     <Compile Include="Playground\LockingWithConcurrentDictionary.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Serialization\SerializationSpeed.cs" />
+    <Compile Include="TestConfig.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

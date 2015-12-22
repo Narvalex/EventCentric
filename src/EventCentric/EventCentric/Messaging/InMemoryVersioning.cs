@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace EventCentric.Messaging.Infrastructure
+namespace EventCentric.Messaging
 {
     /// <summary>
     /// In memory versioning, based on: https://msdn.microsoft.com/en-us/library/system.datetime.ticks.aspx

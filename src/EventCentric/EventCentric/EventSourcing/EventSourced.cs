@@ -16,7 +16,7 @@ namespace EventCentric.EventSourcing
         protected EventSourced(Guid id)
         {
             this.id = id;
-            this.OnHydrationStarted();
+            this.OnUpdateStarted();
         }
 
         protected EventSourced(Guid id, IEnumerable<IEvent> streamOfEvents)
@@ -41,7 +41,7 @@ namespace EventCentric.EventSourcing
         /// <summary>
         /// Afther the aggregate id is set this method will be called.
         /// </summary>
-        protected virtual void OnHydrationStarted() { }
+        protected virtual void OnUpdateStarted() { }
 
         protected void Update(Event @event)
         {

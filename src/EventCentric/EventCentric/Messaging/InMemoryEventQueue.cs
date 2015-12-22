@@ -1,6 +1,5 @@
 ﻿using EventCentric.EventSourcing;
 using EventCentric.Messaging.Events;
-using EventCentric.Messaging.Infrastructure;
 using EventCentric.Utils;
 
 namespace EventCentric.Messaging

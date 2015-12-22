@@ -32,7 +32,7 @@ namespace EventCentric.Messaging
             {
                 try
                 {
-                    this.queue.Enqueue(@event.AsIncomingMessage(transactionId, streamId));
+                    this.queue.Enqueue(@event.AsInProcessMessage(transactionId, streamId));
                 }
                 catch (Exception ex)
                 {

@@ -4,9 +4,12 @@ namespace EventCentric.EventSourcing
 {
     public static class EventExtensions
     {
-        // And incoming message does not belong to a stream. Therefore, the stream type is null, and the 
-        // event store will notice, and will not try to update any subscription status.
-        public static IEvent AsIncomingMessage(this IEvent message, Guid transactionId, Guid streamId)
+
+        /// <summary>
+        /// And incoming message does not belong to a stream. Therefore, the stream type is null, and the 
+        /// event store will notice, and will not try to update any subscription status.
+        /// </summary>
+        public static IEvent AsInProcessMessage(this IEvent message, Guid transactionId, Guid streamId)
         {
             var e = (Event)message;
             e.TransactionId = transactionId;
