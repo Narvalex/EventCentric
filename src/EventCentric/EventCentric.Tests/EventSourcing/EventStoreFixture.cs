@@ -66,6 +66,7 @@ namespace EventCentric.Tests.EventSourcing
     public class WHEN_saving_an_aggregate : GIVEN_store
     {
         [TestMethod]
+        [TestCategory(DbIntegrationCategory)]
         public void THEN_processed_message_and_published_event_are_persisted()
         {
             var streamId = Guid.NewGuid();
