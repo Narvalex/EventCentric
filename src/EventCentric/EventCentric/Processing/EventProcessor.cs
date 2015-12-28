@@ -11,7 +11,7 @@ using System.Linq;
 namespace EventCentric.Processing
 {
     /// <summary>
-    /// An Event Processor
+    /// An event processor
     /// </summary>
     /// <typeparam name="T">The type of the <see cref="IEventSourced"/> aggregate.</typeparam>
     /// <remarks>

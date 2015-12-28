@@ -2,10 +2,7 @@
 
 namespace EventCentric.Processing
 {
-    public interface ISubscribedTo
-    { }
-
-    public interface ISubscribedTo<T> where T : IEvent
+    public interface IHandlerOf<T> where T : IEvent
     {
         void Receive(T message);
     }

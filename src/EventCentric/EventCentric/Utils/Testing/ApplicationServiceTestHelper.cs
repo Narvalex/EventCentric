@@ -9,17 +9,20 @@ namespace EventCentric.Utils.Testing
     {
         private EventBusStub eventBus;
 
-        public ApplicationServiceTestHelper()
+        public ApplicationServiceTestHelper(Func<IEventBus, IGuidProvider, TApp> appFactory = null)
         {
-            this.Time = new UtcTimeProvider();
             this.Guid = new SequentialGuid();
             this.eventBus = new EventBusStub();
+
+            if (appFactory == null)
+            {
+                var appConstructor = typeof(TApp).GetConstructor(new[] { typeof(IEventBus), typeof(IGuidProvider) });
+                Ensure.CastIsValid(appConstructor, "Type TApp must have a constructor with the following signature: .ctor(IEventBus, IGuidProvider)");
+                this.App = (TApp)appConstructor.Invoke(new object[] { this.eventBus, this.Guid });
+            }
+            else
+                this.App = appFactory.Invoke(this.eventBus, this.Guid);
         }
-
-        public void Setup(TApp app)
-            => this.App = app;
-
-        public IUtcTimeProvider Time { get; }
 
         public IGuidProvider Guid { get; }
 
