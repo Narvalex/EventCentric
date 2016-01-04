@@ -82,7 +82,7 @@ namespace EventCentric.Processing
 #if DEBUG
                 this.log.Trace($"Processor is now handling message '{incomingEvent.GetType().Name}' with id {incomingEvent.EventId}");
 #endif
-                ((dynamic)this).Receive((dynamic)incomingEvent);
+                ((dynamic)this).On((dynamic)incomingEvent);
 #if DEBUG
                 this.log.Trace($"Processor successfully handled message '{incomingEvent.GetType().Name}' with id {incomingEvent.EventId}");
 #endif

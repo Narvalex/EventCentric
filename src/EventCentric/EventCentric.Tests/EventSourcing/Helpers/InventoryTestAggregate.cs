@@ -6,7 +6,7 @@ namespace EventCentric.Tests.EventSourcing.Helpers
 {
     public class InventoryTestAggregate : EventSourced,
         IHandles<AddItems>,
-        IUpdatesOn<ItemsAdded>
+        IHandlerOf<ItemsAdded>
     {
         private int quantity;
 

@@ -139,7 +139,7 @@
     <Compile Include="EventSourcing\IEventStore.cs" />
     <Compile Include="EventSourcing\IHandles.cs" />
     <Compile Include="EventSourcing\IMementoOriginator.cs" />
-    <Compile Include="EventSourcing\IUpdatesOn.cs" />
+    <Compile Include="EventSourcing\IHandlerOf.cs" />
     <Compile Include="EventSourcing\StreamNotFoundException.cs" />
     <Compile Include="Node\ProcessorNode.cs" />
     <Compile Include="Messaging\Bus.cs" />
@@ -158,7 +158,6 @@
     <Compile Include="Repository\EventStoreDbContext.cs" />
     <Compile Include="Repository\Mapping\StreamEntity.cs" />
     <Compile Include="Messaging\IEventBus.cs" />
-    <Compile Include="Processing\IHandlerOf.cs" />
     <Compile Include="Publishing\IEventSource.cs" />
     <Compile Include="Serialization\ITextSerializer.cs" />
     <Compile Include="Serialization\JsonTextSerializerWithIdentedFormatting.cs" />

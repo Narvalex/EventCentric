@@ -1,3 +1,4 @@
 Tfs is good for conflict resolution in Visual Studio, as oposed to Git
 
 Tips for .tfignore: http://blog.appliedis.com/2014/11/06/excluding-files-from-team-foundation-version-control-using-tfignore-files/
+Other source: https://msdn.microsoft.com/en-us/library/ms245454.aspx#tfignore
