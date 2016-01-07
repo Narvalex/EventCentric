@@ -4,14 +4,12 @@ En español:
 Proyectos
 ---------------------------------------------------------------------------------
 
-1. Crear los tres proyectos con los nombres asi: 
+1. Crear los dos proyectos con los nombres asi: 
 	- Dominio.Aggregate
-	- Dominio.Aggregate.Server
 	- Dominio.Aggregate.Web
 
 2. Luego, en propiedades del proyecto, renombrar a cada uno el default namespace:
 	- Dominio.AggregateNode
-	- Dominio.AggregateNode.Server
 	- Dominio.AggregateNode.Web
 
 ---------------------------------------------------------------------------------
