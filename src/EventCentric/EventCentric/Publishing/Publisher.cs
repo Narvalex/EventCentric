@@ -60,31 +60,31 @@ namespace EventCentric.Publishing
         /// <remarks>
         /// Timeout implementation inspired by: http://stackoverflow.com/questions/5018921/implement-c-sharp-timeout
         /// </remarks>
-        public PollResponse PollEvents(long lastReceivedVersion, string consumerName)
+        public PollResponse PollEvents(long consumerVersion, string consumerName)
         {
             var newEvents = new List<NewRawEvent>();
 
             // last received version could be somehow less than 0. I found once that was -1, 
             // and was always pushing "0 events", as the signal r tracing showed (27/10/2015) 
-            if (lastReceivedVersion < 0)
-                lastReceivedVersion = 0;
+            if (consumerVersion < 0)
+                consumerVersion = 0;
 
-            // the consumer says that is more updated than the source. That is an error
-            if (this.eventCollectionVersion < lastReceivedVersion)
-                return new PollResponse(true, false, this.streamType, newEvents, lastReceivedVersion, this.eventCollectionVersion);
+            // the consumer says that is more updated than the source. That is an error. Maybe the publisher did not started yet!
+            if (this.eventCollectionVersion < consumerVersion)
+                return new PollResponse(true, false, this.streamType, newEvents, consumerVersion, this.eventCollectionVersion);
 
             bool newEventsWereFound = false;
             var stopwatch = Stopwatch.StartNew();
             while (!this.stopping && stopwatch.Elapsed < this.longPollingTimeout)
             {
-                if (this.eventCollectionVersion == lastReceivedVersion)
+                if (this.eventCollectionVersion == consumerVersion)
                     // consumer is up to date, and now is waiting until something happens!
                     Thread.Sleep(100);
 
                 // weird error, but is crash proof. Once i had an error where in an infinite loop there was an error saying: Pushing 0 events to....
-                else if (this.eventCollectionVersion > lastReceivedVersion)
+                else if (this.eventCollectionVersion > consumerVersion)
                 {
-                    newEvents = this.dao.FindEvents(lastReceivedVersion, eventsToPushMaxCount);
+                    newEvents = this.dao.FindEvents(consumerVersion, eventsToPushMaxCount);
                     newEventsWereFound = newEvents.Count > 0 ? true : false;
 
                     this.log.Trace($"Pushing {newEvents.Count} event/s to {consumerName}");
@@ -95,7 +95,7 @@ namespace EventCentric.Publishing
                     break;
             }
 
-            return new PollResponse(false, newEventsWereFound, this.streamType, newEvents, lastReceivedVersion, this.eventCollectionVersion);
+            return new PollResponse(false, newEventsWereFound, this.streamType, newEvents, consumerVersion, this.eventCollectionVersion);
         }
 
         protected override void OnStarting()
