@@ -23,6 +23,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Docs", "Docs", "{7B295ED5-3
 		AboutTfsIgnore.txt = AboutTfsIgnore.txt
 	EndProjectSection
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{397224F2-E917-47C0-A197-04504D3CA3A8}"
+	ProjectSection(SolutionItems) = preProject
+		..\Snippets\Message.snippet = ..\Snippets\Message.snippet
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

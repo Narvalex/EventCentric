@@ -1,0 +1,33 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<!-- More info: https://msdn.microsoft.com/en-us/library/ms165394.aspx -->
+<CodeSnippets
+  xmlns="http://schemas.microsoft.com/VisualStudio/2005/CodeSnippet">
+  <CodeSnippet Format="1.0.0">
+    <Header>
+      <Title>New message</Title>
+      <Author>Alexis</Author>
+      <Description>New event centric message, it could be an event or a command</Description>
+      <Shortcut>eve</Shortcut>
+    </Header>
+    <Snippet>
+      <Code Language="CSharp" Kind="method body">
+        <![CDATA[public class $MessageType$ : Event
+        {
+        }]]>
+      </Code>
+      <Imports>
+        <Import>
+          <Namespace>EventCentric.EventSourcing</Namespace>
+        </Import>
+      </Imports>
+      <Declarations>
+        <Object>
+          <ID>MessageType</ID>
+          <Type>EventCentric.EventSourcing</Type>
+          <ToolTip>Set the message type</ToolTip>
+          <Default>InsertMessageTypeHere</Default>
+        </Object>
+      </Declarations>
+    </Snippet>
+  </CodeSnippet>
+</CodeSnippets>
