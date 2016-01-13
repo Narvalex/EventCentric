@@ -25,8 +25,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Docs", "Docs", "{7B295ED5-3
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{397224F2-E917-47C0-A197-04504D3CA3A8}"
 	ProjectSection(SolutionItems) = preProject
-		..\Snippets\Message.snippet = ..\Snippets\Message.snippet
-		..\Snippets\Rprop.snippet = ..\Snippets\Rprop.snippet
+		..\Snippets\eve.snippet = ..\Snippets\eve.snippet
+		..\Snippets\rprop.snippet = ..\Snippets\rprop.snippet
 	EndProjectSection
 EndProject
 Global
