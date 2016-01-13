@@ -1,0 +1,29 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<!-- More info: https://msdn.microsoft.com/en-us/library/ms165394.aspx -->
+<CodeSnippets
+  xmlns="http://schemas.microsoft.com/VisualStudio/2005/CodeSnippet">
+  <CodeSnippet Format="1.0.0">
+    <Header>
+      <Title>Read-only property</Title>
+      <Author>Alexis</Author>
+      <Description>Creates a new read-only property</Description>
+      <Shortcut>rprop</Shortcut>
+    </Header>
+    <Snippet>
+      <Code Language="CSharp"><![CDATA[public $Type$ $Name$ { get; }]]></Code>
+      <Declarations>
+        <Object>
+          <ID>Type</ID>
+          <Type>System</Type>
+          <ToolTip>Set the property type.</ToolTip>
+          <Default>int</Default>
+        </Object>
+        <Literal>
+          <ID>Name</ID>
+          <ToolTip>Set the name of the property.</ToolTip>
+          <Default>MyProperty</Default>
+        </Literal>
+      </Declarations>
+    </Snippet>
+  </CodeSnippet>
+</CodeSnippets>

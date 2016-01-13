@@ -49,41 +49,31 @@ namespace EventCentric.Utils.Testing
 
         public TAggregate Aggregate => this.store.Aggregate;
 
-        public void Given(Guid streamId, params IEvent[] eventStream)
-        {
-            this.store
-                   .Streams
-                   .AddRange(eventStream.Select(e => this.serializer.SerializeAndDeserialize(e)));
-            this.store.streamId = streamId;
-        }
-
-        public void Given<TMemento>(Guid streamId, TMemento memento) where TMemento : IMemento
+        public EventProcessorTestHelper<TAggregate, TProcessor> Given(Guid streamId, IMemento memento)
         {
             this.store.Snapshot = this.serializer.SerializeAndDeserialize(memento);
             this.store.streamId = streamId;
+
+            return this;
         }
 
-        public void Given<TMemento>(Guid streamId, Func<TMemento, bool> mementoEqualityChecker, params IEvent[] eventStream)
-            where TMemento : IMemento
+        public EventProcessorTestHelper<TAggregate, TProcessor> Given(Guid streamId, params IEvent[] events)
         {
-            this.Given(streamId, eventStream);
-
-            foreach (var e in eventStream)
-                ((dynamic)this.Aggregate).On((dynamic)e);
-
-            var mementoFromEventStreamRehydration = this.serializer.SerializeAndDeserialize(((IMementoOriginator)this.Aggregate).SaveToMemento());
-
-            // we check first if the memento is what expected.
-            if (mementoEqualityChecker.Invoke((TMemento)mementoFromEventStreamRehydration))
-            {
-                // we check secondly if the aggregate can rehydrate from given memento
-                this.Given(streamId, mementoFromEventStreamRehydration);
-                return;
-            }
-
-            throw new InvalidOperationException("The memento from event stream rehydration is not as expected");
+            this.store.Streams = events.ToList();
+            this.store.streamId = streamId;
+            return this;
         }
 
+        public EventProcessorTestHelper<TAggregate, TProcessor> Given(Guid streamId, IEvent @event)
+        {
+            this.store.Streams = new List<IEvent> { @event };
+            this.store.streamId = streamId;
+            return this;
+        }
+
+        /// <summary>
+        /// Deprecado. Falta crear un memento que se serialize y deserialize para el test.
+        /// </summary>
         public TAggregate When(IEvent @event)
         {
             this.Processor.Handle(new NewIncomingEvent(this.serializer.SerializeAndDeserialize(@event)));
@@ -98,7 +88,7 @@ namespace EventCentric.Utils.Testing
             return this.store.Aggregate;
         }
 
-        public TMemento ThenPersistsSnapshot<TMemento>() => (TMemento)this.store.Snapshot;
+        public TMemento ThenPersistsSnapshot<TMemento>() => (TMemento)this.serializer.SerializeAndDeserialize(this.store.Snapshot);
 
         public IEnumerable<IEvent> ThenPersistsEvents() => this.store.Streams;
 
@@ -129,7 +119,7 @@ namespace EventCentric.Utils.Testing
             internal Guid streamId;
             internal ITextSerializer serializer;
 
-            internal readonly List<IEvent> Streams = new List<IEvent>();
+            internal List<IEvent> Streams = new List<IEvent>();
             internal IMemento Snapshot = null;
 
             internal TAggregate Aggregate = null;
@@ -194,10 +184,7 @@ namespace EventCentric.Utils.Testing
                 return events.Max(e => e.Version);
             }
 
-            public bool IsDuplicate(IEvent incomingEvent)
-            {
-                throw new NotImplementedException();
-            }
+            public bool IsDuplicate(IEvent incomingEvent) => false;
         }
     }
 }
