@@ -1,4 +1,5 @@
-﻿using EventCentric.Messaging;
+﻿using EventCentric.Log;
+using EventCentric.Messaging;
 using EventCentric.Utils;
 using System;
 
@@ -11,14 +12,17 @@ namespace EventCentric
     {
         protected readonly IGuidProvider guid;
         protected readonly IEventBus bus;
+        protected readonly ILogger log;
 
-        protected ApplicationService(IEventBus bus, IGuidProvider guid)
+        protected ApplicationService(IEventBus bus, IGuidProvider guid, ILogger log)
         {
-            Ensure.NotNull(guid, "guid");
-            Ensure.NotNull(bus, "bus");
+            Ensure.NotNull(guid, nameof(guid));
+            Ensure.NotNull(bus, nameof(bus));
+            Ensure.NotNull(log, nameof(log));
 
             this.bus = bus;
             this.guid = guid;
+            this.log = log;
         }
         protected Guid NewGuid()
         {

@@ -168,9 +168,9 @@ namespace EventCentric
 
             if (appFactory == null)
             {
-                var constructor = typeof(TApp).GetConstructor(new[] { typeof(IEventBus), typeof(IGuidProvider), typeof(IUtcTimeProvider) });
-                Ensure.CastIsValid(constructor, "Type TApp must have a valid constructor with the following signature: .ctor(IEventBus, IGuidProvider, ITimeProvider)");
-                container.RegisterInstance<TApp>((TApp)constructor.Invoke(new object[] { eventBus, guid, time }));
+                var constructor = typeof(TApp).GetConstructor(new[] { typeof(IEventBus), typeof(IGuidProvider), typeof(ILogger) });
+                Ensure.CastIsValid(constructor, "Type TApp must have a valid constructor with the following signature: .ctor(IEventBus, IGuidProvider, ILogger)");
+                container.RegisterInstance<TApp>((TApp)constructor.Invoke(new object[] { eventBus, guid, log }));
             }
             else
             {

@@ -6,7 +6,7 @@ using System.Web.Http.Cors;
 namespace EventCentric
 {
     [EnableCors(origins: "*", headers: "*", methods: "*")]
-    [AuthorizationRequired]
+    [AuthorizeEventSourcing]
     public class EventSourceController : ApiController
     {
         private readonly IEventSource source;
