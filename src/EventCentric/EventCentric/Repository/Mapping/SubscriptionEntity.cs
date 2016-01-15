@@ -11,6 +11,9 @@ namespace EventCentric.Repository.Mapping
         public long ProcessorBufferVersion { get; set; }
         public bool IsPoisoned { get; set; }
         public bool WasCanceled { get; set; }
+        /// <summary>
+        /// The event collection version of the poisoned message.
+        /// </summary>
         public long? PoisonEventCollectionVersion { get; set; }
         public string DeadLetterPayload { get; set; }
         public string ExceptionMessage { get; set; }
