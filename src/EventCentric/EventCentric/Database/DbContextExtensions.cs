@@ -5,14 +5,16 @@ namespace EventCentric.Database
 {
     public static class DbContextExtensions
     {
-        public static T AddOrUpdate<T>(this DbContext context, Func<T> find, Func<T> add, Action<T> update) where T : class
+        public static TEntity AddOrUpdate<TEntity, TDbContext>(this TDbContext context, Func<TEntity> find, Func<TEntity> add, Action<TEntity> update)
+            where TEntity : class
+            where TDbContext : DbContext
         {
             var entity = find.Invoke();
 
             if (entity == null)
             {
                 entity = add.Invoke();
-                context.Set<T>().Add(entity);
+                context.Set<TEntity>().Add(entity);
             }
             else
                 update.Invoke(entity);
@@ -20,7 +22,9 @@ namespace EventCentric.Database
             return entity;
         }
 
-        public static void UnoptimizedAddOrUpdate<T>(this DbContext context, Func<T> find, Func<T> add, Action<T> update) where T : class
+        public static void UnoptimizedAddOrUpdate<TEntity, TDbContext>(this DbContext context, Func<TEntity> find, Func<TEntity> add, Action<TEntity> update)
+            where TEntity : class
+            where TDbContext : DbContext
         {
             var entity = find.Invoke();
 
@@ -30,12 +34,14 @@ namespace EventCentric.Database
             context.TrackEntity(entity);
         }
 
-        private static void TrackEntity<T>(this DbContext context, T entity) where T : class
+        private static void TrackEntity<TEntity, TDbContext>(this TDbContext context, TEntity entity)
+            where TEntity : class
+            where TDbContext : DbContext
         {
             var entry = context.Entry(entity);
 
             if (entry.State == EntityState.Detached)
-                context.Set<T>().Add(entity);
+                context.Set<TEntity>().Add(entity);
         }
     }
 }

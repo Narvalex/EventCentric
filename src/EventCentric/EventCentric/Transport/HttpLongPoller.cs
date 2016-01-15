@@ -69,6 +69,7 @@ namespace EventCentric.Transport
             var client = new HttpClient();
             client.Timeout = this.timeout;
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+            client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
             return client;
         }
     }
