@@ -167,6 +167,8 @@
     <Compile Include="Transport\EventInProcessorBucket.cs" />
     <Compile Include="Transport\HttpLongPoller.cs" />
     <Compile Include="Transport\IHttpLongPoller.cs" />
+    <Compile Include="Transport\INodeClient.cs" />
+    <Compile Include="Transport\MultiNodeClient.cs" />
     <Compile Include="Transport\NewRawEvent.cs" />
     <Compile Include="Messaging\NodeWorker.cs" />
     <Compile Include="Processing\EventProcessor.cs" />
