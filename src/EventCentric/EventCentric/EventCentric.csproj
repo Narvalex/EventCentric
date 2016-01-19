@@ -137,7 +137,7 @@
     <Compile Include="EventSourcing\IEvent.cs" />
     <Compile Include="EventSourcing\IEventSourced.cs" />
     <Compile Include="EventSourcing\IEventStore.cs" />
-    <Compile Include="EventSourcing\IHandles.cs" />
+    <Compile Include="EventSourcing\IHandlesIncoming.cs" />
     <Compile Include="EventSourcing\IMementoOriginator.cs" />
     <Compile Include="EventSourcing\IHandlerOf.cs" />
     <Compile Include="EventSourcing\StreamNotFoundException.cs" />

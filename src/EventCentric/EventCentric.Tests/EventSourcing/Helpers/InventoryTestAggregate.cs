@@ -5,7 +5,7 @@ using System.Collections.Generic;
 namespace EventCentric.Tests.EventSourcing.Helpers
 {
     public class InventoryTestAggregate : EventSourced,
-        IHandles<AddItems>,
+        IHandlesIncoming<AddItems>,
         IHandlerOf<ItemsAdded>
     {
         private int quantity;

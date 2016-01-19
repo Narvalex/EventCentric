@@ -1,20 +1,20 @@
 ﻿namespace EventCentric.EventSourcing
 {
-    public interface IHandles { }
+    public interface IHandlesIncoming { }
 
-    public interface IHandles<T> : IHandles where T : IEvent
+    public interface IHandlesIncoming<T> : IHandlesIncoming where T : IEvent
     {
         void Handle(T message);
     }
 
-    public interface IHandles<TMessage, TDomainService> : IHandles
+    public interface IHandlesIncoming<TMessage, TDomainService> : IHandlesIncoming
         where TMessage : IEvent
         where TDomainService : IDomainService
     {
         void Handle(TMessage message, TDomainService service);
     }
 
-    public interface IHandles<TMessage, TDomainService1, TDomainService2> : IHandles
+    public interface IHandlesIncoming<TMessage, TDomainService1, TDomainService2> : IHandlesIncoming
         where TMessage : IEvent
         where TDomainService1 : IDomainService
         where TDomainService2 : IDomainService
@@ -22,7 +22,7 @@
         void Handle(TMessage message, TDomainService1 service1, TDomainService2 service2);
     }
 
-    public interface IHandles<TMessage, TDomainService1, TDomainService2, TDomainService3> : IHandles
+    public interface IHandlesIncoming<TMessage, TDomainService1, TDomainService2, TDomainService3> : IHandlesIncoming
         where TMessage : IEvent
         where TDomainService1 : IDomainService
         where TDomainService2 : IDomainService
@@ -31,7 +31,7 @@
         void Handle(TMessage message, TDomainService1 service1, TDomainService2 service2, TDomainService3 service3);
     }
 
-    public interface IHandles<TMessage, TDomainService1, TDomainService2, TDomainService3, TDomainService4> : IHandles
+    public interface IHandlesIncoming<TMessage, TDomainService1, TDomainService2, TDomainService3, TDomainService4> : IHandlesIncoming
         where TMessage : IEvent
         where TDomainService1 : IDomainService
         where TDomainService2 : IDomainService
@@ -41,7 +41,7 @@
         void Handle(TMessage message, TDomainService1 service1, TDomainService2 service2, TDomainService3 service3, TDomainService4 service4);
     }
 
-    public interface IHandles<TMessage, TDomainService1, TDomainService2, TDomainService3, TDomainService4, TDomainService5> : IHandles
+    public interface IHandlesIncoming<TMessage, TDomainService1, TDomainService2, TDomainService3, TDomainService4, TDomainService5> : IHandlesIncoming
         where TMessage : IEvent
         where TDomainService1 : IDomainService
         where TDomainService2 : IDomainService
@@ -52,7 +52,7 @@
         void Handle(TMessage message, TDomainService1 service1, TDomainService2 service2, TDomainService3 service3, TDomainService4 service4, TDomainService5 service5);
     }
 
-    public interface IHandles<TMessage, TDomainService1, TDomainService2, TDomainService3, TDomainService4, TDomainService5, TDomainService6> : IHandles
+    public interface IHandlesIncoming<TMessage, TDomainService1, TDomainService2, TDomainService3, TDomainService4, TDomainService5, TDomainService6> : IHandlesIncoming
         where TMessage : IEvent
         where TDomainService1 : IDomainService
         where TDomainService2 : IDomainService
@@ -64,7 +64,7 @@
         void Handle(TMessage message, TDomainService1 service1, TDomainService2 service2, TDomainService3 service3, TDomainService4 service4, TDomainService5 service5, TDomainService6 service6);
     }
 
-    public interface IHandles<TMessage, TDomainService1, TDomainService2, TDomainService3, TDomainService4, TDomainService5, TDomainService6, TDomainService7> : IHandles
+    public interface IHandlesIncoming<TMessage, TDomainService1, TDomainService2, TDomainService3, TDomainService4, TDomainService5, TDomainService6, TDomainService7> : IHandlesIncoming
         where TMessage : IEvent
         where TDomainService1 : IDomainService
         where TDomainService2 : IDomainService
@@ -77,7 +77,7 @@
         void Handle(TMessage message, TDomainService1 service1, TDomainService2 service2, TDomainService3 service3, TDomainService4 service4, TDomainService5 service5, TDomainService6 service6, TDomainService7 service7);
     }
 
-    public interface IHandles<TMessage, TDomainService1, TDomainService2, TDomainService3, TDomainService4, TDomainService5, TDomainService6, TDomainService7, TDomainService8> : IHandles
+    public interface IHandlesIncoming<TMessage, TDomainService1, TDomainService2, TDomainService3, TDomainService4, TDomainService5, TDomainService6, TDomainService7, TDomainService8> : IHandlesIncoming
         where TMessage : IEvent
         where TDomainService1 : IDomainService
         where TDomainService2 : IDomainService
@@ -91,7 +91,7 @@
         void Handle(TMessage message, TDomainService1 service1, TDomainService2 service2, TDomainService3 service3, TDomainService4 service4, TDomainService5 service5, TDomainService6 service6, TDomainService7 service7, TDomainService8 service8);
     }
 
-    public interface IHandles<TMessage, TDomainService1, TDomainService2, TDomainService3, TDomainService4, TDomainService5, TDomainService6, TDomainService7, TDomainService8, TDomainService9> : IHandles
+    public interface IHandlesIncoming<TMessage, TDomainService1, TDomainService2, TDomainService3, TDomainService4, TDomainService5, TDomainService6, TDomainService7, TDomainService8, TDomainService9> : IHandlesIncoming
         where TMessage : IEvent
         where TDomainService1 : IDomainService
         where TDomainService2 : IDomainService
@@ -106,7 +106,7 @@
         void Handle(TMessage message, TDomainService1 service1, TDomainService2 service2, TDomainService3 service3, TDomainService4 service4, TDomainService5 service5, TDomainService6 service6, TDomainService7 service7, TDomainService8 service8, TDomainService9 service9);
     }
 
-    public interface IHandles<TMessage, TDomainService1, TDomainService2, TDomainService3, TDomainService4, TDomainService5, TDomainService6, TDomainService7, TDomainService8, TDomainService9, TDomainService10> : IHandles
+    public interface IHandlesIncoming<TMessage, TDomainService1, TDomainService2, TDomainService3, TDomainService4, TDomainService5, TDomainService6, TDomainService7, TDomainService8, TDomainService9, TDomainService10> : IHandlesIncoming
         where TMessage : IEvent
         where TDomainService1 : IDomainService
         where TDomainService2 : IDomainService
@@ -122,7 +122,7 @@
         void Handle(TMessage message, TDomainService1 service1, TDomainService2 service2, TDomainService3 service3, TDomainService4 service4, TDomainService5 service5, TDomainService6 service6, TDomainService7 service7, TDomainService8 service8, TDomainService9 service9, TDomainService10 service10);
     }
 
-    public interface IHandles<TMessage, TDomainService1, TDomainService2, TDomainService3, TDomainService4, TDomainService5, TDomainService6, TDomainService7, TDomainService8, TDomainService9, TDomainService10, TDomainService11> : IHandles
+    public interface IHandlesIncoming<TMessage, TDomainService1, TDomainService2, TDomainService3, TDomainService4, TDomainService5, TDomainService6, TDomainService7, TDomainService8, TDomainService9, TDomainService10, TDomainService11> : IHandlesIncoming
        where TMessage : IEvent
        where TDomainService1 : IDomainService
        where TDomainService2 : IDomainService
@@ -139,7 +139,7 @@
         void Handle(TMessage message, TDomainService1 service1, TDomainService2 service2, TDomainService3 service3, TDomainService4 service4, TDomainService5 service5, TDomainService6 service6, TDomainService7 service7, TDomainService8 service8, TDomainService9 service9, TDomainService10 service10, TDomainService11 service11);
     }
 
-    public interface IHandles<TMessage, TDomainService1, TDomainService2, TDomainService3, TDomainService4, TDomainService5, TDomainService6, TDomainService7, TDomainService8, TDomainService9, TDomainService10, TDomainService11, TDomainService12> : IHandles
+    public interface IHandlesIncoming<TMessage, TDomainService1, TDomainService2, TDomainService3, TDomainService4, TDomainService5, TDomainService6, TDomainService7, TDomainService8, TDomainService9, TDomainService10, TDomainService11, TDomainService12> : IHandlesIncoming
        where TMessage : IEvent
        where TDomainService1 : IDomainService
        where TDomainService2 : IDomainService
@@ -157,7 +157,7 @@
         void Handle(TMessage message, TDomainService1 service1, TDomainService2 service2, TDomainService3 service3, TDomainService4 service4, TDomainService5 service5, TDomainService6 service6, TDomainService7 service7, TDomainService8 service8, TDomainService9 service9, TDomainService10 service10, TDomainService11 service11, TDomainService12 service12);
     }
 
-    public interface IHandles<TMessage, TDomainService1, TDomainService2, TDomainService3, TDomainService4, TDomainService5, TDomainService6, TDomainService7, TDomainService8, TDomainService9, TDomainService10, TDomainService11, TDomainService12, TDomainService13> : IHandles
+    public interface IHandlesIncoming<TMessage, TDomainService1, TDomainService2, TDomainService3, TDomainService4, TDomainService5, TDomainService6, TDomainService7, TDomainService8, TDomainService9, TDomainService10, TDomainService11, TDomainService12, TDomainService13> : IHandlesIncoming
        where TMessage : IEvent
        where TDomainService1 : IDomainService
        where TDomainService2 : IDomainService
@@ -176,7 +176,7 @@
         void Handle(TMessage message, TDomainService1 service1, TDomainService2 service2, TDomainService3 service3, TDomainService4 service4, TDomainService5 service5, TDomainService6 service6, TDomainService7 service7, TDomainService8 service8, TDomainService9 service9, TDomainService10 service10, TDomainService11 service11, TDomainService12 service12, TDomainService13 service13);
     }
 
-    public interface IHandles<TMessage, TDomainService1, TDomainService2, TDomainService3, TDomainService4, TDomainService5, TDomainService6, TDomainService7, TDomainService8, TDomainService9, TDomainService10, TDomainService11, TDomainService12, TDomainService13, TDomainService14> : IHandles
+    public interface IHandlesIncoming<TMessage, TDomainService1, TDomainService2, TDomainService3, TDomainService4, TDomainService5, TDomainService6, TDomainService7, TDomainService8, TDomainService9, TDomainService10, TDomainService11, TDomainService12, TDomainService13, TDomainService14> : IHandlesIncoming
        where TMessage : IEvent
        where TDomainService1 : IDomainService
        where TDomainService2 : IDomainService
@@ -196,7 +196,7 @@
         void Handle(TMessage message, TDomainService1 service1, TDomainService2 service2, TDomainService3 service3, TDomainService4 service4, TDomainService5 service5, TDomainService6 service6, TDomainService7 service7, TDomainService8 service8, TDomainService9 service9, TDomainService10 service10, TDomainService11 service11, TDomainService12 service12, TDomainService13 service13, TDomainService14 service14);
     }
 
-    public interface IHandles<TMessage, TDomainService1, TDomainService2, TDomainService3, TDomainService4, TDomainService5, TDomainService6, TDomainService7, TDomainService8, TDomainService9, TDomainService10, TDomainService11, TDomainService12, TDomainService13, TDomainService14, TDomainService15> : IHandles
+    public interface IHandlesIncoming<TMessage, TDomainService1, TDomainService2, TDomainService3, TDomainService4, TDomainService5, TDomainService6, TDomainService7, TDomainService8, TDomainService9, TDomainService10, TDomainService11, TDomainService12, TDomainService13, TDomainService14, TDomainService15> : IHandlesIncoming
        where TMessage : IEvent
        where TDomainService1 : IDomainService
        where TDomainService2 : IDomainService
@@ -217,7 +217,7 @@
         void Handle(TMessage message, TDomainService1 service1, TDomainService2 service2, TDomainService3 service3, TDomainService4 service4, TDomainService5 service5, TDomainService6 service6, TDomainService7 service7, TDomainService8 service8, TDomainService9 service9, TDomainService10 service10, TDomainService11 service11, TDomainService12 service12, TDomainService13 service13, TDomainService14 service14, TDomainService15 service15);
     }
 
-    public interface IHandles<TMessage, TDomainService1, TDomainService2, TDomainService3, TDomainService4, TDomainService5, TDomainService6, TDomainService7, TDomainService8, TDomainService9, TDomainService10, TDomainService11, TDomainService12, TDomainService13, TDomainService14, TDomainService15, TDomainService16> : IHandles
+    public interface IHandlesIncoming<TMessage, TDomainService1, TDomainService2, TDomainService3, TDomainService4, TDomainService5, TDomainService6, TDomainService7, TDomainService8, TDomainService9, TDomainService10, TDomainService11, TDomainService12, TDomainService13, TDomainService14, TDomainService15, TDomainService16> : IHandlesIncoming
        where TMessage : IEvent
        where TDomainService1 : IDomainService
        where TDomainService2 : IDomainService
