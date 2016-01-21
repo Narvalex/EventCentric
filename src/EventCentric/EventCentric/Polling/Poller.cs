@@ -10,6 +10,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -126,6 +127,11 @@ namespace EventCentric.Polling
                 try
                 {
                     incomingEvent = this.serializer.Deserialize<IEvent>(raw.Payload);
+                }
+                catch (SerializationException)
+                {
+                    // Maybe the event source has new events type that we are not aware off.
+                    incomingEvent = new Event();
                 }
                 catch (Exception ex)
                 {

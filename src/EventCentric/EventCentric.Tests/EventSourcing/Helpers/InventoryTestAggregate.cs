@@ -1,12 +1,13 @@
 ﻿using EventCentric.EventSourcing;
+using EventCentric.Processing;
 using System;
 using System.Collections.Generic;
 
 namespace EventCentric.Tests.EventSourcing.Helpers
 {
     public class InventoryTestAggregate : EventSourced,
-        IHandlesIncoming<AddItems>,
-        IHandlerOf<ItemsAdded>
+        IHandles<AddItems>,
+        IUpdatesOn<ItemsAdded>
     {
         private int quantity;
 

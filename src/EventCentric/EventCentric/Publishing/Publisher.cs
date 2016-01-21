@@ -82,13 +82,24 @@ namespace EventCentric.Publishing
                     Thread.Sleep(100);
 
                 // weird error, but is crash proof. Once i had an error where in an infinite loop there was an error saying: Pushing 0 events to....
+                // A Charly le paso. Sucede que limpio la base de datos y justo queria entregar un evento y no devolvia nada.
                 else if (this.eventCollectionVersion > consumerVersion)
                 {
                     newEvents = this.dao.FindEvents(consumerVersion, eventsToPushMaxCount);
-                    newEventsWereFound = newEvents.Count > 0 ? true : false;
 
-                    this.log.Trace($"Pushing {newEvents.Count} event/s to {consumerName}");
-                    break;
+                    if (newEvents.Count > 0)
+                    {
+                        newEventsWereFound = true;
+                        this.log.Trace($"Pushing {newEvents.Count} event/s to {consumerName}");
+                        break;
+                    }
+                    else
+                    {
+                        // Lo que le paso a charly.
+                        newEventsWereFound = false;
+                        this.log.Trace($"There is an error in the event store. The consumer [{consumerName}] version is {consumerVersion} and the local event collection version should be {this.eventCollectionVersion} but it is not. The event store is currupted.");
+                        break;
+                    }
                 }
                 else
                     // bizzare, but helpful to avoid infinite loops

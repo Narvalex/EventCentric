@@ -64,7 +64,7 @@ namespace EventCentric.Tests.Querying
             this.EventBWasProcessed = true;
         }
 
-        public void On(Event e)
+        public void On(IEvent e)
         {
             ++this.DefaultEventProcessedCount;
         }

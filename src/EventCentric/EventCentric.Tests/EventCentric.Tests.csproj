@@ -78,6 +78,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Publishing\Helpers\Stubs.cs" />
     <Compile Include="Publishing\PublisherFixture.cs" />
+    <Compile Include="Serialization\SerializationExceptionHandlingFixture.cs" />
     <Compile Include="Serialization\SerializationSpeed.cs" />
     <Compile Include="TestConfig.cs" />
   </ItemGroup>

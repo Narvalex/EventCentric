@@ -89,7 +89,6 @@
     <Compile Include="Node\NodeNameResolver.cs" />
     <Compile Include="Polling\IMonitoredSubscriber.cs" />
     <Compile Include="Polling\IMonitoredSubscription.cs" />
-    <Compile Include="EventSourcing\IDomainService.cs" />
     <Compile Include="Publishing\IEventDao.cs" />
     <Compile Include="Config\EventStoreConfig.cs" />
     <Compile Include="Config\IPollerConfig.cs" />
@@ -137,9 +136,9 @@
     <Compile Include="EventSourcing\IEvent.cs" />
     <Compile Include="EventSourcing\IEventSourced.cs" />
     <Compile Include="EventSourcing\IEventStore.cs" />
-    <Compile Include="EventSourcing\IHandlesIncoming.cs" />
+    <Compile Include="Processing\IHandles.cs" />
     <Compile Include="EventSourcing\IMementoOriginator.cs" />
-    <Compile Include="EventSourcing\IHandlerOf.cs" />
+    <Compile Include="EventSourcing\IUpdatesOn.cs" />
     <Compile Include="EventSourcing\StreamNotFoundException.cs" />
     <Compile Include="Node\ProcessorNode.cs" />
     <Compile Include="Messaging\Bus.cs" />
