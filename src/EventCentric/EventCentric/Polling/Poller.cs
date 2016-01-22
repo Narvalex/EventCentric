@@ -128,9 +128,18 @@ namespace EventCentric.Polling
                 {
                     incomingEvent = this.serializer.Deserialize<IEvent>(raw.Payload);
                 }
+#if !DEBUG
                 catch (SerializationException)
                 {
+#endif
+#if DEBUG
+                catch (SerializationException ex)
+                {
                     // Maybe the event source has new events type that we are not aware off.
+
+                    this.log.Error(ex, "An error ocurred while deserializing a message");
+                    this.log.Trace($"An error was detected when serializing a message from {buffer.ProducerName} with event collection number of {raw.EventCollectionVersion}. The message will be ignored.");
+#endif
                     incomingEvent = new Event();
                 }
                 catch (Exception ex)

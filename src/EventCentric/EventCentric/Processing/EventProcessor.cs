@@ -92,7 +92,7 @@ namespace EventCentric.Processing
             {
                 try
                 {
-                    if (this.store.IsDuplicate(incomingEvent))
+                    if (this.store.IsDuplicate(incomingEvent.EventId))
                     {
                         this.Ignore(incomingEvent);
                         return;
@@ -151,9 +151,9 @@ namespace EventCentric.Processing
         /// <summary>
         /// Safely handles the message with locking.
         /// </summary>
-        /// <param name="id">The id of the stream, for locking purposes.</param>
+        /// <param name="streamId">The id of the stream, for locking purposes.</param>
         /// <param name="handle">The handling action.</param>
-        private void HandleSafelyWithStreamLocking(Guid id, Action handle)
+        private void HandleSafelyWithStreamLocking(Guid streamId, IEvent incomingEvent, Action handle)
         {
             /***************************************************** 
 
@@ -164,20 +164,40 @@ namespace EventCentric.Processing
 
             ******************************************************/
 
-            lock (this.streamLocksById.GetOrAdd(id.ToString(), new object()))
+            lock (this.streamLocksById.GetOrAdd(streamId.ToString(), new object()))
             {
                 try
                 {
                     // Handle only if is not poisoned
-                    if (!this.poisonedStreams.Where(p => p == id).Any())
+                    if (!this.poisonedStreams.Where(p => p == streamId).Any())
                         handle();
                 }
                 catch (Exception ex)
                 {
+                    try
+                    {
+                        if (this.store.IsDuplicate(incomingEvent.EventId))
+                        {
+                            this.Ignore(incomingEvent);
+                            return;
+                        }
+                    }
+                    catch (Exception otherEx)
+                    {
+                        this.bus.Publish(
+                        new FatalErrorOcurred(new FatalErrorException($"Error while trying to check if an event is duplicate", otherEx)));
+                    }
+
+                    var exception = new PoisonMessageException("Poison message detected in Event Processor", ex);
+
+                    this.log.Error(exception, $"Poison message of type {incomingEvent.GetType().Name} detected in Event Processor");
+
+                    this.bus.Publish(
+                        new IncomingEventIsPoisoned(incomingEvent, exception));
+
                     // If an error ocurred, flag it in order to abort any subsecuent attemps to update the stream that
                     // could not process a previous event.
-                    this.poisonedStreams.Add(id);
-                    throw ex;
+                    this.poisonedStreams.Add(streamId);
                 }
             }
         }
@@ -191,7 +211,7 @@ namespace EventCentric.Processing
 
         protected void CreateNewStreamIfNotExistsAndProcess(Guid id, IEvent incomingEvent)
         {
-            this.HandleSafelyWithStreamLocking(id, () =>
+            this.HandleSafelyWithStreamLocking(id, incomingEvent, () =>
             {
                 var aggregate = this.store.Find(id);
                 if (aggregate == null)
@@ -210,7 +230,7 @@ namespace EventCentric.Processing
         /// <param name="@event">The first message that the new aggregate will process.</param>
         protected void CreateNewStreamAndProcess(Guid id, IEvent incomingEvent)
         {
-            this.HandleSafelyWithStreamLocking(id, () =>
+            this.HandleSafelyWithStreamLocking(id, incomingEvent, () =>
             {
                 var aggregate = this.newAggregateFactory(id);
                 this.HandleAndUpdate(incomingEvent, aggregate);
@@ -220,13 +240,13 @@ namespace EventCentric.Processing
         /// <summary>
         /// Gets a stream from the store to hydrate the event sourced aggregate of <see cref="T"/>.
         /// </summary>
-        /// <param name="id">The id of the stream.</param>
+        /// <param name="streamId">The id of the stream.</param>
         /// <param name="@event">The event to be handled by the aggregate of <see cref="T"/>.</param>
-        protected void Process(Guid id, IEvent incomingEvent)
+        protected void Process(Guid streamId, IEvent incomingEvent)
         {
-            this.HandleSafelyWithStreamLocking(id, () =>
+            this.HandleSafelyWithStreamLocking(streamId, incomingEvent, () =>
             {
-                var aggregate = this.store.Get(id);
+                var aggregate = this.store.Get(streamId);
                 this.HandleAndUpdate(incomingEvent, aggregate);
             });
         }
@@ -252,6 +272,9 @@ namespace EventCentric.Processing
 
         public void Handle(IEvent message)
         {
+#if DEBUG
+            this.log.Trace($"Ignoring event of type {message.GetType().FullName}");
+#endif
             this.Ignore(message);
         }
     }

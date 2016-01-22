@@ -27,6 +27,6 @@ namespace EventCentric.EventSourcing
         /// <returns>The event collection version.</returns>
         long Save(T eventSourced, IEvent incomingEvent);
 
-        bool IsDuplicate(IEvent incomingEvent);
+        bool IsDuplicate(Guid eventId);
     }
 }

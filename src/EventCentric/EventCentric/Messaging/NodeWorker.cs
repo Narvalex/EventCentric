@@ -19,7 +19,10 @@ namespace EventCentric.Messaging
             Ensure.NotNull(log, "log");
 
             this.log = log;
+            Log = this.log;
         }
+
+        public static ILogger Log { get; private set; }
 
         protected void Start()
         {

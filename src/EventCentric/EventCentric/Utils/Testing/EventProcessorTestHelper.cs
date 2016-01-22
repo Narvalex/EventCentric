@@ -184,7 +184,7 @@ namespace EventCentric.Utils.Testing
                 return events.Max(e => e.Version);
             }
 
-            public bool IsDuplicate(IEvent incomingEvent) => false;
+            public bool IsDuplicate(Guid incomingEvent) => false;
         }
     }
 }
