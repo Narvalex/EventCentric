@@ -30,7 +30,10 @@ namespace EventCentric.Repository
             while (stopwatch.Elapsed < this.timeout)
             {
                 if (this.EventuallyConsistentResults.Any(r => r.TransactionId == transactionId))
-                    return this.EventuallyConsistentResults.Single(r => r.TransactionId == transactionId);
+                    return this.EventuallyConsistentResults
+                                .Where(r => r.TransactionId == transactionId)
+                                .OrderByDescending(r => r.Id)
+                                .First();
 
                 Thread.Sleep(100);
             }

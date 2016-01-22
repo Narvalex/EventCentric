@@ -5,6 +5,8 @@ namespace EventCentric.Repository.Mapping
 {
     public class EventuallyConsistentResult
     {
+        public long Id { get; set; }
+
         /// <summary>
         /// The transaction identifier. The event of command that started the whole process will
         /// be the transaction identifier.
@@ -29,7 +31,7 @@ namespace EventCentric.Repository.Mapping
         public EventuallyConsistentResultEntityMap()
         {
             // Primary key
-            this.HasKey(t => t.TransactionId);
+            this.HasKey(t => t.Id);
 
             // Properties
             this.Property(t => t.Message)
@@ -37,6 +39,7 @@ namespace EventCentric.Repository.Mapping
 
             // Table & Column Mappings
             this.ToTable("EventuallyConsistentResults", "EventStore");
+            this.Property(t => t.Id).HasColumnName("Id");
             this.Property(t => t.TransactionId).HasColumnName("TransactionId");
             this.Property(t => t.ResultType).HasColumnName("ResultType");
             this.Property(t => t.Message).HasColumnName("Message");

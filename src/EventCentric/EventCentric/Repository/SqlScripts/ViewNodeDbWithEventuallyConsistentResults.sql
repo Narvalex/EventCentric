@@ -124,10 +124,11 @@ PRIMARY KEY CLUSTERED
 
 -- Create EventStore.EventuallyConsistentResults
 create table [EventStore].[EventuallyConsistentResults] (
+	[Id] [bigint] IDENTITY(1,1) NOT NULL,
     [TransactionId] [uniqueidentifier] not null,
     [ResultType] [int] not null,
     [Message] [nvarchar](max) null,
-    primary key ([TransactionId])
+    primary key ([Id])
 );
 
 -- CREATE YOUR VIEW TABLES HERE
