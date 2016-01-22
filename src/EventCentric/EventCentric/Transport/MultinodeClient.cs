@@ -32,7 +32,10 @@ namespace EventCentric.Transport
             {
                 response = client.PostAsJsonAsync(url, payload).Result;
             }
-            return response.IsSuccessStatusCode ? response.Content.ReadAsAsync<TResponse>().Result : default(TResponse);
+            if (response.IsSuccessStatusCode)
+                return response.Content.ReadAsAsync<TResponse>().Result;
+
+            throw new HttpRequestException($"The attempt to make a request to {url} got a status code of {(int)response.StatusCode}.");
         }
 
         public TResponse Send<TRequest, TResponse>(TEnum node, string url, TRequest payload) => this.Send<TRequest, TResponse>(this.nodes[node] + url, payload);
