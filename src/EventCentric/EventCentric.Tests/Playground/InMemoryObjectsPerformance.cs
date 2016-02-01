@@ -25,20 +25,6 @@ namespace EventCentric.Tests.Playground.InMemoryObjectsPerformance
         }
 
         [TestMethod]
-        public void WHEN_creating_2_million_of_objects_THEN_system_is_responsive()
-        {
-            var actorsById = new ConcurrentDictionary<string, TestActor>();
-
-            for (int i = 0; i < 2000000; i++)
-            {
-                var id = Guid.NewGuid();
-                actorsById.TryAdd(id.ToString(), new TestActor { Id = id, Payload = string.Format("Actor Id: {0}", id.ToString()) });
-            }
-
-            Assert.AreEqual(2000000, actorsById.Count);
-        }
-
-        [TestMethod]
         public void WHEN_creating_3_collections_of_100K_of_objects_THEN_system_is_responsive()
         {
             var actorsById1InABag = new ConcurrentBag<TestActor>();

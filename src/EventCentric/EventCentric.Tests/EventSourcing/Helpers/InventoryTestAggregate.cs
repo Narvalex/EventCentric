@@ -2,14 +2,18 @@
 using EventCentric.Processing;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace EventCentric.Tests.EventSourcing.Helpers
 {
     public class InventoryTestAggregate : EventSourced,
         IHandles<AddItems>,
-        IUpdatesOn<ItemsAdded>
+        IHandles<RegisterItemName>,
+        IUpdatesOn<ItemsAdded>,
+        IUpdatesOn<ItemNameRegistered>
     {
         private int quantity;
+        private List<string> names = new List<string>();
 
         public InventoryTestAggregate(Guid id) : base(id) { }
 
@@ -20,16 +24,22 @@ namespace EventCentric.Tests.EventSourcing.Helpers
         {
             var state = ((InventoryTestAggregateMemento)memento);
             this.quantity = state.Quantity;
+            this.names = state.Names.ToList();
         }
 
         public override IMemento SaveToMemento()
         {
-            return new InventoryTestAggregateMemento(this.Version, this.quantity);
+            return new InventoryTestAggregateMemento(this.Version, this.quantity, this.names.ToArray());
         }
 
         public void Handle(AddItems command)
         {
             base.Update(new ItemsAdded(command.Quantity));
+        }
+
+        public void Handle(RegisterItemName command)
+        {
+            base.Update(new ItemNameRegistered(command.Name));
         }
 
         protected override void OnUpdateStarted()
@@ -41,17 +51,24 @@ namespace EventCentric.Tests.EventSourcing.Helpers
         {
             this.quantity = e.Quantity;
         }
+
+        public void On(ItemNameRegistered e)
+        {
+            this.names.Add(e.Name);
+        }
     }
 
     public class InventoryTestAggregateMemento : Memento
     {
-        public InventoryTestAggregateMemento(long version, int quantity)
+        public InventoryTestAggregateMemento(long version, int quantity, string[] names)
             : base(version)
         {
             this.Quantity = quantity;
+            this.Names = names;
         }
 
         public int Quantity { get; }
+        public string[] Names { get; }
     }
 
     #region Messages
@@ -65,6 +82,16 @@ namespace EventCentric.Tests.EventSourcing.Helpers
         public int Quantity { get; }
     }
 
+    public class RegisterItemName : Event
+    {
+        public RegisterItemName(string name)
+        {
+            this.Name = name;
+        }
+
+        public string Name { get; }
+    }
+
     public class ItemsAdded : Event
     {
         public ItemsAdded(int quantity)
@@ -73,6 +100,16 @@ namespace EventCentric.Tests.EventSourcing.Helpers
         }
 
         public int Quantity { get; }
+    }
+
+    public class ItemNameRegistered : Event
+    {
+        public ItemNameRegistered(string name)
+        {
+            this.Name = name;
+        }
+
+        public string Name { get; }
     }
     #endregion
 }

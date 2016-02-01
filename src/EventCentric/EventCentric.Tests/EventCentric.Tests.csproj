@@ -69,6 +69,8 @@
   </Choose>
   <ItemGroup>
     <Compile Include="EventSourcing\EventStoreFixture.cs" />
+    <Compile Include="EventSourcing\BigMementoPerfTest.cs" />
+    <Compile Include="EventSourcing\GIVEN_store.cs" />
     <Compile Include="EventSourcing\Helpers\InventoryTestAggregate.cs" />
     <Compile Include="Playground\GroupedEventStreams.cs" />
     <Compile Include="Playground\Helpers\TestActor.cs" />
