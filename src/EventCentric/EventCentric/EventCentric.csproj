@@ -97,7 +97,9 @@
     <Compile Include="Log\ILogger.cs" />
     <Compile Include="Messaging\SynchronousBus.cs" />
     <Compile Include="Messaging\InMemoryEventQueue.cs" />
+    <Compile Include="Querying\EventSourceConnection.cs" />
     <Compile Include="Querying\EventStreamQueryProcessor.cs" />
+    <Compile Include="Querying\InMemorySubscriptionRepository.cs" />
     <Compile Include="Repository\EventQueueDbContext.cs" />
     <Compile Include="Repository\EventuallyConsistentDbContext.cs" />
     <Compile Include="Repository\ViewDao.cs" />
