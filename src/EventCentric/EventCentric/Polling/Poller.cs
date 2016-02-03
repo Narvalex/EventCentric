@@ -65,7 +65,7 @@ namespace EventCentric.Polling
         /// <summary>
         /// Pulls the Event Collection Version for each subscripton.
         /// </summary>
-        public void Initialize()
+        private void Initialize()
         {
             this.bufferPool = this.repository.GetSubscriptions();
             this.log.Trace("Found {0} subscription/s", bufferPool.Count());
@@ -78,7 +78,7 @@ namespace EventCentric.Polling
             }
         }
 
-        public bool TryFill()
+        private bool TryFill()
         {
             var subscriptonsReadyForPolling = this.bufferPool
                                                   .Where(s => s.Url != "self" && !s.IsPolling && !s.IsPoisoned && s.NewEventsQueue.Count < queueMaxCount)
@@ -319,9 +319,18 @@ namespace EventCentric.Polling
             }
         }
 
-        public IMonitoredSubscription[] GetSubscriptionsMetrics()
+        public IMonitoredSubscription[] GetSubscriptionsMetrics() => this.bufferPool;
+
+        public List<SubscriptionBuffer> GetBufferPool()
         {
-            return this.bufferPool;
+            var pool = new List<SubscriptionBuffer>();
+            pool.AddRange(this.bufferPool);
+            return pool;
+        }
+
+        internal void StopSilently()
+        {
+            this.stopping = true;
         }
     }
 }

@@ -9,15 +9,21 @@ using EventCentric.Transport;
 using EventCentric.Utils;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
 using System.Threading;
 
 namespace EventCentric.Querying
 {
     public class EventStreamQueryProcessor : Worker,
-        IMessageHandler<NewIncomingEvents>
+        IMessageHandler<NewIncomingEvents>,
+        IMessageHandler<PollResponseWasReceived>,
+        IMessageHandler<IncomingEventHasBeenProcessed>
     {
         private readonly string queryName;
         private readonly InMemorySubscriptionRepository subRepo;
+        private readonly List<ProducerPollingStatus> producers = new List<ProducerPollingStatus>();
+        private bool producerListIsReady = false;
         private readonly Poller poller;
         private readonly ConsoleLogger log = new ConsoleLogger();
 
@@ -58,7 +64,6 @@ namespace EventCentric.Querying
             {
                 if (stop.Invoke())
                 {
-                    this.bus.Send(new StopEventPoller());
                     break;
                 }
                 else
@@ -66,6 +71,42 @@ namespace EventCentric.Querying
                     Thread.Sleep(100);
                 }
             }
+
+            this.poller.StopSilently();
+        }
+
+        public void Run()
+        {
+            this.bus.Send(new StartEventPoller());
+
+            while (true)
+            {
+                if (this.producerListIsReady)
+                    break;
+
+                Thread.Sleep(100);
+            }
+
+            while (true)
+            {
+                if (this.producers.TrueForAll(p => p.PollCompleted))
+                    break;
+
+                Thread.Sleep(100);
+            }
+
+            this.poller.StopSilently();
+        }
+
+        public void RunAndPrint(Func<string> textFactory)
+        {
+            var sw = Stopwatch.StartNew();
+            this.Run();
+            var elapsedTime = sw.Elapsed;
+            Console.WriteLine();
+            this.log.Trace($"Query processing has finished. Time elapsed: {elapsedTime.Hours}:{elapsedTime.Minutes}:{elapsedTime.Seconds}:{elapsedTime.Milliseconds}");
+            Console.WriteLine();
+            Console.WriteLine(textFactory.Invoke());
         }
 
         public void Handle(NewIncomingEvents message)
@@ -77,6 +118,59 @@ namespace EventCentric.Querying
 
                 this.bus.Publish(new IncomingEventHasBeenProcessed(@event.StreamType, @event.EventCollectionVersion));
             }
+        }
+
+        public void Handle(PollResponseWasReceived message)
+        {
+            if (this.producerListIsReady)
+                return; // quick return;
+
+            lock (this)
+            {
+                if (!this.producerListIsReady)
+                {
+                    if (!this.producers.Any(x => x.ProducerName == message.Response.StreamType))
+                        this.producers.Add(new ProducerPollingStatus(message.Response.StreamType, message.Response.ProducerVersion));
+
+                    var subs = this.poller.GetSubscriptionsMetrics().ToList();
+                    if (subs.TrueForAll(s => this.producers.Any(p => p.ProducerName == s.ProducerName)))
+                    {
+
+                        this.producerListIsReady = true;
+                    }
+                }
+            }
+        }
+
+        public void Handle(IncomingEventHasBeenProcessed message)
+        {
+            var producer = this.producers.Single(x => x.ProducerName == message.StreamType);
+            if (producer.MaxVersionToReceive == message.EventCollectionVersion)
+            {
+                while (true)
+                {
+                    if (this.poller.GetBufferPool().Single(x => x.StreamType == producer.ProducerName).CurrentBufferVersion >= producer.MaxVersionToReceive)
+                        break;
+
+                    Thread.Sleep(100);
+                }
+
+                producer.MarkAsCompleted();
+            }
+        }
+
+        internal class ProducerPollingStatus
+        {
+            public ProducerPollingStatus(string name, long version)
+            {
+                this.ProducerName = name;
+                this.MaxVersionToReceive = version;
+            }
+
+            public string ProducerName { get; }
+            public long MaxVersionToReceive { get; }
+            public bool PollCompleted { get; private set; } = false;
+            internal void MarkAsCompleted() => this.PollCompleted = true;
         }
     }
 }
