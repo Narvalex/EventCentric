@@ -20,10 +20,12 @@ namespace EventCentric
         private readonly TimeSpan timeout;
         private readonly TimeSpan interval;
         private readonly IUtcTimeProvider time;
+        private readonly string nodeName;
 
-        public HeartbeatListener(IBus bus, ILogger log, IUtcTimeProvider time, TimeSpan timeout, TimeSpan interval, Func<bool, HeartbeatDbContext> contextFactory)
+        public HeartbeatListener(string nodeName, IBus bus, ILogger log, IUtcTimeProvider time, TimeSpan timeout, TimeSpan interval, Func<bool, HeartbeatDbContext> contextFactory)
             : base(bus, log)
         {
+            Ensure.NotNullNeitherEmtpyNorWhiteSpace(nodeName, nameof(nodeName));
             Ensure.NotNull(contextFactory, "contextFactory");
             Ensure.NotNull(time, "time");
             if (timeout.TotalSeconds <= 1)
@@ -35,6 +37,7 @@ namespace EventCentric
             this.interval = interval;
             this.time = time;
             this.contextFactory = contextFactory;
+            this.nodeName = nodeName;
         }
 
         protected override void OnStarting()
@@ -72,7 +75,7 @@ namespace EventCentric
                 {
                     using (var client = this.CreateHttpClient())
                     {
-                        var response = client.GetAsync(url).Result;
+                        var response = client.GetAsync($"{url}/{this.nodeName}").Result;
                         if (!response.IsSuccessStatusCode)
                             throw new InvalidOperationException(string.Format("Heartbeat request received an status code of: {0}", response.StatusCode.ToString()));
 
