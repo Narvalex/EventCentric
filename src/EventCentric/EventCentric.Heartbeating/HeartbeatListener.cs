@@ -37,7 +37,7 @@ namespace EventCentric
             this.interval = interval;
             this.time = time;
             this.contextFactory = contextFactory;
-            this.nodeName = nodeName;
+            this.nodeName = nodeName.Replace('.', '@');
         }
 
         protected override void OnStarting()
@@ -77,7 +77,7 @@ namespace EventCentric
                     {
                         var response = client.GetAsync($"{url}/{this.nodeName}").Result;
                         if (!response.IsSuccessStatusCode)
-                            throw new InvalidOperationException(string.Format("Heartbeat request received an status code of: {0}", response.StatusCode.ToString()));
+                            throw new InvalidOperationException(string.Format($"Heartbeat request to '{url}/{this.nodeName}' received an status code of: {0}", response.StatusCode.ToString()));
 
                         this.log.Trace($"{response.Content.ReadAsStringAsync().Result}");
                         using (var context = this.contextFactory(false))
