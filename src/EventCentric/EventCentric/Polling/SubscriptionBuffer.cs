@@ -25,7 +25,7 @@ namespace EventCentric.Polling
         /// The processor buffer version is the lowest event collection version that the processor was handling when starting from cold.
         /// When is on running, is the lastest buffer version that was polled.
         /// </summary>
-        internal long CurrentBufferVersion { get; set; }
+        public long CurrentBufferVersion { get; set; }
 
         public volatile bool IsPolling;
         public volatile bool IsPoisoned;

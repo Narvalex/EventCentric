@@ -15,7 +15,7 @@ using System.Threading;
 
 namespace EventCentric.Querying
 {
-    public class EventStreamQueryProcessor : Worker,
+    public class StreamQuery<TState> : NodeWorker, IGiven<TState>, IWhen<TState>, IRun<TState>,
         IMessageHandler<NewIncomingEvents>,
         IMessageHandler<PollResponseWasReceived>,
         IMessageHandler<IncomingEventHasBeenProcessed>
@@ -25,12 +25,12 @@ namespace EventCentric.Querying
         private readonly List<ProducerPollingStatus> producers = new List<ProducerPollingStatus>();
         private bool producerListIsReady = false;
         private readonly Poller poller;
-        private readonly ConsoleLogger log = new ConsoleLogger();
+        private TState state;
 
-        private Dictionary<Type, Action<IEvent>> handlers = new Dictionary<Type, Action<IEvent>>();
+        private Dictionary<Type, Func<TState, IEvent, TState>> handlers = new Dictionary<Type, Func<TState, IEvent, TState>>();
 
-        public EventStreamQueryProcessor(string queryName = "AnonymousEventStreamQuery")
-            : base(new Bus())
+        public StreamQuery(string queryName = "AnonymousEventStreamQuery")
+            : base(new Bus(), new ConsoleLogger())
         {
             Ensure.NotNullNeitherEmtpyNorWhiteSpace(queryName, nameof(queryName));
 
@@ -40,27 +40,34 @@ namespace EventCentric.Querying
             this.poller = new Poller(this.bus, this.log, this.subRepo, new HttpLongPoller(this.bus, this.log, TimeSpan.FromMinutes(2), this.queryName), new JsonTextSerializer(), 1000, 1000);
         }
 
-        public EventStreamQueryProcessor From(params EventSourceConnection[] connections)
+        public IGiven<TState> From(params EventSourceConnection[] connections)
         {
             this.subRepo.RegisterSubscriptions(connections);
             return this;
         }
 
-        public EventStreamQueryProcessor When<TEvent>(Action<TEvent> handler)
-            where TEvent : IEvent
+        IWhen<TState> IGiven<TState>.Given(TState state)
         {
-            this.handlers.Add(typeof(TEvent), @event => handler((TEvent)@event));
+            this.state = state;
             return this;
         }
 
-        public EventStreamQueryProcessor AndWhen<TEvent>(Action<TEvent> handler)
-            where TEvent : IEvent
-            => this.When<TEvent>(handler);
+        IRun<TState> IWhen<TState>.When<TEvent>(Func<TState, TEvent, TState> handler)
+        {
+            this.handlers.Add(typeof(TEvent), (state, e) => handler(state, (TEvent)e));
+            return this;
+        }
 
-        public void RunUntil(Func<bool> stop)
+        IRun<TState> IRun<TState>.And<TEvent>(Func<TState, TEvent, TState> handler)
+        {
+            this.handlers.Add(typeof(TEvent), (state, e) => handler(state, (TEvent)e));
+            return this;
+        }
+
+        TState IRun<TState>.RunUntil(Func<bool> stop)
         {
             this.bus.Send(new StartEventPoller());
-            while (true)
+            while (!this.stopping)
             {
                 if (stop.Invoke())
                 {
@@ -73,13 +80,14 @@ namespace EventCentric.Querying
             }
 
             this.poller.StopSilently();
+            return this.state;
         }
 
-        public void Run()
+        TState IRun<TState>.Run()
         {
             this.bus.Send(new StartEventPoller());
 
-            while (true)
+            while (!this.stopping)
             {
                 if (this.producerListIsReady)
                     break;
@@ -87,7 +95,7 @@ namespace EventCentric.Querying
                 Thread.Sleep(100);
             }
 
-            while (true)
+            while (!this.stopping)
             {
                 if (this.producers.TrueForAll(p => p.PollCompleted))
                     break;
@@ -96,17 +104,22 @@ namespace EventCentric.Querying
             }
 
             this.poller.StopSilently();
+
+            return this.state;
         }
 
-        public void RunAndPrint(Func<string> textFactory)
+        void IRun<TState>.Run(Action<TState> execute) => execute.Invoke(((IRun<TState>)this).Run());
+
+        TState IRun<TState>.RunAndPrint(Func<TState, string> textFactory)
         {
             var sw = Stopwatch.StartNew();
-            this.Run();
+            ((IRun<TState>)this).Run();
             var elapsedTime = sw.Elapsed;
             Console.WriteLine();
             this.log.Trace($"Query processing has finished. Time elapsed: {elapsedTime.Hours}:{elapsedTime.Minutes}:{elapsedTime.Seconds}:{elapsedTime.Milliseconds}");
             Console.WriteLine();
-            Console.WriteLine(textFactory.Invoke());
+            Console.WriteLine(textFactory.Invoke(this.state));
+            return this.state;
         }
 
         public void Handle(NewIncomingEvents message)
@@ -114,7 +127,19 @@ namespace EventCentric.Querying
             foreach (var @event in message.IncomingEvents)
             {
                 if (this.handlers.ContainsKey(@event.GetType()))
-                    this.handlers[@event.GetType()].Invoke(@event);
+                {
+                    try
+                    {
+                        this.state = this.handlers[@event.GetType()].Invoke(this.state, @event);
+                    }
+                    catch (Exception ex)
+                    {
+                        var wrappedEx = new FatalErrorException($"An error ocurred while handling event of type {@event.GetType()}", ex);
+                        this.bus.Publish(new FatalErrorOcurred(wrappedEx));
+                        this.log.Error(wrappedEx, "Query failed");
+                        throw;
+                    }
+                }
 
                 this.bus.Publish(new IncomingEventHasBeenProcessed(@event.StreamType, @event.EventCollectionVersion));
             }
@@ -147,7 +172,7 @@ namespace EventCentric.Querying
             var producer = this.producers.Single(x => x.ProducerName == message.StreamType);
             if (producer.MaxVersionToReceive == message.EventCollectionVersion)
             {
-                while (true)
+                while (!this.stopping)
                 {
                     if (this.poller.GetBufferPool().Single(x => x.StreamType == producer.ProducerName).CurrentBufferVersion >= producer.MaxVersionToReceive)
                         break;
@@ -172,5 +197,28 @@ namespace EventCentric.Querying
             public bool PollCompleted { get; private set; } = false;
             internal void MarkAsCompleted() => this.PollCompleted = true;
         }
+    }
+
+    public interface IGiven<TState>
+    {
+        IWhen<TState> Given(TState state);
+    }
+
+    public interface IWhen<TState>
+    {
+        IRun<TState> When<TEvent>(Func<TState, TEvent, TState> handler) where TEvent : IEvent;
+    }
+
+    public interface IRun<TState>
+    {
+        IRun<TState> And<TEvent>(Func<TState, TEvent, TState> handler) where TEvent : IEvent;
+
+        TState Run();
+
+        void Run(Action<TState> execute);
+
+        TState RunUntil(Func<bool> stop);
+
+        TState RunAndPrint(Func<TState, string> textFactory);
     }
 }

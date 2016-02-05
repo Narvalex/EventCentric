@@ -328,7 +328,7 @@ namespace EventCentric.Polling
             return pool;
         }
 
-        internal void StopSilently()
+        public void StopSilently()
         {
             this.stopping = true;
         }
