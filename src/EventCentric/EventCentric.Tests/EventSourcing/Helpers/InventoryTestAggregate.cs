@@ -1,5 +1,5 @@
 ﻿using EventCentric.EventSourcing;
-using EventCentric.Processing;
+using EventCentric.Handling;
 using System;
 using System.Collections.Generic;
 using System.Linq;

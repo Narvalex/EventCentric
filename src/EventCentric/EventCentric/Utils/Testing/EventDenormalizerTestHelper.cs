@@ -2,7 +2,7 @@
 using EventCentric.Log;
 using EventCentric.Messaging;
 using EventCentric.Messaging.Events;
-using EventCentric.Processing;
+using EventCentric.Handling;
 using EventCentric.Repository;
 using EventCentric.Repository.Mapping;
 using EventCentric.Serialization;
@@ -12,7 +12,7 @@ namespace EventCentric.Utils.Testing
 {
     public class EventDenormalizerTestHelper<TAggregate, TProcessor, TDbContext>
         where TAggregate : class, IEventSourced
-        where TProcessor : EventProcessor<TAggregate>
+        where TProcessor : EventHandlerOf<TAggregate>
         where TDbContext : IEventStoreDbContext
     {
         private object dao;

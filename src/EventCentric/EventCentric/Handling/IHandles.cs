@@ -1,6 +1,6 @@
 ﻿using EventCentric.EventSourcing;
 
-namespace EventCentric.Processing
+namespace EventCentric.Handling
 {
     public interface IHandles { }
 

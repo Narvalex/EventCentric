@@ -8,7 +8,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Linq;
 
-namespace EventCentric.Processing
+namespace EventCentric.Handling
 {
     /// <summary>
     /// An event processor
@@ -19,7 +19,7 @@ namespace EventCentric.Processing
     /// a custum made container, with a generic injection for dependency resolution. It should be best 
     /// initialiezed lazyly, as the logger of Greg Young's Event Store.
     /// </remarks>
-    public abstract class EventProcessor<T> : NodeWorker,
+    public abstract class EventHandlerOf<T> : NodeWorker,
         IMessageHandler<StartEventProcessor>,
         IMessageHandler<StopEventProcessor>,
         IMessageHandler<NewIncomingEvents>,
@@ -32,7 +32,7 @@ namespace EventCentric.Processing
         private readonly ConcurrentDictionary<string, object> streamLocksById;
         protected readonly ConcurrentBag<Guid> poisonedStreams;
 
-        protected EventProcessor(IBus bus, ILogger log, IEventStore<T> store)
+        protected EventHandlerOf(IBus bus, ILogger log, IEventStore<T> store)
             : base(bus, log)
         {
             Ensure.NotNull(store, "store");
@@ -209,7 +209,7 @@ namespace EventCentric.Processing
 
         #region CreateNewStreamIfNotExistsAndProcess
 
-        protected void CreateNewStreamIfNotExistsAndProcess(Guid id, IEvent incomingEvent)
+        protected void HandleInNewStreamIfNotExists(Guid id, IEvent incomingEvent)
         {
             this.HandleSafelyWithStreamLocking(id, incomingEvent, () =>
             {
@@ -228,7 +228,7 @@ namespace EventCentric.Processing
         /// </summary>
         /// <param name="id">The id of the new stream. A brand new computed <see cref="Guid"/>.</param>
         /// <param name="@event">The first message that the new aggregate will process.</param>
-        protected void CreateNewStreamAndProcess(Guid id, IEvent incomingEvent)
+        protected void HandleInNewStream(Guid id, IEvent incomingEvent)
         {
             this.HandleSafelyWithStreamLocking(id, incomingEvent, () =>
             {
@@ -242,7 +242,7 @@ namespace EventCentric.Processing
         /// </summary>
         /// <param name="streamId">The id of the stream.</param>
         /// <param name="@event">The event to be handled by the aggregate of <see cref="T"/>.</param>
-        protected void Process(Guid streamId, IEvent incomingEvent)
+        protected void HandleInExistingStream(Guid streamId, IEvent incomingEvent)
         {
             this.HandleSafelyWithStreamLocking(streamId, incomingEvent, () =>
             {

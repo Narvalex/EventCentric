@@ -5,7 +5,7 @@ using EventCentric.Log;
 using EventCentric.Messaging;
 using EventCentric.NodeFactory.Log;
 using EventCentric.Polling;
-using EventCentric.Processing;
+using EventCentric.Handling;
 using EventCentric.Publishing;
 using EventCentric.Repository;
 using EventCentric.Serialization;
@@ -19,7 +19,7 @@ namespace EventCentric
 {
     public static class ProcessorNodeFactory<TAggregate, TProcessor>
         where TAggregate : class, IEventSourced
-        where TProcessor : EventProcessor<TAggregate>
+        where TProcessor : EventHandlerOf<TAggregate>
     {
         public static INode CreateNode(IUnityContainer container, bool isSubscriptor = true, Func<IBus, ILogger, IEventStore<TAggregate>, TProcessor> processorFactory = null, bool enableHeartbeatingListener = false, bool setSequentialGuid = true)
         {

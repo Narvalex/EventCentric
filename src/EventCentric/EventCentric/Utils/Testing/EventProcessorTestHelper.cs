@@ -2,7 +2,7 @@
 using EventCentric.Log;
 using EventCentric.Messaging;
 using EventCentric.Messaging.Events;
-using EventCentric.Processing;
+using EventCentric.Handling;
 using EventCentric.Serialization;
 using System;
 using System.Collections.Generic;
@@ -12,7 +12,7 @@ namespace EventCentric.Utils.Testing
 {
     public class EventProcessorTestHelper<TAggregate, TProcessor>
         where TAggregate : class, IEventSourced
-        where TProcessor : EventProcessor<TAggregate>
+        where TProcessor : EventHandlerOf<TAggregate>
     {
         private readonly ITextSerializer serializer;
         private readonly EventStoreStub store;
