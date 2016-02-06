@@ -8,7 +8,7 @@ namespace EventCentric.Repository.Mapping
     {
         public Guid StreamId { get; set; }
         public long Version { get; set; }
-        public string Memento { get; set; }
+        public string Snapshot { get; set; }
         public long StreamCollectionVersion { get; set; }
         public DateTime CreationLocalTime { get; set; }
         public DateTime UpdateLocalTime { get; set; }
@@ -28,7 +28,7 @@ namespace EventCentric.Repository.Mapping
             this.ToTable("Streams", "EventStore");
             this.Property(t => t.StreamId).HasColumnName("StreamId");
             this.Property(t => t.Version).HasColumnName("Version");
-            this.Property(t => t.Memento).HasColumnName("Memento");
+            this.Property(t => t.Snapshot).HasColumnName("Snapshot");
             this.Property(t => t.StreamCollectionVersion).HasColumnName("StreamCollectionVersion");
             this.Property(t => t.CreationLocalTime).HasColumnName("CreationLocalTime");
             this.Property(t => t.UpdateLocalTime).HasColumnName("UpdateLocalTime");

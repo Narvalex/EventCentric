@@ -75,6 +75,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Database\SqlClientExtensions.cs" />
+    <Compile Include="EventSourcing\Entity.cs" />
     <Compile Include="EventSourcing\EventExtensions.cs" />
     <Compile Include="EventSourcing\ValueObject.cs" />
     <Compile Include="Log\ConsoleLogger.cs" />
@@ -82,7 +83,7 @@
     <Compile Include="Messaging\EventBusExtensions.cs" />
     <Compile Include="Messaging\Events\NewIncomingEvent.cs" />
     <Compile Include="Messaging\InMemoryVersioning.cs" />
-    <Compile Include="EventSourcing\Memento.cs" />
+    <Compile Include="EventSourcing\Snapshot.cs" />
     <Compile Include="Node\NodeBase.cs" />
     <Compile Include="Node\NodeInitializer.cs" />
     <Compile Include="Node\ApplicationService.cs" />
@@ -138,7 +139,7 @@
     <Compile Include="EventSourcing\IEvent.cs" />
     <Compile Include="EventSourcing\IEventSourced.cs" />
     <Compile Include="EventSourcing\IEventStore.cs" />
-    <Compile Include="EventSourcing\IMementoOriginator.cs" />
+    <Compile Include="EventSourcing\ISnapshotOriginator.cs" />
     <Compile Include="EventSourcing\IUpdatesOn.cs" />
     <Compile Include="EventSourcing\StreamNotFoundException.cs" />
     <Compile Include="Node\ProcessorNode.cs" />

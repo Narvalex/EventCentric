@@ -1,8 +1,8 @@
 ﻿namespace EventCentric.EventSourcing
 {
-    public class Memento : IMemento
+    public class Snapshot : ISnapshot
     {
-        public Memento(long version)
+        public Snapshot(long version)
         {
             this.Version = version;
         }

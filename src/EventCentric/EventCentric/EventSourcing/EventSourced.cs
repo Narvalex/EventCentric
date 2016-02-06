@@ -7,7 +7,7 @@ namespace EventCentric.EventSourcing
     /// Base class for event sourced aggregates that implements <see cref="IEventSourced"/> that contains 
     /// some common useful functionality related to versions and rehydration from past events.
     /// </summary>
-    public abstract class EventSourced : IEventSourced, IMementoOriginator
+    public abstract class EventSourced : IEventSourced, ISnapshotOriginator
     {
         private readonly Guid id;
         private long version = 0;
@@ -26,10 +26,10 @@ namespace EventCentric.EventSourcing
                 this.Apply(e);
         }
 
-        protected EventSourced(Guid id, IMemento memento)
+        protected EventSourced(Guid id, ISnapshot snapshot)
             : this(id)
         {
-            this.version = memento.Version;
+            this.version = snapshot.Version;
         }
 
         public Guid Id => this.id;
@@ -63,6 +63,6 @@ namespace EventCentric.EventSourcing
             this.version = @event.Version;
         }
 
-        public virtual IMemento SaveToMemento() => new Memento(this.version);
+        public virtual ISnapshot SaveToSnapshot() => new Snapshot(this.version);
     }
 }

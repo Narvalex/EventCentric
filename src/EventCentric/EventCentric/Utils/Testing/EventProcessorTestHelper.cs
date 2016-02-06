@@ -49,7 +49,7 @@ namespace EventCentric.Utils.Testing
 
         public TAggregate Aggregate => this.store.Aggregate;
 
-        public EventProcessorTestHelper<TAggregate, TProcessor> Given(Guid streamId, IMemento memento)
+        public EventProcessorTestHelper<TAggregate, TProcessor> Given(Guid streamId, ISnapshot memento)
         {
             this.store.Snapshot = this.serializer.SerializeAndDeserialize(memento);
             this.store.streamId = streamId;
@@ -120,18 +120,18 @@ namespace EventCentric.Utils.Testing
             internal ITextSerializer serializer;
 
             internal List<IEvent> Streams = new List<IEvent>();
-            internal IMemento Snapshot = null;
+            internal ISnapshot Snapshot = null;
 
             internal TAggregate Aggregate = null;
 
             private readonly Func<Guid, IEnumerable<IEvent>, TAggregate> aggregateFactory;
-            private readonly Func<Guid, IMemento, TAggregate> originatorAggregateFactory;
+            private readonly Func<Guid, ISnapshot, TAggregate> originatorAggregateFactory;
 
             public EventStoreStub(ITextSerializer serializer)
             {
                 this.serializer = serializer;
 
-                var fromMementoConstructor = typeof(TAggregate).GetConstructor(new[] { typeof(Guid), typeof(IMemento) });
+                var fromMementoConstructor = typeof(TAggregate).GetConstructor(new[] { typeof(Guid), typeof(ISnapshot) });
                 Ensure.CastIsValid(fromMementoConstructor, "Type T must have a constructor with the following signature: .ctor(Guid, IMemento)");
                 this.originatorAggregateFactory = (id, memento) => (TAggregate)fromMementoConstructor.Invoke(new object[] { id, memento });
 
@@ -178,7 +178,7 @@ namespace EventCentric.Utils.Testing
 
                 this.Streams.AddRange(events);
                 this.Aggregate = eventSourced;
-                var memento = ((IMementoOriginator)eventSourced).SaveToMemento();
+                var memento = ((ISnapshotOriginator)eventSourced).SaveToSnapshot();
                 this.Snapshot = this.serializer.SerializeAndDeserialize(memento);
 
                 return events.Max(e => e.Version);

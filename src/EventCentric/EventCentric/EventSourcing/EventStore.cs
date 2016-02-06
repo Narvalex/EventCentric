@@ -22,7 +22,7 @@ namespace EventCentric.EventSourcing
         private readonly ObjectCache cache;
 
         private readonly Func<Guid, IEnumerable<IEvent>, T> aggregateFactory;
-        private readonly Func<Guid, IMemento, T> originatorAggregateFactory;
+        private readonly Func<Guid, ISnapshot, T> originatorAggregateFactory;
 
         private readonly Func<bool, IEventStoreDbContext> contextFactory;
         private readonly Action<T, IEventStoreDbContext> denormalizeIfApplicable;
@@ -45,7 +45,7 @@ namespace EventCentric.EventSourcing
             this.cache = new MemoryCache(streamType);
 
             /// TODO: could be replaced with a compiled lambda to make it more performant.
-            var fromMementoConstructor = typeof(T).GetConstructor(new[] { typeof(Guid), typeof(IMemento) });
+            var fromMementoConstructor = typeof(T).GetConstructor(new[] { typeof(Guid), typeof(ISnapshot) });
             Ensure.CastIsValid(fromMementoConstructor, "Type T must have a constructor with the following signature: .ctor(Guid, IMemento)");
             this.originatorAggregateFactory = (id, memento) => (T)fromMementoConstructor.Invoke(new object[] { id, memento });
 
@@ -62,7 +62,7 @@ namespace EventCentric.EventSourcing
         public T Find(Guid id)
         {
             // get memento from cache
-            var cachedMemento = (Tuple<IMemento, DateTime?>)this.cache.Get(id.ToString());
+            var cachedMemento = (Tuple<ISnapshot, DateTime?>)this.cache.Get(id.ToString());
             if (cachedMemento == null || !cachedMemento.Item2.HasValue)
             {
                 // try return memento from SQL Server;
@@ -71,7 +71,7 @@ namespace EventCentric.EventSourcing
                     var stream = context.Streams.Where(s => s.StreamId == id).SingleOrDefault();
 
                     if (stream != null)
-                        cachedMemento = new Tuple<IMemento, DateTime?>(this.serializer.Deserialize<IMemento>(stream.Memento), null);
+                        cachedMemento = new Tuple<ISnapshot, DateTime?>(this.serializer.Deserialize<ISnapshot>(stream.Snapshot), null);
                     else
                     {
                         // if memento not found then try get full stream
@@ -185,10 +185,10 @@ namespace EventCentric.EventSourcing
 
 
                     // Cache Memento And Publish Stream
-                    var memento = ((IMementoOriginator)eventSourced).SaveToMemento();
+                    var snapshot = ((ISnapshotOriginator)eventSourced).SaveToSnapshot();
 
                     // Cache in Sql Server
-                    var serializedMemento = this.serializer.Serialize(memento);
+                    var serializedMemento = this.serializer.Serialize(snapshot);
 
                     var streamEntity = ((DbContext)context).AddOrUpdate(
                         () => context.Streams.Where(s => s.StreamId == eventSourced.Id).SingleOrDefault(),
@@ -196,21 +196,21 @@ namespace EventCentric.EventSourcing
                         {
                             StreamId = eventSourced.Id,
                             Version = eventSourced.Version,
-                            Memento = serializedMemento,
+                            Snapshot = serializedMemento,
                             CreationLocalTime = localNow,
                             UpdateLocalTime = localNow
                         },
                         stream =>
                         {
                             stream.Version = eventSourced.Version;
-                            stream.Memento = serializedMemento;
+                            stream.Snapshot = serializedMemento;
                             stream.UpdateLocalTime = localNow;
                         });
 
                     // Cache in memory
                     this.cache.Set(
                         key: key,
-                        value: new Tuple<IMemento, DateTime?>(memento, now),
+                        value: new Tuple<ISnapshot, DateTime?>(snapshot, now),
                         policy: new CacheItemPolicy { AbsoluteExpiration = this.time.OffSetNow.AddMinutes(30) });
 
                     // Denormalize if applicable.
@@ -226,10 +226,10 @@ namespace EventCentric.EventSourcing
                 this.log.Error(ex, $"An error ocurred while storing events while processing incoming event of type '{incomingEvent.GetType().Name}'");
 
                 // Mark cache as stale
-                var item = (Tuple<IMemento, DateTime?>)this.cache.Get(key);
+                var item = (Tuple<ISnapshot, DateTime?>)this.cache.Get(key);
                 if (item != null && item.Item2.HasValue)
                 {
-                    item = new Tuple<IMemento, DateTime?>(item.Item1, null);
+                    item = new Tuple<ISnapshot, DateTime?>(item.Item1, null);
                     this.cache.Set(
                         key,
                         item,

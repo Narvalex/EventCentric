@@ -75,7 +75,7 @@ IF NOT EXISTS(SELECT* FROM sys.objects WHERE object_id = OBJECT_ID(N'[EventStore
 CREATE TABLE[EventStore].[Streams](
     [StreamId] [uniqueidentifier] NOT NULL,
     [Version] [bigint] NOT NULL,
-    [Memento] [nvarchar](max) NULL,
+    [Snapshot] [nvarchar](max) NULL,
     [StreamCollectionVersion] [bigint] IDENTITY(1,1) NOT NULL,
 	CONSTRAINT EventStore_Streams_StreamCollectionVersion UNIQUE(StreamCollectionVersion),
     [CreationLocalTime] [datetime] NOT NULL,

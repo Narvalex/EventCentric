@@ -23,7 +23,7 @@ namespace EventCentric.Tests.EventSourcing
             this.sut.Save(aggregate, incomingCommand);
 
             var retrievedAggregate = this.sut.Find(streamId);
-            var retrievedMemento = retrievedAggregate.SaveToMemento();
+            var retrievedMemento = retrievedAggregate.SaveToSnapshot();
 
             Assert.IsNotNull(retrievedAggregate);
             Assert.AreEqual(5, ((InventoryTestAggregateMemento)retrievedMemento).Quantity);

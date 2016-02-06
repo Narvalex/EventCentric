@@ -17,7 +17,7 @@ namespace EventCentric.EventSourcing
             : base(id, streamOfEvents)
         { }
 
-        protected Denormalizer(Guid id, IMemento memento)
+        protected Denormalizer(Guid id, ISnapshot memento)
             : base(id, memento)
         { }
 

@@ -19,7 +19,7 @@ namespace EventCentric.Tests.EventSourcing.Helpers
 
         public InventoryTestAggregate(Guid id, IEnumerable<IEvent> streamOfEvents) : base(id, streamOfEvents) { }
 
-        public InventoryTestAggregate(Guid id, IMemento memento)
+        public InventoryTestAggregate(Guid id, ISnapshot memento)
             : base(id, memento)
         {
             var state = ((InventoryTestAggregateMemento)memento);
@@ -27,7 +27,7 @@ namespace EventCentric.Tests.EventSourcing.Helpers
             this.names = state.Names.ToList();
         }
 
-        public override IMemento SaveToMemento()
+        public override ISnapshot SaveToSnapshot()
         {
             return new InventoryTestAggregateMemento(this.Version, this.quantity, this.names.ToArray());
         }
@@ -58,7 +58,7 @@ namespace EventCentric.Tests.EventSourcing.Helpers
         }
     }
 
-    public class InventoryTestAggregateMemento : Memento
+    public class InventoryTestAggregateMemento : Snapshot
     {
         public InventoryTestAggregateMemento(long version, int quantity, string[] names)
             : base(version)
