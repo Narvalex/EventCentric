@@ -42,7 +42,7 @@ namespace EventCentric.Tests.EventSourcing.Helpers
             base.Update(new ItemNameRegistered(command.Name));
         }
 
-        protected override void OnUpdateStarted()
+        protected override void Init()
         {
             this.quantity = 0;
         }

@@ -75,6 +75,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Database\SqlClientExtensions.cs" />
+    <Compile Include="EventSourcing\AnInvalidOperationExceptionOccurred.cs" />
     <Compile Include="EventSourcing\Entity.cs" />
     <Compile Include="EventSourcing\EventExtensions.cs" />
     <Compile Include="EventSourcing\IMementoOriginator.cs" />

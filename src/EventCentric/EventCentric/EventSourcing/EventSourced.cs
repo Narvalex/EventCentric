@@ -16,7 +16,7 @@ namespace EventCentric.EventSourcing
         protected EventSourced(Guid id)
         {
             this.id = id;
-            this.OnUpdateStarted();
+            this.Init();
         }
 
         protected EventSourced(Guid id, IEnumerable<IEvent> streamOfEvents)
@@ -41,7 +41,7 @@ namespace EventCentric.EventSourcing
         /// <summary>
         /// Afther the aggregate id is set this method will be called.
         /// </summary>
-        protected virtual void OnUpdateStarted() { }
+        protected virtual void Init() { }
 
         protected void Update(Event @event)
         {
@@ -50,6 +50,8 @@ namespace EventCentric.EventSourcing
             this.Apply(@event);
             this.pendingEvents.Add(@event);
         }
+
+        protected void Throw(string message) => this.Update(new AnInvalidOperationExceptionOccurred(message));
 
         protected void Update(params Event[] events)
         {

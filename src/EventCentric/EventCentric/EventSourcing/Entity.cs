@@ -6,7 +6,7 @@ namespace EventCentric.EventSourcing
     {
         public abstract T SaveToMemento();
 
-        protected Entity(Guid id, Action<Event> update, T memento) // to recall to bring the memento in construction time
+        protected Entity(Guid id, Action<Event> update)
         {
             this.Id = id;
             this.Update = update;
@@ -15,5 +15,7 @@ namespace EventCentric.EventSourcing
         protected Guid Id { get; }
 
         protected Action<Event> Update { get; }
+
+        protected void Throw(string message) => this.Update(new AnInvalidOperationExceptionOccurred(message));
     }
 }

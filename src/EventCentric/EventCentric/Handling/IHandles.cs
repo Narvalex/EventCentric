@@ -8,4 +8,7 @@ namespace EventCentric.Handling
     {
         void Handle(T message);
     }
+
+    public interface IExceptionHandler : IHandles<AnInvalidOperationExceptionOccurred>
+    { }
 }

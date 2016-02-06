@@ -4,4 +4,7 @@
     {
         void On(T e);
     }
+
+    public interface IStreamWithExceptions : IUpdatesOn<AnInvalidOperationExceptionOccurred>
+    { }
 }
