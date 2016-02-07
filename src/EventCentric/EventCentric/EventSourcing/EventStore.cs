@@ -68,10 +68,10 @@ namespace EventCentric.EventSourcing
                 // try return memento from SQL Server;
                 using (var context = this.contextFactory.Invoke(true))
                 {
-                    var stream = context.Streams.Where(s => s.StreamId == id).SingleOrDefault();
+                    var snapshotEntity = context.Snapshots.Where(s => s.StreamId == id).SingleOrDefault();
 
-                    if (stream != null)
-                        cachedMemento = new Tuple<ISnapshot, DateTime?>(this.serializer.Deserialize<ISnapshot>(stream.Snapshot), null);
+                    if (snapshotEntity != null)
+                        cachedMemento = new Tuple<ISnapshot, DateTime?>(this.serializer.Deserialize<ISnapshot>(snapshotEntity.Payload), null);
                     else
                     {
                         // if memento not found then try get full stream
@@ -191,20 +191,20 @@ namespace EventCentric.EventSourcing
                     var serializedMemento = this.serializer.Serialize(snapshot);
 
                     var streamEntity = ((DbContext)context).AddOrUpdate(
-                        () => context.Streams.Where(s => s.StreamId == eventSourced.Id).SingleOrDefault(),
-                        () => new StreamEntity
+                        () => context.Snapshots.Where(s => s.StreamId == eventSourced.Id).SingleOrDefault(),
+                        () => new SnapshotEntity
                         {
                             StreamId = eventSourced.Id,
                             Version = eventSourced.Version,
-                            Snapshot = serializedMemento,
+                            Payload = serializedMemento,
                             CreationLocalTime = localNow,
                             UpdateLocalTime = localNow
                         },
-                        stream =>
+                        snapshotEntity =>
                         {
-                            stream.Version = eventSourced.Version;
-                            stream.Snapshot = serializedMemento;
-                            stream.UpdateLocalTime = localNow;
+                            snapshotEntity.Version = eventSourced.Version;
+                            snapshotEntity.Payload = serializedMemento;
+                            snapshotEntity.UpdateLocalTime = localNow;
                         });
 
                     // Cache in memory

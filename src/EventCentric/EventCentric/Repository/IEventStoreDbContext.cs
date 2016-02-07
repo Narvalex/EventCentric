@@ -6,7 +6,7 @@ namespace EventCentric.Repository
 {
     public interface IEventStoreDbContext : IDisposable
     {
-        IDbSet<StreamEntity> Streams { get; }
+        IDbSet<SnapshotEntity> Snapshots { get; }
 
         IDbSet<EventEntity> Events { get; }
 

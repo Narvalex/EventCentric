@@ -70,14 +70,12 @@ PRIMARY KEY CLUSTERED
 )WITH (PAD_INDEX  = OFF, STATISTICS_NORECOMPUTE  = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS  = ON, ALLOW_PAGE_LOCKS  = ON) ON [PRIMARY]
 ) ON [PRIMARY];
 
--- Create EventStore.Streams
-IF NOT EXISTS(SELECT* FROM sys.objects WHERE object_id = OBJECT_ID(N'[EventStore].[Streams]') AND type in (N'U'))
-CREATE TABLE[EventStore].[Streams](
+-- Create EventStore.Snapshots
+IF NOT EXISTS(SELECT* FROM sys.objects WHERE object_id = OBJECT_ID(N'[EventStore].[Snapshots]') AND type in (N'U'))
+CREATE TABLE[EventStore].[Snapshots](
     [StreamId] [uniqueidentifier] NOT NULL,
     [Version] [bigint] NOT NULL,
-    [Snapshot] [nvarchar](max) NULL,
-    [StreamCollectionVersion] [bigint] IDENTITY(1,1) NOT NULL,
-	CONSTRAINT EventStore_Streams_StreamCollectionVersion UNIQUE(StreamCollectionVersion),
+    [Payload] [nvarchar](max) NULL,
     [CreationLocalTime] [datetime] NOT NULL,
     [UpdateLocalTime] [datetime] NOT NULL
 PRIMARY KEY CLUSTERED

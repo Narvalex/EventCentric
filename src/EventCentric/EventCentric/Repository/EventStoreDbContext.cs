@@ -16,7 +16,7 @@ namespace EventCentric.Repository
 
         public IDbSet<EventEntity> Events { get; set; }
         public IDbSet<InboxEntity> Inbox { get; set; }
-        public IDbSet<StreamEntity> Streams { get; set; }
+        public IDbSet<SnapshotEntity> Snapshots { get; set; }
         public IDbSet<SubscriptionEntity> Subscriptions { get; set; }
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
