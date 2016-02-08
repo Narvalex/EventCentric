@@ -90,22 +90,7 @@ namespace EventCentric.Handling
             }
             catch (Exception ex)
             {
-                try
-                {
-                    if (this.store.IsDuplicate(incomingEvent.EventId))
-                    {
-                        this.Ignore(incomingEvent);
-                        return;
-                    }
-
-                }
-                catch (Exception otherEx)
-                {
-                    this.bus.Publish(
-                        new FatalErrorOcurred(new FatalErrorException($"Error while trying to check if an event is duplicate", otherEx)));
-                }
-
-                var exception = new PoisonMessageException("Poison message detected in Event Processor", ex);
+                var exception = new PoisonMessageException("An error ocurred in Event Processor while processing a message. The message will be marked as poisoned in order to review it. Maybe is just a dynamic binding error.", ex);
 
                 this.log.Error(exception, $"Poison message of type {incomingEvent.GetType().Name} detected in Event Processor");
 
@@ -172,6 +157,12 @@ namespace EventCentric.Handling
                     if (!this.poisonedStreams.Where(p => p == streamId).Any())
                         handle();
                 }
+                catch (StreamNotFoundException ex)
+                {
+                    // we igonore it, just to protect our servers to get down.
+                    this.log.Error(ex, $"The stream {streamId} was not found. Ignoring message. You can retry by reseting the subscription table.");
+                    this.Ignore(incomingEvent);
+                }
                 catch (Exception ex)
                 {
                     try
@@ -207,8 +198,6 @@ namespace EventCentric.Handling
             this.bus.Publish(new IncomingEventHasBeenProcessed(incomingEvent.StreamType, incomingEvent.EventCollectionVersion));
         }
 
-        #region CreateNewStreamIfNotExistsAndProcess
-
         protected void HandleInNewStreamIfNotExists(Guid id, IEvent incomingEvent)
         {
             this.HandleSafelyWithStreamLocking(id, incomingEvent, () =>
@@ -220,8 +209,6 @@ namespace EventCentric.Handling
                 this.HandleAndUpdate(incomingEvent, aggregate);
             });
         }
-
-        #endregion
 
         /// <summary>
         /// Creates a new stream in the store.
@@ -251,23 +238,12 @@ namespace EventCentric.Handling
             });
         }
 
-        /// <summary>
-        /// Handles and event and updates the stream
-        /// </summary>
-        /// <param name="aggregate">The aggregate.</param>
-        /// <param name="@event">The event.</param>
-        /// <returns>The updated stream version.</returns>
-        private void UpdateStream(T aggregate, IEvent incomingEvent)
-        {
-            var version = this.store.Save(aggregate, incomingEvent);
-            this.bus.Publish(new EventStoreHasBeenUpdated(version));
-            this.PublishIncomingEventHasBeenProcessed(incomingEvent);
-        }
-
         private void HandleAndUpdate(IEvent incomingEvent, T aggregate)
         {
             ((dynamic)aggregate).Handle((dynamic)incomingEvent);
-            this.UpdateStream(aggregate, incomingEvent);
+            var version = this.store.Save(aggregate, incomingEvent);
+            this.bus.Publish(new EventStoreHasBeenUpdated(version));
+            this.PublishIncomingEventHasBeenProcessed(incomingEvent);
         }
 
         public void Handle(IEvent message)
