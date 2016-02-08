@@ -54,6 +54,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ActionContextExtensions.cs" />
     <Compile Include="AuthorizeBaseAttribute.cs" />
     <Compile Include="ClientIp.cs" />
     <Compile Include="AuthorizeEventSourcingAttribute.cs" />
