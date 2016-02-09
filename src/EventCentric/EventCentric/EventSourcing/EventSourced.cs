@@ -7,26 +7,26 @@ namespace EventCentric.EventSourcing
     /// Base class for event sourced aggregates that implements <see cref="IEventSourced"/> that contains 
     /// some common useful functionality related to versions and rehydration from past events.
     /// </summary>
-    public abstract class EventSourced : IEventSourced, ISnapshotOriginator
+    public abstract class EventSourced<TAggregate> : IEventSourced, ISnapshotOriginator
+        where TAggregate : class, IEventSourced
     {
         private readonly Guid id;
         private long version = 0;
         private List<IEvent> pendingEvents = new List<IEvent>();
 
-        protected EventSourced(Guid id)
+        public EventSourced(Guid id)
         {
             this.id = id;
-            this.Init();
         }
 
-        protected EventSourced(Guid id, IEnumerable<IEvent> streamOfEvents)
+        public EventSourced(Guid id, IEnumerable<IEvent> streamOfEvents)
             : this(id)
         {
             foreach (var e in streamOfEvents)
                 this.Apply(e);
         }
 
-        protected EventSourced(Guid id, ISnapshot snapshot)
+        public EventSourced(Guid id, ISnapshot snapshot)
             : this(id)
         {
             this.version = snapshot.Version;
@@ -38,26 +38,16 @@ namespace EventCentric.EventSourcing
 
         public IEvent[] PendingEvents => this.pendingEvents.ToArray();
 
-        /// <summary>
-        /// Afther the aggregate id is set this method will be called.
-        /// </summary>
-        protected virtual void Init() { }
-
-        protected void Update(Event @event)
+        public TAggregate Update(Event @event)
         {
             @event.StreamId = this.id;
             @event.Version = this.version + 1;
             this.Apply(@event);
             this.pendingEvents.Add(@event);
+            return this as TAggregate;
         }
 
-        protected void Throw(string message) => this.Update(new AnInvalidOperationExceptionOccurred(message));
-
-        protected void Update(params Event[] events)
-        {
-            foreach (var @event in events)
-                this.Update(@event);
-        }
+        protected TAggregate Throw(string message) => this.Update(new AnInvalidOperationExceptionOccurred(message));
 
         private void Apply(IEvent @event)
         {

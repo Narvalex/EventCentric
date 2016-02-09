@@ -4,10 +4,11 @@ using System.Collections.Generic;
 
 namespace EventCentric.EventSourcing
 {
-    public abstract class Denormalizer<T> : EventSourced, IDenormalizer
-        where T : IEventStoreDbContext
+    public abstract class Denormalizer<TAggregate, TDbContext> : EventSourced<TAggregate>, IDenormalizer
+        where TAggregate : class, IEventSourced
+        where TDbContext : IEventStoreDbContext
     {
-        private Action<T> denormalize = context => { };
+        private Action<TDbContext> denormalize = context => { };
 
         protected Denormalizer(Guid id)
             : base(id)
@@ -23,13 +24,13 @@ namespace EventCentric.EventSourcing
 
         public void Denormalize(IEventStoreDbContext context)
         {
-            this.denormalize((T)context);
+            this.denormalize((TDbContext)context);
         }
 
-        public void UpdateReadModel(Action<T> denormalize)
+        public TAggregate UpdateReadModel(Action<TDbContext> denormalize)
         {
             this.denormalize = denormalize;
-            base.Update(new ReadModelUpdated());
+            return base.Update(new ReadModelUpdated());
         }
 
         public void On(ReadModelUpdated e)

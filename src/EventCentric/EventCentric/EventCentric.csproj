@@ -78,6 +78,8 @@
     <Compile Include="EventSourcing\AnInvalidOperationExceptionOccurred.cs" />
     <Compile Include="EventSourcing\EventExtensions.cs" />
     <Compile Include="EventSourcing\ValueObject.cs" />
+    <Compile Include="Handling\EventHandling.cs" />
+    <Compile Include="Handling\IEventHandling.cs" />
     <Compile Include="Log\ConsoleLogger.cs" />
     <Compile Include="Log\LogMessageBuilder.cs" />
     <Compile Include="Messaging\EventBusExtensions.cs" />

@@ -81,6 +81,7 @@
     <Compile Include="Publishing\Helpers\Stubs.cs" />
     <Compile Include="Publishing\PublisherFixture.cs" />
     <Compile Include="Serialization\SerializationSpeed.cs" />
+    <Compile Include="Specifications\SpecificationFixture.cs" />
     <Compile Include="TestConfig.cs" />
   </ItemGroup>
   <ItemGroup>
