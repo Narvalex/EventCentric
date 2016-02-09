@@ -13,7 +13,7 @@ namespace EventCentric.Tests.Specifications
         public InventoryHandler(IBus bus, ILogger log, IEventStore<Inventory> store) : base(bus, log, store) { }
 
         public IEventHandling Handle(AddItem command)
-            => base.HandleInNewStreamIfNotExists(command.InventoryId, state => state.Handle(command));
+            => base.HandleInNewStreamIfNotExists(command.InventoryId, aggregate => aggregate.Handle(command));
     }
 
 
@@ -36,10 +36,10 @@ namespace EventCentric.Tests.Specifications
 
     public static class InventoryExtensions
     {
-        public static Inventory Handle(this Inventory state, AddItem command)
-            => state.ItemsQuantityById.ContainsKey(command.ItemId)
-                        ? state.Update(new ItemsAdded(command.ItemId, command.Quantity))
-                        : state.Update(new NewCollectionOfItems(command.ItemId, command.Quantity));
+        public static Inventory Handle(this Inventory s, AddItem command)
+            => s.ItemsQuantityById.ContainsKey(command.ItemId)
+                        ? s.Update(new ItemsAdded(command.ItemId, command.Quantity))
+                        : s.Update(new NewCollectionOfItems(command.ItemId, command.Quantity));
     }
 
     public class AddItem : Event
