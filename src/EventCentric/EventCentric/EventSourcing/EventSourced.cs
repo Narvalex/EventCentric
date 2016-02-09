@@ -47,7 +47,7 @@ namespace EventCentric.EventSourcing
             return this as TAggregate;
         }
 
-        protected TAggregate Throw(string message) => this.Update(new AnInvalidOperationExceptionOccurred(message));
+        public TAggregate Throw(string message) => this.Update(new AnInvalidOperationExceptionOccurred(message));
 
         private void Apply(IEvent @event)
         {
