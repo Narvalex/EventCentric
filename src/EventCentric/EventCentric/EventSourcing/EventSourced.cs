@@ -38,13 +38,13 @@ namespace EventCentric.EventSourcing
 
         public IEvent[] PendingEvents => this.pendingEvents.ToArray();
 
-        public TAggregate Update(Event @event) => UpdateOrSend(@event);
+        public TAggregate Update(Event @event) => UpdateFromMessage(@event);
 
-        public TAggregate Send(Command command) => UpdateOrSend(command);
+        public TAggregate UpdateAfterSending(Command command) => UpdateFromMessage(command);
 
         public TAggregate Throw(string message) => this.Update(new AnInvalidOperationExceptionOccurred(message));
 
-        private TAggregate UpdateOrSend(Message @event)
+        private TAggregate UpdateFromMessage(Message @event)
         {
             @event.StreamId = this.id;
             @event.Version = this.version + 1;

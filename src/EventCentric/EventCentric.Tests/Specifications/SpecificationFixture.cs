@@ -13,7 +13,7 @@ namespace EventCentric.Tests.Specifications
         public InventoryHandler(IBus bus, ILogger log, IEventStore<Inventory> store) : base(bus, log, store) { }
 
         public IMessageHandling Handle(AddItem command)
-            => base.InNewStreamIfNotExists(command.InventoryId, aggregate => aggregate.Handle(command));
+            => base.FromNewStreamIfNotExists(command.InventoryId, aggregate => aggregate.Handle(command));
     }
 
 

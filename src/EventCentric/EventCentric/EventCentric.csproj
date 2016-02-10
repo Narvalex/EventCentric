@@ -182,6 +182,7 @@
     <Compile Include="Utils\CollectionExtensions.cs" />
     <Compile Include="Utils\DictionaryExtensions.cs" />
     <Compile Include="Utils\Ensure.cs" />
+    <Compile Include="Utils\FunctionalExtensions\ToDo.cs" />
     <Compile Include="Utils\GuidProvider.cs" />
     <Compile Include="Utils\Testing\ApplicationServiceTestHelper.cs" />
     <Compile Include="Utils\Testing\BusStub.cs" />

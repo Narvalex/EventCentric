@@ -72,6 +72,7 @@
     <Compile Include="EventSourcing\BigMementoPerfTest.cs" />
     <Compile Include="EventSourcing\GIVEN_store.cs" />
     <Compile Include="EventSourcing\Helpers\InventoryTestAggregate.cs" />
+    <Compile Include="FunctionalExtensions\FunctionalExtensionsFixture.cs" />
     <Compile Include="Playground\GroupedEventStreams.cs" />
     <Compile Include="Playground\Helpers\TestActor.cs" />
     <Compile Include="Playground\InMemoryObjectsPerformance.cs" />

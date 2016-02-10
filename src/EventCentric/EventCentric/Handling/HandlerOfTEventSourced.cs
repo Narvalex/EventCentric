@@ -171,17 +171,17 @@ namespace EventCentric.Handling
             this.bus.Publish(new IncomingEventHasBeenProcessed(incomingEvent.StreamType, incomingEvent.EventCollectionVersion));
         }
 
-        protected IMessageHandling InNewStreamIfNotExists(Guid id, Func<TEventSourced, TEventSourced> handle)
+        protected IMessageHandling FromNewStreamIfNotExists(Guid id, Func<TEventSourced, TEventSourced> handle)
             => this.BuildHandlingInvocation(id, handle, () =>
                  {
                      var aggregate = this.store.Find(id);
                      return aggregate != null ? aggregate : this.newAggregateFactory(id);
                  });
 
-        protected IMessageHandling InNewStream(Guid id, Func<TEventSourced, TEventSourced> handle)
+        protected IMessageHandling FromNewStream(Guid id, Func<TEventSourced, TEventSourced> handle)
             => this.BuildHandlingInvocation(id, handle, () => this.newAggregateFactory(id));
 
-        protected IMessageHandling InExistingStream(Guid streamId, Func<TEventSourced, TEventSourced> handle)
+        protected IMessageHandling FromStream(Guid streamId, Func<TEventSourced, TEventSourced> handle)
            => this.BuildHandlingInvocation(streamId, handle, () => this.store.Get(streamId));
 
         public IMessageHandling Handle(IEvent message)
