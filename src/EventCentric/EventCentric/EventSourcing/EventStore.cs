@@ -54,7 +54,7 @@ namespace EventCentric.EventSourcing
             this.aggregateFactory = (id, streamOfEvents) => (T)fromStreamConstructor.Invoke(new object[] { id, streamOfEvents });
 
             if (typeof(IDenormalizer).IsAssignableFrom(typeof(T)))
-                this.denormalizeIfApplicable = (aggregate, context) => ((IDenormalizer)aggregate).Denormalize(context);
+                this.denormalizeIfApplicable = (aggregate, context) => ((IDenormalizer)aggregate).UpdateReadModel(context);
             else
                 this.denormalizeIfApplicable = (aggregate, context) => { };
         }

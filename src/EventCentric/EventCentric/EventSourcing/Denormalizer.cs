@@ -22,12 +22,12 @@ namespace EventCentric.EventSourcing
             : base(id, memento)
         { }
 
-        public void Denormalize(IEventStoreDbContext context)
+        public void UpdateReadModel(IEventStoreDbContext context)
         {
             this.denormalize((TDbContext)context);
         }
 
-        public TAggregate UpdateReadModel(Action<TDbContext> denormalize)
+        public TAggregate Denormalize(Action<TDbContext> denormalize)
         {
             this.denormalize = denormalize;
             return base.Update(new ReadModelUpdated());

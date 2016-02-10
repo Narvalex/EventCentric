@@ -4,6 +4,6 @@ namespace EventCentric.EventSourcing
 {
     public interface IDenormalizer : IEventSourced, IUpdatesWhen<ReadModelUpdated>
     {
-        void Denormalize(IEventStoreDbContext context);
+        void UpdateReadModel(IEventStoreDbContext context);
     }
 }
