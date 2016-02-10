@@ -9,14 +9,14 @@ namespace EventCentric.Utils.Testing
     {
         private EventBusStub eventBus;
 
-        public ApplicationServiceTestHelper(Func<IEventBus, IGuidProvider, TApp> appFactory = null)
+        public ApplicationServiceTestHelper(Func<IServiceBus, IGuidProvider, TApp> appFactory = null)
         {
             this.Guid = new SequentialGuid();
             this.eventBus = new EventBusStub();
 
             if (appFactory == null)
             {
-                var appConstructor = typeof(TApp).GetConstructor(new[] { typeof(IEventBus), typeof(IGuidProvider) });
+                var appConstructor = typeof(TApp).GetConstructor(new[] { typeof(IServiceBus), typeof(IGuidProvider) });
                 Ensure.CastIsValid(appConstructor, "Type TApp must have a constructor with the following signature: .ctor(IEventBus, IGuidProvider)");
                 this.App = (TApp)appConstructor.Invoke(new object[] { this.eventBus, this.Guid });
             }
@@ -26,7 +26,7 @@ namespace EventCentric.Utils.Testing
 
         public IGuidProvider Guid { get; }
 
-        public IEventBus EventBus => this.eventBus;
+        public IServiceBus EventBus => this.eventBus;
 
         public TApp App { get; private set; }
 
@@ -44,12 +44,12 @@ namespace EventCentric.Utils.Testing
 
         public List<IEvent> PublishedEvents => this.eventBus.PublishedEvents;
 
-        public class EventBusStub : IEventBus
+        public class EventBusStub : IServiceBus
         {
-            public void Publish(Guid transactionId, Guid streamId, IEvent @event)
+            public void Send(Guid transactionId, Guid streamId, Message @event)
             {
-                ((Event)@event).TransactionId = transactionId;
-                ((Event)@event).StreamId = streamId;
+                ((Message)@event).TransactionId = transactionId;
+                ((Message)@event).StreamId = streamId;
                 this.PublishedEvents.Add(@event);
             }
 

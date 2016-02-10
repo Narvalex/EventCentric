@@ -3,9 +3,9 @@ using System;
 
 namespace EventCentric.Handling
 {
-    public class EventHandling : IEventHandling
+    public class MessageHandling : IMessageHandling
     {
-        public EventHandling(bool shouldBeIgnored, Guid streamId, Func<IEventSourced> handle)
+        public MessageHandling(bool shouldBeIgnored, Guid streamId, Func<IEventSourced> handle)
         {
             this.ShouldBeIgnored = shouldBeIgnored;
             this.StreamId = streamId;

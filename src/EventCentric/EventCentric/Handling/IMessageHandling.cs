@@ -3,7 +3,10 @@ using System;
 
 namespace EventCentric.Handling
 {
-    public interface IEventHandling
+    /// <summary>
+    /// Represents a message handling function. 
+    /// </summary>
+    public interface IMessageHandling
     {
         Guid StreamId { get; }
         bool ShouldBeIgnored { get; }

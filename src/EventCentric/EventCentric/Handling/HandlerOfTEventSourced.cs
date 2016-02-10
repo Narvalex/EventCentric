@@ -10,7 +10,7 @@ using System.Linq;
 
 namespace EventCentric.Handling
 {
-    public abstract class EventHandlerOf<TEventSourced> : NodeWorker,
+    public abstract class HandlerOf<TEventSourced> : NodeWorker,
         IMessageHandler<StartEventProcessor>,
         IMessageHandler<StopEventProcessor>,
         IMessageHandler<NewIncomingEvents>,
@@ -23,7 +23,7 @@ namespace EventCentric.Handling
         private readonly ConcurrentDictionary<string, object> streamLocksById;
         protected readonly ConcurrentBag<Guid> poisonedStreams;
 
-        public EventHandlerOf(IBus bus, ILogger log, IEventStore<TEventSourced> store)
+        public HandlerOf(IBus bus, ILogger log, IEventStore<TEventSourced> store)
             : base(bus, log)
         {
             Ensure.NotNull(store, "store");
@@ -74,7 +74,7 @@ namespace EventCentric.Handling
 #if DEBUG
                 this.log.Trace($"Processor is now handling message '{incomingEvent.GetType().Name}' with id {incomingEvent.EventId}");
 #endif
-                IEventHandling handling = ((dynamic)this).Handle((dynamic)incomingEvent);
+                IMessageHandling handling = ((dynamic)this).Handle((dynamic)incomingEvent);
 
                 if (handling.ShouldBeIgnored)
                 {
@@ -163,33 +163,33 @@ namespace EventCentric.Handling
             this.bus.Publish(new EventProcessorStopped());
         }
 
-        private IEventHandling BuildHandlingInvocation(Guid streamId, Func<TEventSourced, TEventSourced> handle, Func<TEventSourced> aggregateFactory)
-            => new EventHandling(false, streamId, () => handle.Invoke(aggregateFactory.Invoke()));
+        private IMessageHandling BuildHandlingInvocation(Guid streamId, Func<TEventSourced, TEventSourced> handle, Func<TEventSourced> aggregateFactory)
+            => new MessageHandling(false, streamId, () => handle.Invoke(aggregateFactory.Invoke()));
 
         private void PublishIncomingEventHasBeenProcessed(IEvent incomingEvent)
         {
             this.bus.Publish(new IncomingEventHasBeenProcessed(incomingEvent.StreamType, incomingEvent.EventCollectionVersion));
         }
 
-        protected IEventHandling InNewStreamIfNotExists(Guid id, Func<TEventSourced, TEventSourced> handle)
+        protected IMessageHandling InNewStreamIfNotExists(Guid id, Func<TEventSourced, TEventSourced> handle)
             => this.BuildHandlingInvocation(id, handle, () =>
                  {
                      var aggregate = this.store.Find(id);
                      return aggregate != null ? aggregate : this.newAggregateFactory(id);
                  });
 
-        protected IEventHandling InNewStream(Guid id, Func<TEventSourced, TEventSourced> handle)
+        protected IMessageHandling InNewStream(Guid id, Func<TEventSourced, TEventSourced> handle)
             => this.BuildHandlingInvocation(id, handle, () => this.newAggregateFactory(id));
 
-        protected IEventHandling InExistingStream(Guid streamId, Func<TEventSourced, TEventSourced> handle)
+        protected IMessageHandling InExistingStream(Guid streamId, Func<TEventSourced, TEventSourced> handle)
            => this.BuildHandlingInvocation(streamId, handle, () => this.store.Get(streamId));
 
-        public IEventHandling Handle(IEvent message)
+        public IMessageHandling Handle(IEvent message)
         {
 #if DEBUG
             this.log.Trace($"Ignoring event of type {message.GetType().FullName}");
 #endif
-            return new EventHandling(true, default(Guid), () => null);
+            return new MessageHandling(true, default(Guid), () => null);
         }
 
         /// <summary>

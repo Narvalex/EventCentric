@@ -6,7 +6,7 @@ namespace EventCentric.Utils.Testing
     public static class EventExtensions
     {
         public static TEvent AsEventWithFixedTransactionId<TEvent>(this TEvent e, Guid fixedTransactionId)
-            where TEvent : Event
+            where TEvent : Message
         {
             e.TransactionId = fixedTransactionId;
             return e;
@@ -19,7 +19,7 @@ namespace EventCentric.Utils.Testing
         }
 
         public static TEvent AsEventWithFixedStreamId<TEvent>(this TEvent e, Guid fixedStreamId)
-            where TEvent : Event
+            where TEvent : Message
         {
             e.StreamId = fixedStreamId;
             return e;

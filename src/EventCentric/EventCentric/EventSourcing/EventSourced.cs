@@ -38,7 +38,13 @@ namespace EventCentric.EventSourcing
 
         public IEvent[] PendingEvents => this.pendingEvents.ToArray();
 
-        public TAggregate Update(Event @event)
+        public TAggregate Update(Event @event) => UpdateOrSend(@event);
+
+        public TAggregate Send(Command command) => UpdateOrSend(command);
+
+        public TAggregate Throw(string message) => this.Update(new AnInvalidOperationExceptionOccurred(message));
+
+        private TAggregate UpdateOrSend(Message @event)
         {
             @event.StreamId = this.id;
             @event.Version = this.version + 1;
@@ -47,11 +53,13 @@ namespace EventCentric.EventSourcing
             return this as TAggregate;
         }
 
-        public TAggregate Throw(string message) => this.Update(new AnInvalidOperationExceptionOccurred(message));
-
         private void Apply(IEvent @event)
         {
-            ((dynamic)this).On((dynamic)@event);
+            if (@event.IsACommand)
+                ((dynamic)this).WhenSent((dynamic)@event);
+            else
+                ((dynamic)this).When((dynamic)@event);
+
             this.version = @event.Version;
         }
 

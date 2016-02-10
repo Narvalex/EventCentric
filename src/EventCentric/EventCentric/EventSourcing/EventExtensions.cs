@@ -11,7 +11,7 @@ namespace EventCentric.EventSourcing
         /// </summary>
         public static IEvent AsInProcessMessage(this IEvent message, Guid transactionId, Guid streamId)
         {
-            var e = (Event)message;
+            var e = (Message)message;
             e.TransactionId = transactionId;
             e.StreamId = streamId;
             e.StreamType = string.Empty;
@@ -21,7 +21,7 @@ namespace EventCentric.EventSourcing
 
         public static IEvent AsQueuedEvent(this IEvent @event, string streamType, Guid eventId, long version, DateTime utcTime, DateTime localTime)
         {
-            var e = (Event)@event;
+            var e = (Message)@event;
             e.StreamType = streamType;
             e.EventId = eventId;
             e.Version = version;
@@ -32,7 +32,7 @@ namespace EventCentric.EventSourcing
 
         public static IEvent AsStoredEvent(this IEvent @event, Guid transactionId, Guid eventId, string streamType, DateTime utcTime, DateTime localTime)
         {
-            var e = (Event)@event;
+            var e = (Message)@event;
             e.TransactionId = transactionId;
             e.EventId = eventId;
             e.StreamType = streamType;

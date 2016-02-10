@@ -31,6 +31,11 @@ namespace EventCentric.EventSourcing
         /// </summary>
         long ProcessorBufferVersion { get; }
 
+        /// <summary>
+        /// A hint that lets the system knows that the message is a command.
+        /// </summary>
+        bool IsACommand { get; }
+
         DateTime LocalTime { get; }
 
         DateTime UtcTime { get; }

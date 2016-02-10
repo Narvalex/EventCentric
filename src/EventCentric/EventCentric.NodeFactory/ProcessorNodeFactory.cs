@@ -19,7 +19,7 @@ namespace EventCentric
 {
     public static class ProcessorNodeFactory<TAggregate, TProcessor>
         where TAggregate : class, IEventSourced
-        where TProcessor : EventHandlerOf<TAggregate>
+        where TProcessor : HandlerOf<TAggregate>
     {
         public static INode CreateNode(IUnityContainer container, bool isSubscriptor = true, Func<IBus, ILogger, IEventStore<TAggregate>, TProcessor> processorFactory = null, bool enableHeartbeatingListener = false, bool setSequentialGuid = true)
         {
@@ -138,8 +138,8 @@ namespace EventCentric
             // Event Queue feature
             var eventQueue = new InMemoryEventQueue(streamType, guid, bus, time);
 
-            var eventBus = new EventBus(bus, log, eventQueue);
-            container.RegisterInstance<IEventBus>(eventBus);
+            var eventBus = new ServiceBus(bus, log, eventQueue);
+            container.RegisterInstance<IServiceBus>(eventBus);
 
             var fsm = new ProcessorNode(NodeNameResolver.ResolveNameOf<TAggregate>(), bus, log, isSubscriptor, enableHeartbeatingListener);
             container.RegisterInstance<INode>(fsm);
@@ -175,7 +175,7 @@ namespace EventCentric
 
             if (appFactory == null)
             {
-                var constructor = typeof(TApp).GetConstructor(new[] { typeof(IEventBus), typeof(IGuidProvider), typeof(ILogger) });
+                var constructor = typeof(TApp).GetConstructor(new[] { typeof(IServiceBus), typeof(IGuidProvider), typeof(ILogger) });
                 Ensure.CastIsValid(constructor, "Type TApp must have a valid constructor with the following signature: .ctor(IEventBus, IGuidProvider, ILogger)");
                 container.RegisterInstance<TApp>((TApp)constructor.Invoke(new object[] { eventBus, guid, log }));
             }

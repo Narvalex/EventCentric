@@ -12,7 +12,7 @@ namespace EventCentric.Utils.Testing
 {
     public class EventProcessorTestHelper<TAggregate, TProcessor>
         where TAggregate : class, IEventSourced
-        where TProcessor : EventHandlerOf<TAggregate>
+        where TProcessor : HandlerOf<TAggregate>
     {
         private readonly ITextSerializer serializer;
         private readonly EventStoreStub store;

@@ -76,13 +76,14 @@
   <ItemGroup>
     <Compile Include="Database\SqlClientExtensions.cs" />
     <Compile Include="EventSourcing\AnInvalidOperationExceptionOccurred.cs" />
+    <Compile Include="EventSourcing\Command.cs" />
+    <Compile Include="EventSourcing\Event.cs" />
     <Compile Include="EventSourcing\EventExtensions.cs" />
     <Compile Include="EventSourcing\ValueObject.cs" />
     <Compile Include="Handling\EventHandling.cs" />
-    <Compile Include="Handling\IEventHandling.cs" />
+    <Compile Include="Handling\IMessageHandling.cs" />
     <Compile Include="Log\ConsoleLogger.cs" />
     <Compile Include="Log\LogMessageBuilder.cs" />
-    <Compile Include="Messaging\EventBusExtensions.cs" />
     <Compile Include="Messaging\Events\NewIncomingEvent.cs" />
     <Compile Include="Messaging\InMemoryVersioning.cs" />
     <Compile Include="EventSourcing\Snapshot.cs" />
@@ -92,7 +93,7 @@
     <Compile Include="Node\NodeNameResolver.cs" />
     <Compile Include="Polling\IMonitoredSubscriber.cs" />
     <Compile Include="Polling\IMonitoredSubscription.cs" />
-    <Compile Include="Handling\EventHandler.cs" />
+    <Compile Include="Handling\HandlerOfTEventSourced.cs" />
     <Compile Include="Handling\IHandles.cs" />
     <Compile Include="Publishing\IEventDao.cs" />
     <Compile Include="Config\EventStoreConfig.cs" />
@@ -131,10 +132,10 @@
     <Compile Include="Messaging\PoisonMessageException.cs" />
     <Compile Include="Node\NodeState.cs" />
     <Compile Include="Messaging\IEventQueue.cs" />
-    <Compile Include="Messaging\EventBus.cs" />
+    <Compile Include="Messaging\ServiceBus.cs" />
     <Compile Include="Database\DbContextExtensions.cs" />
     <Compile Include="Repository\Mapping\SubscriptionEntity.cs" />
-    <Compile Include="EventSourcing\Event.cs" />
+    <Compile Include="EventSourcing\Message.cs" />
     <Compile Include="EventSourcing\EventSourced.cs" />
     <Compile Include="EventSourcing\EventStore.cs" />
     <Compile Include="EventSourcing\EventStoreConcurrencyException.cs" />
@@ -142,7 +143,7 @@
     <Compile Include="EventSourcing\IEventSourced.cs" />
     <Compile Include="EventSourcing\IEventStore.cs" />
     <Compile Include="EventSourcing\ISnapshotOriginator.cs" />
-    <Compile Include="EventSourcing\IUpdatesOn.cs" />
+    <Compile Include="EventSourcing\IUpdatesWhen.cs" />
     <Compile Include="EventSourcing\StreamNotFoundException.cs" />
     <Compile Include="Node\ProcessorNode.cs" />
     <Compile Include="Messaging\Bus.cs" />
@@ -160,7 +161,7 @@
     <Compile Include="Repository\Mapping\InboxEntity.cs" />
     <Compile Include="Repository\EventStoreDbContext.cs" />
     <Compile Include="Repository\Mapping\StreamEntity.cs" />
-    <Compile Include="Messaging\IEventBus.cs" />
+    <Compile Include="Messaging\IServiceBus.cs" />
     <Compile Include="Publishing\IEventSource.cs" />
     <Compile Include="Serialization\ITextSerializer.cs" />
     <Compile Include="Serialization\JsonTextSerializerWithIdentedFormatting.cs" />

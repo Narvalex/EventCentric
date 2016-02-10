@@ -33,7 +33,7 @@ namespace EventCentric.EventSourcing
             return base.Update(new ReadModelUpdated());
         }
 
-        public void On(ReadModelUpdated e)
+        public void When(ReadModelUpdated e)
         { }
     }
 }

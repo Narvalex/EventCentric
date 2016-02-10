@@ -11,10 +11,10 @@ namespace EventCentric
     public abstract class ApplicationService
     {
         protected readonly IGuidProvider guid;
-        protected readonly IEventBus bus;
+        protected readonly IServiceBus bus;
         protected readonly ILogger log;
 
-        protected ApplicationService(IEventBus bus, IGuidProvider guid, ILogger log)
+        protected ApplicationService(IServiceBus bus, IGuidProvider guid, ILogger log)
         {
             Ensure.NotNull(guid, nameof(guid));
             Ensure.NotNull(bus, nameof(bus));

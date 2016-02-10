@@ -140,7 +140,7 @@ namespace EventCentric.Polling
                     this.log.Error(ex, "An error ocurred while deserializing a message");
                     this.log.Trace($"An error was detected when serializing a message from {buffer.ProducerName} with event collection number of {raw.EventCollectionVersion}. The message will be ignored.");
 #endif
-                    incomingEvent = new Event();
+                    incomingEvent = new Message();
                 }
                 catch (Exception ex)
                 {
@@ -154,8 +154,8 @@ namespace EventCentric.Polling
                     throw;
                 }
 
-                ((Event)incomingEvent).EventCollectionVersion = raw.EventCollectionVersion;
-                ((Event)incomingEvent).ProcessorBufferVersion = processorBufferVersion;
+                ((Message)incomingEvent).EventCollectionVersion = raw.EventCollectionVersion;
+                ((Message)incomingEvent).ProcessorBufferVersion = processorBufferVersion;
 
                 buffer.EventsInProcessorBag.Add(new EventInProcessorBucket(incomingEvent));
 

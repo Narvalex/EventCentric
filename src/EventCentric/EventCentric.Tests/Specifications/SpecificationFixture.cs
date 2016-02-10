@@ -7,19 +7,19 @@ using System.Collections.Generic;
 
 namespace EventCentric.Tests.Specifications
 {
-    public class InventoryHandler : EventHandlerOf<Inventory>,
+    public class InventoryHandler : HandlerOf<Inventory>,
         IHandles<AddItem>
     {
         public InventoryHandler(IBus bus, ILogger log, IEventStore<Inventory> store) : base(bus, log, store) { }
 
-        public IEventHandling Handle(AddItem command)
+        public IMessageHandling Handle(AddItem command)
             => base.InNewStreamIfNotExists(command.InventoryId, aggregate => aggregate.Handle(command));
     }
 
 
     public class Inventory : EventSourced<Inventory>,
-        IUpdatesOn<NewCollectionOfItems>,
-        IUpdatesOn<ItemsAdded>
+        IUpdatesWhen<NewCollectionOfItems>,
+        IUpdatesWhen<ItemsAdded>
     {
         public Inventory(Guid id) : base(id) { }
 
@@ -29,9 +29,9 @@ namespace EventCentric.Tests.Specifications
 
         public Dictionary<Guid, int> ItemsQuantityById { get; private set; } = new Dictionary<Guid, int>();
 
-        public void On(ItemsAdded e) => this.ItemsQuantityById[e.ItemId] = e.Quantity;
+        public void When(ItemsAdded e) => this.ItemsQuantityById[e.ItemId] = e.Quantity;
 
-        public void On(NewCollectionOfItems e) => this.ItemsQuantityById.Add(e.ItemId, e.Quantity);
+        public void When(NewCollectionOfItems e) => this.ItemsQuantityById.Add(e.ItemId, e.Quantity);
     }
 
     public static class InventoryExtensions

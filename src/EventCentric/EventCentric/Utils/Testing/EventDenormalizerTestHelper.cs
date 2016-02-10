@@ -12,7 +12,7 @@ namespace EventCentric.Utils.Testing
 {
     public class EventDenormalizerTestHelper<TAggregate, TProcessor, TDbContext>
         where TAggregate : class, IEventSourced
-        where TProcessor : EventHandlerOf<TAggregate>
+        where TProcessor : HandlerOf<TAggregate>
         where TDbContext : IEventStoreDbContext
     {
         private object dao;
@@ -100,8 +100,8 @@ namespace EventCentric.Utils.Testing
 
         public EventDenormalizerTestHelper<TAggregate, TProcessor, TDbContext> When(IEvent @event)
         {
-            ((Event)@event).StreamType = this.NodeName;
-            ((Event)@event).EventId = this.Guid.NewGuid();
+            ((Message)@event).StreamType = this.NodeName;
+            ((Message)@event).EventId = this.Guid.NewGuid();
             this.Processor.Handle(new NewIncomingEvent(this.serializer.SerializeAndDeserialize(@event)));
             return this;
         }

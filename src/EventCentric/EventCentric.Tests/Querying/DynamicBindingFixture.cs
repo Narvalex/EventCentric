@@ -31,10 +31,10 @@ namespace EventCentric.Tests.Querying
         }
     }
 
-    public class EventA : Event { }
-    public class EventB : Event { }
-    public class EventC : Event { }
-    public class EventD : Event
+    public class EventA : Message { }
+    public class EventB : Message { }
+    public class EventC : Message { }
+    public class EventD : Message
     {
         public EventD(string payload)
         {
