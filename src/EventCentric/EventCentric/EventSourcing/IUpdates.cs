@@ -5,9 +5,9 @@
         void When(T e);
     }
 
-    public interface IUpdatesWhenSent<T> where T : Command
+    public interface IUpdatesAfterSending<T> where T : Command
     {
-        void WhenSent(T c);
+        void AfterSending(T c);
     }
 
     public interface IStreamWithExceptions : IUpdatesWhen<AnInvalidOperationExceptionOccurred>

@@ -56,7 +56,7 @@ namespace EventCentric.EventSourcing
         private void Apply(IEvent @event)
         {
             if (@event.IsACommand)
-                ((dynamic)this).WhenSent((dynamic)@event);
+                ((dynamic)this).AfterSending((dynamic)@event);
             else
                 ((dynamic)this).When((dynamic)@event);
 
