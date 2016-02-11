@@ -1,11 +1,11 @@
 ﻿using EventCentric.Config;
 using EventCentric.EventSourcing;
+using EventCentric.Factory;
+using EventCentric.Handling;
 using EventCentric.Heartbeating;
 using EventCentric.Log;
 using EventCentric.Messaging;
-using EventCentric.NodeFactory.Log;
 using EventCentric.Polling;
-using EventCentric.Handling;
 using EventCentric.Publishing;
 using EventCentric.Repository;
 using EventCentric.Serialization;
@@ -17,13 +17,13 @@ using System.Data.Entity;
 
 namespace EventCentric
 {
-    public static class ProcessorNodeFactory<TAggregate, TProcessor>
-        where TAggregate : class, IEventSourced
-        where TProcessor : HandlerOf<TAggregate>
+    public static class MicroserviceFactory<TStream, THandler>
+        where TStream : class, IEventSourced
+        where THandler : HandlerOf<TStream>
     {
-        public static INode CreateNode(IUnityContainer container, bool isSubscriptor = true, Func<IBus, ILogger, IEventStore<TAggregate>, TProcessor> processorFactory = null, bool enableHeartbeatingListener = false, bool setSequentialGuid = true)
+        public static IMicroservice CreateEventProcessor(IUnityContainer container, bool isSubscriptor = true, Func<IBus, ILogger, IEventStore<TStream>, THandler> processorFactory = null, bool enableHeartbeatingListener = false, bool setSequentialGuid = true)
         {
-            var nodeName = NodeNameResolver.ResolveNameOf<TAggregate>();
+            var nodeName = EventSourceNameResolver.ResolveNameOf<TStream>();
 
             System.Data.Entity.Database.SetInitializer<EventStoreDbContext>(null);
             System.Data.Entity.Database.SetInitializer<EventQueueDbContext>(null);
@@ -49,8 +49,8 @@ namespace EventCentric
             var subscriptionRepository = new SubscriptionRepository(storeContextFactory, serializer, time);
             var eventDao = new EventDao(queueContextFactory);
 
-            var eventStore = new EventStore<TAggregate>(nodeName, serializer, storeContextFactory, time, guid, log);
-            container.RegisterInstance<IEventStore<TAggregate>>(eventStore);
+            var eventStore = new EventStore<TStream>(nodeName, serializer, storeContextFactory, time, guid, log);
+            container.RegisterInstance<IEventStore<TStream>>(eventStore);
 
             var bus = new Bus();
             container.RegisterInstance<IBus>(bus);
@@ -58,15 +58,15 @@ namespace EventCentric
             var publisher = new Publisher(nodeName, bus, log, eventDao, eventStoreConfig.PushMaxCount, TimeSpan.FromMilliseconds(eventStoreConfig.LongPollingTimeout));
             container.RegisterInstance<IEventSource>(publisher);
 
-            var fsm = new ProcessorNode(nodeName, bus, log, isSubscriptor, enableHeartbeatingListener);
-            container.RegisterInstance<INode>(fsm);
+            var fsm = new EventProcessorMicroservice(nodeName, bus, log, isSubscriptor, enableHeartbeatingListener);
+            container.RegisterInstance<IMicroservice>(fsm);
 
             // Processor factory
             if (processorFactory == null)
             {
-                var constructor = typeof(TProcessor).GetConstructor(new[] { typeof(IBus), typeof(ILogger), typeof(IEventStore<TAggregate>) });
+                var constructor = typeof(THandler).GetConstructor(new[] { typeof(IBus), typeof(ILogger), typeof(IEventStore<TStream>) });
                 Ensure.CastIsValid(constructor, "Type TProcessor must have a valid constructor with the following signature: .ctor(IBus, ILogger, IEventStore<T>)");
-                var processor = (TProcessor)constructor.Invoke(new object[] { bus, log, eventStore });
+                var processor = (THandler)constructor.Invoke(new object[] { bus, log, eventStore });
             }
             else
             {
@@ -93,11 +93,11 @@ namespace EventCentric
             return fsm;
         }
 
-        public static INode CreateNodeWithApp<TApp>(IUnityContainer container, bool isSubscriptor = true, Func<TApp> appFactory = null, Func<IBus, ILogger, IEventStore<TAggregate>, TProcessor> processorFactory = null, bool enableHeartbeatingListener = false, bool setSequentialGuid = true)
+        public static IMicroservice CreateEventProcessor<TApp>(IUnityContainer container, bool isSubscriptor = true, Func<TApp> appFactory = null, Func<IBus, ILogger, IEventStore<TStream>, THandler> processorFactory = null, bool enableHeartbeatingListener = false, bool setSequentialGuid = true)
             where TApp : ApplicationService
         {
-            var nodeName = NodeNameResolver.ResolveNameOf<TAggregate>();
-            var streamType = NodeNameResolver.ResolveNameOf<TApp>();
+            var nodeName = EventSourceNameResolver.ResolveNameOf<TStream>();
+            var streamType = EventSourceNameResolver.ResolveNameOf<TApp>();
 
             System.Data.Entity.Database.SetInitializer<EventStoreDbContext>(null);
             System.Data.Entity.Database.SetInitializer<EventQueueDbContext>(null);
@@ -126,8 +126,8 @@ namespace EventCentric
             var subscriptionRepository = new SubscriptionRepository(storeContextFactory, serializer, time);
             var eventDao = new EventDao(queueContextFactory);
 
-            var eventStore = new EventStore<TAggregate>(nodeName, serializer, storeContextFactory, time, guid, log);
-            container.RegisterInstance<IEventStore<TAggregate>>(eventStore);
+            var eventStore = new EventStore<TStream>(nodeName, serializer, storeContextFactory, time, guid, log);
+            container.RegisterInstance<IEventStore<TStream>>(eventStore);
 
             var bus = new Bus();
             container.RegisterInstance<IBus>(bus);
@@ -141,14 +141,14 @@ namespace EventCentric
             var eventBus = new ServiceBus(bus, log, eventQueue);
             container.RegisterInstance<IServiceBus>(eventBus);
 
-            var fsm = new ProcessorNode(NodeNameResolver.ResolveNameOf<TAggregate>(), bus, log, isSubscriptor, enableHeartbeatingListener);
-            container.RegisterInstance<INode>(fsm);
+            var fsm = new EventProcessorMicroservice(EventSourceNameResolver.ResolveNameOf<TStream>(), bus, log, isSubscriptor, enableHeartbeatingListener);
+            container.RegisterInstance<IMicroservice>(fsm);
 
             if (processorFactory == null)
             {
-                var constructor = typeof(TProcessor).GetConstructor(new[] { typeof(IBus), typeof(ILogger), typeof(IEventStore<TAggregate>) });
+                var constructor = typeof(THandler).GetConstructor(new[] { typeof(IBus), typeof(ILogger), typeof(IEventStore<TStream>) });
                 Ensure.CastIsValid(constructor, "Type TProcessor must have a valid constructor with the following signature: .ctor(IBus, ILogger, IEventStore<T>)");
-                var processor = (TProcessor)constructor.Invoke(new object[] { bus, log, eventStore });
+                var processor = (THandler)constructor.Invoke(new object[] { bus, log, eventStore });
             }
             else
             {
@@ -187,10 +187,10 @@ namespace EventCentric
             return fsm;
         }
 
-        public static INode CreateDenormalizerNode<TDbContext>(IUnityContainer container, Func<IBus, ILogger, IEventStore<TAggregate>, TProcessor> processorFactory = null, bool setSequentialGuid = true)
+        public static IMicroservice CreateDenormalizer<TDbContext>(IUnityContainer container, Func<IBus, ILogger, IEventStore<TStream>, THandler> processorFactory = null, bool setSequentialGuid = true)
             where TDbContext : DbContext, IEventStoreDbContext
         {
-            var nodeName = NodeNameResolver.ResolveNameOf<TAggregate>();
+            var nodeName = EventSourceNameResolver.ResolveNameOf<TStream>();
 
             System.Data.Entity.Database.SetInitializer<EventStoreDbContext>(null);
             System.Data.Entity.Database.SetInitializer<EventQueueDbContext>(null);
@@ -221,8 +221,8 @@ namespace EventCentric
             var dbContextConstructor = typeof(TDbContext).GetConstructor(new[] { typeof(bool), typeof(string) });
             Ensure.CastIsValid(dbContextConstructor, "Type TDbContext must have a constructor with the following signature: ctor(bool, string)");
             Func<bool, IEventStoreDbContext> dbContextFactory = isReadOnly => (TDbContext)dbContextConstructor.Invoke(new object[] { isReadOnly, connectionString });
-            var eventStore = new EventStore<TAggregate>(nodeName, serializer, dbContextFactory, time, guid, log);
-            container.RegisterInstance<IEventStore<TAggregate>>(eventStore);
+            var eventStore = new EventStore<TStream>(nodeName, serializer, dbContextFactory, time, guid, log);
+            container.RegisterInstance<IEventStore<TStream>>(eventStore);
 
             var bus = new Bus();
             container.RegisterInstance<IBus>(bus);
@@ -237,14 +237,14 @@ namespace EventCentric
             var publisher = new Publisher(nodeName, bus, log, eventDao, eventStoreConfig.PushMaxCount, TimeSpan.FromMilliseconds(eventStoreConfig.LongPollingTimeout));
             container.RegisterInstance<IEventSource>(publisher);
 
-            var fsm = new ProcessorNode(nodeName, bus, log, true, false);
-            container.RegisterInstance<INode>(fsm);
+            var fsm = new EventProcessorMicroservice(nodeName, bus, log, true, false);
+            container.RegisterInstance<IMicroservice>(fsm);
 
             if (processorFactory == null)
             {
-                var processorConstructor = typeof(TProcessor).GetConstructor(new[] { typeof(IBus), typeof(ILogger), typeof(IEventStore<TAggregate>) });
+                var processorConstructor = typeof(THandler).GetConstructor(new[] { typeof(IBus), typeof(ILogger), typeof(IEventStore<TStream>) });
                 Ensure.CastIsValid(processorConstructor, "Type THandler must have a valid constructor with the following signature: .ctor(IBus, ILogger, IEventStore<T>)");
-                var processor = (TProcessor)processorConstructor.Invoke(new object[] { bus, log, eventStore });
+                var processor = (THandler)processorConstructor.Invoke(new object[] { bus, log, eventStore });
             }
             else
             {

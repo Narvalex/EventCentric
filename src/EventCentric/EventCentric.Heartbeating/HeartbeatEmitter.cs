@@ -10,11 +10,11 @@ namespace EventCentric.Heartbeating
     /// </summary>
     public class HeartbeatEmitter
     {
-        private readonly INode node;
+        private readonly IMicroservice node;
         private readonly ILogger log;
         private readonly IMonitoredSubscriber subscriber;
 
-        public HeartbeatEmitter(INode node, ILogger log, IMonitoredSubscriber subscriber)
+        public HeartbeatEmitter(IMicroservice node, ILogger log, IMonitoredSubscriber subscriber)
         {
             Ensure.NotNull(node, nameof(node));
             Ensure.NotNull(log, nameof(log));

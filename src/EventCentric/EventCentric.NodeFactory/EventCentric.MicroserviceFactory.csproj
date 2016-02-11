@@ -7,8 +7,8 @@
     <ProjectGuid>{44302C31-F9A4-4531-A43A-0E33CC5D4FD2}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>EventCentric.NodeFactory</RootNamespace>
-    <AssemblyName>EventCentric.NodeFactory</AssemblyName>
+    <RootNamespace>EventCentric.MicroserviceFactory</RootNamespace>
+    <AssemblyName>EventCentric.MicroserviceFactory</AssemblyName>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
@@ -101,7 +101,7 @@
     <Compile Include="Log\Logger.cs" />
     <Compile Include="Log\LogHub.cs" />
     <Compile Include="Log\SignalRBase.cs" />
-    <Compile Include="ProcessorNodeFactory.cs" />
+    <Compile Include="MicroserviceFactory.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

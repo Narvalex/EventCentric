@@ -4,9 +4,9 @@ using EventCentric.Utils;
 
 namespace EventCentric
 {
-    public abstract class NodeBase : NodeWorker
+    public abstract class MicroserviceBase : MicroserviceWorker
     {
-        protected NodeBase(string name, IBus bus, ILogger log)
+        protected MicroserviceBase(string name, IBus bus, ILogger log)
             : base(bus, log)
         {
             Ensure.NotNullNeitherEmtpyNorWhiteSpace(name, "name");

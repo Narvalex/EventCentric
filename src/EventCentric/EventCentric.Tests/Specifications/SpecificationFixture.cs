@@ -17,7 +17,7 @@ namespace EventCentric.Tests.Specifications
     }
 
 
-    public class Inventory : EventSourced<Inventory>,
+    public class Inventory : StateOf<Inventory>,
         IUpdatesWhen<NewCollectionOfItems>,
         IUpdatesWhen<ItemsAdded>
     {

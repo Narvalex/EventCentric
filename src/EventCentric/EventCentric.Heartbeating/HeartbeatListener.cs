@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace EventCentric
 {
-    public class HeartbeatListener : NodeWorker,
+    public class HeartbeatListener : MicroserviceWorker,
         IMessageHandler<StartHeartbeatListener>
     {
         private readonly Func<bool, HeartbeatDbContext> contextFactory;

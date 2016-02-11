@@ -2,7 +2,7 @@
 using Microsoft.AspNet.SignalR.Hubs;
 using System;
 
-namespace EventCentric.NodeFactory.Log
+namespace EventCentric.Factory
 {
     /// <summary>
     /// A base abstract class which allows to 

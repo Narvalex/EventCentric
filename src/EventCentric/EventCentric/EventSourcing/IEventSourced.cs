@@ -1,11 +1,12 @@
-﻿using System;
+﻿using EventCentric.Microservice;
+using System;
 
 namespace EventCentric.EventSourcing
 {
     /// <summary>
     /// Represents an identifiable aggregate that is event sourced.
     /// </summary>
-    public interface IEventSourced
+    public interface IEventSourced : IEventSource
     {
         /// <summary>
         /// Gets the aggregate identifier.

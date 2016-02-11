@@ -10,7 +10,7 @@ using System.Linq;
 
 namespace EventCentric.Handling
 {
-    public abstract class HandlerOf<TEventSourced> : NodeWorker,
+    public abstract class HandlerOf<TEventSourced> : MicroserviceWorker,
         IMessageHandler<StartEventProcessor>,
         IMessageHandler<StopEventProcessor>,
         IMessageHandler<NewIncomingEvents>,

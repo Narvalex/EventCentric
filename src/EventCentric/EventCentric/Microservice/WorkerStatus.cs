@@ -1,6 +1,6 @@
 ﻿namespace EventCentric
 {
-    public enum NodeState
+    public enum WorkerStatus
     {
         Down,
         ShuttingDown,

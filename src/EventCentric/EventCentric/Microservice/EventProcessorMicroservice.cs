@@ -6,7 +6,7 @@ using System.Threading;
 
 namespace EventCentric
 {
-    public class ProcessorNode : NodeBase, INode,
+    public class EventProcessorMicroservice : MicroserviceBase, IMicroservice,
         IMessageHandler<EventPublisherStarted>,
         IMessageHandler<EventProcessorStarted>,
         IMessageHandler<EventPollerStarted>,
@@ -17,15 +17,15 @@ namespace EventCentric
         private bool hasPoller;
         private bool listenHeartbeating;
 
-        public ProcessorNode(string nodeName, IBus bus, ILogger log, bool hasPoller, bool listenHeartbeating)
-            : base(nodeName, bus, log)
+        public EventProcessorMicroservice(string eventSourceName, IBus bus, ILogger log, bool hasPoller, bool listenHeartbeating)
+            : base(eventSourceName, bus, log)
         {
-            this.State = NodeState.Down;
+            this.State = WorkerStatus.Down;
             this.hasPoller = hasPoller;
             this.listenHeartbeating = listenHeartbeating;
         }
 
-        public NodeState State { get; private set; }
+        public WorkerStatus State { get; private set; }
 
         /// <summary>
         /// Starts engine
@@ -36,12 +36,12 @@ namespace EventCentric
                 this.OnSystemHalt();
 
             // Is started
-            if (this.State == NodeState.UpAndRunning)
+            if (this.State == WorkerStatus.UpAndRunning)
                 return;
 
-            if (this.State == NodeState.Down)
+            if (this.State == WorkerStatus.Down)
             {
-                this.State = NodeState.Starting;
+                this.State = WorkerStatus.Starting;
                 this.log.Trace($"Starting node {this.Name}");
                 base.Start();
 
@@ -49,7 +49,7 @@ namespace EventCentric
                 this.Start();
             }
 
-            if (this.State == NodeState.Starting || this.State == NodeState.ShuttingDown)
+            if (this.State == WorkerStatus.Starting || this.State == WorkerStatus.ShuttingDown)
             {
                 Thread.Sleep(100);
                 this.Start();
@@ -80,30 +80,30 @@ namespace EventCentric
         protected override void OnStopping()
         {
             // Engine is down
-            if (this.State == NodeState.Down)
+            if (this.State == WorkerStatus.Down)
                 return;
 
             // Engine is sutting down, or is starting wait a little bit until is finalize its transitioning.
-            if (this.State == NodeState.ShuttingDown)
+            if (this.State == WorkerStatus.ShuttingDown)
             {
                 Thread.Sleep(100);
                 this.OnStopping();
             }
 
             // This means that the System is up and running. Can safely stop
-            if (this.State == NodeState.UpAndRunning || this.State == NodeState.Starting)
+            if (this.State == WorkerStatus.UpAndRunning || this.State == WorkerStatus.Starting)
             {
-                this.State = NodeState.ShuttingDown;
+                this.State = WorkerStatus.ShuttingDown;
 
                 this.bus.Publish(new StopEventProcessor(), new StopEventPublisher(), new StopEventPoller());
-                this.State = NodeState.Down;
+                this.State = WorkerStatus.Down;
                 this.OnStopping();
             }
         }
 
         public void Handle(EventPollerStarted message)
         {
-            this.State = NodeState.UpAndRunning;
+            this.State = WorkerStatus.UpAndRunning;
             this.log.Trace("All services are up and running");
 
         }
@@ -119,7 +119,7 @@ namespace EventCentric
                 this.bus.Publish(new StartEventPoller());
             else
             {
-                this.State = NodeState.UpAndRunning;
+                this.State = WorkerStatus.UpAndRunning;
                 this.log.Trace("All services are up and running");
             }
         }
@@ -143,7 +143,7 @@ namespace EventCentric
         {
             while (true)
             {
-                if (this.State == NodeState.Down)
+                if (this.State == WorkerStatus.Down)
                     throw this.fatalException;
                 else
                     Thread.Sleep(100);

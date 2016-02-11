@@ -1,10 +1,11 @@
 ﻿using EventCentric.Log;
+using EventCentric.Messaging;
 using EventCentric.Messaging.Events;
 using EventCentric.Utils;
 
-namespace EventCentric.Messaging
+namespace EventCentric
 {
-    public abstract class NodeWorker : Worker,
+    public abstract class MicroserviceWorker : Worker,
         IMessageHandler<FatalErrorOcurred>
     {
         protected volatile bool stopping;
@@ -13,7 +14,7 @@ namespace EventCentric.Messaging
         protected FatalErrorException fatalException = null;
         protected ILogger log;
 
-        protected NodeWorker(IBus bus, ILogger log)
+        protected MicroserviceWorker(IBus bus, ILogger log)
             : base(bus)
         {
             Ensure.NotNull(log, "log");

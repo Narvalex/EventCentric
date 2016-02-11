@@ -1,7 +1,7 @@
 ﻿using EventCentric.Log;
 using Microsoft.AspNet.SignalR;
 
-namespace EventCentric.NodeFactory.Log
+namespace EventCentric.Factory
 {
     public class LogHub : Hub
     {

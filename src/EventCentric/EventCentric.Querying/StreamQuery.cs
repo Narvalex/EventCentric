@@ -15,7 +15,7 @@ using System.Threading;
 
 namespace EventCentric.Querying
 {
-    public class StreamQuery<TState> : NodeWorker, IGiven<TState>, IWhen<TState>, IRun<TState>,
+    public class StreamQuery<TState> : MicroserviceWorker, IGiven<TState>, IWhen<TState>, IRun<TState>,
         IMessageHandler<NewIncomingEvents>,
         IMessageHandler<PollResponseWasReceived>,
         IMessageHandler<IncomingEventHasBeenProcessed>

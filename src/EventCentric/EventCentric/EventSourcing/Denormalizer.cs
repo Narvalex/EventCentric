@@ -30,7 +30,7 @@ namespace EventCentric.EventSourcing
         public TAggregate Denormalize(Action<TDbContext> denormalize)
         {
             this.denormalize = denormalize;
-            return base.Update(new ReadModelUpdated());
+            return base.UpdateFromMessage(new ReadModelUpdated());
         }
 
         public void When(ReadModelUpdated e)

@@ -16,7 +16,7 @@ using System.Threading.Tasks;
 
 namespace EventCentric.Polling
 {
-    public class Poller : NodeWorker, IMonitoredSubscriber,
+    public class Poller : MicroserviceWorker, IMonitoredSubscriber,
         IMessageHandler<StartEventPoller>,
         IMessageHandler<StopEventPoller>,
         IMessageHandler<PollResponseWasReceived>,

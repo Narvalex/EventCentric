@@ -4,23 +4,23 @@ using System.Data.Entity;
 
 namespace EventCentric
 {
-    public static class NodeInitializer
+    public static class MicroserviceInitializer
     {
         private static object _lockObject = new object();
-        private static INode _node = null;
+        private static IMicroservice _microservice = null;
         private static bool isRunning = false;
 
-        public static void Run(Func<INode> nodeFactory)
+        public static void Run(Func<IMicroservice> microserviceFactory)
         {
             lock (_lockObject)
             {
                 // Double checking
-                if (_node != null || isRunning)
+                if (_microservice != null || isRunning)
                     return;
 
                 DbConfiguration.SetConfiguration(new TransientFaultHandlingDbConfiguration());
-                _node = nodeFactory.Invoke();
-                _node.Start();
+                _microservice = microserviceFactory.Invoke();
+                _microservice.Start();
                 isRunning = true;
             }
         }

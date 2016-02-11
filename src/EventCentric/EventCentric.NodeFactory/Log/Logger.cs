@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace EventCentric.NodeFactory.Log
+namespace EventCentric.Factory
 {
     public class Logger : SignalRBase<LogHub>, ILogger
     {

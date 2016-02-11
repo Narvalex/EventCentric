@@ -25,7 +25,7 @@ namespace EventCentric.Utils.Testing
             this.Log = new ConsoleLogger();
             this.Time = new UtcTimeProvider();
             this.Guid = new SequentialGuid();
-            this.NodeName = NodeNameResolver.ResolveNameOf<TAggregate>();
+            this.NodeName = EventSourceNameResolver.ResolveNameOf<TAggregate>();
 
             var dbContextConstructor = typeof(TDbContext).GetConstructor(new[] { typeof(string) });
             Ensure.CastIsValid(dbContextConstructor, "Type TDbContext must have a constructor with the following signature: ctor(string)");

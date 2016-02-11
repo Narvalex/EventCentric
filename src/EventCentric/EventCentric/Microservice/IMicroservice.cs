@@ -1,6 +1,6 @@
 ﻿namespace EventCentric
 {
-    public interface INode
+    public interface IMicroservice
     {
         string Name { get; }
 
@@ -8,6 +8,6 @@
 
         void Stop();
 
-        NodeState State { get; }
+        WorkerStatus State { get; }
     }
 }

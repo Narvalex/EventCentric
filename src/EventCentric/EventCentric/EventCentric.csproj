@@ -79,6 +79,7 @@
     <Compile Include="EventSourcing\Command.cs" />
     <Compile Include="EventSourcing\Event.cs" />
     <Compile Include="EventSourcing\EventExtensions.cs" />
+    <Compile Include="EventSourcing\State.cs" />
     <Compile Include="EventSourcing\ValueObject.cs" />
     <Compile Include="Handling\EventHandling.cs" />
     <Compile Include="Handling\IMessageHandling.cs" />
@@ -87,10 +88,11 @@
     <Compile Include="Messaging\Events\NewIncomingEvent.cs" />
     <Compile Include="Messaging\InMemoryVersioning.cs" />
     <Compile Include="EventSourcing\Snapshot.cs" />
-    <Compile Include="Node\NodeBase.cs" />
-    <Compile Include="Node\NodeInitializer.cs" />
-    <Compile Include="Node\ApplicationService.cs" />
-    <Compile Include="Node\NodeNameResolver.cs" />
+    <Compile Include="Microservice\IEventSource.cs" />
+    <Compile Include="Microservice\MicroserviceBase.cs" />
+    <Compile Include="Microservice\MicroserviceInitializer.cs" />
+    <Compile Include="Microservice\ApplicationService.cs" />
+    <Compile Include="Microservice\EventSourceNameResolver.cs" />
     <Compile Include="Polling\IMonitoredSubscriber.cs" />
     <Compile Include="Polling\IMonitoredSubscription.cs" />
     <Compile Include="Handling\HandlerOfTEventSourced.cs" />
@@ -125,12 +127,12 @@
     <Compile Include="Publishing\EventDao.cs" />
     <Compile Include="Repository\IEventQueueDbContext.cs" />
     <Compile Include="Repository\IEventStoreDbContext.cs" />
-    <Compile Include="Node\INode.cs" />
+    <Compile Include="Microservice\IMicroservice.cs" />
     <Compile Include="Messaging\Events\FatalErrorOcurred.cs" />
     <Compile Include="Messaging\FatalErrorException.cs" />
     <Compile Include="Messaging\BusExtensions.cs" />
     <Compile Include="Messaging\PoisonMessageException.cs" />
-    <Compile Include="Node\NodeState.cs" />
+    <Compile Include="Microservice\WorkerStatus.cs" />
     <Compile Include="Messaging\IEventQueue.cs" />
     <Compile Include="Messaging\ServiceBus.cs" />
     <Compile Include="Database\DbContextExtensions.cs" />
@@ -145,7 +147,7 @@
     <Compile Include="EventSourcing\ISnapshotOriginator.cs" />
     <Compile Include="EventSourcing\IUpdates.cs" />
     <Compile Include="EventSourcing\StreamNotFoundException.cs" />
-    <Compile Include="Node\ProcessorNode.cs" />
+    <Compile Include="Microservice\EventProcessorMicroservice.cs" />
     <Compile Include="Messaging\Bus.cs" />
     <Compile Include="Messaging\Commands\StartEngineCommands.cs" />
     <Compile Include="Messaging\Commands\StopEngineCommands.cs" />
@@ -174,7 +176,7 @@
     <Compile Include="Transport\INodeClient.cs" />
     <Compile Include="Transport\MultiNodeClient.cs" />
     <Compile Include="Transport\NewRawEvent.cs" />
-    <Compile Include="Messaging\NodeWorker.cs" />
+    <Compile Include="Microservice\MicroserviceWorker.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Publishing\Publisher.cs" />
     <Compile Include="Transport\PollResponse.cs" />

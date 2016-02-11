@@ -7,7 +7,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventCentric", "EventCentri
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventCentric.Tests", "EventCentric.Tests\EventCentric.Tests.csproj", "{C43C0436-69D1-4EB3-BF0E-89F005C4C4C7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventCentric.NodeFactory", "EventCentric.NodeFactory\EventCentric.NodeFactory.csproj", "{44302C31-F9A4-4531-A43A-0E33CC5D4FD2}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventCentric.MicroserviceFactory", "EventCentric.NodeFactory\EventCentric.MicroserviceFactory.csproj", "{44302C31-F9A4-4531-A43A-0E33CC5D4FD2}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventCentric.Heartbeating", "EventCentric.Heartbeating\EventCentric.Heartbeating.csproj", "{6C42F2EB-A742-4982-BF98-76B7B82871E5}"
 EndProject
