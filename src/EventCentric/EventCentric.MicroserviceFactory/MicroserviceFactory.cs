@@ -93,7 +93,7 @@ namespace EventCentric
             return fsm;
         }
 
-        public static IMicroservice CreateEventProcessor<TApp>(IUnityContainer container, bool isSubscriptor = true, Func<TApp> appFactory = null, Func<IBus, ILogger, IEventStore<TStream>, THandler> processorFactory = null, bool enableHeartbeatingListener = false, bool setSequentialGuid = true)
+        public static IMicroservice CreateEventProcessorWithApp<TApp>(IUnityContainer container, bool isSubscriptor = true, Func<TApp> appFactory = null, Func<IBus, ILogger, IEventStore<TStream>, THandler> processorFactory = null, bool enableHeartbeatingListener = false, bool setSequentialGuid = true)
             where TApp : ApplicationService
         {
             var nodeName = EventSourceNameResolver.ResolveNameOf<TStream>();
