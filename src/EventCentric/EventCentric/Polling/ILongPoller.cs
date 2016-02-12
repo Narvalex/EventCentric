@@ -1,6 +1,6 @@
 ﻿namespace EventCentric.Transport
 {
-    public interface IHttpLongPoller
+    public interface ILongPoller
     {
         /// <summary>
         /// Poll with the long polling mechanism, almost like the stream is pushing new events to us.

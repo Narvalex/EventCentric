@@ -76,7 +76,7 @@ namespace EventCentric.Utils.Testing
         /// </summary>
         public TAggregate When(IEvent @event)
         {
-            this.Processor.Handle(new NewIncomingEvent(this.serializer.SerializeAndDeserialize(@event)));
+            this.Processor.AdHocHandle(this.serializer.SerializeAndDeserialize(@event));
             return this.store.Aggregate;
         }
 

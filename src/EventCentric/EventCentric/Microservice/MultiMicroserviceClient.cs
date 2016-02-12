@@ -7,12 +7,12 @@ using System.Net.Http.Headers;
 
 namespace EventCentric.Transport
 {
-    public class MultiNodeClient<TEnum> : IMultiNodeClient<TEnum> where TEnum : struct, IConvertible
+    public class MultiMicroserviceClient<TEnum> : IMultiNodeClient<TEnum> where TEnum : struct, IConvertible
     {
         private readonly string sharedToken;
-        private readonly Dictionary<TEnum, string> nodes;
+        private readonly Dictionary<TEnum, string> microservices;
 
-        public MultiNodeClient(string sharedToken, params KeyValuePair<TEnum, string>[] nodes)
+        public MultiMicroserviceClient(string sharedToken, params KeyValuePair<TEnum, string>[] nodes)
         {
             if (!typeof(TEnum).IsEnum)
                 throw new InvalidOperationException("Type TEnum must be an enumeration");
@@ -20,8 +20,8 @@ namespace EventCentric.Transport
             Ensure.Positive(nodes.Count(), $"{nameof(nodes)} count");
             Ensure.NotNull(sharedToken, nameof(sharedToken));
 
-            this.nodes = new Dictionary<TEnum, string>(nodes.Count());
-            this.nodes.AddRange(nodes);
+            this.microservices = new Dictionary<TEnum, string>(nodes.Count());
+            this.microservices.AddRange(nodes);
             this.sharedToken = sharedToken;
         }
 
@@ -38,7 +38,7 @@ namespace EventCentric.Transport
             throw new HttpRequestException($"The attempt to make a request to {url} got a status code of {(int)response.StatusCode}.");
         }
 
-        public TResponse Send<TRequest, TResponse>(TEnum node, string url, TRequest payload) => this.Send<TRequest, TResponse>(this.nodes[node] + url, payload);
+        public TResponse Send<TRequest, TResponse>(TEnum node, string url, TRequest payload) => this.Send<TRequest, TResponse>(this.microservices[node] + url, payload);
 
         public IDictionary<TEnum, string> Nodes { get; }
 

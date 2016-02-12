@@ -2,7 +2,6 @@
 using EventCentric.Handling;
 using EventCentric.Log;
 using EventCentric.Messaging;
-using EventCentric.Messaging.Events;
 using EventCentric.Repository;
 using EventCentric.Repository.Mapping;
 using EventCentric.Serialization;
@@ -102,7 +101,7 @@ namespace EventCentric.Utils.Testing
         {
             ((Message)@event).StreamType = this.NodeName;
             ((Message)@event).EventId = this.Guid.NewGuid();
-            this.Processor.Handle(new NewIncomingEvent(this.serializer.SerializeAndDeserialize(@event)));
+            this.Processor.AdHocHandle(this.serializer.SerializeAndDeserialize(@event));
             return this;
         }
 

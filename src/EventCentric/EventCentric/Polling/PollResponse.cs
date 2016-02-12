@@ -4,11 +4,11 @@ namespace EventCentric.Transport
 {
     public class PollResponse
     {
-        public PollResponse(bool errorDetected, bool newEventsWereFound, string streamType, List<NewRawEvent> newEvents, long consumerVersion, long producerVersion)
+        public PollResponse(bool errorDetected, bool newEventsWereFound, string streamType, List<NewRawEvent> newRawEvents, long consumerVersion, long producerVersion)
         {
             this.NewEventsWereFound = newEventsWereFound;
             this.StreamType = streamType;
-            this.NewEvents = newEvents;
+            this.NewRawEvents = newRawEvents;
             this.ErrorDetected = errorDetected;
 
             // Metrics 
@@ -17,10 +17,11 @@ namespace EventCentric.Transport
         }
 
         public bool NewEventsWereFound { get; private set; }
+        public bool EventsAreSerialized { get; private set; }
         public bool ErrorDetected { get; private set; }
 
         public string StreamType { get; private set; }
-        public List<NewRawEvent> NewEvents { get; private set; }
+        public List<NewRawEvent> NewRawEvents { get; private set; }
 
         // Metrics
         public long ConsumerVersion { get; private set; }

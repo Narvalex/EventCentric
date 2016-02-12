@@ -1,33 +1,87 @@
-﻿using EventCentric.Log;
+﻿using EventCentric.EventSourcing;
+using EventCentric.Log;
 using EventCentric.Messaging;
 using EventCentric.Microservice;
+using EventCentric.Publishing;
+using EventCentric.Serialization;
+using EventCentric.Transport;
 using EventCentric.Utils;
 using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Threading;
 
 namespace EventCentric
 {
     /// <summary>
     /// Domain driven design concept of application service.
     /// </summary>
-    public abstract class ApplicationService : IEventSource
+    public abstract class ApplicationService : INamedEventSource, IEventPublisher
     {
         protected readonly IGuidProvider guid;
-        protected readonly IServiceBus bus;
         protected readonly ILogger log;
+        protected readonly string streamType;
+        private readonly int eventsToPushMaxCount;
+        private readonly JsonTextSerializer serializer = new JsonTextSerializer();
 
-        public ApplicationService(IServiceBus bus, IGuidProvider guid, ILogger log)
+        private readonly ConcurrentDictionary<Guid, object> streamLocksById = new ConcurrentDictionary<Guid, object>();
+        private readonly ConcurrentQueue<NewRawEvent> messageQueue = new ConcurrentQueue<NewRawEvent>();
+
+        public ApplicationService(IGuidProvider guid, ILogger log, string streamType, int eventsToPushMaxCount)
         {
             Ensure.NotNull(guid, nameof(guid));
-            Ensure.NotNull(bus, nameof(bus));
             Ensure.NotNull(log, nameof(log));
+            Ensure.NotNullNeitherEmtpyNorWhiteSpace(streamType, nameof(streamType));
+            Ensure.Positive(eventsToPushMaxCount, "eventsToFlushMaxCount");
 
-            this.bus = bus;
             this.guid = guid;
             this.log = log;
+            this.streamType = streamType;
+            this.eventsToPushMaxCount = eventsToPushMaxCount;
         }
-        protected Guid NewGuid()
+
+        protected Guid NewGuid() => this.guid.NewGuid();
+
+        public string SourceName => this.streamType;
+
+        protected Guid Send(Guid streamId, Message message)
         {
-            return this.guid.NewGuid();
+            var transactionId = this.guid.NewGuid();
+            lock (this.streamLocksById.GetOrAdd(streamId, new object()))
+            {
+                var now = DateTime.UtcNow;
+                this.messageQueue.Enqueue(
+                    message
+                        .AsInProcessMessage(transactionId, streamId)
+                        .AsQueuedEvent(streamType, Guid.NewGuid(), InMemoryVersioning.GetNextVersion(), now, now.ToLocalTime())
+                        .AsNewRawEvent(this.serializer));
+            }
+
+            return transactionId;
+        }
+
+        public PollResponse PollEvents(long eventBufferVersion, string consumerName)
+        {
+            var events = new List<NewRawEvent>();
+
+            while (true)
+            {
+                for (int i = 0; i < this.eventsToPushMaxCount; i++)
+                {
+                    NewRawEvent e;
+                    if (!this.messageQueue.TryDequeue(out e))
+                        break;
+
+                    events.Add(e);
+                }
+
+                if (events.Count > 0)
+                    break;
+
+                Thread.Sleep(100);
+            }
+
+            return new PollResponse(false, true, this.streamType, events, events.Count, events.Count + this.messageQueue.Count);
         }
     }
 }

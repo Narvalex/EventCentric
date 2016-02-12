@@ -11,7 +11,7 @@ using System.Threading;
 
 namespace EventCentric.Publishing
 {
-    public class Publisher : MicroserviceWorker, IEventSource,
+    public class Publisher : MicroserviceWorker, IEventPublisher,
         IMessageHandler<StartEventPublisher>,
         IMessageHandler<StopEventPublisher>,
         IMessageHandler<EventStoreHasBeenUpdated>
@@ -37,6 +37,8 @@ namespace EventCentric.Publishing
             this.eventsToPushMaxCount = eventsToPushMaxCount;
             this.longPollingTimeout = pollTimeout;
         }
+
+        public string SourceName => this.streamType;
 
         public void Handle(EventStoreHasBeenUpdated message)
         {

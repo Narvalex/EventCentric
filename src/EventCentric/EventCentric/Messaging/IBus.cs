@@ -4,6 +4,7 @@
 
     public interface IBus
     {
+        // It is not hight contention 
         void Publish(IMessage message);
     }
 

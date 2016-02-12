@@ -26,7 +26,7 @@ namespace PersistenceBenchmark
                 context.Subscriptions.Add(new SubscriptionEntity
                 {
                     StreamType = EventSourceNameResolver.ResolveNameOf<AppService>(),
-                    Url = "self",
+                    Url = "none",
                     Token = "#token",
                     ProcessorBufferVersion = 0,
                     IsPoisoned = false,

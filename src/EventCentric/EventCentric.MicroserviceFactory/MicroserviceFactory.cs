@@ -1,6 +1,5 @@
 ﻿using EventCentric.Config;
 using EventCentric.EventSourcing;
-using EventCentric.Factory;
 using EventCentric.Handling;
 using EventCentric.Heartbeating;
 using EventCentric.Log;
@@ -21,14 +20,14 @@ namespace EventCentric
         where TStream : class, IEventSourced
         where THandler : HandlerOf<TStream>
     {
-        public static IMicroservice CreateEventProcessor(IUnityContainer container, bool isSubscriptor = true, Func<IBus, ILogger, IEventStore<TStream>, THandler> processorFactory = null, bool enableHeartbeatingListener = false, bool setSequentialGuid = true, bool useSignalRLog = true)
+        public static IMicroservice CreateEventProcessor(IUnityContainer container,
+            IEventStoreConfig eventStoreConfig,
+            bool isSubscriptor = true,
+            Func<IBus, ILogger, IEventStore<TStream>, THandler> processorFactory = null,
+            bool enableHeartbeatingListener = false)
         {
+            var inMemoryPublisher = container.Resolve<IInMemoryEventPublisher>();
             var nodeName = EventSourceNameResolver.ResolveNameOf<TStream>();
-
-            System.Data.Entity.Database.SetInitializer<EventStoreDbContext>(null);
-            System.Data.Entity.Database.SetInitializer<EventQueueDbContext>(null);
-
-            var eventStoreConfig = EventStoreConfig.GetConfig();
 
             var connectionString = eventStoreConfig.ConnectionString;
 
@@ -37,14 +36,10 @@ namespace EventCentric
             Func<bool, EventStoreDbContext> storeContextFactory = isReadOnly => new EventStoreDbContext(isReadOnly, connectionString);
             Func<bool, EventQueueDbContext> queueContextFactory = isReadOnly => new EventQueueDbContext(isReadOnly, connectionString);
 
-            var log = useSignalRLog ? (ILogger)SignalRLogger.ResolvedSignalRLogger : new ConsoleLogger();
-            container.RegisterInstance<ILogger>(log);
-
-            var serializer = new JsonTextSerializer();
-            container.RegisterInstance<ITextSerializer>(serializer);
-
-            var time = new UtcTimeProvider() as IUtcTimeProvider;
-            var guid = setSequentialGuid ? new SequentialGuid() as IGuidProvider : new DefaultGuidProvider() as IGuidProvider;
+            var serializer = container.Resolve<ITextSerializer>();
+            var time = container.Resolve<IUtcTimeProvider>();
+            var guid = container.Resolve<IGuidProvider>();
+            var log = container.Resolve<ILogger>();
 
             var subscriptionRepository = new SubscriptionRepository(storeContextFactory, serializer, time);
             var eventDao = new EventDao(queueContextFactory);
@@ -56,7 +51,7 @@ namespace EventCentric
             container.RegisterInstance<IBus>(bus);
 
             var publisher = new Publisher(nodeName, bus, log, eventDao, eventStoreConfig.PushMaxCount, TimeSpan.FromMilliseconds(eventStoreConfig.LongPollingTimeout));
-            container.RegisterInstance<IEventSource>(publisher);
+            container.RegisterInstance<IEventPublisher>(publisher);
 
             var fsm = new EventProcessorMicroservice(nodeName, bus, log, isSubscriptor, enableHeartbeatingListener);
             container.RegisterInstance<IMicroservice>(fsm);
@@ -77,8 +72,8 @@ namespace EventCentric
             if (isSubscriptor)
             {
                 var pollerConfig = PollerConfig.GetConfig();
-                var http = new HttpLongPoller(bus, log, TimeSpan.FromMilliseconds(pollerConfig.Timeout), nodeName);
-                var poller = new Poller(bus, log, subscriptionRepository, http, serializer, pollerConfig.BufferQueueMaxCount, pollerConfig.EventsToFlushMaxCount);
+                var receiver = new MessageReceiver(bus, log, TimeSpan.FromMilliseconds(pollerConfig.Timeout), nodeName, inMemoryPublisher);
+                var poller = new Poller(bus, log, subscriptionRepository, receiver, serializer, pollerConfig.BufferQueueMaxCount, pollerConfig.EventsToFlushMaxCount);
                 container.RegisterInstance<IMonitoredSubscriber>(poller);
 
                 var heartbeatEmitter = new HeartbeatEmitter(fsm, log, poller);
@@ -90,19 +85,21 @@ namespace EventCentric
                 var heartbeatListener = new HeartbeatListener(nodeName, bus, log, time, new TimeSpan(0, 1, 0), new TimeSpan(0, 10, 0), isReadonly => new HeartbeatDbContext(isReadonly, connectionString));
             }
 
+            inMemoryPublisher.Register(publisher);
             return fsm;
         }
 
-        public static IMicroservice CreateEventProcessorWithApp<TApp>(IUnityContainer container, bool isSubscriptor = true, Func<TApp> appFactory = null, Func<IBus, ILogger, IEventStore<TStream>, THandler> processorFactory = null, bool enableHeartbeatingListener = false, bool setSequentialGuid = true, bool useSignalRLog = true)
-            where TApp : ApplicationService
+        public static IMicroservice CreateEventProcessorWithApp<TApp>(IUnityContainer container,
+            IEventStoreConfig eventStoreConfig,
+            bool isSubscriptor = true,
+            Func<TApp> appFactory = null,
+            Func<IBus, ILogger, IEventStore<TStream>, THandler> processorFactory = null,
+            bool enableHeartbeatingListener = false)
+                where TApp : ApplicationService
         {
+            var inMemoryPublisher = container.Resolve<IInMemoryEventPublisher>();
             var nodeName = EventSourceNameResolver.ResolveNameOf<TStream>();
             var streamType = EventSourceNameResolver.ResolveNameOf<TApp>();
-
-            System.Data.Entity.Database.SetInitializer<EventStoreDbContext>(null);
-            System.Data.Entity.Database.SetInitializer<EventQueueDbContext>(null);
-
-            var eventStoreConfig = EventStoreConfig.GetConfig();
 
             var connectionString = eventStoreConfig.ConnectionString;
 
@@ -111,16 +108,13 @@ namespace EventCentric
             Func<bool, EventStoreDbContext> storeContextFactory = isReadOnly => new EventStoreDbContext(isReadOnly, connectionString);
             Func<bool, EventQueueDbContext> queueContextFactory = isReadOnly => new EventQueueDbContext(isReadOnly, connectionString);
 
-            var log = useSignalRLog ? (ILogger)SignalRLogger.ResolvedSignalRLogger : new ConsoleLogger();
-            container.RegisterInstance<ILogger>(log);
+            var log = container.Resolve<ILogger>();
 
-            var serializer = new JsonTextSerializer();
-            container.RegisterInstance<ITextSerializer>(serializer);
+            var serializer = container.Resolve<ITextSerializer>();
 
-            var time = new UtcTimeProvider() as IUtcTimeProvider;
-            container.RegisterInstance<IUtcTimeProvider>(time);
+            var time = container.Resolve<IUtcTimeProvider>();
 
-            var guid = setSequentialGuid ? new SequentialGuid() as IGuidProvider : new DefaultGuidProvider() as IGuidProvider;
+            var guid = container.Resolve<IGuidProvider>();
             container.RegisterInstance<IGuidProvider>(guid);
 
             var subscriptionRepository = new SubscriptionRepository(storeContextFactory, serializer, time);
@@ -133,13 +127,7 @@ namespace EventCentric
             container.RegisterInstance<IBus>(bus);
 
             var publisher = new Publisher(nodeName, bus, log, eventDao, eventStoreConfig.PushMaxCount, TimeSpan.FromMilliseconds(eventStoreConfig.LongPollingTimeout));
-            container.RegisterInstance<IEventSource>(publisher);
-
-            // Event Queue feature
-            var eventQueue = new InMemoryEventQueue(streamType, guid, bus, time);
-
-            var eventBus = new ServiceBus(bus, log, eventQueue);
-            container.RegisterInstance<IServiceBus>(eventBus);
+            container.RegisterInstance<IEventPublisher>(publisher);
 
             var fsm = new EventProcessorMicroservice(EventSourceNameResolver.ResolveNameOf<TStream>(), bus, log, isSubscriptor, enableHeartbeatingListener);
             container.RegisterInstance<IMicroservice>(fsm);
@@ -160,8 +148,8 @@ namespace EventCentric
             if (isSubscriptor)
             {
                 var pollerConfig = PollerConfig.GetConfig();
-                var http = new HttpLongPoller(bus, log, TimeSpan.FromMilliseconds(pollerConfig.Timeout), nodeName);
-                var poller = new Poller(bus, log, subscriptionRepository, http, serializer, pollerConfig.BufferQueueMaxCount, pollerConfig.EventsToFlushMaxCount);
+                var pollerPool = new MessageReceiver(bus, log, TimeSpan.FromMilliseconds(pollerConfig.Timeout), nodeName, inMemoryPublisher);
+                var poller = new Poller(bus, log, subscriptionRepository, pollerPool, serializer, pollerConfig.BufferQueueMaxCount, pollerConfig.EventsToFlushMaxCount);
                 container.RegisterInstance<IMonitoredSubscriber>(poller);
 
                 var heartbeatEmitter = new HeartbeatEmitter(fsm, log, poller);
@@ -175,29 +163,28 @@ namespace EventCentric
 
             if (appFactory == null)
             {
-                var constructor = typeof(TApp).GetConstructor(new[] { typeof(IServiceBus), typeof(IGuidProvider), typeof(ILogger) });
-                Ensure.CastIsValid(constructor, "Type TApp must have a valid constructor with the following signature: .ctor(IEventBus, IGuidProvider, ILogger)");
-                container.RegisterInstance<TApp>((TApp)constructor.Invoke(new object[] { eventBus, guid, log }));
+                var constructor = typeof(TApp).GetConstructor(new[] { typeof(IGuidProvider), typeof(ILogger), typeof(string), typeof(int) });
+                Ensure.CastIsValid(constructor, "Type TApp must have a valid constructor with the following signature: .ctor(IGuidProvider, ILogger, string, int)");
+                container.RegisterInstance<TApp>((TApp)constructor.Invoke(new object[] { guid, log, streamType, eventStoreConfig.PushMaxCount }));
             }
             else
             {
                 container.RegisterInstance<TApp>(appFactory.Invoke());
             }
 
+            inMemoryPublisher.Register(publisher);
+            inMemoryPublisher.Register(container.Resolve<TApp>());
             return fsm;
         }
 
-        public static IMicroservice CreateDenormalizer<TDbContext>(IUnityContainer container, Func<IBus, ILogger, IEventStore<TStream>, THandler> processorFactory = null, bool setSequentialGuid = true, bool useSignalRLog = true)
-            where TDbContext : DbContext, IEventStoreDbContext
+        public static IMicroservice CreateDenormalizer<TDbContext>(IUnityContainer container,
+            IEventStoreConfig eventStoreConfig,
+            Func<IBus, ILogger, IEventStore<TStream>, THandler> processorFactory = null)
+                where TDbContext : DbContext, IEventStoreDbContext
         {
             var nodeName = EventSourceNameResolver.ResolveNameOf<TStream>();
 
-            System.Data.Entity.Database.SetInitializer<EventStoreDbContext>(null);
-            System.Data.Entity.Database.SetInitializer<EventQueueDbContext>(null);
             System.Data.Entity.Database.SetInitializer<TDbContext>(null);
-
-            var eventStoreConfig = EventStoreConfig.GetConfig();
-            container.RegisterInstance<IEventStoreConfig>(eventStoreConfig);
 
             var pollerConfig = PollerConfig.GetConfig();
 
@@ -208,12 +195,11 @@ namespace EventCentric
             Func<bool, EventStoreDbContext> storeContextFactory = isReadOnly => new EventStoreDbContext(isReadOnly, connectionString);
             Func<bool, EventQueueDbContext> queueContextFactory = isReadOnly => new EventQueueDbContext(isReadOnly, connectionString);
 
-            var log = useSignalRLog ? (ILogger)SignalRLogger.ResolvedSignalRLogger : new ConsoleLogger();
-            container.RegisterInstance<ILogger>(log);
+            var log = container.Resolve<ILogger>();
 
-            var serializer = new JsonTextSerializer();
-            var time = new UtcTimeProvider() as IUtcTimeProvider;
-            var guid = setSequentialGuid ? new SequentialGuid() as IGuidProvider : new DefaultGuidProvider() as IGuidProvider;
+            var serializer = container.Resolve<ITextSerializer>();
+            var time = container.Resolve<IUtcTimeProvider>();
+            var guid = container.Resolve<IGuidProvider>();
 
 
             var eventDao = new EventDao(queueContextFactory);
@@ -227,15 +213,15 @@ namespace EventCentric
             var bus = new Bus();
             container.RegisterInstance<IBus>(bus);
 
-            var http = new HttpLongPoller(bus, log, TimeSpan.FromMilliseconds(pollerConfig.Timeout), nodeName);
+            var receiver = new MessageReceiver(bus, log, TimeSpan.FromMilliseconds(pollerConfig.Timeout), nodeName, container.Resolve<IInMemoryEventPublisher>());
 
             var subscriptionRepository = new SubscriptionRepository(storeContextFactory, serializer, time);
 
-            var poller = new Poller(bus, log, subscriptionRepository, http, serializer, pollerConfig.BufferQueueMaxCount, pollerConfig.EventsToFlushMaxCount);
+            var poller = new Poller(bus, log, subscriptionRepository, receiver, serializer, pollerConfig.BufferQueueMaxCount, pollerConfig.EventsToFlushMaxCount);
             container.RegisterInstance<IMonitoredSubscriber>(poller);
 
             var publisher = new Publisher(nodeName, bus, log, eventDao, eventStoreConfig.PushMaxCount, TimeSpan.FromMilliseconds(eventStoreConfig.LongPollingTimeout));
-            container.RegisterInstance<IEventSource>(publisher);
+            container.RegisterInstance<IEventPublisher>(publisher);
 
             var fsm = new EventProcessorMicroservice(nodeName, bus, log, true, false);
             container.RegisterInstance<IMicroservice>(fsm);

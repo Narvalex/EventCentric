@@ -5,6 +5,4 @@
     public class EventProcessorStarted : IMessage { }
 
     public class EventPollerStarted : IMessage { }
-
-    public class MessageQueueStarted : IMessage { }
 }

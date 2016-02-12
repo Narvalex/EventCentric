@@ -1,4 +1,5 @@
 ﻿using EventCentric;
+using EventCentric.Config;
 using Microsoft.Practices.Unity;
 using System;
 
@@ -37,8 +38,11 @@ namespace PersistenceBenchmark
         {
             DbManager.CreateDb();
 
-            MicroserviceInitializer.Run(() => MicroserviceFactory<UserManagement, UserManagementHandler>
-                .CreateEventProcessorWithApp<AppService>(container, useSignalRLog: !_isConsoleApp));
+            ServerInitializer.Run(
+                container,
+                EventStoreConfig.GetConfig(), (c, conf) => MicroserviceFactory<UserManagement, UserManagementHandler>
+                    .CreateEventProcessorWithApp<AppService>(c, conf),
+                !_isConsoleApp);
         }
     }
 }

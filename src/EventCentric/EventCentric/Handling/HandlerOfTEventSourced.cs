@@ -14,7 +14,6 @@ namespace EventCentric.Handling
         IMessageHandler<StartEventProcessor>,
         IMessageHandler<StopEventProcessor>,
         IMessageHandler<NewIncomingEvents>,
-        IMessageHandler<NewIncomingEvent>,
         IHandles<IEvent>
             where TEventSourced : class, IEventSourced
     {
@@ -40,13 +39,13 @@ namespace EventCentric.Handling
             this.newAggregateFactory = (id) => (TEventSourced)constructor.Invoke(new object[] { id });
         }
 
-        public void Handle(NewIncomingEvent message)
+        public void AdHocHandle(IEvent @event)
         {
 #if DEBUG
-            this.log.Trace($"Processing an event fom {message.IncomingEvent.StreamType}");
+            this.log.Trace($"Processing an event fom {@event.StreamType}");
 #endif
 
-            this.HandleGracefully(message.IncomingEvent);
+            this.HandleGracefully(@event);
         }
 
         public void Handle(NewIncomingEvents message)

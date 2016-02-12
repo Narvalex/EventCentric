@@ -24,7 +24,7 @@ namespace EventCentric.Polling
         IMessageHandler<IncomingEventIsPoisoned>
     {
         private readonly ISubscriptionRepository repository;
-        private readonly IHttpLongPoller http;
+        private readonly ILongPoller poller;
         private readonly ITextSerializer serializer;
 
         /// <summary>
@@ -41,12 +41,12 @@ namespace EventCentric.Polling
 
         private readonly object lockObject = new object();
 
-        public Poller(IBus bus, ILogger log, ISubscriptionRepository repository, IHttpLongPoller http, ITextSerializer serializer,
+        public Poller(IBus bus, ILogger log, ISubscriptionRepository repository, ILongPoller poller, ITextSerializer serializer,
             int queueMaxCount, int eventsToFlushMaxCount)
             : base(bus, log)
         {
             Ensure.NotNull(repository, "repository");
-            Ensure.NotNull(http, "http");
+            Ensure.NotNull(poller, nameof(poller));
             Ensure.NotNull(serializer, "serializer");
             Ensure.NotNull(log, "logger");
 
@@ -54,7 +54,7 @@ namespace EventCentric.Polling
             Ensure.Positive(eventsToFlushMaxCount, "eventsToFlushMaxCount");
 
             this.repository = repository;
-            this.http = http;
+            this.poller = poller;
             this.serializer = serializer;
             this.log = log;
 
@@ -81,7 +81,7 @@ namespace EventCentric.Polling
         private bool TryFill()
         {
             var subscriptonsReadyForPolling = this.bufferPool
-                                                  .Where(s => s.Url != "self" && !s.IsPolling && !s.IsPoisoned && s.NewEventsQueue.Count < queueMaxCount)
+                                                  .Where(s => !s.IsPolling && !s.IsPoisoned && s.NewEventsQueue.Count < queueMaxCount)
                                                   .ToArray();
 
             if (!subscriptonsReadyForPolling.Any())
@@ -92,7 +92,7 @@ namespace EventCentric.Polling
             {
                 subscription.IsPolling = true;
                 Task.Factory.StartNewLongRunning(() =>
-                    http.PollSubscription(subscription.StreamType, subscription.Url, subscription.Token, subscription.CurrentBufferVersion));
+                    poller.PollSubscription(subscription.StreamType, subscription.Url, subscription.Token, subscription.CurrentBufferVersion));
             }
 
             // there are subscriptions that are being polled
@@ -200,9 +200,9 @@ namespace EventCentric.Polling
 
             if (response.NewEventsWereFound)
             {
-                this.log.Trace("Received {0} event/s from {1}", response.NewEvents.Count(), subscription.StreamType);
+                this.log.Trace("Received {0} event/s from {1}", response.NewRawEvents.Count(), subscription.StreamType);
 
-                var orderedEvents = response.NewEvents.OrderBy(e => e.EventCollectionVersion).ToArray();
+                var orderedEvents = response.NewRawEvents.OrderBy(e => e.EventCollectionVersion).ToArray();
 
                 subscription.CurrentBufferVersion = orderedEvents.Max(e => e.EventCollectionVersion);
 

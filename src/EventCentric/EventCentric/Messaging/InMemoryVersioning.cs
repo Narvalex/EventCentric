@@ -1,15 +1,19 @@
-﻿using System;
+﻿using System.Threading;
 
 namespace EventCentric.Messaging
 {
     /// <summary>
-    /// In memory versioning, based on: https://msdn.microsoft.com/en-us/library/system.datetime.ticks.aspx
+    /// In memory versioning, based on: https://msdn.microsoft.com/en-us/library/zs86dyzy(v=vs.110).aspx
     /// </summary>
-    public class InMemoryVersioning
+    public static class InMemoryVersioning
     {
-        public static long GetNextVersion()
+        static InMemoryVersioning()
         {
-            return DateTime.UtcNow.Ticks;
+            version = 0;
         }
+
+        private static long version;
+
+        public static long GetNextVersion() => Interlocked.Increment(ref version);
     }
 }

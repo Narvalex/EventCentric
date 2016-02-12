@@ -1,4 +1,6 @@
-﻿using System;
+﻿using EventCentric.Serialization;
+using EventCentric.Transport;
+using System;
 
 namespace EventCentric.EventSourcing
 {
@@ -25,9 +27,15 @@ namespace EventCentric.EventSourcing
             e.StreamType = streamType;
             e.EventId = eventId;
             e.Version = version;
+            e.EventCollectionVersion = version;
             e.LocalTime = localTime;
             e.UtcTime = utcTime;
             return e;
+        }
+
+        public static NewRawEvent AsNewRawEvent(this IEvent @event, ITextSerializer serializer)
+        {
+            return new NewRawEvent(@event.EventCollectionVersion, serializer.Serialize(@event));
         }
 
         public static IEvent AsStoredEvent(this IEvent @event, Guid transactionId, Guid eventId, string streamType, DateTime utcTime, DateTime localTime)

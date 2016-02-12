@@ -5,6 +5,4 @@
     public class EventProcessorStopped : IMessage { }
 
     public class EventPublisherStopped : IMessage { }
-
-    public class MessageQueueStopped : IMessage { }
 }

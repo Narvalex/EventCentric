@@ -1,16 +1,17 @@
 ﻿using EventCentric;
 using EventCentric.Log;
-using EventCentric.Messaging;
 using EventCentric.Utils;
 using System;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 
 namespace PersistenceBenchmark
 {
+    [Guid("f9344900-bcd3-32ec-866b-4da1b0aee120")]
     public class AppService : ApplicationService
     {
-        public AppService(IServiceBus bus, IGuidProvider guid, ILogger log) : base(bus, guid, log) { }
+        public AppService(IGuidProvider guid, ILogger log, string streamType, int eventsToPushMaxCount) : base(guid, log, streamType, eventsToPushMaxCount) { }
 
         public List<CreateUser> CreateCreateUserCommands(int quantity)
         {
@@ -25,7 +26,7 @@ namespace PersistenceBenchmark
 
         public void SendAWaveOfCommands(List<CreateUser> userCommands)
         {
-            userCommands.ForEach(c => this.bus.Send(Guid.NewGuid(), c.UserId, c));
+            userCommands.ForEach(c => this.Send(c.UserId, c));
         }
 
         public void StressWithWavesOfConcurrentUsers(int wavesCount, int concurrentUsers)

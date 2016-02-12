@@ -6,7 +6,7 @@ namespace EventCentric.EventSourcing
     /// <summary>
     /// Represents an identifiable aggregate that is event sourced.
     /// </summary>
-    public interface IEventSourced : IEventSource
+    public interface IEventSourced : INamedEventSource
     {
         /// <summary>
         /// Gets the aggregate identifier.

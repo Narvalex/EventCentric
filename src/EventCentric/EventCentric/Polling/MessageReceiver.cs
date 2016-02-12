@@ -10,13 +10,15 @@ using System.Threading;
 
 namespace EventCentric.Transport
 {
-    public class HttpLongPoller : Worker, IHttpLongPoller
+    public class MessageReceiver : Worker, ILongPoller
     {
+        private const string inMemoryTransportUrl = "none";
         private readonly TimeSpan timeout;
         private readonly ILogger log;
         private readonly string pollerName;
+        private readonly IInMemoryEventPublisher inMemoryPublisher;
 
-        public HttpLongPoller(IBus bus, ILogger log, TimeSpan timeout, string pollerName)
+        public MessageReceiver(IBus bus, ILogger log, TimeSpan timeout, string pollerName, IInMemoryEventPublisher inMemoryPublisher)
             : base(bus)
         {
             Ensure.NotNullNeitherEmtpyNorWhiteSpace(pollerName, "pollerName");
@@ -24,8 +26,10 @@ namespace EventCentric.Transport
             if (timeout.TotalSeconds <= 1)
                 throw new ArgumentOutOfRangeException("timeout", "The timeout value must be greater than one second.");
 
+            this.inMemoryPublisher = inMemoryPublisher; //if it is null, then it means that the poller is absolutely remote.
             this.timeout = timeout;
             this.log = log;
+            this.pollerName = pollerName;
 
             // More info:http://stackoverflow.com/questions/3210393/how-do-i-remove-all-non-alphanumeric-characters-from-a-string-except-dash
             this.pollerName = new string(pollerName.Where(x => x != '.').ToArray());
@@ -33,7 +37,20 @@ namespace EventCentric.Transport
 
         public void PollSubscription(string streamType, string url, string token, long fromVersion)
         {
-            // when poll arives, publish in bus.
+            if (url == inMemoryTransportUrl)
+                this.PollInMemory(streamType, fromVersion);
+            else
+                this.PollFromHttp(streamType, url, token, fromVersion);
+        }
+
+        private void PollInMemory(string streamType, long fromVersion)
+        {
+            var response = this.inMemoryPublisher.PollEvents(streamType, fromVersion, this.pollerName);
+            this.PublishPollResponse(response);
+        }
+
+        private void PollFromHttp(string streamType, string url, string token, long fromVersion)
+        {
             using (var httpClient = this.CreateHttpClient(token))
             {
                 var dynamicUrl = $"{url}/{fromVersion}/{this.pollerName}";
@@ -45,7 +62,7 @@ namespace EventCentric.Transport
 
                     var response = result.Content.ReadAsAsync<PollResponse>().Result;
 
-                    this.bus.Publish(new PollResponseWasReceived(response));
+                    this.PublishPollResponse(response);
                 }
                 catch (Exception ex)
                 {
@@ -57,6 +74,11 @@ namespace EventCentric.Transport
                     this.bus.Publish(new PollResponseWasReceived(new PollResponse(true, false, streamType, null, 0, 0)));
                 }
             }
+        }
+
+        private void PublishPollResponse(PollResponse response)
+        {
+            this.bus.Publish(new PollResponseWasReceived(response));
         }
 
 
