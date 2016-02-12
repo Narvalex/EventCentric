@@ -6,7 +6,7 @@ namespace PersistenceBenchmark
     {
         public static void RunAsConfigured(IUnityContainer container)
         {
-            var app = container.Resolve<AppService>();
+            var app = container.Resolve<UserAppService>();
 
             // Holding in memory messages
             app.StressWithWavesOfConcurrentUsers(10, 1000);

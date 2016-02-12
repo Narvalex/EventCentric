@@ -21,6 +21,11 @@ namespace PersistenceBenchmark
             this.name = state.Name;
         }
 
+        public override ISnapshot SaveToSnapshot()
+        {
+            return new UserManagementSnapshot(this.Version, this.name);
+        }
+
         public void When(UserCreated e) => this.name = e.Name;
     }
 }

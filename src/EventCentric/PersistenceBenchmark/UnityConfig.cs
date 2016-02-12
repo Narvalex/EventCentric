@@ -1,7 +1,10 @@
 ﻿using EventCentric;
 using EventCentric.Config;
+using EventCentric.MicroserviceFactory;
 using Microsoft.Practices.Unity;
+using PersistenceBenchmark.PromotionsStream;
 using System;
+using System.Collections.Generic;
 
 namespace PersistenceBenchmark
 {
@@ -36,13 +39,52 @@ namespace PersistenceBenchmark
         /// change the defaults), as Unity allows resolving a concrete type even if it was not previously registered.</remarks>
         public static void RegisterTypes(IUnityContainer container)
         {
-            DbManager.CreateDb();
+            var userConfig = EventStoreConfig.GetConfig();
+            var promotionsConfig = new DummyEventStoreConfig("server = (local); Database = PromotionsDb; User Id = sa; pwd = 123456", 60000, 100, "123");
 
-            ServerInitializer.Run(
-                container,
-                EventStoreConfig.GetConfig(), (c, conf) => MicroserviceFactory<UserManagement, UserManagementHandler>
-                    .CreateEventProcessorWithApp<AppService>(c, conf),
-                !_isConsoleApp);
+            //DbManager.CreateDbs(promotionsConfig.ConnectionString);
+
+            //SingleMicroserviceInitializer.Run(
+            //    container, () => MicroserviceFactory<UserManagement, UserManagementHandler>
+            //        .CreateEventProcessorWithApp<UserAppService>(container, userConfig),
+            //    !_isConsoleApp);
+
+            MultiMicroserviceInitializer.Run(container, () =>
+            {
+                var services = new List<IMicroservice>();
+
+                var userContainer = ContainerFactory.ResolveDependenciesForNewChildContainer(container);
+                services.Add(MicroserviceFactory<UserManagement, UserManagementHandler>.CreateEventProcessorWithApp<UserAppService>(userContainer, userConfig));
+                UserContainer = userContainer;
+
+                var promotionsContainer = ContainerFactory.ResolveDependenciesForNewChildContainer(container);
+                services.Add(MicroserviceFactory<Promotions, PromotionsHandler>.CreateEventProcessor(container, promotionsConfig));
+                PromotionsContainer = promotionsContainer;
+
+                return services;
+            },
+            !_isConsoleApp);
+        }
+
+        public static IUnityContainer UserContainer { get; private set; }
+        public static IUnityContainer PromotionsContainer { get; private set; }
+
+        public class DummyEventStoreConfig : IEventStoreConfig
+        {
+            public DummyEventStoreConfig(string connectionString, double LongPollingTimeout, int PushMaxCount, string Token)
+            {
+                this.ConnectionString = connectionString;
+                this.LongPollingTimeout = LongPollingTimeout;
+                this.PushMaxCount = PushMaxCount;
+                this.Token = Token;
+            }
+
+            public string ConnectionString { get; }
+
+            public double LongPollingTimeout { get; }
+
+            public int PushMaxCount { get; }
+            public string Token { get; }
         }
     }
 }

@@ -6,7 +6,8 @@ namespace PersistenceBenchmark.ConsoleHost
     {
         static void Main(string[] args)
         {
-            BenchmarkRunner.RunAsConfigured(UnityConfig.GetConfiguredContainer(true));
+            UnityConfig.GetConfiguredContainer(true);
+            BenchmarkRunner.RunAsConfigured(UnityConfig.UserContainer);
             Console.ReadLine();
         }
     }

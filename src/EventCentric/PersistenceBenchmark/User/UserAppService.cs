@@ -9,9 +9,9 @@ using System.Threading.Tasks;
 namespace PersistenceBenchmark
 {
     [Guid("f9344900-bcd3-32ec-866b-4da1b0aee120")]
-    public class AppService : ApplicationService
+    public class UserAppService : ApplicationService
     {
-        public AppService(IGuidProvider guid, ILogger log, string streamType, int eventsToPushMaxCount) : base(guid, log, streamType, eventsToPushMaxCount) { }
+        public UserAppService(IGuidProvider guid, ILogger log, string streamType, int eventsToPushMaxCount) : base(guid, log, streamType, eventsToPushMaxCount) { }
 
         public List<CreateUser> CreateCreateUserCommands(int quantity)
         {
