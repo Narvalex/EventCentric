@@ -21,7 +21,7 @@ namespace EventCentric
         where TStream : class, IEventSourced
         where THandler : HandlerOf<TStream>
     {
-        public static IMicroservice CreateEventProcessor(IUnityContainer container, bool isSubscriptor = true, Func<IBus, ILogger, IEventStore<TStream>, THandler> processorFactory = null, bool enableHeartbeatingListener = false, bool setSequentialGuid = true)
+        public static IMicroservice CreateEventProcessor(IUnityContainer container, bool isSubscriptor = true, Func<IBus, ILogger, IEventStore<TStream>, THandler> processorFactory = null, bool enableHeartbeatingListener = false, bool setSequentialGuid = true, bool useSignalRLog = true)
         {
             var nodeName = EventSourceNameResolver.ResolveNameOf<TStream>();
 
@@ -37,7 +37,7 @@ namespace EventCentric
             Func<bool, EventStoreDbContext> storeContextFactory = isReadOnly => new EventStoreDbContext(isReadOnly, connectionString);
             Func<bool, EventQueueDbContext> queueContextFactory = isReadOnly => new EventQueueDbContext(isReadOnly, connectionString);
 
-            var log = Logger.ResolvedLogger;
+            var log = useSignalRLog ? (ILogger)SignalRLogger.ResolvedSignalRLogger : new ConsoleLogger();
             container.RegisterInstance<ILogger>(log);
 
             var serializer = new JsonTextSerializer();
@@ -93,7 +93,7 @@ namespace EventCentric
             return fsm;
         }
 
-        public static IMicroservice CreateEventProcessorWithApp<TApp>(IUnityContainer container, bool isSubscriptor = true, Func<TApp> appFactory = null, Func<IBus, ILogger, IEventStore<TStream>, THandler> processorFactory = null, bool enableHeartbeatingListener = false, bool setSequentialGuid = true)
+        public static IMicroservice CreateEventProcessorWithApp<TApp>(IUnityContainer container, bool isSubscriptor = true, Func<TApp> appFactory = null, Func<IBus, ILogger, IEventStore<TStream>, THandler> processorFactory = null, bool enableHeartbeatingListener = false, bool setSequentialGuid = true, bool useSignalRLog = true)
             where TApp : ApplicationService
         {
             var nodeName = EventSourceNameResolver.ResolveNameOf<TStream>();
@@ -111,7 +111,7 @@ namespace EventCentric
             Func<bool, EventStoreDbContext> storeContextFactory = isReadOnly => new EventStoreDbContext(isReadOnly, connectionString);
             Func<bool, EventQueueDbContext> queueContextFactory = isReadOnly => new EventQueueDbContext(isReadOnly, connectionString);
 
-            var log = Logger.ResolvedLogger;
+            var log = useSignalRLog ? (ILogger)SignalRLogger.ResolvedSignalRLogger : new ConsoleLogger();
             container.RegisterInstance<ILogger>(log);
 
             var serializer = new JsonTextSerializer();
@@ -187,7 +187,7 @@ namespace EventCentric
             return fsm;
         }
 
-        public static IMicroservice CreateDenormalizer<TDbContext>(IUnityContainer container, Func<IBus, ILogger, IEventStore<TStream>, THandler> processorFactory = null, bool setSequentialGuid = true)
+        public static IMicroservice CreateDenormalizer<TDbContext>(IUnityContainer container, Func<IBus, ILogger, IEventStore<TStream>, THandler> processorFactory = null, bool setSequentialGuid = true, bool useSignalRLog = true)
             where TDbContext : DbContext, IEventStoreDbContext
         {
             var nodeName = EventSourceNameResolver.ResolveNameOf<TStream>();
@@ -208,7 +208,7 @@ namespace EventCentric
             Func<bool, EventStoreDbContext> storeContextFactory = isReadOnly => new EventStoreDbContext(isReadOnly, connectionString);
             Func<bool, EventQueueDbContext> queueContextFactory = isReadOnly => new EventQueueDbContext(isReadOnly, connectionString);
 
-            var log = Logger.ResolvedLogger;
+            var log = useSignalRLog ? (ILogger)SignalRLogger.ResolvedSignalRLogger : new ConsoleLogger();
             container.RegisterInstance<ILogger>(log);
 
             var serializer = new JsonTextSerializer();

@@ -98,7 +98,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AuthorizationFactory.cs" />
-    <Compile Include="Log\Logger.cs" />
+    <Compile Include="Log\SignalRLogger.cs" />
     <Compile Include="Log\LogHub.cs" />
     <Compile Include="Log\SignalRBase.cs" />
     <Compile Include="MicroserviceFactory.cs" />

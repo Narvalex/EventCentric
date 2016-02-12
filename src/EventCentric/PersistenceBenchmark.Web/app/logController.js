@@ -8,7 +8,7 @@
     function logController($scope, $http, $rootScope) {
         var vm = $scope;
 
-        $rootScope.appTitle = 'Event Centric persistence benchmarks';
+        $rootScope.appTitle = 'Event Centric Persistence Benchmarks';
 
         activate();
 

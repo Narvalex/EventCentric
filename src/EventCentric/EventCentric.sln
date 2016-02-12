@@ -18,6 +18,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Docs", "Docs", "{7B295ED5-3
 		AboutNamingConventions.txt = AboutNamingConventions.txt
 		AboutRestCallsBetweenNodes.txt = AboutRestCallsBetweenNodes.txt
 		AboutStreamTypeResolver.txt = AboutStreamTypeResolver.txt
+		AboutSubscriptions.txt = AboutSubscriptions.txt
 		AboutTfsIgnore.txt = AboutTfsIgnore.txt
 	EndProjectSection
 EndProject
@@ -36,6 +37,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PersistenceBenchmark.Web", "PersistenceBenchmark.Web\PersistenceBenchmark.Web.csproj", "{CAB9BFBE-4898-441F-A0B1-40D2DA781569}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PersistenceBenchmark", "PersistenceBenchmark\PersistenceBenchmark.csproj", "{F43D38F8-35A0-4F58-B9E3-533880895C15}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PersistenceBenchmark.Console", "PersistenceBenchmark.Console\PersistenceBenchmark.Console.csproj", "{0BEC8B22-1C08-4085-969C-510F4D2310CF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -75,6 +78,10 @@ Global
 		{F43D38F8-35A0-4F58-B9E3-533880895C15}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F43D38F8-35A0-4F58-B9E3-533880895C15}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F43D38F8-35A0-4F58-B9E3-533880895C15}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0BEC8B22-1C08-4085-969C-510F4D2310CF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0BEC8B22-1C08-4085-969C-510F4D2310CF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0BEC8B22-1C08-4085-969C-510F4D2310CF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0BEC8B22-1C08-4085-969C-510F4D2310CF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -82,6 +89,7 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{CAB9BFBE-4898-441F-A0B1-40D2DA781569} = {A39B1C67-6192-4099-9AEF-75D07BADA0DF}
 		{F43D38F8-35A0-4F58-B9E3-533880895C15} = {A39B1C67-6192-4099-9AEF-75D07BADA0DF}
+		{0BEC8B22-1C08-4085-969C-510F4D2310CF} = {A39B1C67-6192-4099-9AEF-75D07BADA0DF}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		EnterpriseLibraryConfigurationToolBinariesPath = packages\Unity.2.1.505.2\lib\NET35

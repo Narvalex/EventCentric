@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json.Serialization;
 using System;
+using System.Threading.Tasks;
 using System.Web.Http;
 
 namespace PersistenceBenchmark.Web
@@ -23,11 +24,13 @@ namespace PersistenceBenchmark.Web
                 var jsonFormatter = GlobalConfiguration.Configuration.Formatters.JsonFormatter;
                 jsonFormatter.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
             });
+
+            Task.Factory.StartNewLongRunning(() => BenchmarkRunner.RunAsConfigured(UnityConfig.GetConfiguredContainer(false)));
         }
 
         protected void Application_End(object sender, EventArgs e)
         {
-            DbManager.DropDb();
+            //DbManager.DropDb();
         }
     }
 }

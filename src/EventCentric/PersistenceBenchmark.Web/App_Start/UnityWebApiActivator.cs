@@ -1,5 +1,5 @@
-using System.Web.Http;
 using Microsoft.Practices.Unity.WebApi;
+using System.Web.Http;
 
 [assembly: WebActivatorEx.PreApplicationStartMethod(typeof(PersistenceBenchmark.Web.App_Start.UnityWebApiActivator), "Start")]
 [assembly: WebActivatorEx.ApplicationShutdownMethod(typeof(PersistenceBenchmark.Web.App_Start.UnityWebApiActivator), "Shutdown")]
@@ -10,11 +10,11 @@ namespace PersistenceBenchmark.Web.App_Start
     public static class UnityWebApiActivator
     {
         /// <summary>Integrates Unity when the application starts.</summary>
-        public static void Start() 
+        public static void Start()
         {
             // Use UnityHierarchicalDependencyResolver if you want to use a new child container for each IHttpController resolution.
             // var resolver = new UnityHierarchicalDependencyResolver(UnityConfig.GetConfiguredContainer());
-            var resolver = new UnityDependencyResolver(UnityConfig.GetConfiguredContainer());
+            var resolver = new UnityDependencyResolver(UnityConfig.GetConfiguredContainer(false));
 
             GlobalConfiguration.Configuration.DependencyResolver = resolver;
         }
@@ -22,7 +22,7 @@ namespace PersistenceBenchmark.Web.App_Start
         /// <summary>Disposes the Unity container when the application is shut down.</summary>
         public static void Shutdown()
         {
-            var container = UnityConfig.GetConfiguredContainer();
+            var container = UnityConfig.GetConfiguredContainer(false);
             container.Dispose();
         }
     }

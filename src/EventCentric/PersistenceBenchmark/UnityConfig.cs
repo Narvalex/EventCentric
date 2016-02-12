@@ -1,14 +1,16 @@
-using EventCentric;
+﻿using EventCentric;
 using Microsoft.Practices.Unity;
 using System;
 
-namespace PersistenceBenchmark.Web.App_Start
+namespace PersistenceBenchmark
 {
     /// <summary>
     /// Specifies the Unity configuration for the main container.
     /// </summary>
     public class UnityConfig
     {
+        private static bool _isConsoleApp;
+
         #region Unity Container
         private static Lazy<IUnityContainer> container = new Lazy<IUnityContainer>(() =>
         {
@@ -20,8 +22,9 @@ namespace PersistenceBenchmark.Web.App_Start
         /// <summary>
         /// Gets the configured Unity container.
         /// </summary>
-        public static IUnityContainer GetConfiguredContainer()
+        public static IUnityContainer GetConfiguredContainer(bool isConsoleApp)
         {
+            _isConsoleApp = isConsoleApp;
             return container.Value;
         }
         #endregion
@@ -35,7 +38,7 @@ namespace PersistenceBenchmark.Web.App_Start
             DbManager.CreateDb();
 
             MicroserviceInitializer.Run(() => MicroserviceFactory<UserManagement, UserManagementHandler>
-                .CreateEventProcessor(container));
+                .CreateEventProcessorWithApp<AppService>(container, useSignalRLog: !_isConsoleApp));
         }
     }
 }

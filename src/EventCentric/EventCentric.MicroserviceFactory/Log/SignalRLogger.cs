@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace EventCentric.Factory
 {
-    public class Logger : SignalRBase<LogHub>, ILogger
+    public class SignalRLogger : SignalRBase<LogHub>, ILogger
     {
         private static int _nextMessageId = 0;
 
@@ -16,14 +16,14 @@ namespace EventCentric.Factory
 
         private readonly int messageMaxCount = 300;
 
-        private static readonly Logger _logger = new Logger();
+        private static readonly SignalRLogger _logger = new SignalRLogger();
 
         private readonly LogMessageBuilder messageBuilder = new LogMessageBuilder();
 
-        private Logger()
+        private SignalRLogger()
         { }
 
-        public static Logger ResolvedLogger { get { return _logger; } }
+        public static SignalRLogger ResolvedSignalRLogger { get { return _logger; } }
 
         public void Error(string format, params object[] args)
         {

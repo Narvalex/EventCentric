@@ -15,7 +15,7 @@ namespace EventCentric
         protected readonly IServiceBus bus;
         protected readonly ILogger log;
 
-        protected ApplicationService(IServiceBus bus, IGuidProvider guid, ILogger log)
+        public ApplicationService(IServiceBus bus, IGuidProvider guid, ILogger log)
         {
             Ensure.NotNull(guid, nameof(guid));
             Ensure.NotNull(bus, nameof(bus));

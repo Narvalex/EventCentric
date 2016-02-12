@@ -1,8 +1,8 @@
 ﻿using EventCentric.EventSourcing;
+using EventCentric.Handling;
 using EventCentric.Log;
 using EventCentric.Messaging;
 using EventCentric.Messaging.Events;
-using EventCentric.Handling;
 using EventCentric.Repository;
 using EventCentric.Repository.Mapping;
 using EventCentric.Serialization;
@@ -38,7 +38,7 @@ namespace EventCentric.Utils.Testing
                 context.Subscriptions.Add(new SubscriptionEntity
                 {
                     StreamType = this.NodeName,
-                    Url = "localhost",
+                    Url = "self",
                     Token = "#token",
                     ProcessorBufferVersion = 0,
                     IsPoisoned = false,
