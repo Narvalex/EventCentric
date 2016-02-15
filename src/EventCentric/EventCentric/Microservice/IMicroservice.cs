@@ -8,6 +8,6 @@
 
         void Stop();
 
-        WorkerStatus State { get; }
+        WorkerStatus Status { get; }
     }
 }

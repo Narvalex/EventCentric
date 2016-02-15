@@ -30,7 +30,7 @@ namespace EventCentric.Heartbeating
             // More info: https://msdn.microsoft.com/en-us/library/system.net.ipaddress.loopback(v=vs.110).aspx
             var ipAddressString = IPAddress.Loopback.ToString();
 
-            var responseText = $"Heartbeat of {node.Name} from {ipAddressString} | Status {node.State.ToString()}";
+            var responseText = $"Heartbeat of {node.Name} from {ipAddressString} | Status {node.Status.ToString()}";
             foreach (var subscription in subscriber.GetSubscriptionsMetrics())
                 responseText += $" | {subscription.ProducerName} subscription is in version {subscription.ConsumerVersion}/{subscription.ProducerVersion} {subscription.UpToDatePercentage.ToString("N2")}%";
 

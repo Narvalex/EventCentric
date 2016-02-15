@@ -35,7 +35,7 @@ namespace PersistenceBenchmark
 
                 context.Subscriptions.Add(new SubscriptionEntity
                 {
-                    StreamType = EventSourceNameResolver.ResolveNameOf<UserAppService>(),
+                    StreamType = StreamNameResolver.ResolveFullNameOf<UserAppService>(),
                     Url = "none",
                     Token = "#token",
                     ProcessorBufferVersion = 0,
@@ -57,7 +57,7 @@ namespace PersistenceBenchmark
 
                 context.Subscriptions.Add(new SubscriptionEntity
                 {
-                    StreamType = EventSourceNameResolver.ResolveNameOf<UserManagement>(),
+                    StreamType = StreamNameResolver.ResolveFullNameOf<UserManagement>(),
                     Url = "none",
                     Token = "#token",
                     ProcessorBufferVersion = 0,

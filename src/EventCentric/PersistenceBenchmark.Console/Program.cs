@@ -9,6 +9,7 @@ namespace PersistenceBenchmark.ConsoleHost
             UnityConfig.GetConfiguredContainer(true);
             BenchmarkRunner.RunAsConfigured(UnityConfig.UserContainer);
             Console.ReadLine();
+            DbManager.DropDb();
         }
     }
 }

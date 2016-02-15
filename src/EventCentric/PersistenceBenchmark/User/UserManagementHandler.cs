@@ -10,7 +10,8 @@ namespace PersistenceBenchmark
     {
         public UserManagementHandler(IBus bus, ILogger log, IEventStore<UserManagement> store) : base(bus, log, store) { }
 
-        public IMessageHandling Handle(CreateUser c) => base.FromNewStream(c.UserId, s =>
+        public IMessageHandling Handle(CreateUser c) =>
+            base.FromNewStream(c.UserId, s =>
             s.Update(new UserCreated(c.UserId, c.Name)));
     }
 }

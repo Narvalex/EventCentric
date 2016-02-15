@@ -89,10 +89,12 @@
     <Compile Include="Messaging\IInMemoryEventPublisher.cs" />
     <Compile Include="Messaging\InMemoryVersioning.cs" />
     <Compile Include="EventSourcing\Snapshot.cs" />
+    <Compile Include="Microservice\ICanRegisterExternalListeners.cs" />
     <Compile Include="Microservice\INamedEventSource.cs" />
     <Compile Include="Microservice\MicroserviceBase.cs" />
     <Compile Include="Microservice\ApplicationService.cs" />
-    <Compile Include="Microservice\EventSourceNameResolver.cs" />
+    <Compile Include="Microservice\StreamNameResolver.cs" />
+    <Compile Include="Microservice\MultiMicroserviceContainer.cs" />
     <Compile Include="Polling\IMonitoredSubscriber.cs" />
     <Compile Include="Polling\IMonitoredSubscription.cs" />
     <Compile Include="Handling\HandlerOfTEventSourced.cs" />

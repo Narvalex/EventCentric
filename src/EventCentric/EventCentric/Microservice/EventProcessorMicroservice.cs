@@ -2,11 +2,12 @@
 using EventCentric.Messaging;
 using EventCentric.Messaging.Commands;
 using EventCentric.Messaging.Events;
+using EventCentric.Microservice;
 using System.Threading;
 
 namespace EventCentric
 {
-    public class EventProcessorMicroservice : MicroserviceBase, IMicroservice,
+    public class EventProcessorMicroservice : MicroserviceBase, IMicroservice, ICanRegisterExternalListeners,
         IMessageHandler<EventPublisherStarted>,
         IMessageHandler<EventProcessorStarted>,
         IMessageHandler<EventPollerStarted>,
@@ -20,12 +21,12 @@ namespace EventCentric
         public EventProcessorMicroservice(string eventSourceName, IBus bus, ILogger log, bool hasPoller, bool listenHeartbeating)
             : base(eventSourceName, bus, log)
         {
-            this.State = WorkerStatus.Down;
+            this.Status = WorkerStatus.Down;
             this.hasPoller = hasPoller;
             this.listenHeartbeating = listenHeartbeating;
         }
 
-        public WorkerStatus State { get; private set; }
+        public WorkerStatus Status { get; private set; }
 
         /// <summary>
         /// Starts engine
@@ -36,12 +37,12 @@ namespace EventCentric
                 this.OnSystemHalt();
 
             // Is started
-            if (this.State == WorkerStatus.UpAndRunning)
+            if (this.Status == WorkerStatus.UpAndRunning)
                 return;
 
-            if (this.State == WorkerStatus.Down)
+            if (this.Status == WorkerStatus.Down)
             {
-                this.State = WorkerStatus.Starting;
+                this.Status = WorkerStatus.Starting;
                 this.log.Trace($"Starting node {this.Name}");
                 base.Start();
 
@@ -49,7 +50,7 @@ namespace EventCentric
                 this.Start();
             }
 
-            if (this.State == WorkerStatus.Starting || this.State == WorkerStatus.ShuttingDown)
+            if (this.Status == WorkerStatus.Starting || this.Status == WorkerStatus.ShuttingDown)
             {
                 Thread.Sleep(100);
                 this.Start();
@@ -80,30 +81,33 @@ namespace EventCentric
         protected override void OnStopping()
         {
             // Engine is down
-            if (this.State == WorkerStatus.Down)
+            if (this.Status == WorkerStatus.Down)
                 return;
 
             // Engine is sutting down, or is starting wait a little bit until is finalize its transitioning.
-            if (this.State == WorkerStatus.ShuttingDown)
+            if (this.Status == WorkerStatus.ShuttingDown)
             {
                 Thread.Sleep(100);
                 this.OnStopping();
             }
 
             // This means that the System is up and running. Can safely stop
-            if (this.State == WorkerStatus.UpAndRunning || this.State == WorkerStatus.Starting)
+            if (this.Status == WorkerStatus.UpAndRunning || this.Status == WorkerStatus.Starting)
             {
-                this.State = WorkerStatus.ShuttingDown;
+                this.Status = WorkerStatus.ShuttingDown;
 
                 this.bus.Publish(new StopEventProcessor(), new StopEventPublisher(), new StopEventPoller());
-                this.State = WorkerStatus.Down;
+                this.Status = WorkerStatus.Down;
                 this.OnStopping();
             }
         }
 
+        public void Register(IWorker externalListener) =>
+           ((IBusRegistry)base.bus).Register(externalListener);
+
         public void Handle(EventPollerStarted message)
         {
-            this.State = WorkerStatus.UpAndRunning;
+            this.Status = WorkerStatus.UpAndRunning;
             this.log.Trace("All services are up and running");
 
         }
@@ -119,7 +123,7 @@ namespace EventCentric
                 this.bus.Publish(new StartEventPoller());
             else
             {
-                this.State = WorkerStatus.UpAndRunning;
+                this.Status = WorkerStatus.UpAndRunning;
                 this.log.Trace("All services are up and running");
             }
         }
@@ -143,7 +147,7 @@ namespace EventCentric
         {
             while (true)
             {
-                if (this.State == WorkerStatus.Down)
+                if (this.Status == WorkerStatus.Down)
                     throw this.fatalException;
                 else
                     Thread.Sleep(100);

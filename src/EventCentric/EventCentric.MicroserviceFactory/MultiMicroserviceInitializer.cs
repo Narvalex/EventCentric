@@ -1,4 +1,7 @@
 ﻿using EventCentric.Database;
+using EventCentric.Log;
+using EventCentric.Messaging;
+using EventCentric.Microservice;
 using Microsoft.Practices.Unity;
 using System;
 using System.Collections.Generic;
@@ -9,7 +12,7 @@ namespace EventCentric.MicroserviceFactory
     public class MultiMicroserviceInitializer
     {
         private static object _lockObject = new object();
-        private static List<IMicroservice> _microservices = null;
+        private static MultiMicroserviceContainer multiContainer = null;
         private static bool isRunning = false;
 
         public static void Run(IUnityContainer mainContainer, Func<List<IMicroservice>> microservicesFactory, bool useSignalRLog = true)
@@ -17,13 +20,17 @@ namespace EventCentric.MicroserviceFactory
             lock (_lockObject)
             {
                 // Double checkingif
-                if (_microservices != null || isRunning)
+                if (multiContainer != null || isRunning)
                     return;
 
                 DbConfiguration.SetConfiguration(new TransientFaultHandlingDbConfiguration());
                 mainContainer = ContainerFactory.ResolveCommonDependenciesForMainContainer(mainContainer, useSignalRLog);
-                _microservices = microservicesFactory.Invoke();
-                _microservices.ForEach(s => s.Start());
+                multiContainer = new MultiMicroserviceContainer(
+                    mainContainer.Resolve<IBus>(),
+                    mainContainer.Resolve<ILogger>(),
+                    microservicesFactory.Invoke());
+
+                multiContainer.Start();
                 isRunning = true;
             }
         }

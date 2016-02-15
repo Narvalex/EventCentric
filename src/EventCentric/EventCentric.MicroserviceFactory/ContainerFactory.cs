@@ -28,6 +28,9 @@ namespace EventCentric.MicroserviceFactory
 
             container.RegisterInstance<IGuidProvider>(new SequentialGuid());
 
+            // Do not share this with child dependencies
+            container.RegisterInstance<IBus>(new Bus());
+
             return container;
         }
 
