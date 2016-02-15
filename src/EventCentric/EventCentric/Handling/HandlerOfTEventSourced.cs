@@ -4,6 +4,7 @@ using EventCentric.Messaging;
 using EventCentric.Messaging.Commands;
 using EventCentric.Messaging.Events;
 using EventCentric.Utils;
+using Microsoft.CSharp.RuntimeBinder;
 using System;
 using System.Collections.Concurrent;
 using System.Linq;
@@ -73,7 +74,8 @@ namespace EventCentric.Handling
 #if DEBUG
                 this.log.Trace($"Processor is now handling message '{incomingEvent.GetType().Name}' with id {incomingEvent.EventId}");
 #endif
-                IMessageHandling handling = ((dynamic)this).Handle((dynamic)incomingEvent);
+                dynamic me = this;
+                IMessageHandling handling = me.Handle((dynamic)incomingEvent);
 
                 if (handling.ShouldBeIgnored)
                 {
@@ -105,6 +107,12 @@ namespace EventCentric.Handling
                         // we igonore it, just to protect our servers to get down.
                         this.log.Error(ex, $"The stream {handling.StreamId} was not found. Ignoring message. You can retry by reseting the subscription table.");
                         this.Ignore(incomingEvent);
+                    }
+                    catch (RuntimeBinderException ex)
+                    {
+                        this.log.Error(ex, $"The state does not have an overload to update when event {incomingEvent.GetType().Name} happened. Did you forget to write a When(IEvent event) method?");
+                        this.poisonedStreams.Add(handling.StreamId);
+                        throw ex;
                     }
                     catch (Exception ex)
                     {

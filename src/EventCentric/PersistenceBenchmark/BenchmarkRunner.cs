@@ -9,7 +9,7 @@ namespace PersistenceBenchmark
             var app = container.Resolve<UserAppService>();
 
             // Holding in memory messages
-            //app.StressWithWavesOfConcurrentUsers(10, 1000);
+            app.StressWithWavesOfConcurrentUsers(1, 1);
         }
     }
 }

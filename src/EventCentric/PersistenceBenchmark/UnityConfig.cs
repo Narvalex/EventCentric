@@ -42,7 +42,7 @@ namespace PersistenceBenchmark
             var userConfig = EventStoreConfig.GetConfig();
             var promotionsConfig = new DummyEventStoreConfig("server = (local); Database = PromotionsDb; User Id = sa; pwd = 123456", 60000, 100, "123");
 
-            //DbManager.CreateDbs(promotionsConfig.ConnectionString);
+            DbManager.CreateDbs(promotionsConfig.ConnectionString);
 
             //SingleMicroserviceInitializer.Run(
             //    container, () => MicroserviceFactory<UserManagement, UserManagementHandler>

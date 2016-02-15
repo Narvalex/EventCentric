@@ -7,7 +7,7 @@ using System.Net.Http.Headers;
 
 namespace EventCentric.Transport
 {
-    public class MultiMicroserviceClient<TEnum> : IMultiNodeClient<TEnum> where TEnum : struct, IConvertible
+    public class MultiMicroserviceClient<TEnum> : IMultiMicroserviceClient<TEnum> where TEnum : struct, IConvertible
     {
         private readonly string sharedToken;
         private readonly Dictionary<TEnum, string> microservices;

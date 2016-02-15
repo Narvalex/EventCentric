@@ -49,11 +49,11 @@ namespace EventCentric.EventSourcing
 
         private void Apply(IEvent @event)
         {
+            dynamic me = this;
             if (!@event.IsACommand)
-                ((dynamic)this).When((dynamic)@event);
+                me.When(@event);
             else
-                ((dynamic)this).AfterSending((dynamic)@event);
-
+                me.AfterSending(@event);
 
             this.version = @event.Version;
         }
