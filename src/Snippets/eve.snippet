@@ -16,7 +16,7 @@ http://www.codeproject.com/Tips/1070336/Snippets-for-Visual-Studio
     </Header>
     <Snippet>
       <Code Language="CSharp">
-        <![CDATA[public class $MessageType$ : Event
+        <![CDATA[public class $MessageType$ : $Event$
         {
         }$end$]]>
       </Code>
@@ -31,6 +31,12 @@ http://www.codeproject.com/Tips/1070336/Snippets-for-Visual-Studio
           <Type>EventCentric.EventSourcing</Type>
           <ToolTip>Set the message type</ToolTip>
           <Default>InsertMessageTypeHere</Default>
+        </Object>
+        <Object>
+          <ID>Event</ID>
+          <Type>EventCentric.EventSourcing</Type>
+          <ToolTip>Set the message kind</ToolTip>
+          <Default>Event</Default>
         </Object>
       </Declarations>
     </Snippet>
