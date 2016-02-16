@@ -180,10 +180,9 @@
     <Compile Include="Publishing\Publisher.cs" />
     <Compile Include="Polling\PollResponse.cs" />
     <Compile Include="Utils\CacheAnyEnumerableExtensions.cs" />
-    <Compile Include="Utils\CollectionExtensions.cs" />
-    <Compile Include="Utils\DictionaryExtensions.cs" />
+    <Compile Include="Utils\FunctionalExtensions\DictionaryExtensions.cs" />
     <Compile Include="Utils\Ensure.cs" />
-    <Compile Include="Utils\FunctionalExtensions\ToDo.cs" />
+    <Compile Include="Utils\FunctionalExtensions\CollectionExtensions.cs" />
     <Compile Include="Utils\GuidProvider.cs" />
     <Compile Include="Utils\Testing\ApplicationServiceTestHelper.cs" />
     <Compile Include="Utils\Testing\BusStub.cs" />

@@ -1,12 +1,13 @@
-﻿using System.Collections.Generic;
-
-namespace EventCentric.Utils
+﻿namespace System.Collections.Generic
 {
-    /// <summary>
-    /// Usability extensions for collections.
-    /// </summary>
     public static class CollectionExtensions
     {
+        public static ICollection<T> AddToCollection<T>(this ICollection<T> collection, T itemToAdd)
+        {
+            collection.Add(itemToAdd);
+            return collection;
+        }
+
         /// <summary>
         /// Adds a set of items to a collection.
         /// </summary>
