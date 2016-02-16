@@ -51,9 +51,9 @@ namespace EventCentric.EventSourcing
         {
             dynamic me = this;
             if (!@event.IsACommand)
-                me.When(@event);
+                me.When((dynamic)@event);
             else
-                me.AfterSending(@event);
+                me.AfterSending((dynamic)@event);
 
             this.version = @event.Version;
         }
