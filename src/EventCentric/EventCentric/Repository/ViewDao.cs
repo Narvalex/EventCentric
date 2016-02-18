@@ -4,7 +4,7 @@ using System;
 
 namespace EventCentric.Repository
 {
-    public abstract class ViewDao<TDbContext> where TDbContext : EventuallyConsistentDbContext
+    public abstract class ViewDao<TDbContext> : IViewDao where TDbContext : EventuallyConsistentDbContext
     {
         protected readonly Func<TDbContext> contextFactory;
 

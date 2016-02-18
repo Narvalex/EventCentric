@@ -108,6 +108,7 @@
     <Compile Include="Messaging\SynchronousBus.cs" />
     <Compile Include="Repository\EventQueueDbContext.cs" />
     <Compile Include="Repository\EventuallyConsistentDbContext.cs" />
+    <Compile Include="Repository\IViewDao.cs" />
     <Compile Include="Repository\ViewDao.cs" />
     <Compile Include="Repository\Mapping\EventuallyConsistentResultEntity.cs" />
     <Compile Include="Repository\Mapping\SubscriberHeartbeatEntity.cs" />
