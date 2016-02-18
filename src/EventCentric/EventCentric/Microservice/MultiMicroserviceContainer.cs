@@ -20,7 +20,7 @@ namespace EventCentric.Microservice
 
         protected override void OnStarting() => this.services.ForEach(s => s.Start());
 
-        protected override void OnStopping() => this.services.ForEach(s => Stop());
+        protected override void OnStopping() => this.services.ForEach(s => s.Stop());
 
         public new void Start() => base.Start();
     }
