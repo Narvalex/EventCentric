@@ -1,32 +1,21 @@
-using EventCentric.Log;
-using EventCentric.Polling;
+using EventCentric.Heartbeating;
 using System.Web.Http;
 using System.Web.Http.Cors;
 
-namespace EventCentric.Heartbeating
+namespace Demo.Namespace
 {
     [EnableCors(origins: "*", headers: "*", methods: "*")]
     public class HeartbeatController : ApiController
     {
-        private readonly INode node;
-        private readonly ILogger log;
-        private readonly IMonitoredSubscriber subscriber;
+        private readonly HeartbeatEmitter emmiter;
 
-        public HeartbeatController(INode node, ILogger log, IMonitoredSubscriber subscriber)
+        public HeartbeatController(HeartbeatEmitter emmiter)
         {
-            this.node = node;
-            this.log = log;
-            this.subscriber = subscriber;
+            this.emmiter = emmiter;
         }
 
-        // GET: Heartbeat
         [HttpGet]
-        [Route("heartbeat")]
-        public IHttpActionResult Get()
-        {
-            string responseText = HeartbeatEmitter.GetHeartbeat(this.node, this.log, this.subscriber);
-
-            return this.Ok(responseText);
-        }
+        [Route("heartbeat/{listener}")]
+        public IHttpActionResult Get(string listener) => this.Ok(this.emmiter.GetHeartbeat(listener));
     }
 }
