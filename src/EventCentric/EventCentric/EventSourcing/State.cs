@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace EventCentric.EventSourcing
 {
-    public abstract class StateOf<T> : EventSourced<T> where T : class, IEventSourced
+    public class StateOf<T> : EventSourced<T>, IUpdatesWhen<AnInvalidOperationExceptionOccurred> where T : class, IEventSourced
     {
         public StateOf(Guid id) : base(id) { }
 
@@ -16,5 +16,7 @@ namespace EventCentric.EventSourcing
         public T UpdateAfterSending(Command command) => base.UpdateFromMessage(command);
 
         public T Throw(string message) => this.Update(new AnInvalidOperationExceptionOccurred(message));
+
+        public virtual void When(AnInvalidOperationExceptionOccurred e) { }
     }
 }

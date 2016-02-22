@@ -9,7 +9,4 @@
     {
         void AfterSending(T c);
     }
-
-    public interface IStreamWithExceptions : IUpdatesWhen<AnInvalidOperationExceptionOccurred>
-    { }
 }
