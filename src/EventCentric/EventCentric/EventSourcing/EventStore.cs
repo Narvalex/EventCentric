@@ -74,23 +74,39 @@ namespace EventCentric.EventSourcing
                         cachedMemento = new Tuple<ISnapshot, DateTime?>(this.serializer.Deserialize<ISnapshot>(snapshotEntity.Payload), null);
                     else
                     {
-                        // if memento not found then try get full stream
-                        var streamOfEvents = context.Events
-                                       .Where(e => e.StreamId == id)
-                                       .OrderBy(e => e.Version)
-                                       .AsEnumerable()
-                                       .Select(e => this.serializer.Deserialize<IEvent>(e.Payload))
-                                       .AsCachedAnyEnumerable();
-
-                        if (streamOfEvents.Any())
-                            return aggregateFactory.Invoke(id, streamOfEvents);
-
-                        return null;
+                        return this.GetFromFullStreamOfEvents(id, context);
                     }
                 }
             }
 
-            return this.originatorAggregateFactory.Invoke(id, cachedMemento.Item1);
+            try
+            {
+                return this.originatorAggregateFactory.Invoke(id, cachedMemento.Item1);
+            }
+            catch (Exception ex)
+            {
+                this.log.Error(ex, $"An error ocurred while hydrating aggregate from snapshot. Now we will try to recover state from full stream of events for stream id {id.ToString()}");
+                using (var context = this.contextFactory.Invoke(true))
+                {
+                    return this.GetFromFullStreamOfEvents(id, context);
+                }
+            }
+        }
+
+        private T GetFromFullStreamOfEvents(Guid id, IEventStoreDbContext context)
+        {
+            // if memento not found then try get full stream
+            var streamOfEvents = context.Events
+                           .Where(e => e.StreamId == id)
+                           .OrderBy(e => e.Version)
+                           .AsEnumerable()
+                           .Select(e => this.serializer.Deserialize<IEvent>(e.Payload))
+                           .AsCachedAnyEnumerable();
+
+            if (streamOfEvents.Any())
+                return aggregateFactory.Invoke(id, streamOfEvents);
+
+            return null;
         }
 
         public T Get(Guid id)
