@@ -28,5 +28,7 @@ namespace EventCentric.EventSourcing
         long Save(T eventSourced, IEvent incomingEvent);
 
         bool IsDuplicate(Guid eventId);
+
+        void DeleteSnapshot(Guid streamId);
     }
 }

@@ -266,5 +266,15 @@ namespace EventCentric.EventSourcing
 
         private bool IsDuplicate(Guid eventId, IEventStoreDbContext context)
             => context.Inbox.Any(e => e.EventId == eventId);
+
+        public void DeleteSnapshot(Guid streamId)
+        {
+            cache.Remove(streamId.ToString());
+            using (var context = this.contextFactory.Invoke(false))
+            {
+                context.Snapshots.Remove(context.Snapshots.Single(x => x.StreamId == streamId));
+                context.SaveChanges();
+            }
+        }
     }
 }

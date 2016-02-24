@@ -96,10 +96,7 @@ namespace EventCentric.Handling
                     {
                         if (!this.poisonedStreams.Where(p => p == handling.StreamId).Any())
                         {
-                            var eventSourced = handling.Handle.Invoke();
-                            var version = this.store.Save((TEventSourced)eventSourced, incomingEvent);
-                            this.bus.Publish(new EventStoreHasBeenUpdated(version));
-                            this.PublishIncomingEventHasBeenProcessed(incomingEvent);
+                            this.HandleAndSaveChanges(incomingEvent, handling);
                         }
                     }
                     catch (StreamNotFoundException ex)
@@ -116,6 +113,9 @@ namespace EventCentric.Handling
                     }
                     catch (Exception ex)
                     {
+                        this.log.Error(ex, $"An error was detected while processing a message. Now we will try to check if it is duplicate or the snapshot is currupted");
+
+                        // Maybe is duplicate
                         try
                         {
                             if (this.store.IsDuplicate(incomingEvent.EventId))
@@ -124,9 +124,21 @@ namespace EventCentric.Handling
                                 return;
                             }
                         }
-                        catch (Exception anotherEx)
+                        catch (Exception duplicateEx)
                         {
-                            this.log.Error(anotherEx, "An error ocurred while checking if incoming message is duplicate.");
+                            this.log.Error(duplicateEx, "An error ocurred while checking if incoming message is duplicate.");
+                        }
+
+                        // Or maybe the snapshot is corrupted
+                        try
+                        {
+                            this.store.DeleteSnapshot(handling.StreamId);
+                            this.HandleAndSaveChanges(incomingEvent, handling);
+                            return;
+                        }
+                        catch (Exception deleteSnapshotEx)
+                        {
+                            this.log.Error(deleteSnapshotEx, "An error ocurred while deleting snapshot and trying to re-process a message.");
                         }
 
                         this.poisonedStreams.Add(handling.StreamId);
@@ -145,6 +157,14 @@ namespace EventCentric.Handling
 
                 this.log.Error(exception, $"Poison message of type {incomingEvent.GetType().Name} detected in Event Processor");
             }
+        }
+
+        private void HandleAndSaveChanges(IEvent incomingEvent, IMessageHandling handling)
+        {
+            var eventSourced = handling.Handle.Invoke();
+            var version = this.store.Save((TEventSourced)eventSourced, incomingEvent);
+            this.bus.Publish(new EventStoreHasBeenUpdated(version));
+            this.PublishIncomingEventHasBeenProcessed(incomingEvent);
         }
 
         public void Handle(StartEventProcessor message)

@@ -1,8 +1,7 @@
 ﻿using EventCentric.EventSourcing;
+using EventCentric.Handling;
 using EventCentric.Log;
 using EventCentric.Messaging;
-using EventCentric.Messaging.Events;
-using EventCentric.Handling;
 using EventCentric.Serialization;
 using System;
 using System.Collections.Generic;
@@ -185,6 +184,11 @@ namespace EventCentric.Utils.Testing
             }
 
             public bool IsDuplicate(Guid incomingEvent) => false;
+
+            public void DeleteSnapshot(Guid streamId)
+            {
+                throw new NotImplementedException();
+            }
         }
     }
 }
