@@ -34,8 +34,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventCentric.MicroserviceFa
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Benchmarks", "Benchmarks", "{A39B1C67-6192-4099-9AEF-75D07BADA0DF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PersistenceBenchmark.Web", "PersistenceBenchmark.Web\PersistenceBenchmark.Web.csproj", "{CAB9BFBE-4898-441F-A0B1-40D2DA781569}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PersistenceBenchmark", "PersistenceBenchmark\PersistenceBenchmark.csproj", "{F43D38F8-35A0-4F58-B9E3-533880895C15}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PersistenceBenchmark.Console", "PersistenceBenchmark.Console\PersistenceBenchmark.Console.csproj", "{0BEC8B22-1C08-4085-969C-510F4D2310CF}"
@@ -70,10 +68,6 @@ Global
 		{44302C31-F9A4-4531-A43A-0E33CC5D4FD2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{44302C31-F9A4-4531-A43A-0E33CC5D4FD2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{44302C31-F9A4-4531-A43A-0E33CC5D4FD2}.Release|Any CPU.Build.0 = Release|Any CPU
-		{CAB9BFBE-4898-441F-A0B1-40D2DA781569}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{CAB9BFBE-4898-441F-A0B1-40D2DA781569}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{CAB9BFBE-4898-441F-A0B1-40D2DA781569}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{CAB9BFBE-4898-441F-A0B1-40D2DA781569}.Release|Any CPU.Build.0 = Release|Any CPU
 		{F43D38F8-35A0-4F58-B9E3-533880895C15}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{F43D38F8-35A0-4F58-B9E3-533880895C15}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F43D38F8-35A0-4F58-B9E3-533880895C15}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -87,7 +81,6 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{CAB9BFBE-4898-441F-A0B1-40D2DA781569} = {A39B1C67-6192-4099-9AEF-75D07BADA0DF}
 		{F43D38F8-35A0-4F58-B9E3-533880895C15} = {A39B1C67-6192-4099-9AEF-75D07BADA0DF}
 		{0BEC8B22-1C08-4085-969C-510F4D2310CF} = {A39B1C67-6192-4099-9AEF-75D07BADA0DF}
 	EndGlobalSection
