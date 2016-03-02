@@ -128,6 +128,9 @@ namespace EventCentric.EventSourcing
             if (pendingEvents.Length == 0)
                 throw new ArgumentOutOfRangeException("pendingEvents");
 
+            if (eventSourced.Id == default(Guid))
+                throw new ArgumentOutOfRangeException("StreamId", $"The eventsourced of type {typeof(T).FullName} has a default GUID value for its stream id, which is not valid");
+
             var key = eventSourced.Id.ToString();
             try
             {
