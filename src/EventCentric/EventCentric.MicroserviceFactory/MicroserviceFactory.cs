@@ -20,7 +20,15 @@ namespace EventCentric
         where TStream : class, IEventSourced
         where THandler : HandlerOf<TStream>
     {
-        public static IMicroservice CreateEventProcessor(IUnityContainer container,
+        private static string EnsureStreamCategoryNameIsValid(string name)
+        {
+            Ensure.NotNullNeitherEmtpyNorWhiteSpace(name, "StreamCategoryName");
+            return name;
+        }
+
+        public static IMicroservice CreateEventProcessor(
+            string uniqueName,
+            IUnityContainer container,
             IEventStoreConfig eventStoreConfig,
             bool isSubscriptor = true,
             Func<IBus, ILogger, IEventStore<TStream>, THandler> processorFactory = null,
@@ -28,8 +36,7 @@ namespace EventCentric
         {
             var inMemoryPublisher = container.Resolve<IInMemoryEventPublisher>();
 
-            var streamFullName = StreamNameResolver.ResolveFullNameOf<TStream>();
-            var streamShortName = StreamNameResolver.ResolveNameOf<TStream>();
+            var streamFullName = EnsureStreamCategoryNameIsValid(uniqueName);
 
             var connectionString = eventStoreConfig.ConnectionString;
 
@@ -91,7 +98,10 @@ namespace EventCentric
             return fsm;
         }
 
-        public static IMicroservice CreateEventProcessorWithApp<TApp>(IUnityContainer container,
+        public static IMicroservice CreateEventProcessorWithApp<TApp>(
+            string uniqueName,
+            string appUniqueName,
+            IUnityContainer container,
             IEventStoreConfig eventStoreConfig,
             bool isSubscriptor = true,
             Func<TApp> appFactory = null,
@@ -101,9 +111,8 @@ namespace EventCentric
         {
             var inMemoryPublisher = container.Resolve<IInMemoryEventPublisher>();
 
-            var streamFullName = StreamNameResolver.ResolveFullNameOf<TStream>();
-            var streamShortName = StreamNameResolver.ResolveNameOf<TStream>();
-            var appFullName = StreamNameResolver.ResolveFullNameOf<TApp>();
+            var streamFullName = EnsureStreamCategoryNameIsValid(uniqueName);
+            var appFullName = EnsureStreamCategoryNameIsValid(appUniqueName);
 
             var connectionString = eventStoreConfig.ConnectionString;
 
@@ -133,7 +142,7 @@ namespace EventCentric
             var publisher = new Publisher(streamFullName, bus, log, eventDao, eventStoreConfig.PushMaxCount, TimeSpan.FromMilliseconds(eventStoreConfig.LongPollingTimeout));
             container.RegisterInstance<IEventPublisher>(publisher);
 
-            var fsm = new EventProcessorMicroservice(StreamNameResolver.ResolveFullNameOf<TStream>(), bus, log, isSubscriptor, enableHeartbeatingListener);
+            var fsm = new EventProcessorMicroservice(streamFullName, bus, log, isSubscriptor, enableHeartbeatingListener);
             container.RegisterInstance<IMicroservice>(fsm);
 
             if (processorFactory == null)
@@ -181,13 +190,14 @@ namespace EventCentric
             return fsm;
         }
 
-        public static IMicroservice CreateDenormalizer<TDbContext>(IUnityContainer container,
+        public static IMicroservice CreateDenormalizer<TDbContext>(
+            string uniqueName,
+            IUnityContainer container,
             IEventStoreConfig eventStoreConfig,
             Func<IBus, ILogger, IEventStore<TStream>, THandler> processorFactory = null)
                 where TDbContext : DbContext, IEventStoreDbContext
         {
-            var streamFullName = StreamNameResolver.ResolveFullNameOf<TStream>();
-            var streamShortName = StreamNameResolver.ResolveNameOf<TStream>();
+            var streamFullName = EnsureStreamCategoryNameIsValid(uniqueName);
 
             System.Data.Entity.Database.SetInitializer<TDbContext>(null);
 

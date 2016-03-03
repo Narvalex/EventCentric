@@ -24,7 +24,9 @@ namespace EventCentric.Utils.Testing
             this.Log = new ConsoleLogger();
             this.Time = new UtcTimeProvider();
             this.Guid = new SequentialGuid();
-            this.NodeName = StreamNameResolver.ResolveFullNameOf<TAggregate>();
+
+            throw new NotImplementedException("Name resolver must be implemented");
+            //this.NodeName = StreamCategory.ResolveFullNameOf<TAggregate>();
 
             var dbContextConstructor = typeof(TDbContext).GetConstructor(new[] { typeof(string) });
             Ensure.CastIsValid(dbContextConstructor, "Type TDbContext must have a constructor with the following signature: ctor(string)");

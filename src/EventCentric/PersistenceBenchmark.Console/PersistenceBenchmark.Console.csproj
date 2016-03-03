@@ -67,6 +67,10 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\EventCentric\EventCentric.csproj">
+      <Project>{4b00e8dd-813c-4abb-8c87-c664d188f62c}</Project>
+      <Name>EventCentric</Name>
+    </ProjectReference>
     <ProjectReference Include="..\PersistenceBenchmark\PersistenceBenchmark.csproj">
       <Project>{f43d38f8-35a0-4f58-b9e3-533880895c15}</Project>
       <Name>PersistenceBenchmark</Name>
