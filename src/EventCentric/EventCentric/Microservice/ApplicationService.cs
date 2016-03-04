@@ -78,7 +78,7 @@ namespace EventCentric
                 if (events.Count > 0)
                     break;
 
-                Thread.Sleep(100);
+                Thread.Sleep(1);
             }
 
             return new PollResponse(false, true, this.streamType, events, events.Count, events.Count + this.messageQueue.Count);

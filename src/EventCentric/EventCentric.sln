@@ -39,6 +39,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PersistenceBenchmark", "Per
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PersistenceBenchmark.Console", "PersistenceBenchmark.Console\PersistenceBenchmark.Console.csproj", "{0BEC8B22-1C08-4085-969C-510F4D2310CF}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DispatcherBenchmark", "DispatcherBenchmark\DispatcherBenchmark.csproj", "{D7BEBB18-6F30-4FA7-9E76-33D287240D4C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -77,6 +79,10 @@ Global
 		{0BEC8B22-1C08-4085-969C-510F4D2310CF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0BEC8B22-1C08-4085-969C-510F4D2310CF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0BEC8B22-1C08-4085-969C-510F4D2310CF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D7BEBB18-6F30-4FA7-9E76-33D287240D4C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D7BEBB18-6F30-4FA7-9E76-33D287240D4C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D7BEBB18-6F30-4FA7-9E76-33D287240D4C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D7BEBB18-6F30-4FA7-9E76-33D287240D4C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -84,6 +90,7 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{F43D38F8-35A0-4F58-B9E3-533880895C15} = {A39B1C67-6192-4099-9AEF-75D07BADA0DF}
 		{0BEC8B22-1C08-4085-969C-510F4D2310CF} = {A39B1C67-6192-4099-9AEF-75D07BADA0DF}
+		{D7BEBB18-6F30-4FA7-9E76-33D287240D4C} = {A39B1C67-6192-4099-9AEF-75D07BADA0DF}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		EnterpriseLibraryConfigurationToolBinariesPath = packages\Unity.2.1.505.2\lib\NET35

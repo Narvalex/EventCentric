@@ -14,10 +14,10 @@ namespace PersistenceBenchmark.ConsoleHost
             var user2App = UnityConfig.UserContainer2.Resolve<UserAppService>();
 
             // Holding in memory messages
-            user1App.StressWithWavesOfConcurrentUsers(wavesCount: 10, concurrentUsers: 10000);
-            user2App.StressWithWavesOfConcurrentUsers(wavesCount: 10, concurrentUsers: 10000);
+            user1App.StressWithWavesOfConcurrentUsers(wavesCount: 2, concurrentUsers: 1000);
+            user2App.StressWithWavesOfConcurrentUsers(wavesCount: 2, concurrentUsers: 1000);
 
-
+            Console.WriteLine("Press any key to stop");
             Console.ReadLine();
             DbManager.DropDbs();
         }

@@ -301,7 +301,7 @@ namespace EventCentric.Polling
                         var isStarving = !this.TryFlush(buffer);
 
                         if (isStarving)
-                            Thread.Sleep(100);
+                            Thread.Sleep(1);
                     }
 
                 });
@@ -315,7 +315,7 @@ namespace EventCentric.Polling
                 var isStarving = !this.TryFill();
 
                 if (isStarving)
-                    Thread.Sleep(100);
+                    Thread.Sleep(1);
             }
         }
 

@@ -81,7 +81,7 @@ namespace EventCentric.Publishing
             {
                 if (this.eventCollectionVersion == consumerVersion)
                     // consumer is up to date, and now is waiting until something happens!
-                    Thread.Sleep(100);
+                    Thread.Sleep(1);
 
                 // weird error, but is crash proof. Once i had an error where in an infinite loop there was an error saying: Pushing 0 events to....
                 // A Charly le paso. Sucede que limpio la base de datos y justo queria entregar un evento y no devolvia nada.
