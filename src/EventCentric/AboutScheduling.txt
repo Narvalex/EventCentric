@@ -1,0 +1,10 @@
+Para "agendar" algo, con recordatorio.
+Ejemplo: Recordarme en 5 minutos para hacer que algo caduque
+Aggregate "Ag" => Command: Caducar en 5 minutos
+Aggregate "Agenda" => Id: "harcodedId" => Event: Agendado caducidad en 5 min
+Handler "Agenda" => recibe el evento de agendado y en memoria empieza a hacer timeout, hasta que llegue los 5. Al llegar los
+5 minutos le envia un mensaje a Agenda para que emita el evento de "Caducado!".
+
+Si el sistema reinicia, el handler Agenda reinicia, rehydrata el a aggregate con el "HarcodedId" y estira todos los timers 
+que haya pendientes. y empieza el conteo. Luego el handler queda iniciado y puede recibir mas comandos de agendas, que generaran 
+eventos que el handler mismo esta suscrito para poder hacer los timeouts....
