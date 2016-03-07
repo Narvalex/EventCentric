@@ -15,6 +15,20 @@ namespace EventCentric.EventSourcing
 
         public T UpdateAfterSending(Command command) => base.UpdateFromMessage(command);
 
+        public T UpdateIf(bool condition, params Event[] events)
+        {
+            if (condition)
+                events.ForEach(e => this.Update(e));
+            return this as T;
+        }
+
+        public T UpdateAfterSendingIf(bool condition, params Command[] commands)
+        {
+            if (condition)
+                commands.ForEach(c => this.UpdateAfterSending(c));
+            return this as T;
+        }
+
         public T Throw(string message) => this.Update(new AnInvalidOperationExceptionOccurred(message));
 
         public virtual void When(AnInvalidOperationExceptionOccurred e) { }

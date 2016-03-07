@@ -18,5 +18,13 @@
                 collection.Add(item);
             }
         }
+
+        public static void ForEach<T>(this IEnumerable<T> enumerable, Action<T> predicate)
+        {
+            foreach (var item in enumerable)
+            {
+                predicate.Invoke(item);
+            }
+        }
     }
 }
