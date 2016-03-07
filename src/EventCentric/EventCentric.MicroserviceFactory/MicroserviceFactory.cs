@@ -104,7 +104,7 @@ namespace EventCentric
             IUnityContainer container,
             IEventStoreConfig eventStoreConfig,
             bool isSubscriptor = true,
-            Func<TApp> appFactory = null,
+            Func<IGuidProvider, ILogger, string, int, TApp> appFactory = null,
             Func<IBus, ILogger, IEventStore<TStream>, THandler> processorFactory = null,
             bool enableHeartbeatingListener = false)
                 where TApp : ApplicationService
@@ -182,7 +182,7 @@ namespace EventCentric
             }
             else
             {
-                container.RegisterInstance<TApp>(appFactory.Invoke());
+                container.RegisterInstance<TApp>(appFactory.Invoke(guid, log, appFullName, eventStoreConfig.PushMaxCount));
             }
 
             inMemoryPublisher.Register(publisher);
