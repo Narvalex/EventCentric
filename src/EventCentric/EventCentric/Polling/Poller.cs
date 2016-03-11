@@ -91,8 +91,8 @@ namespace EventCentric.Polling
             foreach (var subscription in subscriptonsReadyForPolling)
             {
                 subscription.IsPolling = true;
-                Task.Factory.StartNewLongRunning(() =>
-                    poller.PollSubscription(subscription.StreamType, subscription.Url, subscription.Token, subscription.CurrentBufferVersion));
+                ThreadPool.UnsafeQueueUserWorkItem(new WaitCallback(_ =>
+                    poller.PollSubscription(subscription.StreamType, subscription.Url, subscription.Token, subscription.CurrentBufferVersion)), null);
             }
 
             // there are subscriptions that are being polled
@@ -275,7 +275,7 @@ namespace EventCentric.Polling
         {
             this.Initialize();
             Task.Factory.StartNewLongRunning(() => this.KeepTheBufferFull());
-            Task.Factory.StartNewLongRunning(() => this.DispatchEventsFromBufferPool());
+            this.DispatchEventsFromBufferPool();
 
             // Ensure to start everything;
             this.log.Trace("Poller started");

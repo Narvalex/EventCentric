@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using System.Threading.Tasks;
+using System.Threading;
 
 namespace EventCentric.Messaging
 {
@@ -104,8 +104,7 @@ namespace EventCentric.Messaging
             List<Tuple<Type, Action<Envelope>>> handlers;
             if (this.handlersByMessageType.TryGetValue(typeof(T), out handlers))
                 foreach (var handler in handlers)
-                    Task.Factory.StartNewLongRunning(() =>
-                        handler.Item2(envelope));
+                    ThreadPool.UnsafeQueueUserWorkItem(new WaitCallback(_ => handler.Item2(envelope)), null);
         }
     }
 }
