@@ -5,6 +5,7 @@ namespace EventCentric.Repository.Mapping
 {
     public partial class SnapshotEntity
     {
+        public string StreamType { get; set; }
         public Guid StreamId { get; set; }
         public long Version { get; set; }
         public string Payload { get; set; }
@@ -17,10 +18,13 @@ namespace EventCentric.Repository.Mapping
         public StreamEntityMap()
         {
             // Primary Key
-            this.HasKey(t => t.StreamId);
+            this.HasKey(t => new { t.StreamType, t.StreamId });
+
+            this.Property(t => t.StreamType).HasMaxLength(255);
 
             // Table & Column Mappings
             this.ToTable("Snapshots", "EventStore");
+            this.Property(t => t.StreamType).HasColumnName("StreamType");
             this.Property(t => t.StreamId).HasColumnName("StreamId");
             this.Property(t => t.Version).HasColumnName("Version");
             this.Property(t => t.Payload).HasColumnName("Payload");

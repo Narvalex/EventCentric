@@ -14,16 +14,19 @@ namespace EventCentric.Polling
         private readonly Func<bool, EventStoreDbContext> contextFactory;
         private readonly ITextSerializer serializer;
         private readonly IUtcTimeProvider time;
+        private readonly string streamType;
 
-        public SubscriptionRepository(Func<bool, EventStoreDbContext> contextFactory, ITextSerializer serializer, IUtcTimeProvider time)
+        public SubscriptionRepository(Func<bool, EventStoreDbContext> contextFactory, string streamType, ITextSerializer serializer, IUtcTimeProvider time)
         {
             Ensure.NotNull(contextFactory, "contextFactory");
             Ensure.NotNull(serializer, "serializer");
             Ensure.NotNull(time, "time");
+            Ensure.NotNullNeitherEmtpyNorWhiteSpace(streamType, nameof(streamType));
 
             this.contextFactory = contextFactory;
             this.serializer = serializer;
             this.time = time;
+            this.streamType = streamType;
         }
 
         public SubscriptionBuffer[] GetSubscriptions()
@@ -32,7 +35,7 @@ namespace EventCentric.Polling
 
             using (var context = this.contextFactory(true))
             {
-                var subscriptionsQuery = context.Subscriptions.Where(s => !s.IsPoisoned && !s.WasCanceled);
+                var subscriptionsQuery = context.Subscriptions.Where(s => s.SubscriberStreamType == this.streamType && !s.IsPoisoned && !s.WasCanceled);
                 if (subscriptionsQuery.Any())
                     foreach (var s in subscriptionsQuery)
                         // We substract one version in order to set the current version bellow the last one, in case that first event
@@ -47,7 +50,7 @@ namespace EventCentric.Polling
         {
             using (var context = this.contextFactory.Invoke(false))
             {
-                var subscription = context.Subscriptions.Where(s => s.StreamType == poisonedEvent.StreamType).Single();
+                var subscription = context.Subscriptions.Where(s => s.StreamType == poisonedEvent.StreamType && s.SubscriberStreamType == this.streamType).Single();
                 subscription.IsPoisoned = true;
                 subscription.UpdateLocalTime = this.time.Now;
                 subscription.PoisonEventCollectionVersion = poisonedEvent.EventCollectionVersion;

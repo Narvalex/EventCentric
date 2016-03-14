@@ -26,41 +26,36 @@ namespace EventCentric.Factory
 
         public void Error(string format, params object[] args)
         {
-            this.messageQueue.Enqueue(new Message
+            this.FlushMessage(new Message
             {
                 id = this.GetMessageId(),
                 message = this.messageBuilder.BuildMessage("ERROR", format, args)
             });
-
-            this.Flush();
         }
 
         public void Error(Exception ex, string format, params object[] args)
         {
-            this.messageQueue.Enqueue(new Message
+            this.FlushMessage(new Message
             {
                 id = this.GetMessageId(),
                 message = this.messageBuilder.BuildMessage(ex, "ERROR", format, args)
             });
-
-            this.Flush();
         }
 
         public void Trace(string format, params object[] args)
         {
-            this.messageQueue.Enqueue(new Message
+            this.FlushMessage(new Message
             {
                 id = this.GetMessageId(),
                 message = this.messageBuilder.BuildMessage("TRACE", format, args)
             });
-
-            this.Flush();
         }
 
-        private void Flush()
+        private void FlushMessage(Message msg)
         {
-            ThreadPool.QueueUserWorkItem(_ =>
+            ThreadPool.UnsafeQueueUserWorkItem(new WaitCallback(_ =>
             {
+                this.messageQueue.Enqueue(msg);
                 lock (this)
                 {
                     if (messageQueue.Any())
@@ -72,15 +67,10 @@ namespace EventCentric.Factory
                     while (this.messageQueue.Count >= this.messageMaxCount)
                         this.messageQueue.TryDequeue(out nullMessage);
                 }
-            }, null);
+            }), null);
         }
 
-        private int GetMessageId()
-        {
-            return Interlocked.Increment(ref _nextMessageId);
-        }
-
-
+        private int GetMessageId() => Interlocked.Increment(ref _nextMessageId);
 
         public void Trace(params string[] lines)
         {

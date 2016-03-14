@@ -200,7 +200,6 @@
     <Content Include="Repository\SqlScripts\Commands\InsertHeartbeatSources.sql" />
     <Content Include="Repository\SqlScripts\Commands\InsertSubscriptions.sql" />
     <Content Include="Repository\SqlScripts\ViewNodeDb.sql" />
-    <Content Include="Repository\SqlScripts\ProcessorNodeDbWithSubscribersHeartbeats.sql" />
     <Content Include="Repository\SqlScripts\ViewNodeDbWithEventuallyConsistentResults.sql" />
     <Content Include="Repository\SqlScripts\ProcessorNodeDb.sql" />
   </ItemGroup>

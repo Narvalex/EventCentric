@@ -15,12 +15,12 @@ namespace PersistenceBenchmark.ConsoleHost
 
             // Holding in memory messages
             // Expected: Events: waves * users. Inbox: waves * users
-            user1App.StressWithWavesOfConcurrentUsers(wavesCount: 10, concurrentUsers: 500);
-            user2App.StressWithWavesOfConcurrentUsers(wavesCount: 10, concurrentUsers: 500);
+            user1App.StressWithWavesOfConcurrentUsers(wavesCount: 1, concurrentUsers: 3);
+            user2App.StressWithWavesOfConcurrentUsers(wavesCount: 1, concurrentUsers: 3);
 
-            Console.WriteLine("Press any key to stop");
+            Console.WriteLine("Press any key to stop and clean...");
             Console.ReadLine();
-            DbManager.DropDbs();
+            DbManager.DropDb();
         }
     }
 }

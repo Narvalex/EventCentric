@@ -50,8 +50,8 @@ namespace EventCentric
             var guid = container.Resolve<IGuidProvider>();
             var log = container.Resolve<ILogger>();
 
-            var subscriptionRepository = new SubscriptionRepository(storeContextFactory, serializer, time);
-            var eventDao = new EventDao(queueContextFactory);
+            var subscriptionRepository = new SubscriptionRepository(storeContextFactory, streamFullName, serializer, time);
+            var eventDao = new EventDao(queueContextFactory, streamFullName);
 
             var eventStore = new EventStore<TStream>(streamFullName, serializer, storeContextFactory, time, guid, log);
             container.RegisterInstance<IEventStore<TStream>>(eventStore);
@@ -130,8 +130,8 @@ namespace EventCentric
             var guid = container.Resolve<IGuidProvider>();
             container.RegisterInstance<IGuidProvider>(guid);
 
-            var subscriptionRepository = new SubscriptionRepository(storeContextFactory, serializer, time);
-            var eventDao = new EventDao(queueContextFactory);
+            var subscriptionRepository = new SubscriptionRepository(storeContextFactory, streamFullName, serializer, time);
+            var eventDao = new EventDao(queueContextFactory, streamFullName);
 
             var eventStore = new EventStore<TStream>(streamFullName, serializer, storeContextFactory, time, guid, log);
             container.RegisterInstance<IEventStore<TStream>>(eventStore);
@@ -217,7 +217,7 @@ namespace EventCentric
             var guid = container.Resolve<IGuidProvider>();
 
 
-            var eventDao = new EventDao(queueContextFactory);
+            var eventDao = new EventDao(queueContextFactory, streamFullName);
 
             var dbContextConstructor = typeof(TDbContext).GetConstructor(new[] { typeof(bool), typeof(string) });
             Ensure.CastIsValid(dbContextConstructor, "Type TDbContext must have a constructor with the following signature: ctor(bool, string)");
@@ -230,7 +230,7 @@ namespace EventCentric
 
             var receiver = new MessageReceiver(bus, log, TimeSpan.FromMilliseconds(pollerConfig.Timeout), streamFullName, container.Resolve<IInMemoryEventPublisher>());
 
-            var subscriptionRepository = new SubscriptionRepository(storeContextFactory, serializer, time);
+            var subscriptionRepository = new SubscriptionRepository(storeContextFactory, streamFullName, serializer, time);
 
             var poller = new Poller(bus, log, subscriptionRepository, receiver, serializer, pollerConfig.BufferQueueMaxCount, pollerConfig.EventsToFlushMaxCount);
             container.RegisterInstance<IMonitoredSubscriber>(poller);

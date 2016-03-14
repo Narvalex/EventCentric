@@ -49,6 +49,7 @@ EXECUTE sp_executesql N'CREATE SCHEMA [EventStore] AUTHORIZATION [dbo]';
 -- Create EventStore.Events
 IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[EventStore].[Events]') AND type in (N'U'))
 CREATE TABLE [EventStore].[Events](
+	[StreamType] [nvarchar](255) NOT NULL,
 	[StreamId] [uniqueidentifier] NOT NULL,
 	[Version] [bigint] NOT NULL,
     [TransactionId] [uniqueidentifier] NOT NULL,
@@ -56,8 +57,7 @@ CREATE TABLE [EventStore].[Events](
 	CONSTRAINT EventStore_Events_EventId UNIQUE(EventId),
 	[EventType] [nvarchar] (255) NOT NULL,
 	[CorrelationId] [uniqueidentifier] NULL,
-    [EventCollectionVersion] [bigint] IDENTITY(1,1) NOT NULL,
-	CONSTRAINT EventStore_Events_EventCollectionVersion UNIQUE(EventCollectionVersion),
+    [EventCollectionVersion] [bigint] NOT NULL,
     [LocalTime] [datetime] NOT NULL,
 	[UtcTime] [datetime] NOT NULL,
 	[RowVersion] [rowversion] NOT NULL,
@@ -65,6 +65,7 @@ CREATE TABLE [EventStore].[Events](
 
 PRIMARY KEY CLUSTERED 
 (
+	[StreamType] ASC,
 	[StreamId] ASC, 
     [Version] ASC
 )WITH (PAD_INDEX  = OFF, STATISTICS_NORECOMPUTE  = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS  = ON, ALLOW_PAGE_LOCKS  = ON) ON [PRIMARY]
@@ -73,6 +74,7 @@ PRIMARY KEY CLUSTERED
 -- Create EventStore.Snapshots
 IF NOT EXISTS(SELECT* FROM sys.objects WHERE object_id = OBJECT_ID(N'[EventStore].[Snapshots]') AND type in (N'U'))
 CREATE TABLE[EventStore].[Snapshots](
+	[StreamType] [nvarchar](255) NOT NULL,
     [StreamId] [uniqueidentifier] NOT NULL,
     [Version] [bigint] NOT NULL,
     [Payload] [nvarchar](max) NULL,
@@ -80,6 +82,7 @@ CREATE TABLE[EventStore].[Snapshots](
     [UpdateLocalTime] [datetime] NOT NULL
 PRIMARY KEY CLUSTERED
 (
+	[StreamType] ASC,
     [StreamId] ASC
 )WITH(PAD_INDEX  = OFF, STATISTICS_NORECOMPUTE  = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS  = ON, ALLOW_PAGE_LOCKS  = ON) ON[PRIMARY]
 ) ON[PRIMARY];
@@ -87,6 +90,7 @@ PRIMARY KEY CLUSTERED
 -- Create EventStore.Subscriptions
 IF NOT EXISTS(SELECT* FROM sys.objects WHERE object_id = OBJECT_ID(N'[EventStore].[SubscribedSources]') AND type in (N'U'))
 CREATE TABLE[EventStore].[Subscriptions](
+	[SubscriberStreamType] [nvarchar](128) NOT NULL,
 	[StreamType] [nvarchar] (255) NOT NULL,
     [Url] [nvarchar] (500) NOT NULL,
 	[Token] [nvarchar] (max) NOT NULL,
@@ -100,7 +104,8 @@ CREATE TABLE[EventStore].[Subscriptions](
     [UpdateLocalTime] [datetime] NOT NULL
 PRIMARY KEY CLUSTERED
 (
-    [StreamType] ASC
+	[SubscriberStreamType] ASC,
+	[StreamType] ASC
 )WITH(PAD_INDEX  = OFF, STATISTICS_NORECOMPUTE  = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS  = ON, ALLOW_PAGE_LOCKS  = ON) ON[PRIMARY]
 ) ON[PRIMARY];
 
@@ -108,6 +113,7 @@ PRIMARY KEY CLUSTERED
 IF NOT EXISTS(SELECT* FROM sys.objects WHERE object_id = OBJECT_ID(N'[EventStore].[Inbox]') AND type in (N'U'))
 CREATE TABLE[EventStore].[Inbox](
 	[InboxId] [bigint] IDENTITY(1,1) NOT NULL,
+	[InboxStreamType] [nvarchar](128) NOT NULL,
     [EventId] [uniqueidentifier] NOT NULL,
 	CONSTRAINT EventStore_Inbox_EventId UNIQUE(EventId),
     [TransactionId] [uniqueidentifier] NOT NULL,

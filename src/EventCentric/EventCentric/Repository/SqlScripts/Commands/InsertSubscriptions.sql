@@ -7,6 +7,7 @@ delete EventStore.Subscriptions
 -- app
 insert into EventStore.Subscriptions
 (
+	SubscriberStreamType,
 	StreamType,
 	Url,
 	Token,
@@ -18,6 +19,7 @@ insert into EventStore.Subscriptions
 )
 values
 (
+	N'StreamType',
 	N'Domain.AggregateApp_20d1a331-3ca9-4f9c-bec0-739aea1cc3f1', -- The stream type with guid is important, to avoid collisions within event sources
 	N'self', 
 	N'self',

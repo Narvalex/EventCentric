@@ -7,6 +7,7 @@ namespace EventCentric.Repository.Mapping
     // About unique constraints vs indexes: https://technet.microsoft.com/en-us/library/aa224827(v=sql.80).aspx
     public class EventEntity
     {
+        public string StreamType { get; set; }
         public Guid StreamId { get; set; }
         public long Version { get; set; }
         public Guid TransactionId { get; set; }
@@ -25,18 +26,23 @@ namespace EventCentric.Repository.Mapping
         public EventEntityMap()
         {
             // Primary Key
-            this.HasKey(t => new { t.StreamId, t.Version });
+            this.HasKey(t => new { t.StreamType, t.StreamId, t.Version });
 
             // Properties
             this.Property(t => t.Version)
                 .HasDatabaseGeneratedOption(DatabaseGeneratedOption.None);
 
+            this.Property(t => t.StreamType)
+                .HasMaxLength(255);
+
             this.Property(t => t.EventType)
                 .IsRequired()
                 .HasMaxLength(255);
 
+            //this.Property(t => t.EventCollectionVersion)
+            //    .HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
             this.Property(t => t.EventCollectionVersion)
-                .HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+                .HasDatabaseGeneratedOption(DatabaseGeneratedOption.None);
 
             this.Property(t => t.Payload)
                 .IsRequired();
@@ -46,6 +52,7 @@ namespace EventCentric.Repository.Mapping
 
             // Table & Column Mappings
             this.ToTable("Events", "EventStore");
+            this.Property(t => t.StreamType).HasColumnName("StreamType");
             this.Property(t => t.StreamId).HasColumnName("StreamId");
             this.Property(t => t.Version).HasColumnName("Version");
             this.Property(t => t.TransactionId).HasColumnName("TransactionId");

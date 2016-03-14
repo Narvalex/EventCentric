@@ -5,6 +5,7 @@ namespace EventCentric.Repository.Mapping
 {
     public class SubscriptionEntity
     {
+        public string SubscriberStreamType { get; set; }
         public string StreamType { get; set; }
         public string Url { get; set; }
         public string Token { get; set; }
@@ -26,9 +27,11 @@ namespace EventCentric.Repository.Mapping
         public SubscriptionEntityMap()
         {
             // Primary key
-            this.HasKey(t => t.StreamType);
+            this.HasKey(t => new { t.SubscriberStreamType, t.StreamType });
 
             // Properties
+            this.Property(t => t.SubscriberStreamType).HasMaxLength(128);
+
             this.Property(t => t.Url)
                 .IsRequired()
                 .HasMaxLength(500);
@@ -44,6 +47,7 @@ namespace EventCentric.Repository.Mapping
 
             // Table & Column Mappings
             this.ToTable("Subscriptions", "EventStore");
+            this.Property(t => t.SubscriberStreamType).HasColumnName("SubscriberStreamType");
             this.Property(t => t.StreamType).HasColumnName("StreamType");
             this.Property(t => t.Url).HasColumnName("Url");
             this.Property(t => t.Token).HasColumnName("Token");

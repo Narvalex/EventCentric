@@ -6,6 +6,7 @@ namespace EventCentric.Repository.Mapping
     public class InboxEntity
     {
         public long InboxId { get; set; }
+        public string InboxStreamType { get; set; }
         public Guid EventId { get; set; }
         public Guid TransactionId { get; set; }
         public string StreamType { get; set; }
@@ -26,6 +27,10 @@ namespace EventCentric.Repository.Mapping
             this.HasKey(t => t.InboxId);
 
             // Properties
+            this.Property(t => t.InboxStreamType)
+                .IsRequired()
+                .HasMaxLength(255);
+
             this.Property(t => t.StreamType)
                 .IsRequired()
                 .HasMaxLength(255);
@@ -45,6 +50,7 @@ namespace EventCentric.Repository.Mapping
 
             // Table & Column Mappings
             this.ToTable("Inbox", "EventStore");
+            this.Property(t => t.InboxStreamType).HasColumnName("InboxStreamType");
             this.Property(t => t.InboxId).HasColumnName("InboxId");
             this.Property(t => t.EventId).HasColumnName("EventId");
             this.Property(t => t.TransactionId).HasColumnName("TransactionId");

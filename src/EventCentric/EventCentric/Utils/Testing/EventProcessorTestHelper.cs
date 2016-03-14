@@ -173,7 +173,7 @@ namespace EventCentric.Utils.Testing
                             .PendingEvents
                             .ToList()
                             .Select(e => this.serializer.SerializeAndDeserialize(
-                                e.AsStoredEvent(incomingEvent.TransactionId, Guid.NewGuid(), _streamName, DateTime.Now, DateTime.Now)));
+                                e.AsStoredEvent(incomingEvent.TransactionId, Guid.NewGuid(), _streamName, DateTime.Now, DateTime.Now, 0)));
 
                 this.Streams.AddRange(events);
                 this.Aggregate = eventSourced;

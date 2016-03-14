@@ -38,7 +38,7 @@ namespace EventCentric.EventSourcing
             return new NewRawEvent(@event.EventCollectionVersion, serializer.Serialize(@event));
         }
 
-        public static IEvent AsStoredEvent(this IEvent @event, Guid transactionId, Guid eventId, string streamType, DateTime utcTime, DateTime localTime)
+        public static IEvent AsStoredEvent(this IEvent @event, Guid transactionId, Guid eventId, string streamType, DateTime utcTime, DateTime localTime, long eventCollectionVersion)
         {
             var e = (Message)@event;
             e.TransactionId = transactionId;
@@ -46,6 +46,7 @@ namespace EventCentric.EventSourcing
             e.StreamType = streamType;
             e.LocalTime = localTime;
             e.UtcTime = utcTime;
+            e.EventCollectionVersion = eventCollectionVersion;
             return e;
         }
     }

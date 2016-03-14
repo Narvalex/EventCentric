@@ -9,11 +9,13 @@ using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
 using System.Runtime.Caching;
+using System.Threading;
 
 namespace EventCentric.EventSourcing
 {
     public class EventStore<T> : IEventStore<T> where T : class, IEventSourced
     {
+        private long eventCollectionVersion = 0;
         private readonly string streamType;
         private readonly ILogger log;
         private readonly ITextSerializer serializer;
@@ -57,6 +59,14 @@ namespace EventCentric.EventSourcing
                 this.denormalizeIfApplicable = (aggregate, context) => ((IDenormalizer)aggregate).UpdateReadModel(context);
             else
                 this.denormalizeIfApplicable = (aggregate, context) => { };
+
+            using (var context = this.contextFactory.Invoke(true))
+            {
+                var versions = context.Events.Where(e => e.StreamType == this.streamType).AsCachedAnyEnumerable();
+
+                if (versions.Any())
+                    this.eventCollectionVersion = versions.Max(e => e.EventCollectionVersion);
+            }
         }
 
         public T Find(Guid id)
@@ -68,7 +78,7 @@ namespace EventCentric.EventSourcing
                 // try return memento from SQL Server;
                 using (var context = this.contextFactory.Invoke(true))
                 {
-                    var snapshotEntity = context.Snapshots.Where(s => s.StreamId == id).SingleOrDefault();
+                    var snapshotEntity = context.Snapshots.Where(s => s.StreamId == id && s.StreamType == this.streamType).SingleOrDefault();
 
                     if (snapshotEntity != null)
                         cachedMemento = new Tuple<ISnapshot, DateTime?>(this.serializer.Deserialize<ISnapshot>(snapshotEntity.Payload), null);
@@ -97,7 +107,7 @@ namespace EventCentric.EventSourcing
         {
             // if memento not found then try get full stream
             var streamOfEvents = context.Events
-                           .Where(e => e.StreamId == id)
+                           .Where(e => e.StreamId == id && e.StreamType == this.streamType)
                            .OrderBy(e => e.Version)
                            .AsEnumerable()
                            .Select(e => this.serializer.Deserialize<IEvent>(e.Payload))
@@ -137,7 +147,7 @@ namespace EventCentric.EventSourcing
                 using (var context = this.contextFactory.Invoke(false))
                 {
                     var versions = context.Events
-                                          .Where(e => e.StreamId == eventSourced.Id)
+                                          .Where(e => e.StreamId == eventSourced.Id && e.StreamType == this.streamType)
                                           .AsCachedAnyEnumerable();
 
                     long currentVersion = 0;
@@ -157,16 +167,18 @@ namespace EventCentric.EventSourcing
 
                     foreach (var @event in pendingEvents)
                     {
-                        @event.AsStoredEvent(incomingEvent.TransactionId, this.guid.NewGuid(), streamType, now, localNow);
+                        @event.AsStoredEvent(incomingEvent.TransactionId, this.guid.NewGuid(), streamType, now, localNow, Interlocked.Increment(ref this.eventCollectionVersion));
 
                         context.Events.Add(
                             new EventEntity
                             {
+                                StreamType = this.streamType,
                                 StreamId = @event.StreamId,
                                 Version = @event.Version,
                                 EventId = @event.EventId,
                                 TransactionId = @event.TransactionId,
                                 EventType = @event.GetType().Name,
+                                EventCollectionVersion = @event.EventCollectionVersion,
                                 CorrelationId = incomingEvent.EventId,
                                 LocalTime = localNow,
                                 UtcTime = now,
@@ -177,6 +189,7 @@ namespace EventCentric.EventSourcing
                     // Log the incoming message in the inbox
                     var message = new InboxEntity
                     {
+                        InboxStreamType = this.streamType,
                         EventId = incomingEvent.EventId,
                         TransactionId = incomingEvent.TransactionId,
                         StreamType = incomingEvent.StreamType,
@@ -193,7 +206,7 @@ namespace EventCentric.EventSourcing
                     // Update subscription
                     try
                     {
-                        var subscription = context.Subscriptions.Where(s => s.StreamType == incomingEvent.StreamType).Single();
+                        var subscription = context.Subscriptions.Where(s => s.StreamType == incomingEvent.StreamType && s.SubscriberStreamType == this.streamType).Single();
                         subscription.ProcessorBufferVersion = incomingEvent.ProcessorBufferVersion;
                         subscription.UpdateLocalTime = now;
                     }
@@ -213,6 +226,7 @@ namespace EventCentric.EventSourcing
                         () => context.Snapshots.Where(s => s.StreamId == eventSourced.Id).SingleOrDefault(),
                         () => new SnapshotEntity
                         {
+                            StreamType = this.streamType,
                             StreamId = eventSourced.Id,
                             Version = eventSourced.Version,
                             Payload = serializedMemento,
@@ -237,7 +251,7 @@ namespace EventCentric.EventSourcing
 
                     context.SaveChanges();
 
-                    return context.Events.Max(e => e.EventCollectionVersion);
+                    return context.Events.Where(e => e.StreamType == this.streamType).Max(e => e.EventCollectionVersion);
                 }
             }
             catch (Exception ex)
