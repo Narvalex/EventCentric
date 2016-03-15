@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace EventCentric.EventSourcing
 {
@@ -13,7 +14,23 @@ namespace EventCentric.EventSourcing
 
         public T Update(Event @event) => base.UpdateFromMessage(@event);
 
+        public T Update(params Event[] events) => this.Update(events.AsEnumerable());
+
+        public T Update(IEnumerable<Event> events)
+        {
+            events.ForEach(e => base.UpdateFromMessage(e));
+            return this as T;
+        }
+
         public T UpdateAfterSending(Command command) => base.UpdateFromMessage(command);
+
+        public T UpdateAfterSending(params Command[] commands) => this.UpdateAfterSending(commands.AsEnumerable());
+
+        public T UpdateAfterSending(IEnumerable<Command> commands)
+        {
+            commands.ForEach(c => base.UpdateFromMessage(c));
+            return this as T;
+        }
 
         public T UpdateIf(bool condition, params Event[] events)
         {
