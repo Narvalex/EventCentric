@@ -8,7 +8,7 @@
             this.EventCollectionVersion = eventCollectionVersion;
         }
 
-        public string StreamType { get; private set; }
-        public long EventCollectionVersion { get; private set; }
+        public string StreamType { get; }
+        public long EventCollectionVersion { get; }
     }
 }

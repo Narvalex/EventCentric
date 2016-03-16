@@ -136,7 +136,7 @@ namespace EventCentric.EventSourcing
         {
             var pendingEvents = eventSourced.PendingEvents;
             if (pendingEvents.Length == 0)
-                throw new ArgumentOutOfRangeException("pendingEvents");
+                return this.eventCollectionVersion;
 
             if (eventSourced.Id == default(Guid))
                 throw new ArgumentOutOfRangeException("StreamId", $"The eventsourced of type {typeof(T).FullName} has a default GUID value for its stream id, which is not valid");
@@ -251,7 +251,8 @@ namespace EventCentric.EventSourcing
 
                     context.SaveChanges();
 
-                    return context.Events.Where(e => e.StreamType == this.streamType).Max(e => e.EventCollectionVersion);
+                    //return context.Events.Where(e => e.StreamType == this.streamType).Max(e => e.EventCollectionVersion);
+                    return this.eventCollectionVersion;
                 }
             }
             catch (Exception ex)
