@@ -167,7 +167,7 @@ namespace EventCentric.EventSourcing
 
                     foreach (var @event in pendingEvents)
                     {
-                        @event.AsStoredEvent(incomingEvent.TransactionId, this.guid.NewGuid(), streamType, now, localNow, Interlocked.Increment(ref this.eventCollectionVersion));
+                        @event.AsStoredEvent(incomingEvent.TransactionId, this.guid.NewGuid(), this.streamType, now, localNow, Interlocked.Increment(ref this.eventCollectionVersion));
 
                         context.Events.Add(
                             new EventEntity
@@ -223,7 +223,7 @@ namespace EventCentric.EventSourcing
                     var serializedMemento = this.serializer.Serialize(snapshot);
 
                     var streamEntity = ((DbContext)context).AddOrUpdate(
-                        () => context.Snapshots.Where(s => s.StreamId == eventSourced.Id).SingleOrDefault(),
+                        () => context.Snapshots.Where(s => s.StreamId == eventSourced.Id && s.StreamType == this.streamType).SingleOrDefault(),
                         () => new SnapshotEntity
                         {
                             StreamType = this.streamType,
