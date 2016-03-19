@@ -18,6 +18,7 @@ namespace EventCentric.MicroserviceFactory
             var log = useSignalRLog ? (ILogger)SignalRLogger.ResolvedSignalRLogger : new ConsoleLogger();
             container.RegisterInstance<ILogger>(log);
 
+            // Only one instance of the event publisher sould be in a node.
             container.RegisterInstance<IInMemoryEventPublisher>(new InMemoryEventPublisher(log));
 
             var serializer = new JsonTextSerializer();
@@ -38,6 +39,7 @@ namespace EventCentric.MicroserviceFactory
         {
             var newContainer = new UnityContainer();
             newContainer.RegisterInstance<ILogger>(mainContainer.Resolve<ILogger>());
+            // We resolve the in memory event publisher. There sould be only one instance of it.
             newContainer.RegisterInstance<IInMemoryEventPublisher>(mainContainer.Resolve<IInMemoryEventPublisher>());
             newContainer.RegisterInstance<ITextSerializer>(mainContainer.Resolve<ITextSerializer>());
             newContainer.RegisterInstance<IUtcTimeProvider>(mainContainer.Resolve<IUtcTimeProvider>());

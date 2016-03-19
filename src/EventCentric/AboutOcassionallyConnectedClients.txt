@@ -1,0 +1,17 @@
+1. A new table, like
+EventStore.OcaccionallyConnectedClients
+StreamType			| DateTime
+ProductorElzevir
+With this table we can register the OCCProxy, and with the subscription tables we can register 
+the current ECVersion of each OCC
+The proxy registers in the singleton OCCProxy
+
+2. The severs subscribers polls IInMemoryPublisher, when polling, they updates the OCCProxy in what ECVersion number
+they are already.
+
+3. The Client, when online, they try to issue a get to the OCCProxy to get the current ECVersion, the first time 
+they tell that they do not know with number they have. When getting a response, they save in memory the number of the
+ECVersion of the server. With that information they post the new events from that version on. After posting, 
+they polls for an update of the ECVersion of the server.
+
+4. When updated they try to post again.
