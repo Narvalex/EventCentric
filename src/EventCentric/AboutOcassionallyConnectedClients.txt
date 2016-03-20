@@ -15,3 +15,8 @@ ECVersion of the server. With that information they post the new events from tha
 they polls for an update of the ECVersion of the server.
 
 4. When updated they try to post again.
+
+5. Ther must be a version checking for each "GET", and "POST" to the server. If the required version from the server fails
+the server will reject messages and tell the client that is outdated. 
+
+6. If the subscription is removed, the client can no longer "POST" events.
