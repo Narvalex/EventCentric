@@ -1,9 +1,9 @@
-using EventCentric.Authorization;
+﻿using EventCentric.Authorization;
 using EventCentric.Publishing;
 using System.Web.Http;
 using System.Web.Http.Cors;
 
-namespace EventCentric
+namespace Occ.ServiceHost.Controllers
 {
     [EnableCors(origins: "*", headers: "*", methods: "*")]
     [AuthorizeEventSourcing]

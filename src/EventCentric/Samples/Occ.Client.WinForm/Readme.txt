@@ -1,0 +1,1 @@
+﻿THe user name should be the same of the db, and thus, the same of the subscribed client of ther server

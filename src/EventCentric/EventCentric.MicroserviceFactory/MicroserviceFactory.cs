@@ -106,6 +106,7 @@ namespace EventCentric
             bool isSubscriptor = true,
             Func<IGuidProvider, ILogger, string, int, TApp> appFactory = null,
             Func<IBus, ILogger, IEventStore<TStream>, THandler> processorFactory = null,
+            Func<string, IBus, ILogger, IEventDao, int, TimeSpan, IEventPublisher> publisherFactory = null,
             bool enableHeartbeatingListener = false)
                 where TApp : ApplicationService
         {
@@ -139,8 +140,16 @@ namespace EventCentric
             var bus = new Bus();
             container.RegisterInstance<IBus>(bus);
 
-            var publisher = new Publisher(streamFullName, bus, log, eventDao, eventStoreConfig.PushMaxCount, TimeSpan.FromMilliseconds(eventStoreConfig.LongPollingTimeout));
-            container.RegisterInstance<IEventPublisher>(publisher);
+            IEventPublisher publisher;
+            if (publisherFactory == null)
+            {
+                publisher = new Publisher(streamFullName, bus, log, eventDao, eventStoreConfig.PushMaxCount, TimeSpan.FromMilliseconds(eventStoreConfig.LongPollingTimeout));
+                container.RegisterInstance<IEventPublisher>(publisher);
+            }
+            else
+            {
+                publisher = publisherFactory.Invoke(streamFullName, bus, log, eventDao, eventStoreConfig.PushMaxCount, TimeSpan.FromMilliseconds(eventStoreConfig.LongPollingTimeout));
+            }
 
             var fsm = new EventProcessorMicroservice(streamFullName, bus, log, isSubscriptor, enableHeartbeatingListener);
             container.RegisterInstance<IMicroservice>(fsm);

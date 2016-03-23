@@ -2,6 +2,7 @@
 using EventCentric.Log;
 using EventCentric.Messaging;
 using EventCentric.Microservice;
+using EventCentric.Publishing;
 using Microsoft.Practices.Unity;
 using System;
 using System.Collections.Generic;
@@ -15,7 +16,7 @@ namespace EventCentric.MicroserviceFactory
         private static MultiMicroserviceContainer multiContainer = null;
         private static bool isRunning = false;
 
-        public static void Run(IUnityContainer mainContainer, Func<List<IMicroservice>> microservicesFactory, bool useSignalRLog = true)
+        public static void Run(IUnityContainer mainContainer, Func<List<IMicroservice>> microservicesFactory, bool useSignalRLog = true, params IEventPublisher[] ocassionallyConnectedSources)
         {
             lock (_lockObject)
             {
@@ -29,6 +30,9 @@ namespace EventCentric.MicroserviceFactory
                     mainContainer.Resolve<IBus>(),
                     mainContainer.Resolve<ILogger>(),
                     microservicesFactory.Invoke());
+
+                var inMemoryEventPublisher = mainContainer.Resolve<IInMemoryEventPublisher>();
+                ocassionallyConnectedSources.ForEach(x => inMemoryEventPublisher.Register(x));
 
                 multiContainer.Start();
                 isRunning = true;

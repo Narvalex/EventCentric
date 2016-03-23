@@ -17,7 +17,6 @@ namespace EventCentric.Transport
         }
 
         public bool NewEventsWereFound { get; private set; }
-        public bool EventsAreSerialized { get; private set; }
         public bool ErrorDetected { get; private set; }
 
         public string StreamType { get; private set; }

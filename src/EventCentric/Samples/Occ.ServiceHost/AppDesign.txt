@@ -1,0 +1,30 @@
+﻿A sample app for demonstrating Occ capabilities of Event Centric.
+
+Inventory
+--------------------------------------------------------
+Occ Clients 
+--------------------------------------------------------
+Use cases
+- creates items, and commits to Server.
+- receive commited items from server.
+- do not sync with server when outdated
+
+Aggregates:
+ItemClient
+- Creates  items that needs to be sync with server.
+- Accept items that where commited to server. If the item whas created 
+	by the user, then the item is marked as accepted. If the item was not created 
+	by the user, then the item is marked by "item from the server".
+
+
+---------------------------------------------------------
+Server
+---------------------------------------------------------
+Use cases
+- receives items and publishes to all clients.
+- do not sync with client when client is outdated.
+
+Aggregates:
+Item server
+- Accept items that where created by client and publish that where accepted 
+ by the server.

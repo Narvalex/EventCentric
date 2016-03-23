@@ -1,7 +1,10 @@
 ﻿using EventCentric.Database;
+using EventCentric.Messaging;
 using EventCentric.MicroserviceFactory;
+using EventCentric.Publishing;
 using Microsoft.Practices.Unity;
 using System;
+using System.Collections.Generic;
 using System.Data.Entity;
 
 namespace EventCentric
@@ -14,7 +17,7 @@ namespace EventCentric
 
         public static void Run(
             IUnityContainer container, Func<IMicroservice> microserviceFactory,
-            bool useSignalRLog = true)
+            bool useSignalRLog = true, IEnumerable<IEventPublisher> ocassionallyConnectedSources = null)
         {
             lock (_lockObject)
             {
@@ -25,6 +28,13 @@ namespace EventCentric
                 DbConfiguration.SetConfiguration(new TransientFaultHandlingDbConfiguration());
                 container = ContainerFactory.ResolveCommonDependenciesForMainContainer(container, useSignalRLog);
                 _microservice = microserviceFactory.Invoke();
+
+                if (ocassionallyConnectedSources != null)
+                {
+                    var inMemoryEventPublisher = container.Resolve<IInMemoryEventPublisher>();
+                    ocassionallyConnectedSources.ForEach(x => inMemoryEventPublisher.Register(x));
+                }
+
                 _microservice.Start();
                 isRunning = true;
             }

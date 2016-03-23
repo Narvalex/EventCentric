@@ -98,6 +98,8 @@
     <Compile Include="Polling\IMonitoredSubscription.cs" />
     <Compile Include="Handling\HandlerOfTEventSourced.cs" />
     <Compile Include="Handling\IHandles.cs" />
+    <Compile Include="Publishing\Dto\ClientData.cs" />
+    <Compile Include="Publishing\Dto\ServerStatus.cs" />
     <Compile Include="Publishing\IEventDao.cs" />
     <Compile Include="Config\EventStoreConfig.cs" />
     <Compile Include="Config\IPollerConfig.cs" />
@@ -105,6 +107,8 @@
     <Compile Include="Database\DataReaderExtensions.cs" />
     <Compile Include="Log\ILogger.cs" />
     <Compile Include="Messaging\SynchronousBus.cs" />
+    <Compile Include="Publishing\OcassionallyConnectedSource.cs" />
+    <Compile Include="Publishing\OcassionallyConnectedPublisher.cs" />
     <Compile Include="Repository\EventQueueDbContext.cs" />
     <Compile Include="Repository\EventuallyConsistentDbContext.cs" />
     <Compile Include="Repository\IViewDao.cs" />
