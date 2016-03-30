@@ -32,7 +32,7 @@ namespace EventCentric.Utils.Testing
             Ensure.CastIsValid(dbContextConstructor, "Type TDbContext must have a constructor with the following signature: ctor(string)");
             this.EventStoreDbContextFactory = isReadOnly => (TDbContext)dbContextConstructor.Invoke(new object[] { connectionString });
             this.ReadModelDbContextFactory = () => (TDbContext)dbContextConstructor.Invoke(new object[] { connectionString });
-            this.Store = new EventStore<TAggregate>(this.NodeName, serializer, this.EventStoreDbContextFactory, this.Time, this.Guid, this.Log);
+            this.Store = new EventStore<TAggregate>(this.NodeName, serializer, this.EventStoreDbContextFactory, this.Time, this.Guid, this.Bus, this.Log);
 
             using (var context = this.EventStoreDbContextFactory.Invoke(false))
             {

@@ -25,7 +25,7 @@ namespace EventCentric.EventSourcing
         /// <param name="eventSourced">The event sourced aggregate.</param>
         /// <param name="incomingEvent">The correlated <see cref="IEvent"/></param>
         /// <returns>The event collection version.</returns>
-        long Save(T eventSourced, IEvent incomingEvent);
+        void Save(T eventSourced, IEvent incomingEvent);
 
         bool IsDuplicate(Guid eventId);
 

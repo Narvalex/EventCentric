@@ -165,7 +165,7 @@ namespace EventCentric.Utils.Testing
                 return aggregate;
             }
 
-            long IEventStore<TAggregate>.Save(TAggregate eventSourced, IEvent incomingEvent)
+            void IEventStore<TAggregate>.Save(TAggregate eventSourced, IEvent incomingEvent)
             {
                 this.streamId = eventSourced.Id;
 
@@ -180,7 +180,7 @@ namespace EventCentric.Utils.Testing
                 var memento = ((ISnapshotOriginator)eventSourced).SaveToSnapshot();
                 this.Snapshot = this.serializer.SerializeAndDeserialize(memento);
 
-                return events.Max(e => e.Version);
+                //return events.Max(e => e.Version);
             }
 
             public bool IsDuplicate(Guid incomingEvent) => false;

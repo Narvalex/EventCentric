@@ -80,6 +80,7 @@
     <Compile Include="EventSourcing\Command.cs" />
     <Compile Include="EventSourcing\Event.cs" />
     <Compile Include="EventSourcing\EventExtensions.cs" />
+    <Compile Include="EventSourcing\EventStore.CommitQueue.cs" />
     <Compile Include="EventSourcing\State.cs" />
     <Compile Include="EventSourcing\ValueObject.cs" />
     <Compile Include="Handling\EventHandling.cs" />
@@ -158,7 +159,7 @@
     <Compile Include="Messaging\Envelope.cs" />
     <Compile Include="Messaging\Events\EngineStartedEvents.cs" />
     <Compile Include="Messaging\Events\EngineStoppedEvents.cs" />
-    <Compile Include="Messaging\Events\IncomingEventHasBeenProcessed.cs" />
+    <Compile Include="Messaging\Events\IncomingEventsHasBeenProcessed.cs" />
     <Compile Include="Messaging\Events\IncomingMessageIsPoisoned.cs" />
     <Compile Include="Messaging\Events\NewIncomingEvents.cs" />
     <Compile Include="Messaging\Events\EventStoreHasBeenUpdated.cs" />

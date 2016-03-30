@@ -7,6 +7,7 @@ using EventCentric.Utils;
 using Microsoft.CSharp.RuntimeBinder;
 using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace EventCentric.Handling
@@ -162,9 +163,7 @@ namespace EventCentric.Handling
         private void HandleAndSaveChanges(IEvent incomingEvent, IMessageHandling handling)
         {
             var eventSourced = handling.Handle.Invoke();
-            var version = this.store.Save((TEventSourced)eventSourced, incomingEvent);
-            this.bus.Publish(new EventStoreHasBeenUpdated(version));
-            this.PublishIncomingEventHasBeenProcessed(incomingEvent);
+            this.store.Save((TEventSourced)eventSourced, incomingEvent);
         }
 
         public void Handle(StartEventProcessor message)
@@ -192,11 +191,6 @@ namespace EventCentric.Handling
 
         private IMessageHandling BuildHandlingInvocation(Guid streamId, Func<TEventSourced, TEventSourced> handle, Func<TEventSourced> aggregateFactory)
             => new MessageHandling(false, streamId, () => handle.Invoke(aggregateFactory.Invoke()));
-
-        private void PublishIncomingEventHasBeenProcessed(IEvent incomingEvent)
-        {
-            this.bus.Publish(new IncomingEventHasBeenProcessed(incomingEvent.StreamType, incomingEvent.EventCollectionVersion));
-        }
 
         protected IMessageHandling FromNewStreamIfNotExists(Guid id, Func<TEventSourced, TEventSourced> handle)
             => this.BuildHandlingInvocation(id, handle, () =>
@@ -227,7 +221,8 @@ namespace EventCentric.Handling
         /// <param name="@event">The <see cref="IEvent"/> to be igonred.</param>
         private void Ignore(IEvent incomingEvent)
         {
-            this.PublishIncomingEventHasBeenProcessed(incomingEvent);
+            this.bus.Publish(new IncomingEventsHasBeenProcessed(
+                new List<Tuple<string, long>>() { new Tuple<string, long>(incomingEvent.StreamType, incomingEvent.EventCollectionVersion) }));
         }
     }
 }

@@ -7,7 +7,7 @@ namespace PersistenceBenchmark.ConsoleHost
     {
         static void Main(string[] args)
         {
-            DbManager.CreateDbs();
+            DbManager.ResetDbs();
             var mainContainer = UnityConfig.GetConfiguredContainer(true);
 
             var user1App = UnityConfig.UserContainer1.Resolve<UserAppService>();
@@ -15,8 +15,13 @@ namespace PersistenceBenchmark.ConsoleHost
 
             // Holding in memory messages
             // Expected: Events: waves * users. Inbox: waves * users
-            user1App.StressWithWavesOfConcurrentUsers(wavesCount: 1, concurrentUsers: 3);
-            user2App.StressWithWavesOfConcurrentUsers(wavesCount: 1, concurrentUsers: 3);
+
+            // THIS MAKE CRASH 
+            user1App.StressWithWavesOfConcurrentUsers(wavesCount: 5, concurrentUsers: 1000);
+            user2App.StressWithWavesOfConcurrentUsers(wavesCount: 5, concurrentUsers: 1000);
+
+            //user1App.StressWithWavesOfConcurrentUsers(wavesCount: 1, concurrentUsers: 1);
+            //user2App.StressWithWavesOfConcurrentUsers(wavesCount: 1, concurrentUsers: 1);
 
             Console.WriteLine("Press any key to stop and clean...");
             Console.ReadLine();

@@ -20,7 +20,7 @@ namespace EventCentric.Polling
         IMessageHandler<StartEventPoller>,
         IMessageHandler<StopEventPoller>,
         IMessageHandler<PollResponseWasReceived>,
-        IMessageHandler<IncomingEventHasBeenProcessed>,
+        IMessageHandler<IncomingEventsHasBeenProcessed>,
         IMessageHandler<IncomingEventIsPoisoned>
     {
         private readonly ISubscriptionRepository repository;
@@ -222,15 +222,18 @@ namespace EventCentric.Polling
             subscription.IsPolling = false;
         }
 
-        public void Handle(IncomingEventHasBeenProcessed message)
+        public void Handle(IncomingEventsHasBeenProcessed message)
         {
-            this.bufferPool
-                    .Where(s => s.StreamType == message.StreamType)
+            foreach (var evnt in message.Events)
+            {
+                this.bufferPool
+                    .Where(s => s.StreamType == evnt.Item1)
                     .Single()
                         .EventsInProcessorBag
-                        .Where(e => e.Event.EventCollectionVersion == message.EventCollectionVersion)
+                        .Where(e => e.Event.EventCollectionVersion == evnt.Item2)
                         .Single()
                         .MarkEventAsProcessed();
+            }
         }
 
         public void Handle(IncomingEventIsPoisoned message)

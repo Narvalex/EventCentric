@@ -9,19 +9,39 @@ namespace PersistenceBenchmark
     {
         public const string ConnectionString = "server = (local); Database = PersistenceBench; User Id = sa; pwd = 123456";
 
-        public static void CreateDbs()
+        public static void ResetDbs()
         {
+            using (var context = new EventStoreDbContext(ConnectionString))
+            {
+                if (context.Database.Exists())
+                {
+                    Console.WriteLine("Truncating current db...");
+                    context.Database.ExecuteSqlCommand
+                    (@"
+                        truncate table eventstore.events;
+                        truncate table eventstore.inbox;
+                        truncate table eventstore.snapshots;
+                        truncate table eventstore.subscriptions;"
+                    );
+                    Console.WriteLine("Db truncated!");
+                    Console.WriteLine("Adding subscriptons");
+                    AddSubscriptions(context);
+
+                    return;
+                }
+            }
+
             DropDb();
             CreateDb();
         }
 
         public static void DropDb()
         {
-            Console.WriteLine("Reseting db...");
+            Console.WriteLine("Drop db started...");
 
             SqlClientLite.DropDatabase(ConnectionString);
 
-            Console.WriteLine("All databases are cleansed");
+            Console.WriteLine("Db was droped!");
         }
 
         private static void CreateDb()
@@ -34,123 +54,128 @@ namespace PersistenceBenchmark
                 Console.WriteLine("Db created");
                 Console.WriteLine("Adding subscriptions...");
                 // promo
-                context.Subscriptions.Add(new SubscriptionEntity
-                {
-                    SubscriberStreamType = "promo",
-                    StreamType = "promo",
-                    Url = "none",
-                    Token = "#token",
-                    ProcessorBufferVersion = 0,
-                    IsPoisoned = false,
-                    WasCanceled = false,
-                    CreationLocalTime = DateTime.Now,
-                    UpdateLocalTime = DateTime.Now
-                });
-                context.Subscriptions.Add(new SubscriptionEntity
-                {
-                    SubscriberStreamType = "promo",
-                    StreamType = "user1",
-                    Url = "none",
-                    Token = "#token",
-                    ProcessorBufferVersion = 0,
-                    IsPoisoned = false,
-                    WasCanceled = false,
-                    CreationLocalTime = DateTime.Now,
-                    UpdateLocalTime = DateTime.Now
-                });
-                context.Subscriptions.Add(new SubscriptionEntity
-                {
-                    SubscriberStreamType = "promo",
-                    StreamType = "user2",
-                    Url = "none",
-                    Token = "#token",
-                    ProcessorBufferVersion = 0,
-                    IsPoisoned = false,
-                    WasCanceled = false,
-                    CreationLocalTime = DateTime.Now,
-                    UpdateLocalTime = DateTime.Now
-                });
-
-                // user1
-                context.Subscriptions.Add(new SubscriptionEntity
-                {
-                    SubscriberStreamType = "user1",
-                    StreamType = "user1_app",
-                    Url = "none",
-                    Token = "#token",
-                    ProcessorBufferVersion = 0,
-                    IsPoisoned = false,
-                    WasCanceled = false,
-                    CreationLocalTime = DateTime.Now,
-                    UpdateLocalTime = DateTime.Now
-                });
-                context.Subscriptions.Add(new SubscriptionEntity
-                {
-                    SubscriberStreamType = "user1",
-                    StreamType = "user2",
-                    Url = "none",
-                    Token = "#token",
-                    ProcessorBufferVersion = 0,
-                    IsPoisoned = false,
-                    WasCanceled = false,
-                    CreationLocalTime = DateTime.Now,
-                    UpdateLocalTime = DateTime.Now
-                });
-                context.Subscriptions.Add(new SubscriptionEntity
-                {
-                    SubscriberStreamType = "user1",
-                    StreamType = "promo",
-                    Url = "none",
-                    Token = "#token",
-                    ProcessorBufferVersion = 0,
-                    IsPoisoned = false,
-                    WasCanceled = false,
-                    CreationLocalTime = DateTime.Now,
-                    UpdateLocalTime = DateTime.Now
-                });
-
-                // user2
-                context.Subscriptions.Add(new SubscriptionEntity
-                {
-                    SubscriberStreamType = "user2",
-                    StreamType = "user2_app",
-                    Url = "none",
-                    Token = "#token",
-                    ProcessorBufferVersion = 0,
-                    IsPoisoned = false,
-                    WasCanceled = false,
-                    CreationLocalTime = DateTime.Now,
-                    UpdateLocalTime = DateTime.Now
-                });
-                context.Subscriptions.Add(new SubscriptionEntity
-                {
-                    SubscriberStreamType = "user2",
-                    StreamType = "promo",
-                    Url = "none",
-                    Token = "#token",
-                    ProcessorBufferVersion = 0,
-                    IsPoisoned = false,
-                    WasCanceled = false,
-                    CreationLocalTime = DateTime.Now,
-                    UpdateLocalTime = DateTime.Now
-                });
-                context.Subscriptions.Add(new SubscriptionEntity
-                {
-                    SubscriberStreamType = "user2",
-                    StreamType = "user1",
-                    Url = "none",
-                    Token = "#token",
-                    ProcessorBufferVersion = 0,
-                    IsPoisoned = false,
-                    WasCanceled = false,
-                    CreationLocalTime = DateTime.Now,
-                    UpdateLocalTime = DateTime.Now
-                });
-
-                context.SaveChanges();
-
-                Console.WriteLine("Susbscriptions added!");
+                AddSubscriptions(context);
             }
+        }
+
+        private static void AddSubscriptions(EventStoreDbContext context)
+        {
+            context.Subscriptions.Add(new SubscriptionEntity
+            {
+                SubscriberStreamType = "promo",
+                StreamType = "promo",
+                Url = "none",
+                Token = "#token",
+                ProcessorBufferVersion = 0,
+                IsPoisoned = false,
+                WasCanceled = false,
+                CreationLocalTime = DateTime.Now,
+                UpdateLocalTime = DateTime.Now
+            });
+            context.Subscriptions.Add(new SubscriptionEntity
+            {
+                SubscriberStreamType = "promo",
+                StreamType = "user1",
+                Url = "none",
+                Token = "#token",
+                ProcessorBufferVersion = 0,
+                IsPoisoned = false,
+                WasCanceled = false,
+                CreationLocalTime = DateTime.Now,
+                UpdateLocalTime = DateTime.Now
+            });
+            context.Subscriptions.Add(new SubscriptionEntity
+            {
+                SubscriberStreamType = "promo",
+                StreamType = "user2",
+                Url = "none",
+                Token = "#token",
+                ProcessorBufferVersion = 0,
+                IsPoisoned = false,
+                WasCanceled = false,
+                CreationLocalTime = DateTime.Now,
+                UpdateLocalTime = DateTime.Now
+            });
+
+            // user1
+            context.Subscriptions.Add(new SubscriptionEntity
+            {
+                SubscriberStreamType = "user1",
+                StreamType = "user1_app",
+                Url = "none",
+                Token = "#token",
+                ProcessorBufferVersion = 0,
+                IsPoisoned = false,
+                WasCanceled = false,
+                CreationLocalTime = DateTime.Now,
+                UpdateLocalTime = DateTime.Now
+            });
+            context.Subscriptions.Add(new SubscriptionEntity
+            {
+                SubscriberStreamType = "user1",
+                StreamType = "user2",
+                Url = "none",
+                Token = "#token",
+                ProcessorBufferVersion = 0,
+                IsPoisoned = false,
+                WasCanceled = false,
+                CreationLocalTime = DateTime.Now,
+                UpdateLocalTime = DateTime.Now
+            });
+            context.Subscriptions.Add(new SubscriptionEntity
+            {
+                SubscriberStreamType = "user1",
+                StreamType = "promo",
+                Url = "none",
+                Token = "#token",
+                ProcessorBufferVersion = 0,
+                IsPoisoned = false,
+                WasCanceled = false,
+                CreationLocalTime = DateTime.Now,
+                UpdateLocalTime = DateTime.Now
+            });
+
+            // user2
+            context.Subscriptions.Add(new SubscriptionEntity
+            {
+                SubscriberStreamType = "user2",
+                StreamType = "user2_app",
+                Url = "none",
+                Token = "#token",
+                ProcessorBufferVersion = 0,
+                IsPoisoned = false,
+                WasCanceled = false,
+                CreationLocalTime = DateTime.Now,
+                UpdateLocalTime = DateTime.Now
+            });
+            context.Subscriptions.Add(new SubscriptionEntity
+            {
+                SubscriberStreamType = "user2",
+                StreamType = "promo",
+                Url = "none",
+                Token = "#token",
+                ProcessorBufferVersion = 0,
+                IsPoisoned = false,
+                WasCanceled = false,
+                CreationLocalTime = DateTime.Now,
+                UpdateLocalTime = DateTime.Now
+            });
+            context.Subscriptions.Add(new SubscriptionEntity
+            {
+                SubscriberStreamType = "user2",
+                StreamType = "user1",
+                Url = "none",
+                Token = "#token",
+                ProcessorBufferVersion = 0,
+                IsPoisoned = false,
+                WasCanceled = false,
+                CreationLocalTime = DateTime.Now,
+                UpdateLocalTime = DateTime.Now
+            });
+
+            context.SaveChanges();
+
+            Console.WriteLine("Susbscriptions added!");
         }
     }
 }
