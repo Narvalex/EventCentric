@@ -16,6 +16,9 @@ namespace PersistenceBenchmark.ConsoleHost
             // Holding in memory messages
             // Expected: Events: waves * users. Inbox: waves * users
 
+            Console.WriteLine("Press enter to start....");
+            Console.ReadLine();
+
             // THIS MAKE CRASH 
             user1App.StressWithWavesOfConcurrentUsers(wavesCount: 5, concurrentUsers: 1000);
             user2App.StressWithWavesOfConcurrentUsers(wavesCount: 5, concurrentUsers: 1000);
@@ -23,7 +26,7 @@ namespace PersistenceBenchmark.ConsoleHost
             //user1App.StressWithWavesOfConcurrentUsers(wavesCount: 1, concurrentUsers: 1);
             //user2App.StressWithWavesOfConcurrentUsers(wavesCount: 1, concurrentUsers: 1);
 
-            Console.WriteLine("Press any key to stop and clean...");
+            Console.WriteLine("Press enter to stop and clean...");
             Console.ReadLine();
             DbManager.DropDb();
         }

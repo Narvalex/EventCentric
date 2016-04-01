@@ -165,27 +165,6 @@ namespace EventCentric.EventSourcing
                     var now = this.time.Now;
                     var localNow = this.time.Now.ToLocalTime();
 
-                    foreach (var @event in pendingEvents)
-                    {
-                        @event.AsStoredEvent(incomingEvent.TransactionId, this.guid.NewGuid(), this.streamType, now, localNow, Interlocked.Increment(ref this.eventCollectionVersion));
-
-                        context.Events.Add(
-                            new EventEntity
-                            {
-                                StreamType = this.streamType,
-                                StreamId = @event.StreamId,
-                                Version = @event.Version,
-                                EventId = @event.EventId,
-                                TransactionId = @event.TransactionId,
-                                EventType = @event.GetType().Name,
-                                EventCollectionVersion = @event.EventCollectionVersion,
-                                CorrelationId = incomingEvent.EventId,
-                                LocalTime = localNow,
-                                UtcTime = now,
-                                Payload = this.serializer.Serialize(@event)
-                            });
-                    }
-
                     // Log the incoming message in the inbox
                     var message = new InboxEntity
                     {
@@ -249,7 +228,31 @@ namespace EventCentric.EventSourcing
                     // Denormalize if applicable.
                     this.denormalizeIfApplicable(eventSourced, context);
 
-                    context.SaveChanges();
+                    lock (this)
+                    {
+                        foreach (var @event in pendingEvents)
+                        {
+                            @event.AsStoredEvent(incomingEvent.TransactionId, this.guid.NewGuid(), this.streamType, now, localNow, Interlocked.Increment(ref this.eventCollectionVersion));
+
+                            context.Events.Add(
+                                new EventEntity
+                                {
+                                    StreamType = this.streamType,
+                                    StreamId = @event.StreamId,
+                                    Version = @event.Version,
+                                    EventId = @event.EventId,
+                                    TransactionId = @event.TransactionId,
+                                    EventType = @event.GetType().Name,
+                                    EventCollectionVersion = @event.EventCollectionVersion,
+                                    CorrelationId = incomingEvent.EventId,
+                                    LocalTime = localNow,
+                                    UtcTime = now,
+                                    Payload = this.serializer.Serialize(@event)
+                                });
+                        }
+
+                        context.SaveChanges();
+                    }
 
                     //return context.Events.Where(e => e.StreamType == this.streamType).Max(e => e.EventCollectionVersion);
                     return this.eventCollectionVersion;

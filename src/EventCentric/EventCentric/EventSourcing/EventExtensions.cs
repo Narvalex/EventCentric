@@ -6,7 +6,6 @@ namespace EventCentric.EventSourcing
 {
     public static class EventExtensions
     {
-
         /// <summary>
         /// And incoming message does not belong to a stream. Therefore, the stream type is null, and the 
         /// event store will notice, and will not try to update any subscription status.
