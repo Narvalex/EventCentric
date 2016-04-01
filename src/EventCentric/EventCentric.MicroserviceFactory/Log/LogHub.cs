@@ -5,7 +5,7 @@ namespace EventCentric.Factory
 {
     public class LogHub : Hub
     {
-        private readonly ILogger logger = SignalRLogger.ResolvedSignalRLogger;
+        private readonly ILogger logger = SignalRLogger.GetResolvedSignalRLogger();
 
         // This is just to show messages when a client is connected!
         public void SendMessage(string message)
@@ -13,7 +13,9 @@ namespace EventCentric.Factory
             this.Clients.All.newMessage(message);
 
             if (this.logger != null)
-                this.logger.Trace(message);
+            {
+                this.logger.Log($"{message}. " + (SignalRLogger._Verbose ? "Verbose logging is ENABLED" : "Verbose logging is disabled"));
+            }
         }
     }
 }

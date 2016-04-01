@@ -94,7 +94,7 @@ namespace EventCentric
                 }
                 catch (Exception ex)
                 {
-                    this.log.Error(ex, "Request heartbeat error on subscriber {0} with url {1}", name, url);
+                    this.log.Error(ex, string.Format("Request heartbeat error on subscriber {0} with url {1}", name, url));
 
                     try
                     {
@@ -109,7 +109,7 @@ namespace EventCentric
                     }
                     catch (Exception ex2)
                     {
-                        this.log.Error(ex2, "Request heartbeat error while logging error on subscriber {0} with url {1}", name, url);
+                        this.log.Error(ex2, string.Format("Request heartbeat error while logging error on subscriber {0} with url {1}", name, url));
                     }
                 }
                 finally

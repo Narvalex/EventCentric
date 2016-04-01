@@ -29,8 +29,8 @@ namespace EventCentric.Querying
 
         private Dictionary<Type, Func<TState, IEvent, TState>> handlers = new Dictionary<Type, Func<TState, IEvent, TState>>();
 
-        public StreamQuery(string queryName = "AnonymousEventStreamQuery")
-            : base(new Bus(), new ConsoleLogger())
+        public StreamQuery(string queryName = "AnonymousEventStreamQuery", bool verbose = true)
+            : base(new Bus(), new ConsoleLogger(verbose))
         {
             Ensure.NotNullNeitherEmtpyNorWhiteSpace(queryName, nameof(queryName));
 
@@ -66,7 +66,7 @@ namespace EventCentric.Querying
 
         TState IRun<TState>.RunUntil(Func<bool> stop)
         {
-            this.bus.Send(new StartEventPoller());
+            this.bus.Send(new StartEventPoller(this.queryName));
             while (!this.stopping)
             {
                 if (stop.Invoke())
@@ -85,7 +85,7 @@ namespace EventCentric.Querying
 
         TState IRun<TState>.Run()
         {
-            this.bus.Send(new StartEventPoller());
+            this.bus.Send(new StartEventPoller(this.queryName));
 
             while (!this.stopping)
             {

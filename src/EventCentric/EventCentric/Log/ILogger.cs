@@ -4,12 +4,18 @@ namespace EventCentric.Log
 {
     public interface ILogger
     {
-        void Trace(string format, params object[] args);
+        bool Verbose { get; }
 
-        void Trace(string[] lines);
+        void Trace(string text);
+        void Trace(string text, string[] lines);
 
-        void Error(string format, params object[] args);
+        void Log(string text);
+        void Log(string text, string[] lines);
 
-        void Error(Exception ex, string format, params object[] args);
+        void Error(string text);
+        void Error(string text, string[] lines);
+
+        void Error(Exception ex, string text);
+        void Error(Exception ex, string text, string[] lines);
     }
 }

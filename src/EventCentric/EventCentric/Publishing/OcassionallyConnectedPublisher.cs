@@ -112,14 +112,14 @@ namespace EventCentric.Publishing
                     if (newEvents.Count > 0)
                     {
                         newEventsWereFound = true;
-                        this.log.Trace($"Pushing {newEvents.Count} event/s to {consumerName}");
+                        this.log.Trace($"{this.SourceName} publisher is pushing {newEvents.Count} event/s to {consumerName}");
                         break;
                     }
                     else
                     {
                         // Lo que le paso a charly.
                         newEventsWereFound = false;
-                        this.log.Trace($"There is an error in the event store. The consumer [{consumerName}] version is {consumerVersion} and the local event collection version should be {this.eventCollectionVersion} but it is not. The event store is currupted.");
+                        this.log.Error($"There is an error in the event store. The consumer [{consumerName}] version is {consumerVersion} and the local event collection version should be {this.eventCollectionVersion} but it is not. The event store is currupted.");
                         break;
                     }
                 }
@@ -187,8 +187,8 @@ namespace EventCentric.Publishing
                 var currentVersion = this.dao.GetEventCollectionVersion();
                 Task.Factory.StartNewLongRunning(() => this.SyncWithServer());
 
-                this.log.Trace("Current event collection version is: {0}", currentVersion);
-                this.log.Trace("Publisher started");
+                this.log.Log($"{this.SourceName} publisher started. Current event collection version is: {currentVersion}");
+
                 // Event-sourcing-like approach :)
                 this.bus.Publish(
                     new EventStoreHasBeenUpdated(currentVersion),

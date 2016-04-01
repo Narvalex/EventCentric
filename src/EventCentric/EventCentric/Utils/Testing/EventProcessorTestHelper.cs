@@ -21,7 +21,7 @@ namespace EventCentric.Utils.Testing
             this.serializer = new JsonTextSerializer();
             this.store = new EventStoreStub(this.serializer);
             this.Bus = new BusStub();
-            this.Log = new ConsoleLogger();
+            this.Log = new ConsoleLogger(true);
 
             // to check default values of an aggregate
             var constructor = typeof(TAggregate).GetConstructor(new[] { typeof(Guid) });

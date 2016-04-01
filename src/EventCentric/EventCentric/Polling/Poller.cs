@@ -23,6 +23,7 @@ namespace EventCentric.Polling
         IMessageHandler<IncomingEventHasBeenProcessed>,
         IMessageHandler<IncomingEventIsPoisoned>
     {
+        private string microserviceName;
         private readonly ISubscriptionRepository repository;
         private readonly ILongPoller poller;
         private readonly ITextSerializer serializer;
@@ -60,22 +61,6 @@ namespace EventCentric.Polling
 
             this.queueMaxCount = queueMaxCount;
             this.eventsToFlushMaxCount = eventsToFlushMaxCount;
-        }
-
-        /// <summary>
-        /// Pulls the Event Collection Version for each subscripton.
-        /// </summary>
-        private void Initialize()
-        {
-            this.bufferPool = this.repository.GetSubscriptions();
-            this.log.Trace("Found {0} subscription/s", bufferPool.Count());
-
-            var subscriptionCount = 0;
-            foreach (var subscription in this.bufferPool)
-            {
-                subscriptionCount += 1;
-                this.log.Trace($" Subscription {subscriptionCount} | Name: {subscription.StreamType} | {subscription.Url} | Buffer version: {subscription.CurrentBufferVersion}");
-            }
         }
 
         private bool TryFill()
@@ -138,7 +123,7 @@ namespace EventCentric.Polling
                     // Maybe the event source has new events type that we are not aware off.
 
                     this.log.Error(ex, "An error ocurred while deserializing a message");
-                    this.log.Trace($"An error was detected when serializing a message from {buffer.ProducerName} with event collection number of {raw.EventCollectionVersion}. The message will be ignored.");
+                    this.log.Error($"An error was detected when serializing a message from {buffer.ProducerName} with event collection number of {raw.EventCollectionVersion}. The message will be ignored.");
 #endif
                     incomingEvent = new Message();
                 }
@@ -172,7 +157,7 @@ namespace EventCentric.Polling
             foreach (var stream in streams)
                 this.bus.Publish(new NewIncomingEvents(stream.Events.OrderBy(x => x.Version).ToArray()));
 
-            this.log.Trace($"Flushing {rawEvents.Count} event/s of {buffer.StreamType} queue with {eventsInQueueCount} event/s pulled from {buffer.Url}");
+            this.log.Trace($"{this.microserviceName} is handling {rawEvents.Count} event/s of {buffer.StreamType} queue with {eventsInQueueCount} event/s pulled from {buffer.Url}");
 
             return true;
         }
@@ -200,7 +185,7 @@ namespace EventCentric.Polling
 
             if (response.NewEventsWereFound)
             {
-                this.log.Trace("Received {0} event/s from {1}", response.NewRawEvents.Count(), subscription.StreamType);
+                this.log.Trace(string.Format($"{this.microserviceName} pulled {0} event/s from {1}", response.NewRawEvents.Count(), subscription.StreamType));
 
                 var orderedEvents = response.NewRawEvents.OrderBy(e => e.EventCollectionVersion).ToArray();
 
@@ -268,17 +253,32 @@ namespace EventCentric.Polling
 
         public void Handle(StartEventPoller message)
         {
+            this.microserviceName = message.MicroserviceName;
             base.Start();
         }
 
         protected override void OnStarting()
         {
-            this.Initialize();
+            var lines = new List<string>();
+            lines.Add($"| Starting {this.microserviceName} poller...");
+            this.bufferPool = this.repository.GetSubscriptions();
+
+            lines.Add(string.Format("| Found {0} subscription/s", bufferPool.Count()));
+
+            var subscriptionCount = 0;
+            foreach (var subscription in this.bufferPool)
+            {
+                subscriptionCount += 1;
+                lines.Add($"| --> Subscription {subscriptionCount} | Name: {subscription.StreamType} | {subscription.Url} | Buffer version: {subscription.CurrentBufferVersion}");
+            }
+
             Task.Factory.StartNewLongRunning(() => this.KeepTheBufferFull());
             this.DispatchEventsFromBufferPool();
 
             // Ensure to start everything;
-            this.log.Trace("Poller started");
+            lines.Add($"| {this.microserviceName} poller started");
+            this.log.Log("", lines.ToArray());
+
             this.bus.Publish(new EventPollerStarted());
         }
 

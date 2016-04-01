@@ -17,7 +17,7 @@ namespace EventCentric
 
         public static void Run(
             IUnityContainer container, Func<IMicroservice> microserviceFactory,
-            bool useSignalRLog = true, IEnumerable<IEventPublisher> ocassionallyConnectedSources = null)
+            bool useSignalRLog = true, bool verbose = true, IEnumerable<IEventPublisher> ocassionallyConnectedSources = null)
         {
             lock (_lockObject)
             {
@@ -26,7 +26,7 @@ namespace EventCentric
                     return;
 
                 DbConfiguration.SetConfiguration(new TransientFaultHandlingDbConfiguration());
-                container = ContainerFactory.ResolveCommonDependenciesForMainContainer(container, useSignalRLog);
+                container = ContainerFactory.ResolveCommonDependenciesForMainContainer(container, useSignalRLog, verbose);
                 _microservice = microserviceFactory.Invoke();
 
                 if (ocassionallyConnectedSources != null)

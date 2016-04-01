@@ -24,28 +24,28 @@ namespace EventCentric
 #if DEBUG
             isRelease = false;
 #endif
+            var logLines = new string[6];
             if (isRelease)
-                this.log.Trace($"RELEASE build detected");
+                logLines[1] = $"| RELEASE build detected";
             else
-                this.log.Trace($"DEBUG build detected");
+                logLines[1] = $"| DEBUG build detected";
 
             int workerThreads;
             int completionPortThreads;
             ThreadPool.GetAvailableThreads(out workerThreads, out completionPortThreads);
             var processorCount = Environment.ProcessorCount;
 
-            log.Trace("Worker threads: {0}", workerThreads);
-            log.Trace("OSVersion:      {0}", Environment.OSVersion);
-            log.Trace("ProcessorCount: {0}", processorCount);
-            log.Trace("ClockSpeed:     {0} MHZ", CpuSpeed());
-        }
-
-        private static uint CpuSpeed()
-        {
             var mo = new System.Management.ManagementObject("Win32_Processor.DeviceID='CPU0'");
-            var sp = (uint)(mo["CurrentClockSpeed"]);
+            var cpuSpeed = (uint)(mo["CurrentClockSpeed"]);
             mo.Dispose();
-            return sp;
+
+            logLines[0] = $"| Starting {this.Name} microservice...";
+            logLines[2] = string.Format("| Worker threads: {0}", workerThreads);
+            logLines[3] = string.Format("| OSVersion:      {0}", Environment.OSVersion);
+            logLines[4] = string.Format("| ProcessorCount: {0}", processorCount);
+            logLines[5] = string.Format("| ClockSpeed:     {0} MHZ", cpuSpeed);
+
+            this.log.Log($"", logLines);
         }
     }
 }

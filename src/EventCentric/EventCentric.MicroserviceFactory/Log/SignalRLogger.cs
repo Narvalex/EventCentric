@@ -9,6 +9,10 @@ namespace EventCentric.Factory
 {
     public class SignalRLogger : SignalRBase<LogHub>, ILogger
     {
+        public static bool _Verbose { get; private set; }
+
+        public bool Verbose => _Verbose;
+
         private static int _nextMessageId = 0;
 
         private readonly ConcurrentQueue<Message> messageQueue = new ConcurrentQueue<Message>();
@@ -19,35 +23,87 @@ namespace EventCentric.Factory
 
         private readonly LogMessageBuilder messageBuilder = new LogMessageBuilder();
 
-        private SignalRLogger()
-        { }
+        private SignalRLogger() { }
 
-        public static SignalRLogger ResolvedSignalRLogger { get { return _logger; } }
+        public static SignalRLogger GetResolvedSignalRLogger(bool verbose = true)
+        {
+            SignalRLogger._Verbose = verbose;
+            return _logger;
+        }
 
-        public void Error(string format, params object[] args)
+        public static SignalRLogger GetResolvedSignalRLogger() => _logger;
+
+        public void Error(string format)
         {
             this.FlushMessage(new Message
             {
                 id = this.GetMessageId(),
-                message = this.messageBuilder.BuildMessage("ERROR", format, args)
+                message = this.messageBuilder.BuildMessage("ERROR", format)
             });
         }
 
-        public void Error(Exception ex, string format, params object[] args)
+        public void Error(string format, string[] lines)
         {
             this.FlushMessage(new Message
             {
                 id = this.GetMessageId(),
-                message = this.messageBuilder.BuildMessage(ex, "ERROR", format, args)
+                message = this.FormatMultipleLines(this.messageBuilder.BuildMessage("ERROR", format), lines)
             });
         }
 
-        public void Trace(string format, params object[] args)
+        public void Error(Exception ex, string format)
         {
             this.FlushMessage(new Message
             {
                 id = this.GetMessageId(),
-                message = this.messageBuilder.BuildMessage("TRACE", format, args)
+                message = this.messageBuilder.BuildMessage(ex, "ERROR", format)
+            });
+        }
+
+        public void Error(Exception ex, string format, string[] lines)
+        {
+            this.FlushMessage(new Message
+            {
+                id = this.GetMessageId(),
+                message = this.FormatMultipleLines(this.messageBuilder.BuildMessage(ex, "ERROR", format), lines)
+            });
+        }
+
+        public void Trace(string format)
+        {
+            if (_Verbose)
+                this.FlushMessage(new Message
+                {
+                    id = this.GetMessageId(),
+                    message = this.messageBuilder.BuildMessage("TRACE", format)
+                });
+        }
+
+        public void Trace(string format, string[] lines)
+        {
+            if (_Verbose)
+                this.FlushMessage(new Message
+                {
+                    id = this.GetMessageId(),
+                    message = this.FormatMultipleLines(this.messageBuilder.BuildMessage("TRACE", format), lines)
+                });
+        }
+
+        public void Log(string format)
+        {
+            this.FlushMessage(new Message
+            {
+                id = this.GetMessageId(),
+                message = this.messageBuilder.BuildMessage("LOG", format)
+            });
+        }
+
+        public void Log(string format, string[] lines)
+        {
+            this.FlushMessage(new Message
+            {
+                id = this.GetMessageId(),
+                message = this.FormatMultipleLines(this.messageBuilder.BuildMessage("LOG", format), lines)
             });
         }
 
@@ -72,22 +128,19 @@ namespace EventCentric.Factory
 
         private int GetMessageId() => Interlocked.Increment(ref _nextMessageId);
 
-        public void Trace(params string[] lines)
+        private string FormatMultipleLines(string mainText, string[] lines)
         {
             var stringBuilder = new StringBuilder();
 
             stringBuilder.AppendLine();
+            stringBuilder.AppendLine(mainText);
 
             foreach (var line in lines)
                 stringBuilder.AppendLine(line);
 
             stringBuilder.AppendLine();
 
-            this.messageQueue.Enqueue(new Message
-            {
-                id = this.GetMessageId(),
-                message = stringBuilder.ToString()
-            });
+            return stringBuilder.ToString();
         }
     }
 

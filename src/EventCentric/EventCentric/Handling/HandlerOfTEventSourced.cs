@@ -18,6 +18,7 @@ namespace EventCentric.Handling
         IHandles<IEvent>
             where TEventSourced : class, IEventSourced
     {
+        private static readonly string name = typeof(TEventSourced).Name;
         private readonly IEventStore<TEventSourced> store;
         private readonly Func<Guid, TEventSourced> newAggregateFactory;
         private readonly ConcurrentDictionary<string, object> streamLocksById;
@@ -42,38 +43,27 @@ namespace EventCentric.Handling
 
         public void AdHocHandle(IEvent @event)
         {
-#if DEBUG
-            this.log.Trace($"Processing an event fom {@event.StreamType}");
-#endif
+            if (this.log.Verbose)
+                this.log.Trace($"{name} is handling a message of type {@event.GetType().Name} from {@event.StreamType}");
 
             this.HandleGracefully(@event);
         }
 
         public void Handle(NewIncomingEvents message)
         {
-#if DEBUG
-            var traces = new System.Collections.Generic.List<string>();
-            traces.Add($"Processing {message.IncomingEvents.Count()} event/s as follows:");
-            foreach (var incomingEvent in message.IncomingEvents)
-            {
-                traces.Add($"   Processor buffer version {incomingEvent.ProcessorBufferVersion} | Event collection version {incomingEvent.EventCollectionVersion} | Stream {incomingEvent.StreamId} version {incomingEvent.Version}");
-            }
-            this.log.Trace(traces.ToArray());
-#endif
+            if (this.log.Verbose)
+                this.log.Trace($"{name} is now handling {message.IncomingEvents.Count()} message/s");
 
             foreach (var incomingEvent in message.IncomingEvents)
-            {
                 this.HandleGracefully(incomingEvent);
-            }
+
+            this.log.Log($"{name} handled {message.IncomingEvents.Count()} message/s");
         }
 
         private void HandleGracefully(IEvent incomingEvent)
         {
             try
             {
-#if DEBUG
-                this.log.Trace($"Processor is now handling message '{incomingEvent.GetType().Name}' with id {incomingEvent.EventId}");
-#endif
                 dynamic me = this;
                 IMessageHandling handling = me.Handle((dynamic)incomingEvent);
 
@@ -98,6 +88,9 @@ namespace EventCentric.Handling
                         {
                             this.HandleAndSaveChanges(incomingEvent, handling);
                         }
+
+                        if (this.log.Verbose)
+                            this.log.Trace($"{name} successfully handled message of type {incomingEvent.GetType().Name}");
                     }
                     catch (StreamNotFoundException ex)
                     {
@@ -145,9 +138,6 @@ namespace EventCentric.Handling
                         throw ex;
                     }
                 }
-#if DEBUG
-                this.log.Trace($"Processor successfully handled message '{incomingEvent.GetType().Name}' with id {incomingEvent.EventId}");
-#endif
             }
             catch (Exception ex)
             {
@@ -179,8 +169,8 @@ namespace EventCentric.Handling
 
         protected override void OnStarting()
         {
-            base.log.Trace("Event processor started");
-            base.bus.Publish(new EventProcessorStarted());
+            base.log.Log($"{typeof(TEventSourced).Name} handler started");
+            base.bus.Publish(new EventHandlerStarted());
 
         }
 
@@ -213,9 +203,8 @@ namespace EventCentric.Handling
 
         public IMessageHandling Handle(IEvent message)
         {
-#if DEBUG
-            this.log.Trace($"Ignoring event of type {message.GetType().FullName}");
-#endif
+            if (this.log.Verbose)
+                this.log.Trace($"{name} is automatically ignoring message of type {message.GetType().Name} because no handling method where found");
             return new MessageHandling(true, default(Guid), () => null);
         }
 
@@ -227,6 +216,8 @@ namespace EventCentric.Handling
         /// <param name="@event">The <see cref="IEvent"/> to be igonred.</param>
         private void Ignore(IEvent incomingEvent)
         {
+            if (this.log.Verbose)
+                this.log.Trace($"{name} is deliberately ignoring message of type {incomingEvent.GetType().Name}");
             this.PublishIncomingEventHasBeenProcessed(incomingEvent);
         }
     }

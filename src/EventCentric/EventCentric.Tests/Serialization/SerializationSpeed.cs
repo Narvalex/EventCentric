@@ -11,7 +11,7 @@ namespace EventCentric.Tests.Serialization
     [TestClass]
     public class SerializationSpeed
     {
-        protected ConsoleLogger log = new ConsoleLogger();
+        protected ConsoleLogger log = new ConsoleLogger(true);
 
         protected JsonTextSerializer textWriterSerializer = new JsonTextSerializer();
         protected JsonTextSerializerWithIdentedFormatting textWriterSerializerWithIndentedFormating = new JsonTextSerializerWithIdentedFormatting();

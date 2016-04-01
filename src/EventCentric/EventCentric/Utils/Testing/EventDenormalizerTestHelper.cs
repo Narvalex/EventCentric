@@ -21,7 +21,7 @@ namespace EventCentric.Utils.Testing
         {
             this.serializer = new JsonTextSerializer();
             this.Bus = new BusStub();
-            this.Log = new ConsoleLogger();
+            this.Log = new ConsoleLogger(true);
             this.Time = new UtcTimeProvider();
             this.Guid = new SequentialGuid();
 

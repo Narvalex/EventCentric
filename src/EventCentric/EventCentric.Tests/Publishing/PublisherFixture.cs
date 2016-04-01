@@ -15,7 +15,7 @@ namespace EventCentric.Tests.Publishing
 
         public GIVEN_publisher_with_3_events_in_store_that_did_not_start_yet()
         {
-            this.sut = new Publisher("Test.FakeStreamType_long-guid-here", this.bus, new ConsoleLogger(), dao, 10, TimeSpan.FromSeconds(5));
+            this.sut = new Publisher("Test.FakeStreamType_long-guid-here", this.bus, new ConsoleLogger(true), dao, 10, TimeSpan.FromSeconds(5));
         }
 
         [TestMethod]

@@ -3,13 +3,14 @@ using EventCentric.Messaging;
 using EventCentric.Messaging.Commands;
 using EventCentric.Messaging.Events;
 using EventCentric.Microservice;
+using System.Collections.Generic;
 using System.Threading;
 
 namespace EventCentric
 {
     public class EventProcessorMicroservice : MicroserviceBase, IMicroservice, ICanRegisterExternalListeners,
         IMessageHandler<EventPublisherStarted>,
-        IMessageHandler<EventProcessorStarted>,
+        IMessageHandler<EventHandlerStarted>,
         IMessageHandler<EventPollerStarted>,
         IMessageHandler<EventPollerStopped>,
         IMessageHandler<EventProcessorStopped>,
@@ -43,7 +44,6 @@ namespace EventCentric
             if (this.Status == WorkerStatus.Down)
             {
                 this.Status = WorkerStatus.Starting;
-                this.log.Trace($"Starting node {this.Name}");
                 base.Start();
 
                 // Check if is started to release thread.
@@ -108,8 +108,13 @@ namespace EventCentric
         public void Handle(EventPollerStarted message)
         {
             this.Status = WorkerStatus.UpAndRunning;
-            this.log.Trace("All services are up and running");
 
+            var lines = new List<string>();
+            lines.Add("-----------------------------------------------------------------------------------------");
+            lines.Add($"Microservice {this.Name} is up and running");
+            lines.Add("-----------------------------------------------------------------------------------------");
+
+            this.log.Log("", lines.ToArray());
         }
 
         public void Handle(EventPublisherStarted message)
@@ -117,10 +122,10 @@ namespace EventCentric
             this.bus.Publish(new StartEventProcessor());
         }
 
-        public void Handle(EventProcessorStarted message)
+        public void Handle(EventHandlerStarted message)
         {
             if (this.hasPoller)
-                this.bus.Publish(new StartEventPoller());
+                this.bus.Publish(new StartEventPoller(this.Name));
             else
             {
                 this.Status = WorkerStatus.UpAndRunning;

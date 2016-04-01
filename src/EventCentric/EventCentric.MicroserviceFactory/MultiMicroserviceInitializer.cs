@@ -16,7 +16,12 @@ namespace EventCentric.MicroserviceFactory
         private static MultiMicroserviceContainer multiContainer = null;
         private static bool isRunning = false;
 
-        public static void Run(IUnityContainer mainContainer, Func<List<IMicroservice>> microservicesFactory, bool useSignalRLog = true, params IEventPublisher[] ocassionallyConnectedSources)
+        public static void Run(
+            IUnityContainer mainContainer,
+            Func<List<IMicroservice>> microservicesFactory,
+            bool useSignalRLog = true,
+            bool verbose = true,
+            params IEventPublisher[] ocassionallyConnectedSources)
         {
             lock (_lockObject)
             {
@@ -25,7 +30,7 @@ namespace EventCentric.MicroserviceFactory
                     return;
 
                 DbConfiguration.SetConfiguration(new TransientFaultHandlingDbConfiguration());
-                mainContainer = ContainerFactory.ResolveCommonDependenciesForMainContainer(mainContainer, useSignalRLog);
+                mainContainer = ContainerFactory.ResolveCommonDependenciesForMainContainer(mainContainer, useSignalRLog, verbose);
                 multiContainer = new MultiMicroserviceContainer(
                     mainContainer.Resolve<IBus>(),
                     mainContainer.Resolve<ILogger>(),

@@ -67,7 +67,7 @@ namespace PersistenceBenchmark
 
                 return services;
             },
-            !_isConsoleApp);
+            !_isConsoleApp, true);
         }
 
         public static IUnityContainer UserContainer1 { get; private set; }

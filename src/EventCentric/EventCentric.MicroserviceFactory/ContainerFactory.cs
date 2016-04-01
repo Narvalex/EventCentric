@@ -10,12 +10,12 @@ namespace EventCentric.MicroserviceFactory
 {
     public class ContainerFactory
     {
-        internal static IUnityContainer ResolveCommonDependenciesForMainContainer(IUnityContainer container, bool useSignalRLog)
+        internal static IUnityContainer ResolveCommonDependenciesForMainContainer(IUnityContainer container, bool useSignalRLog, bool verbose)
         {
             System.Data.Entity.Database.SetInitializer<EventStoreDbContext>(null);
             System.Data.Entity.Database.SetInitializer<EventQueueDbContext>(null);
 
-            var log = useSignalRLog ? (ILogger)SignalRLogger.ResolvedSignalRLogger : new ConsoleLogger();
+            var log = useSignalRLog ? (ILogger)SignalRLogger.GetResolvedSignalRLogger(verbose) : new ConsoleLogger(verbose);
             container.RegisterInstance<ILogger>(log);
 
             // Only one instance of the event publisher sould be in a node.

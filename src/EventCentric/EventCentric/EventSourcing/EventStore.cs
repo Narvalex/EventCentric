@@ -125,7 +125,7 @@ namespace EventCentric.EventSourcing
             if (aggregate == null)
             {
                 var ex = new StreamNotFoundException(id, streamType);
-                this.log.Error(ex, "Stream not found exception for stream {0} with id of {1}", streamType, id);
+                this.log.Error(ex, string.Format("Stream not found exception for stream {0} with id of {1}", streamType, id));
                 throw ex;
             }
 
