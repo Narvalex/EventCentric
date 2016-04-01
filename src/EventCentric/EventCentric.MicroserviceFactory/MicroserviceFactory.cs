@@ -53,11 +53,11 @@ namespace EventCentric
             var subscriptionRepository = new SubscriptionRepository(storeContextFactory, streamFullName, serializer, time);
             var eventDao = new EventDao(queueContextFactory, streamFullName);
 
+            var eventStore = new EventStore<TStream>(streamFullName, serializer, storeContextFactory, time, guid, log);
+            container.RegisterInstance<IEventStore<TStream>>(eventStore);
+
             var bus = new Bus();
             container.RegisterInstance<IBus>(bus);
-
-            var eventStore = new EventStore<TStream>(streamFullName, serializer, storeContextFactory, time, guid, bus, log);
-            container.RegisterInstance<IEventStore<TStream>>(eventStore);
 
             var publisher = new Publisher(streamFullName, bus, log, eventDao, eventStoreConfig.PushMaxCount, TimeSpan.FromMilliseconds(eventStoreConfig.LongPollingTimeout));
             container.RegisterInstance<IEventPublisher>(publisher);
@@ -134,11 +134,11 @@ namespace EventCentric
             var subscriptionRepository = new SubscriptionRepository(storeContextFactory, streamFullName, serializer, time);
             var eventDao = new EventDao(queueContextFactory, streamFullName);
 
+            var eventStore = new EventStore<TStream>(streamFullName, serializer, storeContextFactory, time, guid, log);
+            container.RegisterInstance<IEventStore<TStream>>(eventStore);
+
             var bus = new Bus();
             container.RegisterInstance<IBus>(bus);
-
-            var eventStore = new EventStore<TStream>(streamFullName, serializer, storeContextFactory, time, guid, bus, log);
-            container.RegisterInstance<IEventStore<TStream>>(eventStore);
 
             IEventPublisher publisher;
             if (publisherFactory == null)
@@ -225,17 +225,17 @@ namespace EventCentric
             var time = container.Resolve<IUtcTimeProvider>();
             var guid = container.Resolve<IGuidProvider>();
 
+
             var eventDao = new EventDao(queueContextFactory, streamFullName);
 
             var dbContextConstructor = typeof(TDbContext).GetConstructor(new[] { typeof(bool), typeof(string) });
             Ensure.CastIsValid(dbContextConstructor, "Type TDbContext must have a constructor with the following signature: ctor(bool, string)");
             Func<bool, IEventStoreDbContext> dbContextFactory = isReadOnly => (TDbContext)dbContextConstructor.Invoke(new object[] { isReadOnly, connectionString });
+            var eventStore = new EventStore<TStream>(streamFullName, serializer, dbContextFactory, time, guid, log);
+            container.RegisterInstance<IEventStore<TStream>>(eventStore);
 
             var bus = new Bus();
             container.RegisterInstance<IBus>(bus);
-
-            var eventStore = new EventStore<TStream>(streamFullName, serializer, dbContextFactory, time, guid, bus, log);
-            container.RegisterInstance<IEventStore<TStream>>(eventStore);
 
             var receiver = new MessageReceiver(bus, log, TimeSpan.FromMilliseconds(pollerConfig.Timeout), streamFullName, container.Resolve<IInMemoryEventPublisher>());
 

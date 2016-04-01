@@ -7,7 +7,6 @@ using EventCentric.Utils;
 using Microsoft.CSharp.RuntimeBinder;
 using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Linq;
 
 namespace EventCentric.Handling
@@ -163,7 +162,9 @@ namespace EventCentric.Handling
         private void HandleAndSaveChanges(IEvent incomingEvent, IMessageHandling handling)
         {
             var eventSourced = handling.Handle.Invoke();
-            this.store.Save((TEventSourced)eventSourced, incomingEvent);
+            var version = this.store.Save((TEventSourced)eventSourced, incomingEvent);
+            this.bus.Publish(new EventStoreHasBeenUpdated(version));
+            this.PublishIncomingEventHasBeenProcessed(incomingEvent);
         }
 
         public void Handle(StartEventProcessor message)
@@ -192,12 +193,17 @@ namespace EventCentric.Handling
         private IMessageHandling BuildHandlingInvocation(Guid streamId, Func<TEventSourced, TEventSourced> handle, Func<TEventSourced> aggregateFactory)
             => new MessageHandling(false, streamId, () => handle.Invoke(aggregateFactory.Invoke()));
 
+        private void PublishIncomingEventHasBeenProcessed(IEvent incomingEvent)
+        {
+            this.bus.Publish(new IncomingEventHasBeenProcessed(incomingEvent.StreamType, incomingEvent.EventCollectionVersion));
+        }
+
         protected IMessageHandling FromNewStreamIfNotExists(Guid id, Func<TEventSourced, TEventSourced> handle)
             => this.BuildHandlingInvocation(id, handle, () =>
-                 {
-                     var aggregate = this.store.Find(id);
-                     return aggregate != null ? aggregate : this.newAggregateFactory(id);
-                 });
+            {
+                var aggregate = this.store.Find(id);
+                return aggregate != null ? aggregate : this.newAggregateFactory(id);
+            });
 
         protected IMessageHandling FromNewStream(Guid id, Func<TEventSourced, TEventSourced> handle)
             => this.BuildHandlingInvocation(id, handle, () => this.newAggregateFactory(id));
@@ -221,8 +227,7 @@ namespace EventCentric.Handling
         /// <param name="@event">The <see cref="IEvent"/> to be igonred.</param>
         private void Ignore(IEvent incomingEvent)
         {
-            this.bus.Publish(new IncomingEventsHasBeenProcessed(
-                new List<Tuple<string, long>>() { new Tuple<string, long>(incomingEvent.StreamType, incomingEvent.EventCollectionVersion) }));
+            this.PublishIncomingEventHasBeenProcessed(incomingEvent);
         }
     }
 }

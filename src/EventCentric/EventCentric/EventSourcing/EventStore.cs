@@ -1,6 +1,5 @@
 ﻿using EventCentric.Database;
 using EventCentric.Log;
-using EventCentric.Messaging;
 using EventCentric.Repository;
 using EventCentric.Repository.Mapping;
 using EventCentric.Serialization;
@@ -11,11 +10,10 @@ using System.Data.Entity;
 using System.Linq;
 using System.Runtime.Caching;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace EventCentric.EventSourcing
 {
-    public partial class EventStore<T> : MicroserviceWorker, IEventStore<T> where T : class, IEventSourced
+    public class EventStore<T> : IEventStore<T> where T : class, IEventSourced
     {
         private long eventCollectionVersion = 0;
         private readonly string streamType;
@@ -31,8 +29,7 @@ namespace EventCentric.EventSourcing
         private readonly Func<bool, IEventStoreDbContext> contextFactory;
         private readonly Action<T, IEventStoreDbContext> denormalizeIfApplicable;
 
-        public EventStore(string streamType, ITextSerializer serializer, Func<bool, IEventStoreDbContext> contextFactory, IUtcTimeProvider time, IGuidProvider guid, IBus bus, ILogger log)
-            : base(bus, log)
+        public EventStore(string streamType, ITextSerializer serializer, Func<bool, IEventStoreDbContext> contextFactory, IUtcTimeProvider time, IGuidProvider guid, ILogger log)
         {
             Ensure.NotNullNeitherEmtpyNorWhiteSpace(streamType, nameof(streamType));
             Ensure.NotNull(serializer, nameof(serializer));
@@ -70,8 +67,6 @@ namespace EventCentric.EventSourcing
                 if (versions.Any())
                     this.eventCollectionVersion = versions.Max(e => e.EventCollectionVersion);
             }
-
-            Task.Factory.StartNewLongRunning(() => this.TryCommitEvents());
         }
 
         public T Find(Guid id)
@@ -137,19 +132,19 @@ namespace EventCentric.EventSourcing
             return aggregate;
         }
 
-        public void Save(T eventSourced, IEvent incomingEvent)
+        public long Save(T eventSourced, IEvent incomingEvent)
         {
-            this.pendingCommits.Enqueue((IEventStoreDbContext context) =>
+            var pendingEvents = eventSourced.PendingEvents;
+            if (pendingEvents.Length == 0)
+                return this.eventCollectionVersion;
+
+            if (eventSourced.Id == default(Guid))
+                throw new ArgumentOutOfRangeException("StreamId", $"The eventsourced of type {typeof(T).FullName} has a default GUID value for its stream id, which is not valid");
+
+            var key = eventSourced.Id.ToString();
+            try
             {
-                var pendingEvents = eventSourced.PendingEvents;
-                if (pendingEvents.Length == 0)
-                    return new Tuple<string, long>(incomingEvent.StreamType, incomingEvent.EventCollectionVersion);
-
-                if (eventSourced.Id == default(Guid))
-                    throw new ArgumentOutOfRangeException("StreamId", $"The eventsourced of type {typeof(T).FullName} has a default GUID value for its stream id, which is not valid");
-
-                var key = eventSourced.Id.ToString();
-                try
+                using (var context = this.contextFactory.Invoke(false))
                 {
                     var versions = context.Events
                                           .Where(e => e.StreamId == eventSourced.Id && e.StreamType == this.streamType)
@@ -162,7 +157,7 @@ namespace EventCentric.EventSourcing
                     // Check if incoming event is duplicate
                     if (this.IsDuplicate(incomingEvent.EventId, context))
                         // Incoming event is duplicate
-                        return new Tuple<string, long>(incomingEvent.StreamType, incomingEvent.EventCollectionVersion);
+                        return currentVersion;
 
                     if (currentVersion + 1 != pendingEvents[0].Version)
                         throw new EventStoreConcurrencyException();
@@ -172,13 +167,7 @@ namespace EventCentric.EventSourcing
 
                     foreach (var @event in pendingEvents)
                     {
-                        @event.AsStoredEvent(
-                            incomingEvent.TransactionId,
-                            this.guid.NewGuid(),
-                            this.streamType,
-                            now,
-                            localNow,
-                            Interlocked.Increment(ref this.eventCollectionVersion));
+                        @event.AsStoredEvent(incomingEvent.TransactionId, this.guid.NewGuid(), this.streamType, now, localNow, Interlocked.Increment(ref this.eventCollectionVersion));
 
                         context.Events.Add(
                             new EventEntity
@@ -260,27 +249,29 @@ namespace EventCentric.EventSourcing
                     // Denormalize if applicable.
                     this.denormalizeIfApplicable(eventSourced, context);
 
+                    context.SaveChanges();
+
                     //return context.Events.Where(e => e.StreamType == this.streamType).Max(e => e.EventCollectionVersion);
-                    return new Tuple<string, long>(incomingEvent.StreamType, incomingEvent.EventCollectionVersion);
+                    return this.eventCollectionVersion;
                 }
-                catch (Exception ex)
+            }
+            catch (Exception ex)
+            {
+                this.log.Error(ex, $"An error ocurred while storing events while processing incoming event of type '{incomingEvent.GetType().Name}'");
+
+                // Mark cache as stale
+                var item = (Tuple<ISnapshot, DateTime?>)this.cache.Get(key);
+                if (item != null && item.Item2.HasValue)
                 {
-                    this.log.Error(ex, $"An error ocurred while storing events while processing incoming event of type '{incomingEvent.GetType().Name}'");
-
-                    // Mark cache as stale
-                    var item = (Tuple<ISnapshot, DateTime?>)this.cache.Get(key);
-                    if (item != null && item.Item2.HasValue)
-                    {
-                        item = new Tuple<ISnapshot, DateTime?>(item.Item1, null);
-                        this.cache.Set(
-                            key,
-                            item,
-                            new CacheItemPolicy { AbsoluteExpiration = this.time.OffSetNow.AddMinutes(30) });
-                    }
-
-                    throw;
+                    item = new Tuple<ISnapshot, DateTime?>(item.Item1, null);
+                    this.cache.Set(
+                        key,
+                        item,
+                        new CacheItemPolicy { AbsoluteExpiration = this.time.OffSetNow.AddMinutes(30) });
                 }
-            });
+
+                throw;
+            }
         }
 
         public bool IsDuplicate(Guid eventId)

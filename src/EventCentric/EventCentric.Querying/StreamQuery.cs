@@ -18,7 +18,7 @@ namespace EventCentric.Querying
     public class StreamQuery<TState> : MicroserviceWorker, IGiven<TState>, IWhen<TState>, IRun<TState>,
         IMessageHandler<NewIncomingEvents>,
         IMessageHandler<PollResponseWasReceived>,
-        IMessageHandler<IncomingEventsHasBeenProcessed>
+        IMessageHandler<IncomingEventHasBeenProcessed>
     {
         private readonly string queryName;
         private readonly InMemorySubscriptionRepository subRepo;
@@ -141,8 +141,7 @@ namespace EventCentric.Querying
                     }
                 }
 
-                this.bus.Publish(new IncomingEventsHasBeenProcessed(
-                    new List<Tuple<string, long>>() { new Tuple<string, long>(@event.StreamType, @event.EventCollectionVersion) }));
+                this.bus.Publish(new IncomingEventHasBeenProcessed(@event.StreamType, @event.EventCollectionVersion));
             }
         }
 
@@ -168,23 +167,20 @@ namespace EventCentric.Querying
             }
         }
 
-        public void Handle(IncomingEventsHasBeenProcessed message)
+        public void Handle(IncomingEventHasBeenProcessed message)
         {
-            foreach (var item in message.Events)
+            var producer = this.producers.Single(x => x.ProducerName == message.StreamType);
+            if (producer.MaxVersionToReceive == message.EventCollectionVersion)
             {
-                var producer = this.producers.Single(x => x.ProducerName == item.Item1);
-                if (producer.MaxVersionToReceive == item.Item2)
+                while (!this.stopping)
                 {
-                    while (!this.stopping)
-                    {
-                        if (this.poller.GetBufferPool().Single(x => x.StreamType == producer.ProducerName).CurrentBufferVersion >= producer.MaxVersionToReceive)
-                            break;
+                    if (this.poller.GetBufferPool().Single(x => x.StreamType == producer.ProducerName).CurrentBufferVersion >= producer.MaxVersionToReceive)
+                        break;
 
-                        Thread.Sleep(100);
-                    }
-
-                    producer.MarkAsCompleted();
+                    Thread.Sleep(100);
                 }
+
+                producer.MarkAsCompleted();
             }
         }
 
