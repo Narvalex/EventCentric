@@ -180,7 +180,7 @@ namespace EventCentric.Handling
 
         protected override void OnStopping()
         {
-            this.log.Log($"{name} stopped");
+            this.log.Log($"{name} handler stopped");
             this.bus.Publish(new EventProcessorStopped());
         }
 
