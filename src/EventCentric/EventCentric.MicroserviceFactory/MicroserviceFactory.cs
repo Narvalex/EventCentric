@@ -62,7 +62,7 @@ namespace EventCentric
             var publisher = new Publisher(streamFullName, bus, log, eventDao, eventStoreConfig.PushMaxCount, TimeSpan.FromMilliseconds(eventStoreConfig.LongPollingTimeout));
             container.RegisterInstance<IEventPublisher>(publisher);
 
-            var fsm = new EventProcessorMicroservice(streamFullName, bus, log, isSubscriptor, enableHeartbeatingListener);
+            var fsm = new MicroserviceHost(streamFullName, bus, log, isSubscriptor, enableHeartbeatingListener);
             container.RegisterInstance<IMicroservice>(fsm);
 
             // Processor factory
@@ -151,7 +151,7 @@ namespace EventCentric
                 publisher = publisherFactory.Invoke(streamFullName, bus, log, eventDao, eventStoreConfig.PushMaxCount, TimeSpan.FromMilliseconds(eventStoreConfig.LongPollingTimeout));
             }
 
-            var fsm = new EventProcessorMicroservice(streamFullName, bus, log, isSubscriptor, enableHeartbeatingListener);
+            var fsm = new MicroserviceHost(streamFullName, bus, log, isSubscriptor, enableHeartbeatingListener);
             container.RegisterInstance<IMicroservice>(fsm);
 
             if (processorFactory == null)
@@ -247,7 +247,7 @@ namespace EventCentric
             var publisher = new Publisher(streamFullName, bus, log, eventDao, eventStoreConfig.PushMaxCount, TimeSpan.FromMilliseconds(eventStoreConfig.LongPollingTimeout));
             container.RegisterInstance<IEventPublisher>(publisher);
 
-            var fsm = new EventProcessorMicroservice(streamFullName, bus, log, true, false);
+            var fsm = new MicroserviceHost(streamFullName, bus, log, true, false);
             container.RegisterInstance<IMicroservice>(fsm);
 
             if (processorFactory == null)

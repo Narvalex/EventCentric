@@ -285,7 +285,7 @@ namespace EventCentric.Polling
         protected override void OnStopping()
         {
             // Ensure to stop everything;
-            this.log.Trace("Poller stopped");
+            this.log.Log($"{this.microserviceName} poller stopped");
             this.bus.Publish(new EventPollerStopped());
         }
 

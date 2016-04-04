@@ -7,6 +7,7 @@ using EventCentric.Utils;
 using Microsoft.CSharp.RuntimeBinder;
 using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace EventCentric.Handling
@@ -100,7 +101,10 @@ namespace EventCentric.Handling
                     }
                     catch (RuntimeBinderException ex)
                     {
-                        this.log.Error(ex, $"The state does not have an overload to update when event {incomingEvent.GetType().Name} happened. Did you forget to write a When(IEvent event) method?");
+                        var list = new List<string>();
+                        list.Add($"The state of {name} seems like it does not have an orveload to update when message of type {incomingEvent.GetType().Name} is processed. Did you forget to write a When-Event-like method?");
+                        list.Add("-----------------------------------------------------------------------------------");
+                        this.log.Error(ex, "", list.ToArray());
                         this.poisonedStreams.Add(handling.StreamId);
                         throw ex;
                     }
@@ -176,7 +180,7 @@ namespace EventCentric.Handling
 
         protected override void OnStopping()
         {
-            this.log.Trace("Event processor stopped");
+            this.log.Log($"{name} stopped");
             this.bus.Publish(new EventProcessorStopped());
         }
 

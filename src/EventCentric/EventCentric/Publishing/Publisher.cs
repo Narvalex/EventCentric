@@ -134,7 +134,7 @@ namespace EventCentric.Publishing
 
         protected override void OnStopping()
         {
-            this.log.Trace("Publisher stopped");
+            this.log.Log($"{this.SourceName} publisher stopped");
             this.bus.Publish(new EventPublisherStopped());
         }
     }

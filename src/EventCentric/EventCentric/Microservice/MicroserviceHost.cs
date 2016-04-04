@@ -8,7 +8,7 @@ using System.Threading;
 
 namespace EventCentric
 {
-    public class EventProcessorMicroservice : MicroserviceBase, IMicroservice, ICanRegisterExternalListeners,
+    public class MicroserviceHost : MicroserviceBase, IMicroservice, ICanRegisterExternalListeners,
         IMessageHandler<EventPublisherStarted>,
         IMessageHandler<EventHandlerStarted>,
         IMessageHandler<EventPollerStarted>,
@@ -19,7 +19,7 @@ namespace EventCentric
         private bool hasPoller;
         private bool listenHeartbeating;
 
-        public EventProcessorMicroservice(string eventSourceName, IBus bus, ILogger log, bool hasPoller, bool listenHeartbeating)
+        public MicroserviceHost(string eventSourceName, IBus bus, ILogger log, bool hasPoller, bool listenHeartbeating)
             : base(eventSourceName, bus, log)
         {
             this.Status = WorkerStatus.Down;
@@ -70,7 +70,7 @@ namespace EventCentric
             base.OnStarting();
 
             if (!this.hasPoller)
-                this.log.Trace("No poller detected");
+                this.log.Log("No poller detected");
 
             if (this.listenHeartbeating)
                 this.bus.Publish(new StartHeartbeatListener());

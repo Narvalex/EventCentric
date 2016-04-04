@@ -203,7 +203,7 @@ namespace EventCentric.Publishing
 
         protected override void OnStopping()
         {
-            this.log.Trace("Publisher stopped");
+            this.log.Log($"{this.serverName} publisher stopped");
             this.bus.Publish(new EventPublisherStopped());
         }
     }
