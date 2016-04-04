@@ -132,13 +132,13 @@ namespace EventCentric.Factory
         {
             var stringBuilder = new StringBuilder();
 
-            stringBuilder.AppendLine();
+            //stringBuilder.AppendLine();
             stringBuilder.AppendLine(mainText);
 
             foreach (var line in lines)
                 stringBuilder.AppendLine(line);
 
-            stringBuilder.AppendLine();
+            //stringBuilder.AppendLine();
 
             return stringBuilder.ToString();
         }
