@@ -1,6 +1,5 @@
 ﻿using EventCentric.Polling;
 using EventCentric.Repository;
-using EventCentric.Transport;
 using EventCentric.Utils;
 using System;
 using System.Collections.Generic;
@@ -36,7 +35,8 @@ namespace EventCentric.Publishing
                             .Events
                             .Where(e => e.StreamType == this.streamType && e.EventCollectionVersion > lastReceivedVersion)
                             .OrderBy(e => e.EventCollectionVersion)
-                            .Take(quantity);
+                            .Take(quantity)
+                            .AsCachedAnyEnumerable();
 
                 foreach (var e in eventsQuery)
                     events.Add(new NewRawEvent(e.EventCollectionVersion, e.Payload));

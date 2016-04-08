@@ -23,7 +23,7 @@ namespace EventCentric.Publishing
         private readonly TimeSpan longPollingTimeout;
 
         // locks
-        private readonly object updateVersionlock = new object();
+        private readonly object versionlock = new object();
         private long eventCollectionVersion = 0;
 
         public Publisher(string streamType, IBus bus, ILogger log, IEventDao dao, int eventsToPushMaxCount, TimeSpan pollTimeout)
@@ -43,7 +43,7 @@ namespace EventCentric.Publishing
 
         public void Handle(EventStoreHasBeenUpdated message)
         {
-            lock (this.updateVersionlock)
+            lock (this.versionlock)
             {
                 if (message.EventCollectionVersion > this.eventCollectionVersion)
                     this.eventCollectionVersion = message.EventCollectionVersion;
@@ -65,6 +65,12 @@ namespace EventCentric.Publishing
         /// </remarks>
         public PollResponse PollEvents(long consumerVersion, string consumerName)
         {
+            long ecv;
+            lock (versionlock)
+            {
+                ecv = this.eventCollectionVersion;
+            }
+
             var newEvents = new List<NewRawEvent>();
 
             // last received version could be somehow less than 0. I found once that was -1, 
@@ -73,20 +79,20 @@ namespace EventCentric.Publishing
                 consumerVersion = 0;
 
             // the consumer says that is more updated than the source. That is an error. Maybe the publisher did not started yet!
-            if (this.eventCollectionVersion < consumerVersion)
-                return new PollResponse(true, false, this.streamType, newEvents, consumerVersion, this.eventCollectionVersion);
+            if (ecv < consumerVersion)
+                return new PollResponse(true, false, this.streamType, newEvents, consumerVersion, ecv);
 
             bool newEventsWereFound = false;
             var stopwatch = Stopwatch.StartNew();
             while (!this.stopping && stopwatch.Elapsed < this.longPollingTimeout)
             {
-                if (this.eventCollectionVersion == consumerVersion)
+                if (ecv == consumerVersion)
                     // consumer is up to date, and now is waiting until something happens!
                     Thread.Sleep(1);
 
                 // weird error, but is crash proof. Once i had an error where in an infinite loop there was an error saying: Pushing 0 events to....
                 // A Charly le paso. Sucede que limpio la base de datos y justo queria entregar un evento y no devolvia nada.
-                else if (this.eventCollectionVersion > consumerVersion)
+                else if (ecv > consumerVersion)
                 {
                     newEvents = this.dao.FindEvents(consumerVersion, eventsToPushMaxCount);
 
@@ -109,7 +115,7 @@ namespace EventCentric.Publishing
                     break;
             }
 
-            return new PollResponse(false, newEventsWereFound, this.streamType, newEvents, consumerVersion, this.eventCollectionVersion);
+            return new PollResponse(false, newEventsWereFound, this.streamType, newEvents, consumerVersion, ecv);
         }
 
         protected override void OnStarting()

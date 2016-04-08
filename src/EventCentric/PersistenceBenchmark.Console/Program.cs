@@ -22,8 +22,8 @@ namespace PersistenceBenchmark.ConsoleHost
             Console.ReadLine();
 
             // THIS MAKE CRASH 
-            user1App.StressWithWavesOfConcurrentUsers(wavesCount: 500, concurrentUsers: 10);
-            user2App.StressWithWavesOfConcurrentUsers(wavesCount: 500, concurrentUsers: 10);
+            user1App.StressWithWavesOfConcurrentUsers(wavesCount: 5, concurrentUsers: 1000);
+            user2App.StressWithWavesOfConcurrentUsers(wavesCount: 5, concurrentUsers: 1000);
 
             // Light
             //user1App.StressWithWavesOfConcurrentUsers(wavesCount: 1, concurrentUsers: 1);
