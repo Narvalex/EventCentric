@@ -85,11 +85,7 @@ namespace EventCentric.Publishing
         /// </remarks>
         public PollResponse PollEvents(long consumerVersion, string consumerName)
         {
-            long ecv;
-            lock (updateVersionlock)
-            {
-                ecv = this.eventCollectionVersion;
-            }
+            var ecv = this.eventCollectionVersion;
 
             var newEvents = new List<NewRawEvent>();
 

@@ -29,19 +29,15 @@ namespace EventCentric.Publishing
         {
             using (var context = this.contextFactory(true))
             {
-                var events = new List<NewRawEvent>();
+                return context
+                        .Events
+                        .Where(e => e.StreamType == this.streamType && e.EventCollectionVersion > lastReceivedVersion)
+                        .OrderBy(e => e.EventCollectionVersion)
+                        .Take(quantity)
+                        .ToList()
+                        .Select(e => new NewRawEvent(e.EventCollectionVersion, e.Payload))
+                        .ToList();
 
-                var eventsQuery = context
-                            .Events
-                            .Where(e => e.StreamType == this.streamType && e.EventCollectionVersion > lastReceivedVersion)
-                            .OrderBy(e => e.EventCollectionVersion)
-                            .Take(quantity)
-                            .AsCachedAnyEnumerable();
-
-                foreach (var e in eventsQuery)
-                    events.Add(new NewRawEvent(e.EventCollectionVersion, e.Payload));
-
-                return events;
             }
         }
 

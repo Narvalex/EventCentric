@@ -65,11 +65,7 @@ namespace EventCentric.Publishing
         /// </remarks>
         public PollResponse PollEvents(long consumerVersion, string consumerName)
         {
-            long ecv;
-            lock (versionlock)
-            {
-                ecv = this.eventCollectionVersion;
-            }
+            var ecv = this.eventCollectionVersion;
 
             var newEvents = new List<NewRawEvent>();
 
@@ -87,9 +83,11 @@ namespace EventCentric.Publishing
             while (!this.stopping && stopwatch.Elapsed < this.longPollingTimeout)
             {
                 if (ecv == consumerVersion)
+                {
                     // consumer is up to date, and now is waiting until something happens!
                     Thread.Sleep(1);
-
+                    ecv = this.eventCollectionVersion; // I Forgot to update!
+                }
                 // weird error, but is crash proof. Once i had an error where in an infinite loop there was an error saying: Pushing 0 events to....
                 // A Charly le paso. Sucede que limpio la base de datos y justo queria entregar un evento y no devolvia nada.
                 else if (ecv > consumerVersion)
@@ -106,7 +104,7 @@ namespace EventCentric.Publishing
                     {
                         // Lo que le paso a charly.
                         newEventsWereFound = false;
-                        this.log.Error($"There is an error in the event store. The consumer [{consumerName}] version is {consumerVersion} and the local event collection version should be {this.eventCollectionVersion} but it is not. The event store is currupted.");
+                        this.log.Error($"There is an error in the event store or a racy condition. The consumer [{consumerName}] version is {consumerVersion} and the local event collection version should be {this.eventCollectionVersion} but it is not.");
                         break;
                     }
                 }

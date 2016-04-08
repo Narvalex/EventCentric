@@ -87,8 +87,8 @@ namespace EventCentric.Polling
         {
             long processorBufferVersion;
             var eventsInQueueCount = buffer.NewEventsQueue.Count();
-            //if (eventsInQueueCount < 1 || buffer.EventsInProcessorBag.Any(e => !e.WasProcessed))
-            // The buffer is empty or there are still events in the processor
+            //if (eventsInQueueCount < 1 || buffer.EventsInProcessorByEcv.Any(e => !e.Value.WasProcessed))
+            //The buffer is empty or there are still events in the processor
             //return false;
 
             if (eventsInQueueCount < 1)
