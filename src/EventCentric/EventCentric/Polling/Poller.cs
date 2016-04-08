@@ -7,7 +7,6 @@ using EventCentric.Serialization;
 using EventCentric.Transport;
 using EventCentric.Utils;
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
@@ -86,63 +85,81 @@ namespace EventCentric.Polling
 
         private bool TryFlush(SubscriptionBuffer buffer)
         {
+            long processorBufferVersion;
             var eventsInQueueCount = buffer.NewEventsQueue.Count();
-            if (eventsInQueueCount < 1 || buffer.EventsInProcessorBag.Any(e => !e.WasProcessed))
-                // The buffer is empty or there are still events in the processor
+            //if (eventsInQueueCount < 1 || buffer.EventsInProcessorBag.Any(e => !e.WasProcessed))
+            // The buffer is empty or there are still events in the processor
+            //return false;
+
+            if (eventsInQueueCount < 1)
                 return false;
 
-            var rawEvents = new List<NewRawEvent>();
-            for (int i = 0; i < eventsToFlushMaxCount; i++)
+            var eventsToProcess = new List<IEvent>();
+            if (buffer.EventsInProcessorByEcv.Any(e => !e.Value.WasProcessed))
             {
-                NewRawEvent rawEvent = null;
-                if (!buffer.NewEventsQueue.TryDequeue(out rawEvent))
-                    break;
+                while (!buffer.EventsInProcessorByEcv.IsEmpty)
+                {
+                    EventInProcessorBucket toBeRemovedIfApplicable;
+                    var min = buffer.EventsInProcessorByEcv.Min(x => x.Key);
+                    if (buffer.EventsInProcessorByEcv[min].WasProcessed)
+                        buffer.EventsInProcessorByEcv.TryRemove(min, out toBeRemovedIfApplicable);
+                    else
+                        break;
+                }
 
-                rawEvents.Add(rawEvent);
+                if (buffer.EventsInProcessorByEcv.IsEmpty)
+                    return false;
+
+                processorBufferVersion = buffer.EventsInProcessorByEcv.Min(x => x.Key);
+
+                // there are still some events in the 'bag', try to add a few more
+                var flushCount = eventsToFlushMaxCount / 2; // just the half...
+                for (int i = 0; i < flushCount; i++)
+                {
+                    IEvent @event;
+                    if (buffer.NewEventsQueue.TryPeek(out @event))
+                    {
+                        if (!buffer.EventsInProcessorByEcv.Any(x => x.Value.Event.StreamId == @event.StreamId && !x.Value.WasProcessed))
+                        {
+                            // there is not an event of the same stream that is still in the processor
+                            buffer.NewEventsQueue.TryDequeue(out @event);
+                            eventsToProcess.Add(@event);
+                        }
+                    }
+                    else
+                        break;
+                }
+
+                if (eventsToProcess.Count < 1)
+                    // no events could be try to process. No op
+                    return false;
+#if DEBUG
+                this.log.Log($"Optimizing event processing for {eventsToProcess.Count} event/s from {buffer.ProducerName}");
+#endif
+            }
+            else
+            {
+                // if all events where processed, go here
+                for (int i = 0; i < eventsToFlushMaxCount; i++)
+                {
+                    IEvent @event;
+                    if (!buffer.NewEventsQueue.TryDequeue(out @event))
+                        break;
+
+                    eventsToProcess.Add(@event);
+                }
+
+                // the minimun of the queue
+                processorBufferVersion = eventsToProcess.Min(e => e.EventCollectionVersion);
+                // Reset the bag;
+                buffer.EventsInProcessorByEcv.Clear();
             }
 
-            var processorBufferVersion = rawEvents.Min(e => e.EventCollectionVersion);
-
-            // Reset the bag;
-            buffer.EventsInProcessorBag = new ConcurrentBag<EventInProcessorBucket>();
-            var streams = rawEvents.Select(raw =>
+            var streams = eventsToProcess.Select(incomingEvent =>
             {
-                IEvent incomingEvent;
-
-                try
-                {
-                    incomingEvent = this.serializer.Deserialize<IEvent>(raw.Payload);
-                }
-#if !DEBUG
-                catch (SerializationException)
-                {
-#endif
-#if DEBUG
-                catch (SerializationException ex)
-                {
-                    // Maybe the event source has new events type that we are not aware off.
-
-                    this.log.Error(ex, "An error ocurred while deserializing a message");
-                    this.log.Error($"An error was detected when serializing a message from {buffer.ProducerName} with event collection number of {raw.EventCollectionVersion}. The message will be ignored.");
-#endif
-                    incomingEvent = new Message();
-                }
-                catch (Exception ex)
-                {
-                    var errorMessage = $"An error occurred while trying to deserialize a payload from an incoming event. Check the inner exception for more information. System will shut down.";
-                    this.log.Error(ex, errorMessage);
-
-                    this.bus.Publish(
-                        new FatalErrorOcurred(
-                            new FatalErrorException(errorMessage, ex)));
-
-                    throw;
-                }
-
-                ((Message)incomingEvent).EventCollectionVersion = raw.EventCollectionVersion;
                 ((Message)incomingEvent).ProcessorBufferVersion = processorBufferVersion;
 
-                buffer.EventsInProcessorBag.Add(new EventInProcessorBucket(incomingEvent));
+                buffer.EventsInProcessorByEcv.TryAdd(incomingEvent.EventCollectionVersion, new EventInProcessorBucket(incomingEvent));
 
                 return incomingEvent;
                 //this.bus.Publish(new NewIncomingEvents(incomingEvent));
@@ -151,13 +168,15 @@ namespace EventCentric.Polling
                     (key, group) => new
                     {
                         StreamId = key,
-                        Events = group.ToList()
+                        Events = group
                     });
 
             foreach (var stream in streams)
-                this.bus.Publish(new NewIncomingEvents(stream.Events.OrderBy(x => x.Version).ToArray()));
+                // no need to order by again
+                //this.bus.Publish(new NewIncomingEvents(stream.Events.OrderBy(x => x.Version))); 
+                this.bus.Publish(new NewIncomingEvents(stream.Events));
 
-            this.log.Trace($"{this.microserviceName} is handling {rawEvents.Count} event/s of {buffer.StreamType} queue with {eventsInQueueCount} event/s pulled from {buffer.Url}");
+            this.log.Trace($"{this.microserviceName} is handling {eventsToProcess.Count} event/s of {buffer.StreamType} queue with {eventsInQueueCount} event/s pulled from {buffer.Url}");
 
             return true;
         }
@@ -187,7 +206,47 @@ namespace EventCentric.Polling
             {
                 this.log.Trace(string.Format($"{this.microserviceName} pulled {0} event/s from {1}", response.NewRawEvents.Count(), subscription.StreamType));
 
-                var orderedEvents = response.NewRawEvents.OrderBy(e => e.EventCollectionVersion).ToArray();
+                var orderedEvents =
+                    response
+                        .NewRawEvents
+                        .Select(e =>
+                        {
+                            IEvent incomingEvent;
+
+                            try
+                            {
+                                incomingEvent = this.serializer.Deserialize<IEvent>(e.Payload);
+                            }
+#if !DEBUG
+                            catch (SerializationException)
+                            {
+#endif
+#if DEBUG
+                            catch (SerializationException ex)
+                            {
+                                // Maybe the event source has new events type that we are not aware off.
+
+                                this.log.Error(ex, "An error ocurred while deserializing a message");
+                                //this.log.Error($"An error was detected when serializing a message from {buffer.ProducerName} with event collection number of {raw.EventCollectionVersion}. The message will be ignored.");
+#endif
+                                incomingEvent = new Message();
+                            }
+                            catch (Exception ex)
+                            {
+                                var errorMessage = $"An error occurred while trying to deserialize a payload from an incoming event. Check the inner exception for more information. System will shut down.";
+                                this.log.Error(ex, errorMessage);
+
+                                this.bus.Publish(
+                                    new FatalErrorOcurred(
+                                        new FatalErrorException(errorMessage, ex)));
+
+                                throw;
+                            }
+
+                            ((Message)incomingEvent).EventCollectionVersion = e.EventCollectionVersion;
+                            return incomingEvent;
+                        })
+                        .OrderBy(e => e.EventCollectionVersion);
 
                 subscription.CurrentBufferVersion = orderedEvents.Max(e => e.EventCollectionVersion);
 
@@ -212,9 +271,7 @@ namespace EventCentric.Polling
             this.bufferPool
                     .Where(s => s.StreamType == message.StreamType)
                     .Single()
-                        .EventsInProcessorBag
-                        .Where(e => e.Event.EventCollectionVersion == message.EventCollectionVersion)
-                        .Single()
+                        .EventsInProcessorByEcv[message.EventCollectionVersion]
                         .MarkEventAsProcessed();
         }
 

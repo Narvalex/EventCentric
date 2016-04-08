@@ -2,6 +2,7 @@
 using EventCentric.Log;
 using EventCentric.Messaging;
 using EventCentric.Microservice;
+using EventCentric.Polling;
 using EventCentric.Publishing;
 using EventCentric.Serialization;
 using EventCentric.Transport;

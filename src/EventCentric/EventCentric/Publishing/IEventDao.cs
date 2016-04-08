@@ -1,4 +1,5 @@
-﻿using EventCentric.Transport;
+﻿using EventCentric.Polling;
+using EventCentric.Transport;
 using System.Collections.Generic;
 
 namespace EventCentric.Publishing

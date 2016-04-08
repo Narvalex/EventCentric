@@ -2,6 +2,7 @@
 using EventCentric.Messaging;
 using EventCentric.Messaging.Commands;
 using EventCentric.Messaging.Events;
+using EventCentric.Polling;
 using EventCentric.Transport;
 using EventCentric.Utils;
 using System;

@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace PersistenceBenchmark
 {
-    public class UserManagement : StateOf<UserManagement>, IUpdatesWhen<UserCreated>
+    public class UserManagement : StateOf<UserManagement>, IUpdatesWhen<UserCreatedOrUpdated>
     {
         private string name = string.Empty;
 
@@ -23,6 +23,6 @@ namespace PersistenceBenchmark
             return new UserManagementSnapshot(this.Version, this.name);
         }
 
-        public void When(UserCreated e) => this.name = e.Name;
+        public void When(UserCreatedOrUpdated e) => this.name = e.Name;
     }
 }

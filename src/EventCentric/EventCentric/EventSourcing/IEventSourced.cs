@@ -1,5 +1,6 @@
 ﻿using EventCentric.Microservice;
 using System;
+using System.Collections.Generic;
 
 namespace EventCentric.EventSourcing
 {
@@ -21,6 +22,6 @@ namespace EventCentric.EventSourcing
         /// <summary>
         /// Gets the collection of new events since the aggregate was hydrated, as a consequence of message handling.
         /// </summary>
-        IEvent[] PendingEvents { get; }
+        IList<IEvent> PendingEvents { get; }
     }
 }

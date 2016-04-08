@@ -135,7 +135,7 @@ namespace EventCentric.EventSourcing
         public long Save(T eventSourced, IEvent incomingEvent)
         {
             var pendingEvents = eventSourced.PendingEvents;
-            if (pendingEvents.Length == 0)
+            if (pendingEvents.Count == 0)
                 return this.eventCollectionVersion;
 
             if (eventSourced.Id == default(Guid))
@@ -159,7 +159,7 @@ namespace EventCentric.EventSourcing
                         // Incoming event is duplicate
                         return currentVersion;
 
-                    if (currentVersion + 1 != pendingEvents[0].Version)
+                    if (currentVersion + 1 != pendingEvents.First().Version)
                         throw new EventStoreConcurrencyException();
 
                     var now = this.time.Now;
@@ -228,29 +228,44 @@ namespace EventCentric.EventSourcing
                     // Denormalize if applicable.
                     this.denormalizeIfApplicable(eventSourced, context);
 
+
+                    List<EventEntity> eventEntities = new List<EventEntity>();
+                    foreach (var @event in pendingEvents)
+                    {
+                        var e = (Message)@event;
+                        e.TransactionId = incomingEvent.TransactionId;
+                        e.EventId = this.guid.NewGuid();
+                        e.StreamType = this.streamType;
+                        e.LocalTime = now;
+                        e.UtcTime = localNow;
+
+                        eventEntities.Add(
+                            new EventEntity
+                            {
+                                StreamType = this.streamType,
+                                StreamId = @event.StreamId,
+                                Version = @event.Version,
+                                EventId = @event.EventId,
+                                TransactionId = @event.TransactionId,
+                                EventType = @event.GetType().Name,
+                                CorrelationId = incomingEvent.EventId,
+                                LocalTime = localNow,
+                                UtcTime = now
+                            });
+                    }
+
                     lock (this)
                     {
-                        foreach (var @event in pendingEvents)
+                        for (int i = 0; i < pendingEvents.Count; i++)
                         {
-                            @event.AsStoredEvent(incomingEvent.TransactionId, this.guid.NewGuid(), this.streamType, now, localNow, Interlocked.Increment(ref this.eventCollectionVersion));
-
-                            context.Events.Add(
-                                new EventEntity
-                                {
-                                    StreamType = this.streamType,
-                                    StreamId = @event.StreamId,
-                                    Version = @event.Version,
-                                    EventId = @event.EventId,
-                                    TransactionId = @event.TransactionId,
-                                    EventType = @event.GetType().Name,
-                                    EventCollectionVersion = @event.EventCollectionVersion,
-                                    CorrelationId = incomingEvent.EventId,
-                                    LocalTime = localNow,
-                                    UtcTime = now,
-                                    Payload = this.serializer.Serialize(@event)
-                                });
+                            var ecv = Interlocked.Increment(ref this.eventCollectionVersion);
+                            var @event = pendingEvents[0];
+                            ((Message)@event).EventCollectionVersion = ecv;
+                            var entity = eventEntities[0];
+                            entity.EventCollectionVersion = ecv;
+                            entity.Payload = this.serializer.Serialize(@event);
+                            context.Events.Add(entity);
                         }
-
                         context.SaveChanges();
                     }
 

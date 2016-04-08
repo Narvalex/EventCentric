@@ -36,7 +36,7 @@ namespace EventCentric.EventSourcing
 
         public long Version => this.version;
 
-        public IEvent[] PendingEvents => this.pendingEvents.ToArray();
+        public IList<IEvent> PendingEvents => this.pendingEvents;
 
         protected T UpdateFromMessage(Message @event)
         {

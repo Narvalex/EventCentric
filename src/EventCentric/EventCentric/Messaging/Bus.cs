@@ -35,7 +35,7 @@ namespace EventCentric.Messaging
 
             foreach (var invocationTuple in this.BuildHandlerInvocations(worker))
             {
-                var envelopeType = typeof(Envelope<>).MakeGenericType(invocationTuple.Item1);
+                //var envelopeType = typeof(Envelope<>).MakeGenericType(invocationTuple.Item1);
 
                 List<Tuple<Type, Action<Envelope>>> invocations;
                 if (!this.handlersByMessageType.TryGetValue(invocationTuple.Item1, out invocations))
@@ -59,7 +59,9 @@ namespace EventCentric.Messaging
                 interfaces
                 .Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IMessageHandler<>))
                 .Select(i => new { HandlerInterface = i, MessageType = i.GetGenericArguments()[0] })
-                .Select(m => new Tuple<Type, Action<Envelope>>(m.MessageType, this.BuildHandlerInvocation(worker, m.HandlerInterface, m.MessageType)));
+                .Select(m => new Tuple<Type, Action<Envelope>>(
+                    m.MessageType, 
+                    this.BuildHandlerInvocation(worker, m.HandlerInterface, m.MessageType)));
 
             return messageHandlerInvocations;
         }

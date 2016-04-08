@@ -1,4 +1,10 @@
-﻿namespace EventCentric.Transport
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace EventCentric.Polling
 {
     public class NewRawEvent
     {
@@ -8,7 +14,7 @@
             this.Payload = payload;
         }
 
-        public long EventCollectionVersion { get; set; }
-        public string Payload { get; private set; }
+        public long EventCollectionVersion { get; }
+        public string Payload { get; }
     }
 }

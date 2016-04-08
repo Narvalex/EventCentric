@@ -1,4 +1,5 @@
-﻿using EventCentric.Publishing.Dto;
+﻿using EventCentric.Polling;
+using EventCentric.Publishing.Dto;
 using EventCentric.Transport;
 using EventCentric.Utils;
 using System.Collections.Concurrent;

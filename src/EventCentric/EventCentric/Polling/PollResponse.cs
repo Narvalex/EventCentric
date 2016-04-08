@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using EventCentric.Polling;
+using System.Collections.Generic;
 
 namespace EventCentric.Transport
 {

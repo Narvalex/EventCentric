@@ -2,6 +2,7 @@
 using EventCentric.Config;
 using EventCentric.MicroserviceFactory;
 using Microsoft.Practices.Unity;
+using PersistenceBenchmark.ConsoleHost;
 using PersistenceBenchmark.PromotionsStream;
 using System;
 using System.Collections.Generic;
@@ -67,7 +68,7 @@ namespace PersistenceBenchmark
 
                 return services;
             },
-            !_isConsoleApp, true);
+            !_isConsoleApp, Program.VerboseIsEnabled);
         }
 
         public static IUnityContainer UserContainer1 { get; private set; }

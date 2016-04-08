@@ -1,4 +1,5 @@
-﻿using EventCentric.Serialization;
+﻿using EventCentric.Polling;
+using EventCentric.Serialization;
 using EventCentric.Transport;
 using System;
 
@@ -35,18 +36,6 @@ namespace EventCentric.EventSourcing
         public static NewRawEvent AsNewRawEvent(this IEvent @event, ITextSerializer serializer)
         {
             return new NewRawEvent(@event.EventCollectionVersion, serializer.Serialize(@event));
-        }
-
-        public static IEvent AsStoredEvent(this IEvent @event, Guid transactionId, Guid eventId, string streamType, DateTime utcTime, DateTime localTime, long eventCollectionVersion)
-        {
-            var e = (Message)@event;
-            e.TransactionId = transactionId;
-            e.EventId = eventId;
-            e.StreamType = streamType;
-            e.LocalTime = localTime;
-            e.UtcTime = utcTime;
-            e.EventCollectionVersion = eventCollectionVersion;
-            return e;
         }
     }
 }

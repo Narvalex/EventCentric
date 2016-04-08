@@ -99,6 +99,7 @@
     <Compile Include="Polling\IMonitoredSubscription.cs" />
     <Compile Include="Handling\HandlerOfTEventSourced.cs" />
     <Compile Include="Handling\IHandles.cs" />
+    <Compile Include="Polling\NewRawEvent.cs" />
     <Compile Include="Publishing\Dto\ClientData.cs" />
     <Compile Include="Publishing\Dto\ServerStatus.cs" />
     <Compile Include="Publishing\IEventDao.cs" />
@@ -178,7 +179,6 @@
     <Compile Include="Polling\ILongPoller.cs" />
     <Compile Include="Microservice\IMicroserviceClient.cs" />
     <Compile Include="Microservice\MultiMicroserviceClient.cs" />
-    <Compile Include="Polling\NewRawEvent.cs" />
     <Compile Include="Microservice\MicroserviceWorker.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Publishing\Publisher.cs" />

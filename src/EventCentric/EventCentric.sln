@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.24720.0
+# Visual Studio 15
+VisualStudioVersion = 15.0.25123.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventCentric", "EventCentric\EventCentric.csproj", "{4B00E8DD-813C-4ABB-8C87-C664D188F62C}"
 EndProject
@@ -36,8 +36,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventCentric.MicroserviceFa
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Benchmarks", "Benchmarks", "{A39B1C67-6192-4099-9AEF-75D07BADA0DF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PersistenceBenchmark", "PersistenceBenchmark\PersistenceBenchmark.csproj", "{F43D38F8-35A0-4F58-B9E3-533880895C15}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PersistenceBenchmark.Console", "PersistenceBenchmark.Console\PersistenceBenchmark.Console.csproj", "{0BEC8B22-1C08-4085-969C-510F4D2310CF}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DispatcherBenchmark", "DispatcherBenchmark\DispatcherBenchmark.csproj", "{D7BEBB18-6F30-4FA7-9E76-33D287240D4C}"
@@ -53,8 +51,6 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Occ.Client.WinForm", "Samples\Occ.Client.WinForm\Occ.Client.WinForm.csproj", "{F8EC93E0-94B6-4DEC-9166-6F3D11D79483}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Occ.ServiceHost", "Samples\Occ.ServiceHost\Occ.ServiceHost.csproj", "{26DED214-EFB8-4BA0-9DE7-7B78F50CD043}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Persistence", "Persistence", "{B77F1AC6-A0BA-4877-A1EF-9D595AA275AB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -86,10 +82,6 @@ Global
 		{44302C31-F9A4-4531-A43A-0E33CC5D4FD2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{44302C31-F9A4-4531-A43A-0E33CC5D4FD2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{44302C31-F9A4-4531-A43A-0E33CC5D4FD2}.Release|Any CPU.Build.0 = Release|Any CPU
-		{F43D38F8-35A0-4F58-B9E3-533880895C15}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{F43D38F8-35A0-4F58-B9E3-533880895C15}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{F43D38F8-35A0-4F58-B9E3-533880895C15}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{F43D38F8-35A0-4F58-B9E3-533880895C15}.Release|Any CPU.Build.0 = Release|Any CPU
 		{0BEC8B22-1C08-4085-969C-510F4D2310CF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{0BEC8B22-1C08-4085-969C-510F4D2310CF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0BEC8B22-1C08-4085-969C-510F4D2310CF}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -119,15 +111,13 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{F43D38F8-35A0-4F58-B9E3-533880895C15} = {B77F1AC6-A0BA-4877-A1EF-9D595AA275AB}
-		{0BEC8B22-1C08-4085-969C-510F4D2310CF} = {B77F1AC6-A0BA-4877-A1EF-9D595AA275AB}
+		{0BEC8B22-1C08-4085-969C-510F4D2310CF} = {A39B1C67-6192-4099-9AEF-75D07BADA0DF}
 		{D7BEBB18-6F30-4FA7-9E76-33D287240D4C} = {A39B1C67-6192-4099-9AEF-75D07BADA0DF}
 		{368C0568-D666-4AD2-A902-29E24B730D2D} = {13AA8C91-A11C-494C-95A8-FD97BE15F336}
 		{36190E4C-5FAC-4C17-9BBA-0CB610373232} = {368C0568-D666-4AD2-A902-29E24B730D2D}
 		{26A9CDB0-540C-463F-AB8E-C8F25D693543} = {368C0568-D666-4AD2-A902-29E24B730D2D}
 		{F8EC93E0-94B6-4DEC-9166-6F3D11D79483} = {368C0568-D666-4AD2-A902-29E24B730D2D}
 		{26DED214-EFB8-4BA0-9DE7-7B78F50CD043} = {368C0568-D666-4AD2-A902-29E24B730D2D}
-		{B77F1AC6-A0BA-4877-A1EF-9D595AA275AB} = {A39B1C67-6192-4099-9AEF-75D07BADA0DF}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		EnterpriseLibraryConfigurationToolBinariesPath = packages\Unity.2.1.505.2\lib\NET35

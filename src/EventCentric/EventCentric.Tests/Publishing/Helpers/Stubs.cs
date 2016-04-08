@@ -1,4 +1,5 @@
 ﻿using EventCentric.Messaging;
+using EventCentric.Polling;
 using EventCentric.Publishing;
 using EventCentric.Transport;
 using System.Collections.Generic;

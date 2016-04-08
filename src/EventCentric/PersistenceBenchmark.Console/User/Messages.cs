@@ -3,9 +3,9 @@ using System;
 
 namespace PersistenceBenchmark
 {
-    public class CreateUser : Command
+    public class CreateOrUpdateUser : Command
     {
-        public CreateUser(Guid userId, string name)
+        public CreateOrUpdateUser(Guid userId, string name)
         {
             this.UserId = userId;
             this.Name = name;
@@ -15,9 +15,9 @@ namespace PersistenceBenchmark
         public string Name { get; }
     }
 
-    public class UserCreated : Event
+    public class UserCreatedOrUpdated : Event
     {
-        public UserCreated(Guid userId, string name)
+        public UserCreatedOrUpdated(Guid userId, string name)
         {
             this.UserId = userId;
             this.Name = name;

@@ -25,7 +25,7 @@ namespace EventCentric.Utils.Testing
             this.Time = new UtcTimeProvider();
             this.Guid = new SequentialGuid();
 
-            throw new NotImplementedException("Name resolver must be implemented");
+            //throw new NotImplementedException("Name resolver must be implemented");
             //this.NodeName = StreamCategory.ResolveFullNameOf<TAggregate>();
 
             var dbContextConstructor = typeof(TDbContext).GetConstructor(new[] { typeof(string) });

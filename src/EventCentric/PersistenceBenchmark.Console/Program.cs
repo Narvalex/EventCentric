@@ -3,8 +3,10 @@ using System;
 
 namespace PersistenceBenchmark.ConsoleHost
 {
-    class Program
+    public class Program
     {
+        public static bool VerboseIsEnabled = false;
+
         static void Main(string[] args)
         {
             DbManager.ResetDbs();
@@ -20,11 +22,12 @@ namespace PersistenceBenchmark.ConsoleHost
             Console.ReadLine();
 
             // THIS MAKE CRASH 
-            //user1App.StressWithWavesOfConcurrentUsers(wavesCount: 5, concurrentUsers: 1000);
-            //user2App.StressWithWavesOfConcurrentUsers(wavesCount: 5, concurrentUsers: 1000);
+            user1App.StressWithWavesOfConcurrentUsers(wavesCount: 5, concurrentUsers: 1000);
+            user2App.StressWithWavesOfConcurrentUsers(wavesCount: 5, concurrentUsers: 1000);
 
-            user1App.StressWithWavesOfConcurrentUsers(wavesCount: 1, concurrentUsers: 1);
-            user2App.StressWithWavesOfConcurrentUsers(wavesCount: 1, concurrentUsers: 1);
+            // Light
+            //user1App.StressWithWavesOfConcurrentUsers(wavesCount: 1, concurrentUsers: 1);
+            //user2App.StressWithWavesOfConcurrentUsers(wavesCount: 1, concurrentUsers: 1);
 
             Console.WriteLine("Press enter to stop and clean...");
             Console.ReadLine();

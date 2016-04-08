@@ -13,18 +13,22 @@ namespace PersistenceBenchmark
     {
         public UserAppService(IGuidProvider guid, ILogger log, string streamType, int eventsToPushMaxCount) : base(guid, log, streamType, eventsToPushMaxCount) { }
 
-        public List<CreateUser> CreateCreateUserCommands(int quantity)
+        public List<CreateOrUpdateUser> CreateCreateUserCommands(int quantity, int waves)
         {
-            var list = new List<CreateUser>(quantity);
+            var list = new List<CreateOrUpdateUser>(quantity);
             for (int i = 0; i < quantity; i++)
             {
                 var id = Guid.NewGuid();
-                list.Add(new CreateUser(id, $"User_{id.ToString()}"));
+
+                for (int j = 0; j < waves; j++)
+                {
+                    list.Add(new CreateOrUpdateUser(id, $"User_{id.ToString()}"));
+                }
             }
             return list;
         }
 
-        public void SendAWaveOfCommands(List<CreateUser> userCommands)
+        public void SendAWaveOfCommands(List<CreateOrUpdateUser> userCommands)
         {
             userCommands.ForEach(c => this.Send(c.UserId, c));
         }
@@ -32,15 +36,13 @@ namespace PersistenceBenchmark
         public void StressWithWavesOfConcurrentUsers(int wavesCount, int concurrentUsers)
         {
             this.log.Trace($"System is receiving {wavesCount * concurrentUsers} messages.");
-            var wavesOfCommands = new List<List<CreateUser>>();
-            for (int i = 0; i < wavesCount; i++)
-            {
-                wavesOfCommands.Add(CreateCreateUserCommands(concurrentUsers));
-            }
+            var wavesOfCommands = new List<List<CreateOrUpdateUser>>();
+
+            wavesOfCommands.Add(CreateCreateUserCommands(concurrentUsers, wavesCount));
 
             wavesOfCommands.ForEach(w =>
             {
-                Task.Factory.StartNewLongRunning(() => SendAWaveOfCommands(w));
+                System.Threading.ThreadPool.UnsafeQueueUserWorkItem(_ => SendAWaveOfCommands(w), null);
             });
             this.log.Trace($"System is now handling {wavesCount * concurrentUsers} messages.");
         }
