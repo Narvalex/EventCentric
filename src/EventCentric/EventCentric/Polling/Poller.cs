@@ -113,8 +113,15 @@ namespace EventCentric.Polling
                 processorBufferVersion = buffer.EventsInProcessorByEcv.Min(x => x.Key);
 
                 // there are still some events in the 'bag', try to add a few more
-                var flushCount = eventsToFlushMaxCount / 2; // just the half...
-                for (int i = 0; i < flushCount; i++)
+                int freeSlots;
+                var eventsInProcessor = buffer.EventsInProcessorByEcv.Where(x => !x.Value.WasProcessed).Count();
+                if (eventsToFlushMaxCount > eventsInProcessor)
+                    freeSlots = eventsToFlushMaxCount - eventsInProcessor;
+                else
+                    // there could be events to process, but there are not empty slots...
+                    return false;
+
+                for (int i = 0; i < freeSlots; i++)
                 {
                     IEvent @event;
                     if (buffer.NewEventsQueue.TryPeek(out @event))
