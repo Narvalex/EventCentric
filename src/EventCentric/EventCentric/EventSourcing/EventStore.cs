@@ -259,9 +259,9 @@ namespace EventCentric.EventSourcing
                         for (int i = 0; i < pendingEvents.Count; i++)
                         {
                             var ecv = Interlocked.Increment(ref this.eventCollectionVersion);
-                            var @event = pendingEvents[0];
+                            var @event = pendingEvents[i];
                             ((Message)@event).EventCollectionVersion = ecv;
-                            var entity = eventEntities[0];
+                            var entity = eventEntities[i];
                             entity.EventCollectionVersion = ecv;
                             entity.Payload = this.serializer.Serialize(@event);
                             context.Events.Add(entity);
