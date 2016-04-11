@@ -152,6 +152,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="AppDesign.txt" />
+    <Content Include="App_Data\serverDb.sdf" />
     <Content Include="Global.asax" />
     <Content Include="OccServerDb.sql" />
     <Content Include="packages.config" />

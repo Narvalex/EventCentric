@@ -52,6 +52,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Occ.Client.WinForm", "Sampl
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Occ.ServiceHost", "Samples\Occ.ServiceHost\Occ.ServiceHost.csproj", "{26DED214-EFB8-4BA0-9DE7-7B78F50CD043}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventCentric.Persistence", "EventCentric.Persistence\EventCentric.Persistence.csproj", "{C01C199E-C7BC-45D4-A1D5-B521F333E57E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventCentric.Persistence.SqlServer", "EventCentric.Persistence.SqlServer\EventCentric.Persistence.SqlServer.csproj", "{2ECDB874-5E04-47CB-9AB1-8262159AC3B9}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -106,6 +110,14 @@ Global
 		{26DED214-EFB8-4BA0-9DE7-7B78F50CD043}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{26DED214-EFB8-4BA0-9DE7-7B78F50CD043}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{26DED214-EFB8-4BA0-9DE7-7B78F50CD043}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C01C199E-C7BC-45D4-A1D5-B521F333E57E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C01C199E-C7BC-45D4-A1D5-B521F333E57E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C01C199E-C7BC-45D4-A1D5-B521F333E57E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C01C199E-C7BC-45D4-A1D5-B521F333E57E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2ECDB874-5E04-47CB-9AB1-8262159AC3B9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2ECDB874-5E04-47CB-9AB1-8262159AC3B9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2ECDB874-5E04-47CB-9AB1-8262159AC3B9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2ECDB874-5E04-47CB-9AB1-8262159AC3B9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
