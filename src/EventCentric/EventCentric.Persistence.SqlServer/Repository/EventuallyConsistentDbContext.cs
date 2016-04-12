@@ -1,11 +1,10 @@
-﻿using EventCentric.Repository.Mapping;
-using System;
+﻿using System;
 using System.Data.Entity;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 
-namespace EventCentric.Repository
+namespace EventCentric.Persistence.SqlServer
 {
     public class EventuallyConsistentDbContext : EventStoreDbContext
     {

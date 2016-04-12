@@ -1,6 +1,6 @@
 ﻿using EventCentric.EventSourcing;
 using EventCentric.Messaging;
-using EventCentric.Repository;
+using EventCentric.Persistence.SqlServer;
 using EventCentric.Serialization;
 using EventCentric.Utils;
 using System;

@@ -4,9 +4,9 @@ using EventCentric.Handling;
 using EventCentric.Heartbeating;
 using EventCentric.Log;
 using EventCentric.Messaging;
+using EventCentric.Persistence.SqlServer;
 using EventCentric.Polling;
 using EventCentric.Publishing;
-using EventCentric.Repository;
 using EventCentric.Serialization;
 using EventCentric.Transport;
 using EventCentric.Utils;
@@ -31,8 +31,7 @@ namespace EventCentric
             IUnityContainer container,
             IEventStoreConfig eventStoreConfig,
             bool isSubscriptor = true,
-            Func<IBus, ILogger, IEventStore<TStream>, THandler> processorFactory = null,
-            bool enableHeartbeatingListener = false)
+            Func<IBus, ILogger, IEventStore<TStream>, THandler> processorFactory = null)
         {
             var inMemoryPublisher = container.Resolve<IInMemoryEventPublisher>();
 
@@ -62,7 +61,7 @@ namespace EventCentric
             var publisher = new Publisher(streamFullName, bus, log, eventDao, eventStoreConfig.PushMaxCount, TimeSpan.FromMilliseconds(eventStoreConfig.LongPollingTimeout));
             container.RegisterInstance<IEventPublisher>(publisher);
 
-            var fsm = new MicroserviceHost(streamFullName, bus, log, isSubscriptor, enableHeartbeatingListener);
+            var fsm = new MicroserviceHost(streamFullName, bus, log, isSubscriptor);
             container.RegisterInstance<IMicroservice>(fsm);
 
             // Processor factory
@@ -89,11 +88,6 @@ namespace EventCentric
                 container.RegisterInstance<HeartbeatEmitter>(heartbeatEmitter);
             }
 
-            if (enableHeartbeatingListener)
-            {
-                var heartbeatListener = new HeartbeatListener(streamFullName, bus, log, time, new TimeSpan(0, 1, 0), new TimeSpan(0, 10, 0), isReadonly => new HeartbeatDbContext(isReadonly, connectionString));
-            }
-
             inMemoryPublisher.Register(publisher);
             return fsm;
         }
@@ -106,8 +100,7 @@ namespace EventCentric
             bool isSubscriptor = true,
             Func<IGuidProvider, ILogger, string, int, TApp> appFactory = null,
             Func<IBus, ILogger, IEventStore<TStream>, THandler> processorFactory = null,
-            Func<string, IBus, ILogger, IEventDao, int, TimeSpan, IEventPublisher> publisherFactory = null,
-            bool enableHeartbeatingListener = false)
+            Func<string, IBus, ILogger, IEventDao, int, TimeSpan, IEventPublisher> publisherFactory = null)
                 where TApp : ApplicationService
         {
             var inMemoryPublisher = container.Resolve<IInMemoryEventPublisher>();
@@ -151,7 +144,7 @@ namespace EventCentric
                 publisher = publisherFactory.Invoke(streamFullName, bus, log, eventDao, eventStoreConfig.PushMaxCount, TimeSpan.FromMilliseconds(eventStoreConfig.LongPollingTimeout));
             }
 
-            var fsm = new MicroserviceHost(streamFullName, bus, log, isSubscriptor, enableHeartbeatingListener);
+            var fsm = new MicroserviceHost(streamFullName, bus, log, isSubscriptor);
             container.RegisterInstance<IMicroservice>(fsm);
 
             if (processorFactory == null)
@@ -176,11 +169,6 @@ namespace EventCentric
 
                 var heartbeatEmitter = new HeartbeatEmitter(fsm, log, poller);
                 container.RegisterInstance<HeartbeatEmitter>(heartbeatEmitter);
-            }
-
-            if (enableHeartbeatingListener)
-            {
-                var heartbeatListener = new HeartbeatListener(streamFullName, bus, log, time, new TimeSpan(0, 1, 0), new TimeSpan(0, 10, 0), isReadonly => new HeartbeatDbContext(isReadonly, connectionString));
             }
 
             if (appFactory == null)
@@ -247,7 +235,7 @@ namespace EventCentric
             var publisher = new Publisher(streamFullName, bus, log, eventDao, eventStoreConfig.PushMaxCount, TimeSpan.FromMilliseconds(eventStoreConfig.LongPollingTimeout));
             container.RegisterInstance<IEventPublisher>(publisher);
 
-            var fsm = new MicroserviceHost(streamFullName, bus, log, true, false);
+            var fsm = new MicroserviceHost(streamFullName, bus, log, true);
             container.RegisterInstance<IMicroservice>(fsm);
 
             if (processorFactory == null)

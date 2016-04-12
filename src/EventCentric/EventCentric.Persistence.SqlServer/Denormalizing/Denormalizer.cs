@@ -1,8 +1,8 @@
-﻿using EventCentric.Repository;
+﻿using EventCentric.EventSourcing;
 using System;
 using System.Collections.Generic;
 
-namespace EventCentric.EventSourcing
+namespace EventCentric.Persistence.SqlServer
 {
     public abstract class Denormalizer<TAggregate, TDbContext> : EventSourced<TAggregate>, IDenormalizer
         where TAggregate : class, IEventSourced

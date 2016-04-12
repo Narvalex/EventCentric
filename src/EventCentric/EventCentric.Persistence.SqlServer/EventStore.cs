@@ -1,7 +1,6 @@
 ﻿using EventCentric.Database;
+using EventCentric.EventSourcing;
 using EventCentric.Log;
-using EventCentric.Repository;
-using EventCentric.Repository.Mapping;
 using EventCentric.Serialization;
 using EventCentric.Utils;
 using System;
@@ -11,7 +10,7 @@ using System.Linq;
 using System.Runtime.Caching;
 using System.Threading;
 
-namespace EventCentric.EventSourcing
+namespace EventCentric.Persistence.SqlServer
 {
     public class EventStore<T> : IEventStore<T> where T : class, IEventSourced
     {

@@ -1,8 +1,7 @@
-﻿using EventCentric.Repository.Mapping;
-using EventCentric.Utils;
+﻿using EventCentric.Utils;
 using System;
 
-namespace EventCentric.Repository
+namespace EventCentric.Persistence.SqlServer
 {
     public abstract class ViewDao<TDbContext> : IViewDao where TDbContext : EventuallyConsistentDbContext
     {

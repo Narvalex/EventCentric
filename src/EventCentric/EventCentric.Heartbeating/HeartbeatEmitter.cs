@@ -6,7 +6,8 @@ using System.Net;
 namespace EventCentric.Heartbeating
 {
     /// <summary>
-    /// A heartbeat emitter is attached to a poller (a subscriber)
+    /// A heartbeat emitter is attached to a poller (a subscriber). This belongs to a subscriber that 
+    /// can fall asleep. The Listener is always asking for a heartbeat on a regular interval.
     /// </summary>
     public class HeartbeatEmitter
     {

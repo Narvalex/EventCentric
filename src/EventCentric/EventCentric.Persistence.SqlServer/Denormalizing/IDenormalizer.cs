@@ -1,6 +1,6 @@
-﻿using EventCentric.Repository;
+﻿using EventCentric.EventSourcing;
 
-namespace EventCentric.EventSourcing
+namespace EventCentric.Persistence.SqlServer
 {
     public interface IDenormalizer : IEventSourced, IUpdatesWhen<ReadModelUpdated>
     {

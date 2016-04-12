@@ -17,14 +17,12 @@ namespace EventCentric
         IMessageHandler<EventPublisherStopped>
     {
         private bool hasPoller;
-        private bool listenHeartbeating;
 
-        public MicroserviceHost(string eventSourceName, IBus bus, ILogger log, bool hasPoller, bool listenHeartbeating)
+        public MicroserviceHost(string eventSourceName, IBus bus, ILogger log, bool hasPoller)
             : base(eventSourceName, bus, log)
         {
             this.Status = WorkerStatus.Down;
             this.hasPoller = hasPoller;
-            this.listenHeartbeating = listenHeartbeating;
         }
 
         public WorkerStatus Status { get; private set; }
@@ -71,9 +69,6 @@ namespace EventCentric
 
             if (!this.hasPoller)
                 this.log.Log("No poller detected");
-
-            if (this.listenHeartbeating)
-                this.bus.Publish(new StartHeartbeatListener());
 
             this.bus.Publish(new StartEventPublisher());
         }

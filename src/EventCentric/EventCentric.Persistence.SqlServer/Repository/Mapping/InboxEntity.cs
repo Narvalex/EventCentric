@@ -1,7 +1,7 @@
 using System;
 using System.Data.Entity.ModelConfiguration;
 
-namespace EventCentric.Repository.Mapping
+namespace EventCentric.Persistence.SqlServer
 {
     public class InboxEntity
     {

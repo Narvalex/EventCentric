@@ -1,7 +1,7 @@
 ﻿using EventCentric.Factory;
 using EventCentric.Log;
 using EventCentric.Messaging;
-using EventCentric.Repository;
+using EventCentric.Persistence.SqlServer;
 using EventCentric.Serialization;
 using EventCentric.Utils;
 using Microsoft.Practices.Unity;

@@ -1,5 +1,5 @@
-﻿using EventCentric.Polling;
-using EventCentric.Repository;
+﻿using EventCentric.Persistence.SqlServer;
+using EventCentric.Polling;
 using EventCentric.Utils;
 using System;
 using System.Collections.Generic;

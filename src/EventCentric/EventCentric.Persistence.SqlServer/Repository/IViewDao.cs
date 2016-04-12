@@ -1,7 +1,6 @@
-﻿using EventCentric.Repository.Mapping;
-using System;
+﻿using System;
 
-namespace EventCentric.Repository
+namespace EventCentric.Persistence.SqlServer
 {
     public interface IViewDao
     {

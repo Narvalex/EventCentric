@@ -1,6 +1,5 @@
 ﻿using EventCentric.Database;
-using EventCentric.Repository;
-using EventCentric.Repository.Mapping;
+using EventCentric.Persistence.SqlServer;
 using System;
 
 namespace PersistenceBenchmark

@@ -1,8 +1,7 @@
 using EventCentric.Database;
-using EventCentric.Repository.Mapping;
 using System.Data.Entity;
 
-namespace EventCentric.Repository
+namespace EventCentric.Persistence.SqlServer
 {
     public class EventStoreDbContext : OptimizedDbContext, IEventStoreDbContext
     {

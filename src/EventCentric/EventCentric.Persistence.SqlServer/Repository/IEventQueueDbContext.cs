@@ -1,8 +1,7 @@
-﻿using EventCentric.Repository.Mapping;
-using System;
+﻿using System;
 using System.Data.Entity;
 
-namespace EventCentric.Repository
+namespace EventCentric.Persistence.SqlServer
 {
     public interface IEventQueueDbContext : IDisposable
     {
