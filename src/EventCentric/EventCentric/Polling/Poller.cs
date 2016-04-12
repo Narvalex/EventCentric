@@ -211,10 +211,11 @@ namespace EventCentric.Polling
 
             if (response.NewEventsWereFound)
             {
-                this.log.Trace(string.Format($"{this.microserviceName} pulled {0} event/s from {1}", response.NewRawEvents.Count(), subscription.StreamType));
-
                 var orderedEvents =
-                    response
+                    response.IsSerialized
+
+                    // is serialized, then we need to deserialize them
+                    ? response
                         .NewRawEvents
                         .Select(e =>
                         {
@@ -253,7 +254,10 @@ namespace EventCentric.Polling
                             ((Message)incomingEvent).EventCollectionVersion = e.EventCollectionVersion;
                             return incomingEvent;
                         })
-                        .OrderBy(e => e.EventCollectionVersion);
+                        .OrderBy(e => e.EventCollectionVersion)
+
+                    // Not serialize, we just need to put in order...
+                    : response.Events.OrderBy(e => e.EventCollectionVersion);
 
                 subscription.CurrentBufferVersion = orderedEvents.Max(e => e.EventCollectionVersion);
 
@@ -271,6 +275,9 @@ namespace EventCentric.Polling
             }
 
             subscription.IsPolling = false;
+
+            var messageCount = response.IsSerialized ? response.NewRawEvents.Count() : response.Events.Count();
+            this.log.Trace(string.Format($"{this.microserviceName} pulled {0} event/s from {1}", messageCount, subscription.StreamType));
         }
 
         public void Handle(IncomingEventHasBeenProcessed message)

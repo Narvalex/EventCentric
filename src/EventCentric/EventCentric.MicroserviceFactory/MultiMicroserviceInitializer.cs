@@ -21,7 +21,7 @@ namespace EventCentric.MicroserviceFactory
             Func<List<IMicroservice>> microservicesFactory,
             bool useSignalRLog = true,
             bool verbose = true,
-            params IEventPublisher[] ocassionallyConnectedSources)
+            params IPollableEventSource[] ocassionallyConnectedSources)
         {
             lock (_lockObject)
             {

@@ -12,7 +12,7 @@ using System.Threading;
 
 namespace EventCentric.Publishing
 {
-    public class Publisher : MicroserviceWorker, IEventPublisher,
+    public class Publisher : MicroserviceWorker, IPollableEventSource,
         IMessageHandler<StartEventPublisher>,
         IMessageHandler<StopEventPublisher>,
         IMessageHandler<EventStoreHasBeenUpdated>

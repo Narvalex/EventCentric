@@ -59,7 +59,7 @@ namespace EventCentric
             container.RegisterInstance<IBus>(bus);
 
             var publisher = new Publisher(streamFullName, bus, log, eventDao, eventStoreConfig.PushMaxCount, TimeSpan.FromMilliseconds(eventStoreConfig.LongPollingTimeout));
-            container.RegisterInstance<IEventPublisher>(publisher);
+            container.RegisterInstance<IPollableEventSource>(publisher);
 
             var fsm = new MicroserviceHost(streamFullName, bus, log, isSubscriptor);
             container.RegisterInstance<IMicroservice>(fsm);
@@ -100,7 +100,7 @@ namespace EventCentric
             bool isSubscriptor = true,
             Func<IGuidProvider, ILogger, string, int, TApp> appFactory = null,
             Func<IBus, ILogger, IEventStore<TStream>, THandler> processorFactory = null,
-            Func<string, IBus, ILogger, IEventDao, int, TimeSpan, IEventPublisher> publisherFactory = null)
+            Func<string, IBus, ILogger, IEventDao, int, TimeSpan, IPollableEventSource> publisherFactory = null)
                 where TApp : ApplicationService
         {
             var inMemoryPublisher = container.Resolve<IInMemoryEventPublisher>();
@@ -133,11 +133,11 @@ namespace EventCentric
             var bus = new Bus();
             container.RegisterInstance<IBus>(bus);
 
-            IEventPublisher publisher;
+            IPollableEventSource publisher;
             if (publisherFactory == null)
             {
                 publisher = new Publisher(streamFullName, bus, log, eventDao, eventStoreConfig.PushMaxCount, TimeSpan.FromMilliseconds(eventStoreConfig.LongPollingTimeout));
-                container.RegisterInstance<IEventPublisher>(publisher);
+                container.RegisterInstance<IPollableEventSource>(publisher);
             }
             else
             {
@@ -233,7 +233,7 @@ namespace EventCentric
             container.RegisterInstance<IMonitoredSubscriber>(poller);
 
             var publisher = new Publisher(streamFullName, bus, log, eventDao, eventStoreConfig.PushMaxCount, TimeSpan.FromMilliseconds(eventStoreConfig.LongPollingTimeout));
-            container.RegisterInstance<IEventPublisher>(publisher);
+            container.RegisterInstance<IPollableEventSource>(publisher);
 
             var fsm = new MicroserviceHost(streamFullName, bus, log, true);
             container.RegisterInstance<IMicroservice>(fsm);

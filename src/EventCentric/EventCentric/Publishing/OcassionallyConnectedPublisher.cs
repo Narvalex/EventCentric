@@ -16,7 +16,7 @@ using System.Threading.Tasks;
 
 namespace EventCentric.Publishing
 {
-    public class OcassionallyConnectedPublisher : MicroserviceWorker, IEventPublisher,
+    public class OcassionallyConnectedPublisher : MicroserviceWorker, IPollableEventSource,
         IMessageHandler<StartEventPublisher>,
         IMessageHandler<StopEventPublisher>,
         IMessageHandler<EventStoreHasBeenUpdated>

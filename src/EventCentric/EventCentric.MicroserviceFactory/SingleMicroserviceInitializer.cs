@@ -17,7 +17,7 @@ namespace EventCentric
 
         public static void Run(
             IUnityContainer container, Func<IMicroservice> microserviceFactory,
-            bool useSignalRLog = true, bool verbose = true, IEnumerable<IEventPublisher> ocassionallyConnectedSources = null)
+            bool useSignalRLog = true, bool verbose = true, IEnumerable<IPollableEventSource> ocassionallyConnectedSources = null)
         {
             lock (_lockObject)
             {

@@ -40,7 +40,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="InMemory\InMemoryEventStore.cs" />
+    <Compile Include="InMemoryEventDao.cs" />
+    <Compile Include="InMemoryEventStore.cs" />
+    <Compile Include="InMemorySubscriptionRespository.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

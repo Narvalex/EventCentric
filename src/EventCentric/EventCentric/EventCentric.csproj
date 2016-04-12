@@ -135,7 +135,7 @@
     <Compile Include="Messaging\Events\NewIncomingEvents.cs" />
     <Compile Include="Messaging\Events\EventStoreHasBeenUpdated.cs" />
     <Compile Include="Messaging\IBus.cs" />
-    <Compile Include="Publishing\IEventPublisher.cs" />
+    <Compile Include="Publishing\IPollableEventSource.cs" />
     <Compile Include="Serialization\ITextSerializer.cs" />
     <Compile Include="Serialization\JsonTextSerializerWithIdentedFormatting.cs" />
     <Compile Include="Serialization\JsonTextSerializer.cs" />

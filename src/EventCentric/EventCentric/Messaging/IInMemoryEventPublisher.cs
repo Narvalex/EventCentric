@@ -5,7 +5,7 @@ namespace EventCentric.Messaging
 {
     public interface IInMemoryEventPublisher
     {
-        void Register(IEventPublisher publisher);
+        void Register(IPollableEventSource publisher);
         PollResponse PollEvents(string streamType, long fromVersion, string consumerName);
     }
 }

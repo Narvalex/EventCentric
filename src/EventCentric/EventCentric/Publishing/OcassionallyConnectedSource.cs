@@ -9,7 +9,7 @@ using System.Threading;
 
 namespace EventCentric.Publishing
 {
-    public class OcassionallyConnectedSource : IEventPublisher
+    public class OcassionallyConnectedSource : IPollableEventSource
     {
         private readonly string requiredVersion;
         private readonly ConcurrentBag<PollResponse> clientResponse = new ConcurrentBag<PollResponse>();

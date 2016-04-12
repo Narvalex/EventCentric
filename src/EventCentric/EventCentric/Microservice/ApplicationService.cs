@@ -2,7 +2,6 @@
 using EventCentric.Log;
 using EventCentric.Messaging;
 using EventCentric.Microservice;
-using EventCentric.Polling;
 using EventCentric.Publishing;
 using EventCentric.Serialization;
 using EventCentric.Transport;
@@ -17,7 +16,7 @@ namespace EventCentric
     /// <summary>
     /// Domain driven design concept of application service.
     /// </summary>
-    public abstract class ApplicationService : INamedEventSource, IEventPublisher
+    public abstract class ApplicationService : INamedEventSource, IPollableEventSource
     {
         protected readonly IGuidProvider guid;
         protected readonly ILogger log;
@@ -26,7 +25,7 @@ namespace EventCentric
         private readonly JsonTextSerializer serializer = new JsonTextSerializer();
 
         private readonly ConcurrentDictionary<Guid, object> streamLocksById = new ConcurrentDictionary<Guid, object>();
-        private readonly ConcurrentQueue<NewRawEvent> messageQueue = new ConcurrentQueue<NewRawEvent>();
+        private readonly ConcurrentQueue<IEvent> messageQueue = new ConcurrentQueue<IEvent>();
 
         public ApplicationService(IGuidProvider guid, ILogger log, string streamType, int eventsToPushMaxCount)
         {
@@ -54,8 +53,7 @@ namespace EventCentric
                 this.messageQueue.Enqueue(
                     message
                         .AsInProcessMessage(transactionId, streamId)
-                        .AsQueuedEvent(streamType, Guid.NewGuid(), InMemoryVersioning.GetNextVersion(), now, now.ToLocalTime())
-                        .AsNewRawEvent(this.serializer));
+                        .AsQueuedEvent(streamType, Guid.NewGuid(), InMemoryVersioning.GetNextVersion(), now, now.ToLocalTime()));
             }
 
             return transactionId;
@@ -63,13 +61,13 @@ namespace EventCentric
 
         public PollResponse PollEvents(long eventBufferVersion, string consumerName)
         {
-            var events = new List<NewRawEvent>();
+            var events = new List<IEvent>();
 
             while (true)
             {
                 for (int i = 0; i < this.eventsToPushMaxCount; i++)
                 {
-                    NewRawEvent e;
+                    IEvent e;
                     if (!this.messageQueue.TryDequeue(out e))
                         break;
 

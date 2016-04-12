@@ -2,7 +2,7 @@
 
 namespace EventCentric.Publishing
 {
-    public interface IEventPublisher
+    public interface IPollableEventSource
     {
         /// <summary>
         /// Ther source name, also known as StreamType

@@ -1,7 +1,7 @@
 ﻿using EventCentric.EventSourcing;
 using System;
 
-namespace EventCentric.Persistence.InMemory
+namespace EventCentric.Persistence
 {
     public class InMemoryEventStore<T> : IEventStore<T> where T : class, IEventSourced
     {

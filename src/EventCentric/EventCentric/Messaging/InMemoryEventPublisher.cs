@@ -19,7 +19,7 @@ namespace EventCentric.Messaging
             this.log = log;
         }
 
-        public void Register(IEventPublisher publisher)
+        public void Register(IPollableEventSource publisher)
         {
             sourcesByStreamType.TryAdd(publisher.SourceName, (version, name) => publisher.PollEvents(version, name));
         }

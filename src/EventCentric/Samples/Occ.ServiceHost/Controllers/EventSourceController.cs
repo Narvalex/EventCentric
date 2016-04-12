@@ -9,9 +9,9 @@ namespace Occ.ServiceHost.Controllers
     [AuthorizeEventSourcing]
     public class EventSourceController : ApiController
     {
-        private readonly IEventPublisher source;
+        private readonly IPollableEventSource source;
 
-        public EventSourceController(IEventPublisher source)
+        public EventSourceController(IPollableEventSource source)
         {
             this.source = source;
         }
