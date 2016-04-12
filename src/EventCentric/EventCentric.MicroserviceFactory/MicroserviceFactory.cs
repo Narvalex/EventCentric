@@ -5,6 +5,7 @@ using EventCentric.Heartbeating;
 using EventCentric.Log;
 using EventCentric.Messaging;
 using EventCentric.MicroserviceFactory;
+using EventCentric.Persistence;
 using EventCentric.Persistence.SqlServer;
 using EventCentric.Polling;
 using EventCentric.Publishing;
@@ -32,6 +33,7 @@ namespace EventCentric
             IUnityContainer container,
             IEventStoreConfig eventStoreConfig,
             PersistencePlugin selectedPlugin = PersistencePlugin.SqlServer,
+            Func<InMemoryPersistence<TStream>> setupInMemoryPersistence = null,
             bool isSubscriptor = true,
             Func<IBus, ILogger, IEventStore<TStream>, THandler> processorFactory = null)
         {
@@ -43,7 +45,8 @@ namespace EventCentric
 
             AuthorizationFactory.SetToken(eventStoreConfig);
 
-            PersistencePluginResolver<TStream>.ResolvePersistence(container, selectedPlugin, streamFullName, connectionString);
+            PersistencePluginResolver<TStream>.ResolvePersistence(
+                container, selectedPlugin, streamFullName, connectionString, setupInMemoryPersistence);
 
             var log = container.Resolve<ILogger>();
 
@@ -92,6 +95,7 @@ namespace EventCentric
             IUnityContainer container,
             IEventStoreConfig eventStoreConfig,
             PersistencePlugin selectedPlugin = PersistencePlugin.SqlServer,
+            Func<InMemoryPersistence<TStream>> setupInMemoryPersistence = null,
             bool isSubscriptor = true,
             Func<IGuidProvider, ILogger, string, int, TApp> appFactory = null,
             Func<IBus, ILogger, IEventStore<TStream>, THandler> processorFactory = null,
@@ -107,7 +111,8 @@ namespace EventCentric
 
             AuthorizationFactory.SetToken(eventStoreConfig);
 
-            PersistencePluginResolver<TStream>.ResolvePersistence(container, selectedPlugin, streamFullName, connectionString);
+            PersistencePluginResolver<TStream>.ResolvePersistence(
+                container, selectedPlugin, streamFullName, connectionString, setupInMemoryPersistence);
 
             var log = container.Resolve<ILogger>();
 

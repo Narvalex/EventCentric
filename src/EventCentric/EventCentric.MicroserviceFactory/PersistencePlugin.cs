@@ -1,5 +1,6 @@
 ﻿using EventCentric.EventSourcing;
 using EventCentric.Log;
+using EventCentric.Persistence;
 using EventCentric.Persistence.SqlServer;
 using EventCentric.Polling;
 using EventCentric.Publishing;
@@ -18,12 +19,17 @@ namespace EventCentric.MicroserviceFactory
 
     public static class PersistencePluginResolver<TStream> where TStream : class, IEventSourced
     {
-        public static IUnityContainer ResolvePersistence(IUnityContainer container, PersistencePlugin selectedPlugin, string microserviceName, string connectionString)
+        public static IUnityContainer ResolvePersistence(IUnityContainer container, PersistencePlugin selectedPlugin, string microserviceName,
+            string connectionString,                                            // Sql Based persistence
+            Func<InMemoryPersistence<TStream>> setupInMemoryPersistence)        // In memory setup
         {
             switch (selectedPlugin)
             {
                 case PersistencePlugin.InMemory:
-                    ResolveForInMemoryPersistance(container, microserviceName);
+                    var persitence = setupInMemoryPersistence.Invoke();
+                    container.RegisterInstance<ISubscriptionRepository>(persitence);
+                    container.RegisterInstance<IEventDao>(persitence);
+                    container.RegisterInstance<IEventStore<TStream>>(persitence);
                     break;
 
                 case PersistencePlugin.SqlServer:
@@ -35,11 +41,6 @@ namespace EventCentric.MicroserviceFactory
             }
 
             return container;
-        }
-
-        private static void ResolveForInMemoryPersistance(IUnityContainer container, string microserviceName)
-        {
-
         }
 
         private static void ResolveForSqlServer(IUnityContainer container, string microserviceName, string connectionString)

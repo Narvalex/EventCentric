@@ -1,4 +1,5 @@
 ﻿using EventCentric.Database;
+using EventCentric.MicroserviceFactory;
 using EventCentric.Persistence.SqlServer;
 using System;
 
@@ -8,7 +9,7 @@ namespace PersistenceBenchmark
     {
         public const string ConnectionString = "server = (local); Database = PersistenceBench; User Id = sa; pwd = 123456";
 
-        public static void ResetDbs()
+        public static void ResetDbs(PersistencePlugin plugin)
         {
             using (var context = new EventStoreDbContext(ConnectionString))
             {
@@ -30,11 +31,11 @@ namespace PersistenceBenchmark
                 }
             }
 
-            DropDb();
+            DropDb(plugin);
             CreateDb();
         }
 
-        public static void DropDb()
+        public static void DropDb(PersistencePlugin plugin)
         {
             Console.WriteLine("Drop db started...");
 

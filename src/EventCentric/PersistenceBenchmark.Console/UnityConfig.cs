@@ -1,6 +1,8 @@
 ﻿using EventCentric;
 using EventCentric.Config;
+using EventCentric.EventSourcing;
 using EventCentric.MicroserviceFactory;
+using EventCentric.Persistence;
 using Microsoft.Practices.Unity;
 using PersistenceBenchmark.ConsoleHost;
 using PersistenceBenchmark.PromotionsStream;
@@ -14,7 +16,7 @@ namespace PersistenceBenchmark
     /// </summary>
     public class UnityConfig
     {
-        private static bool _isConsoleApp;
+        private static PersistencePlugin plugin;
 
         #region Unity Container
         private static Lazy<IUnityContainer> container = new Lazy<IUnityContainer>(() =>
@@ -27,9 +29,9 @@ namespace PersistenceBenchmark
         /// <summary>
         /// Gets the configured Unity container.
         /// </summary>
-        public static IUnityContainer GetConfiguredContainer(bool isConsoleApp)
+        public static IUnityContainer GetConfiguredContainer(PersistencePlugin plugin)
         {
-            _isConsoleApp = isConsoleApp;
+            UnityConfig.plugin = plugin;
             return container.Value;
         }
         #endregion
@@ -56,19 +58,26 @@ namespace PersistenceBenchmark
 
                 UserContainer1 = ContainerFactory.ResolveDependenciesForNewChildContainer(container);
                 services.Add(MicroserviceFactory<UserManagement, UserManagementHandler>
-                    .CreateEventProcessorWithApp<UserAppService>("user1", "user1_app", UserContainer1, user1Config));
+                    .CreateEventProcessorWithApp<UserAppService>("user1", "user1_app", UserContainer1, user1Config, plugin,
+                        ResolveInMemoryPersistence<UserManagement>));
 
                 UserContainer2 = ContainerFactory.ResolveDependenciesForNewChildContainer(container);
                 services.Add(MicroserviceFactory<UserManagement, UserManagementHandler>
-                    .CreateEventProcessorWithApp<UserAppService>("user2", "user2_app", UserContainer2, user2Config));
+                    .CreateEventProcessorWithApp<UserAppService>("user2", "user2_app", UserContainer2, user2Config, plugin,
+                        ResolveInMemoryPersistence<UserManagement>));
 
                 PromotionsContainer = ContainerFactory.ResolveDependenciesForNewChildContainer(container);
                 services.Add(MicroserviceFactory<Promotions, PromotionsHandler>.
-                    CreateEventProcessor("promo", PromotionsContainer, promotionsConfig));
+                    CreateEventProcessor("promo", PromotionsContainer, promotionsConfig, plugin,
+                        ResolveInMemoryPersistence<Promotions>));
 
                 return services;
-            },
-            !_isConsoleApp, Program.VerboseIsEnabled);
+            }, false, Program.VerboseIsEnabled);
+        }
+
+        private static InMemoryPersistence<T> ResolveInMemoryPersistence<T>() where T : class, IEventSourced
+        {
+            return null;
         }
 
         public static IUnityContainer UserContainer1 { get; private set; }

@@ -103,6 +103,10 @@
       <Project>{44302c31-f9a4-4531-a43a-0e33cc5d4fd2}</Project>
       <Name>EventCentric.MicroserviceFactory</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\EventCentric.Persistence\EventCentric.Persistence.csproj">
+      <Project>{c01c199e-c7bc-45d4-a1d5-b521f333e57e}</Project>
+      <Name>EventCentric.Persistence</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\EventCentric\EventCentric.csproj">
       <Project>{4b00e8dd-813c-4abb-8c87-c664d188f62c}</Project>
       <Name>EventCentric</Name>

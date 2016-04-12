@@ -1,4 +1,5 @@
-﻿using Microsoft.Practices.Unity;
+﻿using EventCentric.MicroserviceFactory;
+using Microsoft.Practices.Unity;
 using System;
 
 namespace PersistenceBenchmark.ConsoleHost
@@ -9,8 +10,10 @@ namespace PersistenceBenchmark.ConsoleHost
 
         static void Main(string[] args)
         {
-            DbManager.ResetDbs();
-            var mainContainer = UnityConfig.GetConfiguredContainer(true);
+            var plugin = PersistencePlugin.InMemory;
+
+            DbManager.ResetDbs(plugin);
+            var mainContainer = UnityConfig.GetConfiguredContainer(plugin);
 
             var user1App = UnityConfig.UserContainer1.Resolve<UserAppService>();
             var user2App = UnityConfig.UserContainer2.Resolve<UserAppService>();
@@ -36,7 +39,7 @@ namespace PersistenceBenchmark.ConsoleHost
 
             Console.WriteLine("Press enter to stop and clean...");
             Console.ReadLine();
-            DbManager.DropDb();
+            DbManager.DropDb(plugin);
         }
     }
 }
