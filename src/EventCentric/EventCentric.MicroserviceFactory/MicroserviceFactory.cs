@@ -4,6 +4,7 @@ using EventCentric.Handling;
 using EventCentric.Heartbeating;
 using EventCentric.Log;
 using EventCentric.Messaging;
+using EventCentric.MicroserviceFactory;
 using EventCentric.Persistence.SqlServer;
 using EventCentric.Polling;
 using EventCentric.Publishing;
@@ -30,6 +31,7 @@ namespace EventCentric
             string uniqueName,
             IUnityContainer container,
             IEventStoreConfig eventStoreConfig,
+            PersistencePlugin selectedPlugin = PersistencePlugin.SqlServer,
             bool isSubscriptor = true,
             Func<IBus, ILogger, IEventStore<TStream>, THandler> processorFactory = null)
         {
@@ -41,24 +43,16 @@ namespace EventCentric
 
             AuthorizationFactory.SetToken(eventStoreConfig);
 
-            Func<bool, EventStoreDbContext> storeContextFactory = isReadOnly => new EventStoreDbContext(isReadOnly, connectionString);
-            Func<bool, EventQueueDbContext> queueContextFactory = isReadOnly => new EventQueueDbContext(isReadOnly, connectionString);
+            PersistencePluginResolver<TStream>.ResolvePersistence(container, selectedPlugin, streamFullName, connectionString);
 
-            var serializer = container.Resolve<ITextSerializer>();
-            var time = container.Resolve<IUtcTimeProvider>();
-            var guid = container.Resolve<IGuidProvider>();
             var log = container.Resolve<ILogger>();
 
-            var subscriptionRepository = new SubscriptionRepository(storeContextFactory, streamFullName, serializer, time);
-            var eventDao = new EventDao(queueContextFactory, streamFullName);
-
-            var eventStore = new EventStore<TStream>(streamFullName, serializer, storeContextFactory, time, guid, log);
-            container.RegisterInstance<IEventStore<TStream>>(eventStore);
+            var eventStore = container.Resolve<IEventStore<TStream>>();
 
             var bus = new Bus();
             container.RegisterInstance<IBus>(bus);
 
-            var publisher = new Publisher(streamFullName, bus, log, eventDao, eventStoreConfig.PushMaxCount, TimeSpan.FromMilliseconds(eventStoreConfig.LongPollingTimeout));
+            var publisher = new Publisher(streamFullName, bus, log, container.Resolve<IEventDao>(), eventStoreConfig.PushMaxCount, TimeSpan.FromMilliseconds(eventStoreConfig.LongPollingTimeout));
             container.RegisterInstance<IPollableEventSource>(publisher);
 
             var fsm = new MicroserviceHost(streamFullName, bus, log, isSubscriptor);
@@ -81,7 +75,7 @@ namespace EventCentric
             {
                 var pollerConfig = PollerConfig.GetConfig();
                 var receiver = new MessageReceiver(bus, log, TimeSpan.FromMilliseconds(pollerConfig.Timeout), streamFullName, inMemoryPublisher);
-                var poller = new Poller(bus, log, subscriptionRepository, receiver, serializer, pollerConfig.BufferQueueMaxCount, pollerConfig.EventsToFlushMaxCount);
+                var poller = new Poller(bus, log, container.Resolve<ISubscriptionRepository>(), receiver, container.Resolve<ITextSerializer>(), pollerConfig.BufferQueueMaxCount, pollerConfig.EventsToFlushMaxCount);
                 container.RegisterInstance<IMonitoredSubscriber>(poller);
 
                 var heartbeatEmitter = new HeartbeatEmitter(fsm, log, poller);
@@ -97,6 +91,7 @@ namespace EventCentric
             string appUniqueName,
             IUnityContainer container,
             IEventStoreConfig eventStoreConfig,
+            PersistencePlugin selectedPlugin = PersistencePlugin.SqlServer,
             bool isSubscriptor = true,
             Func<IGuidProvider, ILogger, string, int, TApp> appFactory = null,
             Func<IBus, ILogger, IEventStore<TStream>, THandler> processorFactory = null,
@@ -112,23 +107,12 @@ namespace EventCentric
 
             AuthorizationFactory.SetToken(eventStoreConfig);
 
-            Func<bool, EventStoreDbContext> storeContextFactory = isReadOnly => new EventStoreDbContext(isReadOnly, connectionString);
-            Func<bool, EventQueueDbContext> queueContextFactory = isReadOnly => new EventQueueDbContext(isReadOnly, connectionString);
+            PersistencePluginResolver<TStream>.ResolvePersistence(container, selectedPlugin, streamFullName, connectionString);
 
             var log = container.Resolve<ILogger>();
 
-            var serializer = container.Resolve<ITextSerializer>();
-
-            var time = container.Resolve<IUtcTimeProvider>();
-
-            var guid = container.Resolve<IGuidProvider>();
-            container.RegisterInstance<IGuidProvider>(guid);
-
-            var subscriptionRepository = new SubscriptionRepository(storeContextFactory, streamFullName, serializer, time);
-            var eventDao = new EventDao(queueContextFactory, streamFullName);
-
-            var eventStore = new EventStore<TStream>(streamFullName, serializer, storeContextFactory, time, guid, log);
-            container.RegisterInstance<IEventStore<TStream>>(eventStore);
+            var eventStore = container.Resolve<IEventStore<TStream>>();
+            var eventDao = container.Resolve<IEventDao>();
 
             var bus = new Bus();
             container.RegisterInstance<IBus>(bus);
@@ -164,13 +148,14 @@ namespace EventCentric
             {
                 var pollerConfig = PollerConfig.GetConfig();
                 var pollerPool = new MessageReceiver(bus, log, TimeSpan.FromMilliseconds(pollerConfig.Timeout), streamFullName, inMemoryPublisher);
-                var poller = new Poller(bus, log, subscriptionRepository, pollerPool, serializer, pollerConfig.BufferQueueMaxCount, pollerConfig.EventsToFlushMaxCount);
+                var poller = new Poller(bus, log, container.Resolve<ISubscriptionRepository>(), pollerPool, container.Resolve<ITextSerializer>(), pollerConfig.BufferQueueMaxCount, pollerConfig.EventsToFlushMaxCount);
                 container.RegisterInstance<IMonitoredSubscriber>(poller);
 
                 var heartbeatEmitter = new HeartbeatEmitter(fsm, log, poller);
                 container.RegisterInstance<HeartbeatEmitter>(heartbeatEmitter);
             }
 
+            var guid = container.Resolve<IGuidProvider>();
             if (appFactory == null)
             {
                 var constructor = typeof(TApp).GetConstructor(new[] { typeof(IGuidProvider), typeof(ILogger), typeof(string), typeof(int) });

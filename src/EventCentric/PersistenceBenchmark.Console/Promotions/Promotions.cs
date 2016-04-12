@@ -2,11 +2,9 @@
 using PersistenceBenchmark.PromotionsStream;
 using System;
 using System.Collections.Generic;
-using System.Runtime.InteropServices;
 
 namespace PersistenceBenchmark
 {
-    [Guid("f9344900-bcd3-32ec-866b-4da1b0aee120")]
     public class Promotions : StateOf<Promotions>,
         IUpdatesWhen<FreePointsRewardedToUser>
     {

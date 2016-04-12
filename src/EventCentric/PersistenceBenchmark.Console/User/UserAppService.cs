@@ -3,12 +3,9 @@ using EventCentric.Log;
 using EventCentric.Utils;
 using System;
 using System.Collections.Generic;
-using System.Runtime.InteropServices;
-using System.Threading.Tasks;
 
 namespace PersistenceBenchmark
 {
-    [Guid("f9344900-bcd3-32ec-866b-4da1b0aee120")]
     public class UserAppService : ApplicationService
     {
         public UserAppService(IGuidProvider guid, ILogger log, string streamType, int eventsToPushMaxCount) : base(guid, log, streamType, eventsToPushMaxCount) { }

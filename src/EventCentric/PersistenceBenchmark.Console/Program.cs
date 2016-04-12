@@ -26,6 +26,7 @@ namespace PersistenceBenchmark.ConsoleHost
             //user2App.StressWithWavesOfConcurrentUsers(wavesCount: 5, concurrentUsers: 1000);
 
             // THIS MAKE CRASH, ALMOST
+            // completes in 2:03 minutes. 10.000 messages in event store, 83 msg/s
             user1App.StressWithWavesOfConcurrentUsers(wavesCount: 5, concurrentUsers: 500);
             user2App.StressWithWavesOfConcurrentUsers(wavesCount: 5, concurrentUsers: 500);
 
