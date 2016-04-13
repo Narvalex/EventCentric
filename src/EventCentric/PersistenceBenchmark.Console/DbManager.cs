@@ -1,7 +1,9 @@
 ﻿using EventCentric.Database;
 using EventCentric.MicroserviceFactory;
+using EventCentric.Persistence;
 using EventCentric.Persistence.SqlServer;
 using System;
+using System.Collections.Generic;
 
 namespace PersistenceBenchmark
 {
@@ -11,6 +13,9 @@ namespace PersistenceBenchmark
 
         public static void ResetDbs(PersistencePlugin plugin)
         {
+            if (plugin != PersistencePlugin.SqlServer)
+                return;
+
             using (var context = new EventStoreDbContext(ConnectionString))
             {
                 if (context.Database.Exists())
@@ -37,6 +42,8 @@ namespace PersistenceBenchmark
 
         public static void DropDb(PersistencePlugin plugin)
         {
+            if (plugin != PersistencePlugin.SqlServer)
+                return;
             Console.WriteLine("Drop db started...");
 
             SqlClientLite.DropDatabase(ConnectionString);
@@ -58,9 +65,10 @@ namespace PersistenceBenchmark
             }
         }
 
-        private static void AddSubscriptions(EventStoreDbContext context)
+        public static List<SubscriptionEntity> GetSubscriptions()
         {
-            context.Subscriptions.Add(new SubscriptionEntity
+            var subs = new List<SubscriptionEntity>();
+            subs.Add(new SubscriptionEntity
             {
                 SubscriberStreamType = "promo",
                 StreamType = "promo",
@@ -72,7 +80,7 @@ namespace PersistenceBenchmark
                 CreationLocalTime = DateTime.Now,
                 UpdateLocalTime = DateTime.Now
             });
-            context.Subscriptions.Add(new SubscriptionEntity
+            subs.Add(new SubscriptionEntity
             {
                 SubscriberStreamType = "promo",
                 StreamType = "user1",
@@ -84,7 +92,7 @@ namespace PersistenceBenchmark
                 CreationLocalTime = DateTime.Now,
                 UpdateLocalTime = DateTime.Now
             });
-            context.Subscriptions.Add(new SubscriptionEntity
+            subs.Add(new SubscriptionEntity
             {
                 SubscriberStreamType = "promo",
                 StreamType = "user2",
@@ -98,7 +106,7 @@ namespace PersistenceBenchmark
             });
 
             // user1
-            context.Subscriptions.Add(new SubscriptionEntity
+            subs.Add(new SubscriptionEntity
             {
                 SubscriberStreamType = "user1",
                 StreamType = "user1_app",
@@ -110,7 +118,7 @@ namespace PersistenceBenchmark
                 CreationLocalTime = DateTime.Now,
                 UpdateLocalTime = DateTime.Now
             });
-            context.Subscriptions.Add(new SubscriptionEntity
+            subs.Add(new SubscriptionEntity
             {
                 SubscriberStreamType = "user1",
                 StreamType = "user2",
@@ -122,7 +130,7 @@ namespace PersistenceBenchmark
                 CreationLocalTime = DateTime.Now,
                 UpdateLocalTime = DateTime.Now
             });
-            context.Subscriptions.Add(new SubscriptionEntity
+            subs.Add(new SubscriptionEntity
             {
                 SubscriberStreamType = "user1",
                 StreamType = "promo",
@@ -136,7 +144,7 @@ namespace PersistenceBenchmark
             });
 
             // user2
-            context.Subscriptions.Add(new SubscriptionEntity
+            subs.Add(new SubscriptionEntity
             {
                 SubscriberStreamType = "user2",
                 StreamType = "user2_app",
@@ -148,7 +156,7 @@ namespace PersistenceBenchmark
                 CreationLocalTime = DateTime.Now,
                 UpdateLocalTime = DateTime.Now
             });
-            context.Subscriptions.Add(new SubscriptionEntity
+            subs.Add(new SubscriptionEntity
             {
                 SubscriberStreamType = "user2",
                 StreamType = "promo",
@@ -160,7 +168,7 @@ namespace PersistenceBenchmark
                 CreationLocalTime = DateTime.Now,
                 UpdateLocalTime = DateTime.Now
             });
-            context.Subscriptions.Add(new SubscriptionEntity
+            subs.Add(new SubscriptionEntity
             {
                 SubscriberStreamType = "user2",
                 StreamType = "user1",
@@ -172,7 +180,12 @@ namespace PersistenceBenchmark
                 CreationLocalTime = DateTime.Now,
                 UpdateLocalTime = DateTime.Now
             });
+            return subs;
+        }
 
+        private static void AddSubscriptions(EventStoreDbContext context)
+        {
+            GetSubscriptions().ForEach(s => context.Subscriptions.Add(s));
             context.SaveChanges();
 
             Console.WriteLine("Susbscriptions added!");

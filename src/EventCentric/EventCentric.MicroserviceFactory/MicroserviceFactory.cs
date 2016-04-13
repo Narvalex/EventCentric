@@ -33,7 +33,7 @@ namespace EventCentric
             IUnityContainer container,
             IEventStoreConfig eventStoreConfig,
             PersistencePlugin selectedPlugin = PersistencePlugin.SqlServer,
-            Func<InMemoryPersistence<TStream>> setupInMemoryPersistence = null,
+            Func<InMemoryEventStore<TStream>, InMemoryEventStore<TStream>> setupInMemoryPersistence = null,
             bool isSubscriptor = true,
             Func<IBus, ILogger, IEventStore<TStream>, THandler> processorFactory = null)
         {
@@ -95,7 +95,7 @@ namespace EventCentric
             IUnityContainer container,
             IEventStoreConfig eventStoreConfig,
             PersistencePlugin selectedPlugin = PersistencePlugin.SqlServer,
-            Func<InMemoryPersistence<TStream>> setupInMemoryPersistence = null,
+            Func<InMemoryEventStore<TStream>, InMemoryEventStore<TStream>> setupInMemoryPersistence = null,
             bool isSubscriptor = true,
             Func<IGuidProvider, ILogger, string, int, TApp> appFactory = null,
             Func<IBus, ILogger, IEventStore<TStream>, THandler> processorFactory = null,

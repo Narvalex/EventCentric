@@ -1,27 +1,7 @@
-﻿using System;
-using System.Data.Entity.ModelConfiguration;
+﻿using System.Data.Entity.ModelConfiguration;
 
 namespace EventCentric.Persistence.SqlServer
 {
-    public class SubscriptionEntity
-    {
-        public string SubscriberStreamType { get; set; }
-        public string StreamType { get; set; }
-        public string Url { get; set; }
-        public string Token { get; set; }
-        public long ProcessorBufferVersion { get; set; }
-        public bool IsPoisoned { get; set; }
-        public bool WasCanceled { get; set; }
-        /// <summary>
-        /// The event collection version of the poisoned message.
-        /// </summary>
-        public long? PoisonEventCollectionVersion { get; set; }
-        public string DeadLetterPayload { get; set; }
-        public string ExceptionMessage { get; set; }
-        public DateTime CreationLocalTime { get; set; }
-        public DateTime UpdateLocalTime { get; set; }
-    }
-
     public class SubscriptionEntityMap : EntityTypeConfiguration<SubscriptionEntity>
     {
         public SubscriptionEntityMap()

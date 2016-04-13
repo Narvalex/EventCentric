@@ -1,18 +1,7 @@
-using System;
 using System.Data.Entity.ModelConfiguration;
 
 namespace EventCentric.Persistence.SqlServer
 {
-    public partial class SnapshotEntity
-    {
-        public string StreamType { get; set; }
-        public Guid StreamId { get; set; }
-        public long Version { get; set; }
-        public string Payload { get; set; }
-        public DateTime CreationLocalTime { get; set; }
-        public DateTime UpdateLocalTime { get; set; }
-    }
-
     public class StreamEntityMap : EntityTypeConfiguration<SnapshotEntity>
     {
         public StreamEntityMap()

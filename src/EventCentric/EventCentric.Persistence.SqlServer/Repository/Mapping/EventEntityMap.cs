@@ -1,26 +1,8 @@
-using System;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Data.Entity.ModelConfiguration;
 
 namespace EventCentric.Persistence.SqlServer
 {
-    // About unique constraints vs indexes: https://technet.microsoft.com/en-us/library/aa224827(v=sql.80).aspx
-    public class EventEntity
-    {
-        public string StreamType { get; set; }
-        public Guid StreamId { get; set; }
-        public long Version { get; set; }
-        public Guid TransactionId { get; set; }
-        public Guid EventId { get; set; }
-        public string EventType { get; set; }
-        public Guid? CorrelationId { get; set; }
-        public long EventCollectionVersion { get; set; }
-        public DateTime LocalTime { get; set; }
-        public DateTime UtcTime { get; set; }
-        public byte[] RowVersion { get; set; }
-        public string Payload { get; set; }
-    }
-
     public class EventEntityMap : EntityTypeConfiguration<EventEntity>
     {
         public EventEntityMap()

@@ -1,11 +1,9 @@
-﻿using EventCentric.Database;
-using EventCentric.EventSourcing;
+﻿using EventCentric.EventSourcing;
 using EventCentric.Log;
 using EventCentric.Serialization;
 using EventCentric.Utils;
 using System;
 using System.Collections.Generic;
-using System.Data.Entity;
 using System.Linq;
 using System.Runtime.Caching;
 using System.Threading;
@@ -61,10 +59,8 @@ namespace EventCentric.Persistence.SqlServer
 
             using (var context = this.contextFactory.Invoke(true))
             {
-                var versions = context.Events.Where(e => e.StreamType == this.streamType).AsCachedAnyEnumerable();
-
-                if (versions.Any())
-                    this.eventCollectionVersion = versions.Max(e => e.EventCollectionVersion);
+                if (context.Events.Any(e => e.StreamType == this.streamType))
+                    this.eventCollectionVersion = context.Events.Where(e => e.StreamType == this.streamType).Max(e => e.EventCollectionVersion);
             }
         }
 
@@ -82,9 +78,7 @@ namespace EventCentric.Persistence.SqlServer
                     if (snapshotEntity != null)
                         cachedMemento = new Tuple<ISnapshot, DateTime?>(this.serializer.Deserialize<ISnapshot>(snapshotEntity.Payload), null);
                     else
-                    {
                         return this.GetFromFullStreamOfEvents(id, context);
-                    }
                 }
             }
 
@@ -113,7 +107,7 @@ namespace EventCentric.Persistence.SqlServer
                            .AsCachedAnyEnumerable();
 
             if (streamOfEvents.Any())
-                return aggregateFactory.Invoke(id, streamOfEvents);
+                return this.aggregateFactory.Invoke(id, streamOfEvents);
 
             return null;
         }
@@ -145,13 +139,11 @@ namespace EventCentric.Persistence.SqlServer
             {
                 using (var context = this.contextFactory.Invoke(false))
                 {
-                    var versions = context.Events
-                                          .Where(e => e.StreamId == eventSourced.Id && e.StreamType == this.streamType)
-                                          .AsCachedAnyEnumerable();
-
-                    long currentVersion = 0;
-                    if (versions.Any())
-                        currentVersion = versions.Max(e => e.Version);
+                    var currentVersion = context.Events.Any(e => e.StreamId == eventSourced.Id && e.StreamType == this.streamType)
+                                          ? context.Events
+                                            .Where(e => e.StreamId == eventSourced.Id && e.StreamType == this.streamType)
+                                            .Max(e => e.Version)
+                                          : 0;
 
                     // Check if incoming event is duplicate
                     if (this.IsDuplicate(incomingEvent.EventId, context))
@@ -200,9 +192,16 @@ namespace EventCentric.Persistence.SqlServer
                     // Cache in Sql Server
                     var serializedMemento = this.serializer.Serialize(snapshot);
 
-                    var streamEntity = ((DbContext)context).AddOrUpdate(
-                        () => context.Snapshots.Where(s => s.StreamId == eventSourced.Id && s.StreamType == this.streamType).SingleOrDefault(),
-                        () => new SnapshotEntity
+                    var streamEntity = context.Snapshots.Where(s => s.StreamId == eventSourced.Id && s.StreamType == this.streamType).SingleOrDefault();
+                    if (streamEntity != null)
+                    {
+                        streamEntity.Version = eventSourced.Version;
+                        streamEntity.Payload = serializedMemento;
+                        streamEntity.UpdateLocalTime = localNow;
+                    }
+                    else
+                    {
+                        streamEntity = new SnapshotEntity
                         {
                             StreamType = this.streamType,
                             StreamId = eventSourced.Id,
@@ -210,13 +209,9 @@ namespace EventCentric.Persistence.SqlServer
                             Payload = serializedMemento,
                             CreationLocalTime = localNow,
                             UpdateLocalTime = localNow
-                        },
-                        snapshotEntity =>
-                        {
-                            snapshotEntity.Version = eventSourced.Version;
-                            snapshotEntity.Payload = serializedMemento;
-                            snapshotEntity.UpdateLocalTime = localNow;
-                        });
+                        };
+                        context.Snapshots.Add(streamEntity);
+                    }
 
                     // Cache in memory
                     this.cache.Set(

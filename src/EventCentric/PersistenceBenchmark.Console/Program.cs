@@ -12,6 +12,19 @@ namespace PersistenceBenchmark.ConsoleHost
         {
             var plugin = PersistencePlugin.InMemory;
 
+            string pluginSelectedName = "undefined";
+            switch (plugin)
+            {
+                case PersistencePlugin.InMemory:
+                    pluginSelectedName = "In-Memory";
+                    break;
+                case PersistencePlugin.SqlServer:
+                    pluginSelectedName = "Sql Server";
+                    break;
+            }
+
+            Console.WriteLine($"Welcome to persistence bench for {pluginSelectedName}");
+
             DbManager.ResetDbs(plugin);
             var mainContainer = UnityConfig.GetConfiguredContainer(plugin);
 
@@ -24,12 +37,14 @@ namespace PersistenceBenchmark.ConsoleHost
             Console.WriteLine("Press enter to start....");
             Console.ReadLine();
 
-            // THIS MAKE CRASH 
-            //user1App.StressWithWavesOfConcurrentUsers(wavesCount: 5, concurrentUsers: 1000);
-            //user2App.StressWithWavesOfConcurrentUsers(wavesCount: 5, concurrentUsers: 1000);
-
             // THIS MAKE CRASH, ALMOST
-            // completes in 2:03 minutes. 10.000 messages in event store, 83 msg/s
+
+            // SQL SERVER------------------------------------------------------
+            // 50 througput,    completes in 2:48 m 10.000 messages    60 m/s
+            // 100 througput,   completes in 1:58 m 10.000 messgaes    80 m/s
+
+            // IN-MEMORY-------------------------------------------------------
+            // 100 througput,   completes in 0:24 s 10.000 messgaes    400 m/s
             user1App.StressWithWavesOfConcurrentUsers(wavesCount: 5, concurrentUsers: 500);
             user2App.StressWithWavesOfConcurrentUsers(wavesCount: 5, concurrentUsers: 500);
 
@@ -39,6 +54,9 @@ namespace PersistenceBenchmark.ConsoleHost
 
             Console.WriteLine("Press enter to stop and clean...");
             Console.ReadLine();
+            if (plugin == PersistencePlugin.InMemory)
+                UnityConfig.StatsMonitor.PrintStats();
+
             DbManager.DropDb(plugin);
         }
     }

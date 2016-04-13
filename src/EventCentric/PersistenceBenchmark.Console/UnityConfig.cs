@@ -16,6 +16,8 @@ namespace PersistenceBenchmark
     /// </summary>
     public class UnityConfig
     {
+
+        public static StatsMonitor StatsMonitor = new StatsMonitor();
         private static PersistencePlugin plugin;
 
         #region Unity Container
@@ -59,25 +61,27 @@ namespace PersistenceBenchmark
                 UserContainer1 = ContainerFactory.ResolveDependenciesForNewChildContainer(container);
                 services.Add(MicroserviceFactory<UserManagement, UserManagementHandler>
                     .CreateEventProcessorWithApp<UserAppService>("user1", "user1_app", UserContainer1, user1Config, plugin,
-                        ResolveInMemoryPersistence<UserManagement>));
+                        SetupInMemoryPersistence<UserManagement>));
 
                 UserContainer2 = ContainerFactory.ResolveDependenciesForNewChildContainer(container);
                 services.Add(MicroserviceFactory<UserManagement, UserManagementHandler>
                     .CreateEventProcessorWithApp<UserAppService>("user2", "user2_app", UserContainer2, user2Config, plugin,
-                        ResolveInMemoryPersistence<UserManagement>));
+                        SetupInMemoryPersistence<UserManagement>));
 
                 PromotionsContainer = ContainerFactory.ResolveDependenciesForNewChildContainer(container);
                 services.Add(MicroserviceFactory<Promotions, PromotionsHandler>.
                     CreateEventProcessor("promo", PromotionsContainer, promotionsConfig, plugin,
-                        ResolveInMemoryPersistence<Promotions>));
+                        SetupInMemoryPersistence<Promotions>));
 
                 return services;
             }, false, Program.VerboseIsEnabled);
         }
 
-        private static InMemoryPersistence<T> ResolveInMemoryPersistence<T>() where T : class, IEventSourced
+        private static InMemoryEventStore<T> SetupInMemoryPersistence<T>(InMemoryEventStore<T> store) where T : class, IEventSourced
         {
-            return null;
+            store.Setup(DbManager.GetSubscriptions());
+            StatsMonitor.Add(store);
+            return store;
         }
 
         public static IUnityContainer UserContainer1 { get; private set; }

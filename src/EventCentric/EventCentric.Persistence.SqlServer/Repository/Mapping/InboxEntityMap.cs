@@ -1,24 +1,7 @@
-using System;
 using System.Data.Entity.ModelConfiguration;
 
 namespace EventCentric.Persistence.SqlServer
 {
-    public class InboxEntity
-    {
-        public long InboxId { get; set; }
-        public string InboxStreamType { get; set; }
-        public Guid EventId { get; set; }
-        public Guid TransactionId { get; set; }
-        public string StreamType { get; set; }
-        public Guid StreamId { get; set; }
-        public long Version { get; set; }
-        public string EventType { get; set; }
-        public long EventCollectionVersion { get; set; }
-        public bool Ignored { get; set; }
-        public DateTime LocalTime { get; set; }
-        public string Payload { get; set; }
-    }
-
     public class InboxEntityMap : EntityTypeConfiguration<InboxEntity>
     {
         public InboxEntityMap()

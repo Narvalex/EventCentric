@@ -52,7 +52,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Database\DataReaderExtensions.cs" />
-    <Compile Include="Database\DbContextExtensions.cs" />
     <Compile Include="Database\OptimizedDbContext.cs" />
     <Compile Include="Database\SqlClientExtensions.cs" />
     <Compile Include="Database\SqlClientLite.cs" />
@@ -69,12 +68,12 @@
     <Compile Include="Repository\HeartbeatDbContext.cs" />
     <Compile Include="Repository\IEventQueueDbContext.cs" />
     <Compile Include="Repository\IViewDao.cs" />
-    <Compile Include="Repository\Mapping\EventEntity.cs" />
-    <Compile Include="Repository\Mapping\EventuallyConsistentResultEntity.cs" />
-    <Compile Include="Repository\Mapping\InboxEntity.cs" />
-    <Compile Include="Repository\Mapping\SnapshotEntity.cs" />
-    <Compile Include="Repository\Mapping\SubscriberHeartbeatEntity.cs" />
-    <Compile Include="Repository\Mapping\SubscriptionEntity.cs" />
+    <Compile Include="Repository\Mapping\EventEntityMap.cs" />
+    <Compile Include="Repository\Mapping\EventuallyConsistentResultEntityMap.cs" />
+    <Compile Include="Repository\Mapping\InboxEntityMap.cs" />
+    <Compile Include="Repository\Mapping\SnapshotEntityMap.cs" />
+    <Compile Include="Repository\Mapping\SubscriberHeartbeatEntityMap.cs" />
+    <Compile Include="Repository\Mapping\SubscriptionEntityMap.cs" />
     <Compile Include="Repository\ViewDao.cs" />
     <Compile Include="SubscriptionRepository.cs" />
   </ItemGroup>

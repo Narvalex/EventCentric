@@ -76,6 +76,7 @@
     <Compile Include="Promotions\Promotions.cs" />
     <Compile Include="Promotions\PromotionsSnapshot.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="StatsMonitor.cs" />
     <Compile Include="UnityConfig.cs" />
     <Compile Include="User\Messages.cs" />
     <Compile Include="User\UserAppService.cs" />

@@ -21,12 +21,20 @@ namespace EventCentric.MicroserviceFactory
     {
         public static IUnityContainer ResolvePersistence(IUnityContainer container, PersistencePlugin selectedPlugin, string microserviceName,
             string connectionString,                                            // Sql Based persistence
-            Func<InMemoryPersistence<TStream>> setupInMemoryPersistence)        // In memory setup
+            Func<InMemoryEventStore<TStream>, InMemoryEventStore<TStream>> setupInMemoryPersistence)
         {
             switch (selectedPlugin)
             {
                 case PersistencePlugin.InMemory:
-                    var persitence = setupInMemoryPersistence.Invoke();
+                    var persitence = new InMemoryEventStore<TStream>(
+                        microserviceName,
+                        container.Resolve<IUtcTimeProvider>(),
+                        container.Resolve<ITextSerializer>(),
+                        container.Resolve<IGuidProvider>(),
+                        container.Resolve<ILogger>());
+
+                    setupInMemoryPersistence.Invoke(persitence);
+
                     container.RegisterInstance<ISubscriptionRepository>(persitence);
                     container.RegisterInstance<IEventDao>(persitence);
                     container.RegisterInstance<IEventStore<TStream>>(persitence);
@@ -50,8 +58,6 @@ namespace EventCentric.MicroserviceFactory
 
             var serializer = container.Resolve<ITextSerializer>();
             var time = container.Resolve<IUtcTimeProvider>();
-            var log = container.Resolve<ILogger>();
-            var guid = container.Resolve<IGuidProvider>();
 
             var subscriptionRepository = new SubscriptionRepository(storeContextFactory, microserviceName, serializer, time);
             container.RegisterInstance<ISubscriptionRepository>(subscriptionRepository);
@@ -59,7 +65,7 @@ namespace EventCentric.MicroserviceFactory
             var eventDao = new EventDao(queueContextFactory, microserviceName);
             container.RegisterInstance<IEventDao>(eventDao);
 
-            var eventStore = new EventStore<TStream>(microserviceName, serializer, storeContextFactory, time, guid, log);
+            var eventStore = new EventStore<TStream>(microserviceName, serializer, storeContextFactory, time, container.Resolve<IGuidProvider>(), container.Resolve<ILogger>());
             container.RegisterInstance<IEventStore<TStream>>(eventStore);
         }
     }

@@ -52,7 +52,7 @@ namespace EventCentric.Polling
             {
                 var subscription = context.Subscriptions.Where(s => s.StreamType == poisonedEvent.StreamType && s.SubscriberStreamType == this.streamType).Single();
                 subscription.IsPoisoned = true;
-                subscription.UpdateLocalTime = this.time.Now;
+                subscription.UpdateLocalTime = this.time.Now.ToLocalTime();
                 subscription.PoisonEventCollectionVersion = poisonedEvent.EventCollectionVersion;
                 try
                 {

@@ -1,23 +1,20 @@
-﻿using EventCentric.Database;
-using System.Data.Entity;
-
-namespace EventCentric.Persistence.SqlServer
+﻿namespace EventCentric.Persistence.SqlServer
 {
-    public class HeartbeatDbContext : OptimizedDbContext
-    {
-        public HeartbeatDbContext(bool isReadonly, string connectionString)
-            : base(isReadonly, connectionString)
-        { }
+    //public class HeartbeatDbContext : OptimizedDbContext
+    //{
+    //    public HeartbeatDbContext(bool isReadonly, string connectionString)
+    //        : base(isReadonly, connectionString)
+    //    { }
 
-        public HeartbeatDbContext(string connectionString)
-            : base(connectionString)
-        { }
+    //    public HeartbeatDbContext(string connectionString)
+    //        : base(connectionString)
+    //    { }
 
-        public IDbSet<SubscriberHeartbeatEntity> SubscribersHeartbeats { get; set; }
+    //    public IDbSet<SubscriberHeartbeatEntity> SubscribersHeartbeats { get; set; }
 
-        protected override void OnModelCreating(DbModelBuilder modelBuilder)
-        {
-            modelBuilder.Configurations.Add(new SubscriberHeartbeatEntityMap());
-        }
-    }
+    //    protected override void OnModelCreating(DbModelBuilder modelBuilder)
+    //    {
+    //        modelBuilder.Configurations.Add(new SubscriberHeartbeatEntityMap());
+    //    }
+    //}
 }
