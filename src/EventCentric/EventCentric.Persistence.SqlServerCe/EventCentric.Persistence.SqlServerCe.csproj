@@ -70,9 +70,6 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="EventStoreCe.sdf">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
     <Content Include="EventStoreScripts.sql" />
   </ItemGroup>
   <ItemGroup>
