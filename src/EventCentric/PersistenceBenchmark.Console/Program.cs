@@ -10,7 +10,7 @@ namespace PersistenceBenchmark.ConsoleHost
 
         static void Main(string[] args)
         {
-            var plugin = PersistencePlugin.InMemory;
+            var plugin = DbManager.SelectedPlugin;
 
             string pluginSelectedName = "undefined";
             switch (plugin)
@@ -20,6 +20,9 @@ namespace PersistenceBenchmark.ConsoleHost
                     break;
                 case PersistencePlugin.SqlServer:
                     pluginSelectedName = "Sql Server";
+                    break;
+                case PersistencePlugin.SqlServerCe:
+                    pluginSelectedName = "Sql Server Compact Edition";
                     break;
             }
 
@@ -45,8 +48,8 @@ namespace PersistenceBenchmark.ConsoleHost
 
             // IN-MEMORY-------------------------------------------------------
             // 100 througput,   completes in 0:24 s 10.000 messgaes    400 m/s
-            user1App.StressWithWavesOfConcurrentUsers(wavesCount: 5, concurrentUsers: 500);
-            user2App.StressWithWavesOfConcurrentUsers(wavesCount: 5, concurrentUsers: 500);
+            user1App.StressWithWavesOfConcurrentUsers(wavesCount: 5, concurrentUsers: 100);
+            user2App.StressWithWavesOfConcurrentUsers(wavesCount: 5, concurrentUsers: 100);
 
             // Light
             //user1App.StressWithWavesOfConcurrentUsers(wavesCount: 1, concurrentUsers: 1);

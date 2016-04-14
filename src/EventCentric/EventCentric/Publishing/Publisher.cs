@@ -104,7 +104,8 @@ namespace EventCentric.Publishing
                     {
                         // Lo que le paso a charly.
                         newEventsWereFound = false;
-                        this.log.Error($"There is an error in the event store or a racy condition. The consumer [{consumerName}] version is {consumerVersion} and the local event collection version should be {this.eventCollectionVersion} but it is not.");
+                        //this.log.Error($"There is an error in the event store or a racy condition. The consumer [{consumerName}] version is {consumerVersion} and the local event collection version should be {this.eventCollectionVersion} but it is not.");
+                        this.bus.Publish(new FatalErrorOcurred(new FatalErrorException($"There is an error in the event store or a racy condition. The consumer [{consumerName}] version is {consumerVersion} and the local event collection version should be {this.eventCollectionVersion} but it is not.")));
                         break;
                     }
                 }

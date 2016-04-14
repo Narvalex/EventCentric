@@ -45,9 +45,10 @@ namespace PersistenceBenchmark
         public static void RegisterTypes(IUnityContainer container)
         {
             var baseConfig = EventStoreConfig.GetConfig();
-            var promotionsConfig = new DummyEventStoreConfig(DbManager.ConnectionString, baseConfig);
-            var user1Config = new DummyEventStoreConfig(DbManager.ConnectionString, baseConfig);
-            var user2Config = new DummyEventStoreConfig(DbManager.ConnectionString, baseConfig);
+
+            var promotionsConfig = new DummyEventStoreConfig(DbManager.FixedConnectionstring, baseConfig);
+            var user1Config = new DummyEventStoreConfig(DbManager.FixedConnectionstring, baseConfig);
+            var user2Config = new DummyEventStoreConfig(DbManager.FixedConnectionstring, baseConfig);
 
             //SingleMicroserviceInitializer.Run(
             //    container, () => MicroserviceFactory<UserManagement, UserManagementHandler>

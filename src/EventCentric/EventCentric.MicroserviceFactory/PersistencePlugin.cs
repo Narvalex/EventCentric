@@ -2,6 +2,7 @@
 using EventCentric.Log;
 using EventCentric.Persistence;
 using EventCentric.Persistence.SqlServer;
+using EventCentric.Persistence.SqlServerCe;
 using EventCentric.Polling;
 using EventCentric.Publishing;
 using EventCentric.Serialization;
@@ -14,7 +15,8 @@ namespace EventCentric.MicroserviceFactory
     public enum PersistencePlugin
     {
         InMemory,
-        SqlServer
+        SqlServer,
+        SqlServerCe
     }
 
     public static class PersistencePluginResolver<TStream> where TStream : class, IEventSourced
@@ -44,6 +46,10 @@ namespace EventCentric.MicroserviceFactory
                     ResolveForSqlServer(container, microserviceName, connectionString);
                     break;
 
+                case PersistencePlugin.SqlServerCe:
+                    ResolveForSqlServerCe(container, microserviceName, connectionString);
+                    break;
+
                 default:
                     throw new InvalidOperationException("The selected plug in is not available");
             }
@@ -55,6 +61,24 @@ namespace EventCentric.MicroserviceFactory
         {
             Func<bool, EventStoreDbContext> storeContextFactory = isReadOnly => new EventStoreDbContext(isReadOnly, connectionString);
             Func<bool, EventQueueDbContext> queueContextFactory = isReadOnly => new EventQueueDbContext(isReadOnly, connectionString);
+
+            var serializer = container.Resolve<ITextSerializer>();
+            var time = container.Resolve<IUtcTimeProvider>();
+
+            var subscriptionRepository = new SubscriptionRepository(storeContextFactory, microserviceName, serializer, time);
+            container.RegisterInstance<ISubscriptionRepository>(subscriptionRepository);
+
+            var eventDao = new EventDao(queueContextFactory, microserviceName);
+            container.RegisterInstance<IEventDao>(eventDao);
+
+            var eventStore = new EventStore<TStream>(microserviceName, serializer, storeContextFactory, time, container.Resolve<IGuidProvider>(), container.Resolve<ILogger>());
+            container.RegisterInstance<IEventStore<TStream>>(eventStore);
+        }
+
+        private static void ResolveForSqlServerCe(IUnityContainer container, string microserviceName, string connectionString)
+        {
+            Func<bool, EventStoreCeDbContext> storeContextFactory = isReadOnly => new EventStoreCeDbContext(isReadOnly, connectionString);
+            Func<bool, EventQueueCeDbContext> queueContextFactory = isReadOnly => new EventQueueCeDbContext(isReadOnly, connectionString);
 
             var serializer = container.Resolve<ITextSerializer>();
             var time = container.Resolve<IUtcTimeProvider>();

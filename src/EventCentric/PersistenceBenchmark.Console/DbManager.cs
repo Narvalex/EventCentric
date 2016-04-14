@@ -9,25 +9,56 @@ namespace PersistenceBenchmark
 {
     public static class DbManager
     {
-        public const string ConnectionString = "server = (local); Database = PersistenceBench; User Id = sa; pwd = 123456";
+        public static PersistencePlugin SelectedPlugin => PersistencePlugin.SqlServer;
+
+        public static string FixedConnectionstring
+        {
+            get
+            {
+                switch (SelectedPlugin)
+                {
+                    case PersistencePlugin.SqlServer:
+                        return "server = (local); Database = PersistenceBench; User Id = sa; pwd = 123456";
+                    case PersistencePlugin.SqlServerCe:
+                        return $"Data Source=|DataDirectory|PersistenceBenchCe.sdf";
+                    default:
+                        return string.Empty;
+                };
+            }
+        }
 
         public static void ResetDbs(PersistencePlugin plugin)
         {
-            if (plugin != PersistencePlugin.SqlServer)
+            if (plugin == PersistencePlugin.InMemory)
                 return;
 
-            using (var context = new EventStoreDbContext(ConnectionString))
+            using (var context = new EventStoreDbContext(FixedConnectionstring))
             {
                 if (context.Database.Exists())
                 {
                     Console.WriteLine("Truncating current db...");
-                    context.Database.ExecuteSqlCommand
-                    (@"
-                        truncate table eventstore.events;
-                        truncate table eventstore.inbox;
-                        truncate table eventstore.snapshots;
-                        truncate table eventstore.subscriptions;"
-                    );
+                    switch (SelectedPlugin)
+                    {
+                        case PersistencePlugin.InMemory:
+                            break;
+                        case PersistencePlugin.SqlServer:
+                            context.Database.ExecuteSqlCommand
+                            (@"
+                                truncate table eventstore.events;
+                                truncate table eventstore.inbox;
+                                truncate table eventstore.snapshots;
+                                truncate table eventstore.subscriptions;"
+                            );
+                            break;
+
+                        case PersistencePlugin.SqlServerCe:
+                            context.Events.ForEach(e => context.Events.Remove(e));
+                            context.Inbox.ForEach(e => context.Inbox.Remove(e));
+                            context.Subscriptions.ForEach(e => context.Subscriptions.Remove(e));
+                            context.Snapshots.ForEach(e => context.Snapshots.Remove(e));
+                            break;
+                    }
+
                     Console.WriteLine("Db truncated!");
                     Console.WriteLine("Adding subscriptons");
                     AddSubscriptions(context);
@@ -46,7 +77,7 @@ namespace PersistenceBenchmark
                 return;
             Console.WriteLine("Drop db started...");
 
-            SqlClientLite.DropDatabase(ConnectionString);
+            SqlClientLite.DropDatabase(FixedConnectionstring);
 
             Console.WriteLine("Db was droped!");
         }
@@ -54,7 +85,7 @@ namespace PersistenceBenchmark
         private static void CreateDb()
         {
             Console.WriteLine("Creating Db...");
-            using (var context = new EventStoreDbContext(ConnectionString))
+            using (var context = new EventStoreDbContext(FixedConnectionstring))
             {
                 context.Database.Create();
 

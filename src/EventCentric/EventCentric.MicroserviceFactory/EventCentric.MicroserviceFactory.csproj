@@ -41,10 +41,6 @@
       <HintPath>..\packages\EntityFramework.6.1.3\lib\net45\EntityFramework.SqlServer.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="EventCentric.Persistence.SqlServer, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\EventCentric.Persistence.SqlServer\bin\Debug\EventCentric.Persistence.SqlServer.dll</HintPath>
-    </Reference>
     <Reference Include="Microsoft.AspNet.SignalR.Core, Version=2.2.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.AspNet.SignalR.Core.2.2.0\lib\net45\Microsoft.AspNet.SignalR.Core.dll</HintPath>
       <Private>True</Private>
@@ -120,6 +116,14 @@
     <ProjectReference Include="..\EventCentric.Heartbeating\EventCentric.Heartbeating.csproj">
       <Project>{6c42f2eb-a742-4982-bf98-76b7b82871e5}</Project>
       <Name>EventCentric.Heartbeating</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\EventCentric.Persistence.SqlServerCe\EventCentric.Persistence.SqlServerCe.csproj">
+      <Project>{ddd72dde-73aa-492f-96e4-f7300dea3689}</Project>
+      <Name>EventCentric.Persistence.SqlServerCe</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\EventCentric.Persistence.SqlServer\EventCentric.Persistence.SqlServer.csproj">
+      <Project>{2ecdb874-5e04-47cb-9ab1-8262159ac3b9}</Project>
+      <Name>EventCentric.Persistence.SqlServer</Name>
     </ProjectReference>
     <ProjectReference Include="..\EventCentric.Persistence\EventCentric.Persistence.csproj">
       <Project>{c01c199e-c7bc-45d4-a1d5-b521f333e57e}</Project>
