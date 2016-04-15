@@ -35,7 +35,7 @@ namespace PersistenceBenchmark.ConsoleHost
             var user2App = UnityConfig.UserContainer2.Resolve<UserAppService>();
 
             // Holding in memory messages
-            // Expected: Events: waves * users. Inbox: waves * users
+            // Expected: Events: waves * users * 2;
 
             Console.WriteLine("Press enter to start....");
             Console.ReadLine();
@@ -48,8 +48,8 @@ namespace PersistenceBenchmark.ConsoleHost
 
             // IN-MEMORY-------------------------------------------------------
             // 100 througput,   completes in 0:24 s 10.000 messgaes    400 m/s
-            user1App.StressWithWavesOfConcurrentUsers(wavesCount: 5, concurrentUsers: 1000);
-            user2App.StressWithWavesOfConcurrentUsers(wavesCount: 5, concurrentUsers: 1000);
+            user1App.StressWithWavesOfConcurrentUsers(wavesCount: 100, concurrentUsers: 100);
+            user2App.StressWithWavesOfConcurrentUsers(wavesCount: 100, concurrentUsers: 100);
 
             // Light
             //user1App.StressWithWavesOfConcurrentUsers(wavesCount: 1, concurrentUsers: 1);
