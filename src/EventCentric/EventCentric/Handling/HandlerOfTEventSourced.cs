@@ -58,7 +58,7 @@ namespace EventCentric.Handling
             foreach (var incomingEvent in message.IncomingEvents)
                 this.HandleGracefully(incomingEvent);
 
-            this.log.Log($"{name} handled {message.IncomingEvents.Count()} message/s");
+            this.log.Trace($"{name} handled {message.IncomingEvents.Count()} message/s");
         }
 
         private void HandleGracefully(IEvent incomingEvent)
