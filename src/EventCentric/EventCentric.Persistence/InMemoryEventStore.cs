@@ -275,22 +275,33 @@ namespace EventCentric.Persistence
                         });
                 }
 
+                long eventCollectionVersionToPublish;
                 lock (this)
                 {
-                    for (int i = 0; i < pendingEvents.Count; i++)
+                    var eventCollectionBeforeCrash = this.eventCollectionVersion;
+                    try
                     {
-                        var ecv = Interlocked.Increment(ref this.eventCollectionVersion);
-                        var @event = pendingEvents[i];
-                        ((Message)@event).EventCollectionVersion = ecv;
-                        var entity = eventEntities[i];
-                        entity.EventCollectionVersion = ecv;
-                        entity.Payload = this.serializer.Serialize(@event);
-                        this.Events.Add(entity);
-                    }
+                        for (int i = 0; i < pendingEvents.Count; i++)
+                        {
+                            var ecv = Interlocked.Increment(ref this.eventCollectionVersion);
+                            var @event = pendingEvents[i];
+                            ((Message)@event).EventCollectionVersion = ecv;
+                            var entity = eventEntities[i];
+                            entity.EventCollectionVersion = ecv;
+                            entity.Payload = this.serializer.Serialize(@event);
+                            this.Events.Add(entity);
+                        }
 
-                    //return context.Events.Where(e => e.StreamType == this.streamType).Max(e => e.EventCollectionVersion);
-                    return this.eventCollectionVersion;
+                        eventCollectionVersionToPublish = pendingEvents.Last().EventCollectionVersion;
+                    }
+                    catch (Exception ex)
+                    {
+                        this.eventCollectionVersion = eventCollectionBeforeCrash;
+                        throw ex;
+                    }
                 }
+
+                return eventCollectionVersionToPublish;
             }
             catch (Exception ex)
             {

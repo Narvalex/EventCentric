@@ -26,4 +26,16 @@ namespace PersistenceBenchmark
         public Guid UserId { get; }
         public string Name { get; }
     }
+
+    public class UserReceivedPoints : Event
+    {
+        public UserReceivedPoints(Guid userId, int points)
+        {
+            this.UserId = userId;
+            this.Points = points;
+        }
+
+        public Guid UserId { get; }
+        public int Points { get; }
+    }
 }

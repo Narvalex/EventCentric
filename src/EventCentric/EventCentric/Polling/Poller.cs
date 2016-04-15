@@ -282,11 +282,12 @@ namespace EventCentric.Polling
 
         public void Handle(IncomingEventHasBeenProcessed message)
         {
-            this.bufferPool
+            var e = this.bufferPool
                     .Where(s => s.StreamType == message.StreamType)
-                    .Single()
-                        .EventsInProcessorByEcv[message.EventCollectionVersion]
-                        .MarkEventAsProcessed();
+                    .Single();
+
+            e.EventsInProcessorByEcv[message.EventCollectionVersion]
+            .MarkEventAsProcessed();
         }
 
         public void Handle(IncomingEventIsPoisoned message)

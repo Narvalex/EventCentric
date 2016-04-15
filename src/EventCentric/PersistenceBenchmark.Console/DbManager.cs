@@ -9,7 +9,7 @@ namespace PersistenceBenchmark
 {
     public static class DbManager
     {
-        public static PersistencePlugin SelectedPlugin => PersistencePlugin.InMemory;
+        public static PersistencePlugin SelectedPlugin => PersistencePlugin.SqlServer;
 
         public static string FixedConnectionstring
         {
@@ -152,6 +152,18 @@ namespace PersistenceBenchmark
             subs.Add(new SubscriptionEntity
             {
                 SubscriberStreamType = "user1",
+                StreamType = "user1",
+                Url = "none",
+                Token = "#token",
+                ProcessorBufferVersion = 0,
+                IsPoisoned = false,
+                WasCanceled = false,
+                CreationLocalTime = DateTime.Now,
+                UpdateLocalTime = DateTime.Now
+            });
+            subs.Add(new SubscriptionEntity
+            {
+                SubscriberStreamType = "user1",
                 StreamType = "user2",
                 Url = "none",
                 Token = "#token",
@@ -203,6 +215,18 @@ namespace PersistenceBenchmark
             {
                 SubscriberStreamType = "user2",
                 StreamType = "user1",
+                Url = "none",
+                Token = "#token",
+                ProcessorBufferVersion = 0,
+                IsPoisoned = false,
+                WasCanceled = false,
+                CreationLocalTime = DateTime.Now,
+                UpdateLocalTime = DateTime.Now
+            });
+            subs.Add(new SubscriptionEntity
+            {
+                SubscriberStreamType = "user2",
+                StreamType = "user2",
                 Url = "none",
                 Token = "#token",
                 ProcessorBufferVersion = 0,
