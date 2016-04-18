@@ -39,8 +39,8 @@ namespace Occ.ServiceHost.App_Start
         public static void RegisterTypes(IUnityContainer container)
         {
             var config = new EventStoreConfig();
-            proxies.Add("OccClient1", new OcassionallyConnectedSource("OccClient1", "v1"));
-            proxies.Add("OccClient2", new OcassionallyConnectedSource("OccClient2", "v1"));
+            proxies.Add("OccClient1", new OcassionallyConnectedSource("OccClient1"));
+            proxies.Add("OccClient2", new OcassionallyConnectedSource("OccClient2"));
 
             SingleMicroserviceInitializer.Run(
             container: container,

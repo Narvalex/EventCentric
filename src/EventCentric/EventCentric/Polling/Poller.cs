@@ -276,8 +276,15 @@ namespace EventCentric.Polling
 
             subscription.IsPolling = false;
 
+            if (response.ErrorDetected)
+            {
+                this.log.Trace($"{this.microserviceName} got an error while polling {subscription.StreamType}");
+                return;
+            }
+
             var messageCount = response.IsSerialized ? response.NewRawEvents.Count() : response.Events.Count();
-            this.log.Trace(string.Format($"{this.microserviceName} pulled {0} event/s from {1}", messageCount, subscription.StreamType));
+            if (messageCount > 0)
+                this.log.Trace($"{this.microserviceName} pulled {messageCount} event/s from {subscription.StreamType}");
         }
 
         public void Handle(IncomingEventHasBeenProcessed message)

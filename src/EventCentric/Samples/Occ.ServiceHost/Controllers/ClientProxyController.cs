@@ -1,5 +1,5 @@
 ﻿using EventCentric.Authorization;
-using EventCentric.Publishing.Dto;
+using EventCentric.Transport;
 using Occ.ServiceHost.App_Start;
 using System.Web.Http;
 using System.Web.Http.Cors;
@@ -13,10 +13,10 @@ namespace Occ.ServiceHost.Controllers
     {
         [HttpPost]
         [Route("upload")]
-        public IHttpActionResult Upload([FromBody]ClientData data)
+        public IHttpActionResult Upload([FromBody]PollResponse response)
         {
-            var proxy = UnityConfig.GetClientProxy(data.PollResponse.StreamType);
-            return this.Ok(proxy.UpdateServer(data));
+            var proxy = UnityConfig.GetClientProxy(response.StreamType);
+            return this.Ok(proxy.UpdateServer(response));
         }
     }
 }

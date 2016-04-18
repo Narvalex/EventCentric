@@ -71,7 +71,7 @@ namespace EventCentric.Transport
 
                     // To have a break;
                     Thread.Sleep(10000);
-                    this.bus.Publish(new PollResponseWasReceived(new PollResponse(streamType)));
+                    this.bus.Publish(new PollResponseWasReceived(PollResponse.CreateErrorResponse(streamType)));
                 }
             }
         }

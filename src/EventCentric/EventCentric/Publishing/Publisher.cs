@@ -76,7 +76,7 @@ namespace EventCentric.Publishing
 
             // the consumer says that is more updated than the source. That is an error. Maybe the publisher did not started yet!
             if (ecv < consumerVersion)
-                return new PollResponse(true, false, this.streamType, newEvents, consumerVersion, ecv);
+                return PollResponse.CreateSerializedResponse(true, false, this.streamType, newEvents, consumerVersion, ecv);
 
             bool newEventsWereFound = false;
             var stopwatch = Stopwatch.StartNew();
@@ -114,7 +114,7 @@ namespace EventCentric.Publishing
                     break;
             }
 
-            return new PollResponse(false, newEventsWereFound, this.streamType, newEvents, consumerVersion, ecv);
+            return PollResponse.CreateSerializedResponse(false, newEventsWereFound, this.streamType, newEvents, consumerVersion, ecv);
         }
 
         protected override void OnStarting()

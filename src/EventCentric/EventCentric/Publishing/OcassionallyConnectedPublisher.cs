@@ -16,6 +16,7 @@ using System.Threading.Tasks;
 
 namespace EventCentric.Publishing
 {
+    // This is an ocassionally connected client publisher. The publisher of the client.
     public class OcassionallyConnectedPublisher : MicroserviceWorker, IPollableEventSource,
         IMessageHandler<StartEventPublisher>,
         IMessageHandler<StopEventPublisher>,
@@ -96,7 +97,7 @@ namespace EventCentric.Publishing
 
             // the consumer says that is more updated than the source. That is an error. Maybe the publisher did not started yet!
             if (ecv < consumerVersion)
-                return new PollResponse(true, false, this.streamType, newEvents, consumerVersion, ecv);
+                return PollResponse.CreateSerializedResponse(true, false, this.streamType, newEvents, consumerVersion, ecv);
 
             bool newEventsWereFound = false;
             var stopwatch = Stopwatch.StartNew();
@@ -134,7 +135,7 @@ namespace EventCentric.Publishing
                     break;
             }
 
-            return new PollResponse(false, newEventsWereFound, this.streamType, newEvents, consumerVersion, ecv);
+            return PollResponse.CreateSerializedResponse(false, newEventsWereFound, this.streamType, newEvents, consumerVersion, ecv);
         }
 
         private void SyncWithServer()
@@ -146,7 +147,7 @@ namespace EventCentric.Publishing
             {
                 try
                 {
-                    var serverStatus = this.TrySync(new ClientData(this.clientVersion, this.PollEvents(this.serverEventCollectionVersion, this.serverName)));
+                    var serverStatus = this.TrySync(this.PollEvents(this.serverEventCollectionVersion, this.serverName));
                     this.serverEventCollectionVersion = serverStatus.EventBufferVersion;
                 }
                 catch (Exception ex)
@@ -159,7 +160,7 @@ namespace EventCentric.Publishing
             }
         }
 
-        private ServerStatus TrySync(ClientData payload)
+        private ServerStatus TrySync(PollResponse payload)
         {
             HttpResponseMessage response;
             using (var client = this.CreateHttpClient())

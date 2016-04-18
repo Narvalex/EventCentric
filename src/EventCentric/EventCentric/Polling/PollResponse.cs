@@ -4,49 +4,59 @@ using System.Collections.Generic;
 
 namespace EventCentric.Transport
 {
+
     public class PollResponse
     {
-        private PollResponse(bool errorDetected, bool newEventsWereFound, string streamType, long consumerVersion, long producerVersion)
+        public static PollResponse CreateErrorResponse(string streamType)
         {
-            this.NewEventsWereFound = newEventsWereFound;
-            this.StreamType = streamType;
-            this.ErrorDetected = errorDetected;
+            return CreateBaseResponse(true, false, streamType, 0, 0);
+        }
+
+        private static PollResponse CreateBaseResponse(bool errorDetected, bool newEventsWereFound, string streamType, long consumerVersion, long producerVersion)
+        {
+            var response = new PollResponse();
+            response.NewEventsWereFound = newEventsWereFound;
+            response.StreamType = streamType;
+            response.ErrorDetected = errorDetected;
 
             // Metrics 
-            this.ConsumerVersion = consumerVersion;
-            this.ProducerVersion = producerVersion;
-
+            response.ConsumerVersion = consumerVersion;
+            response.ProducerVersion = producerVersion;
+            return response;
         }
 
-        // ON ERROR
-        public PollResponse(string streamType)
-            : this(true, false, streamType, 0, 0)
+        public static PollResponse CreateSerializedResponse(bool errorDetected, bool newEventsWereFound, string streamType, IEnumerable<NewRawEvent> newRawEvents, long consumerVersion, long producerVersion)
+        {
+            var r = CreateBaseResponse(errorDetected, newEventsWereFound, streamType, consumerVersion, producerVersion);
+
+            r.NewRawEvents = newRawEvents;
+            r.IsSerialized = true;
+            return r;
+        }
+
+        public static PollResponse CreateInMemoryResponse(bool errorDetected, bool newEventsWereFound, string streamType, IEnumerable<IEvent> events, long consumerVersion, long producerVersion)
+        {
+            var r = CreateBaseResponse(errorDetected, newEventsWereFound, streamType, consumerVersion, producerVersion);
+
+            r.Events = events;
+            r.IsSerialized = false;
+
+            return r;
+        }
+
+        public PollResponse()
         { }
 
-        public PollResponse(bool errorDetected, bool newEventsWereFound, string streamType, IEnumerable<NewRawEvent> newRawEvents, long consumerVersion, long producerVersion)
-            : this(errorDetected, newEventsWereFound, streamType, consumerVersion, producerVersion)
-        {
-            this.NewRawEvents = newRawEvents;
-            this.IsSerialized = true;
-        }
+        public bool NewEventsWereFound { get; set; }
+        public bool ErrorDetected { get; set; }
+        public bool IsSerialized { get; set; }
 
-        public PollResponse(bool errorDetected, bool newEventsWereFound, string streamType, IEnumerable<IEvent> events, long consumerVersion, long producerVersion)
-            : this(errorDetected, newEventsWereFound, streamType, consumerVersion, producerVersion)
-        {
-            this.Events = events;
-            this.IsSerialized = false;
-        }
-
-        public bool NewEventsWereFound { get; private set; }
-        public bool ErrorDetected { get; private set; }
-        public bool IsSerialized { get; }
-
-        public string StreamType { get; private set; }
-        public IEnumerable<NewRawEvent> NewRawEvents { get; private set; }
-        public IEnumerable<IEvent> Events { get; private set; }
+        public string StreamType { get; set; }
+        public IEnumerable<NewRawEvent> NewRawEvents { get; set; }
+        public IEnumerable<IEvent> Events { get; set; }
 
         // Metrics
-        public long ConsumerVersion { get; private set; }
-        public long ProducerVersion { get; private set; }
+        public long ConsumerVersion { get; set; }
+        public long ProducerVersion { get; set; }
     }
 }

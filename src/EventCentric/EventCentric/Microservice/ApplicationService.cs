@@ -80,7 +80,7 @@ namespace EventCentric
                 Thread.Sleep(1);
             }
 
-            return new PollResponse(false, true, this.streamType, events, events.Count, events.Count + this.messageQueue.Count);
+            return PollResponse.CreateInMemoryResponse(false, true, this.streamType, events, events.Count, events.Count + this.messageQueue.Count);
         }
     }
 }
