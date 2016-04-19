@@ -1,6 +1,6 @@
 ﻿namespace EventCentric.Messaging.Events
 {
-    public class IncomingEventHasBeenProcessed : IMessage
+    public struct IncomingEventHasBeenProcessed : IMessage
     {
         public IncomingEventHasBeenProcessed(string streamType, long eventCollectionVersion)
         {

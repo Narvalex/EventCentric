@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace EventCentric.Messaging.Events
 {
-    public class NewIncomingEvents : IMessage
+    public struct NewIncomingEvents : IMessage
     {
         public NewIncomingEvents(IEnumerable<IEvent> incomingEvents)
         {

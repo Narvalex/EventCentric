@@ -1,10 +1,10 @@
 ﻿namespace EventCentric.Messaging.Commands
 {
-    public class StartEventPublisher : IMessage { }
+    public struct StartEventPublisher : IMessage { }
 
-    public class StartEventProcessor : IMessage { }
+    public struct StartEventProcessor : IMessage { }
 
-    public class StartEventPoller : IMessage
+    public struct StartEventPoller : IMessage
     {
         public StartEventPoller(string microserviceName)
         {

@@ -44,10 +44,11 @@ namespace PersistenceBenchmark.ConsoleHost
 
             // SQL SERVER------------------------------------------------------
             // 50 througput,    completes in 2:48 m 10.000 messages    60 m/s
-            // 100 througput,   completes in 1:58 m 10.000 messgSaes    80 m/s
+            // 100 througput,   completes in 1:58 m 10.000 messgaes    80 m/s
+            // 100 througput,   completes in 5:04 m 20.000 messages    65 m/s
 
             // IN-MEMORY-------------------------------------------------------
-            // 100 througput,   completes in 0:24 s 10.000 messgaes    400 m/s
+            // 100 througput,   completes in 0:28 s 20.000 messgaes    714 m/s
             user1App.StressWithWavesOfConcurrentUsers(wavesCount: 5, concurrentUsers: 1000);
             user2App.StressWithWavesOfConcurrentUsers(wavesCount: 5, concurrentUsers: 1000);
 

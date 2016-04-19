@@ -2,7 +2,7 @@
 
 namespace EventCentric.Messaging.Events
 {
-    public class IncomingEventIsPoisoned : IMessage
+    public struct IncomingEventIsPoisoned : IMessage
     {
         public IncomingEventIsPoisoned(IEvent poisonedEvent, PoisonMessageException exception)
         {
@@ -10,7 +10,7 @@ namespace EventCentric.Messaging.Events
             this.Exception = exception;
         }
 
-        public IEvent PoisonedEvent { get; private set; }
-        public PoisonMessageException Exception { get; private set; }
+        public IEvent PoisonedEvent { get; }
+        public PoisonMessageException Exception { get; }
     }
 }

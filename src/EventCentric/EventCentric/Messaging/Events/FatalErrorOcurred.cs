@@ -1,12 +1,12 @@
 ﻿namespace EventCentric.Messaging.Events
 {
-    public class FatalErrorOcurred : IMessage
+    public struct FatalErrorOcurred : IMessage
     {
         public FatalErrorOcurred(FatalErrorException exception)
         {
             this.Exception = exception;
         }
 
-        public FatalErrorException Exception { get; private set; }
+        public FatalErrorException Exception { get; }
     }
 }

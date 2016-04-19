@@ -1,8 +1,8 @@
 ﻿namespace EventCentric.Messaging.Commands
 {
-    public class StopEventPoller : IMessage { }
+    public struct StopEventPoller : IMessage { }
 
-    public class StopEventProcessor : IMessage { }
+    public struct StopEventProcessor : IMessage { }
 
-    public class StopEventPublisher : IMessage { }
+    public struct StopEventPublisher : IMessage { }
 }
