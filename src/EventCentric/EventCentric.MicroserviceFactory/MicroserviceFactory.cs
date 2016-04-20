@@ -203,7 +203,7 @@ namespace EventCentric
             var time = container.Resolve<IUtcTimeProvider>();
             var guid = container.Resolve<IGuidProvider>();
 
-
+            // Do not know why an Event Dao will need a denormalizer... and a Publisher!
             var eventDao = new EventDao(queueContextFactory, streamFullName);
 
             var dbContextConstructor = typeof(TDbContext).GetConstructor(new[] { typeof(bool), typeof(string) });
