@@ -12,7 +12,7 @@
         /// <param name="action">The action to be executed.</param>
         public static void StartNewLongRunning(this TaskFactory factory, Action action)
         {
-            factory.StartNew(action, TaskCreationOptions.LongRunning | TaskCreationOptions.PreferFairness);
+            factory.StartNew(action, TaskCreationOptions.LongRunning);
         }
     }
 }

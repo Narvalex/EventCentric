@@ -31,7 +31,7 @@ namespace EventCentric.Persistence
         public string EventType { get; set; }
         public long EventCollectionVersion { get; set; }
         public bool Ignored { get; set; }
-        public DateTime LocalTime { get; set; }
+        public DateTime CreationLocalTime { get; set; }
         public string Payload { get; set; }
     }
 

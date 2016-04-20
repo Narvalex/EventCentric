@@ -71,7 +71,7 @@ namespace EventCentric.MicroserviceFactory
             var eventDao = new EventDao(queueContextFactory, microserviceName);
             container.RegisterInstance<IEventDao>(eventDao);
 
-            var eventStore = new EventStore<TStream>(microserviceName, serializer, storeContextFactory, time, container.Resolve<IGuidProvider>(), container.Resolve<ILogger>());
+            var eventStore = new OptimizedEventStore<TStream>(microserviceName, serializer, connectionString, time, container.Resolve<IGuidProvider>(), container.Resolve<ILogger>());
             container.RegisterInstance<IEventStore<TStream>>(eventStore);
         }
 

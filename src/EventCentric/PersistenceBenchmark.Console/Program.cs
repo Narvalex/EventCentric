@@ -12,21 +12,7 @@ namespace PersistenceBenchmark.ConsoleHost
         {
             var plugin = DbManager.SelectedPlugin;
 
-            string pluginSelectedName = "undefined";
-            switch (plugin)
-            {
-                case PersistencePlugin.InMemory:
-                    pluginSelectedName = "In-Memory";
-                    break;
-                case PersistencePlugin.SqlServer:
-                    pluginSelectedName = "Sql Server";
-                    break;
-                case PersistencePlugin.SqlServerCe:
-                    pluginSelectedName = "Sql Server Compact Edition";
-                    break;
-            }
-
-            Console.WriteLine($"Welcome to persistence bench for {pluginSelectedName}");
+            PrintWelcomeMessage(plugin);
 
             DbManager.ResetDbs(plugin);
             var mainContainer = UnityConfig.GetConfiguredContainer(plugin);
@@ -42,10 +28,12 @@ namespace PersistenceBenchmark.ConsoleHost
 
             // THIS MAKE CRASH, ALMOST
 
-            // SQL SERVER------------------------------------------------------
+            // SQL SERVER ORM -------------------------------------------------
             // 50 througput,    completes in 2:48 m 10.000 messages    60 m/s
-            // 100 througput,   completes in 1:58 m 10.000 messgaes    80 m/s
-            // 100 througput,   completes in 5:04 m 20.000 messages    65 m/s
+            // 100 througput,   completes in 4:44 m 20.000 messages    70 m/s
+
+            // SQL SERVER ADO.NET ---------------------------------------------
+            // 100 througput,   completes in 1:48 m 20.000 messages    185 m/s
 
             // IN-MEMORY-------------------------------------------------------
             // 100 througput,   completes in 0:28 s 20.000 messgaes    714 m/s
@@ -62,6 +50,25 @@ namespace PersistenceBenchmark.ConsoleHost
                 UnityConfig.StatsMonitor.PrintStats();
 
             DbManager.DropDb(plugin);
+        }
+
+        private static void PrintWelcomeMessage(PersistencePlugin plugin)
+        {
+            string pluginSelectedName = "undefined";
+            switch (plugin)
+            {
+                case PersistencePlugin.InMemory:
+                    pluginSelectedName = "In-Memory";
+                    break;
+                case PersistencePlugin.SqlServer:
+                    pluginSelectedName = "Sql Server";
+                    break;
+                case PersistencePlugin.SqlServerCe:
+                    pluginSelectedName = "Sql Server Compact Edition";
+                    break;
+            }
+
+            Console.WriteLine($"Welcome to persistence bench for {pluginSelectedName}");
         }
     }
 }

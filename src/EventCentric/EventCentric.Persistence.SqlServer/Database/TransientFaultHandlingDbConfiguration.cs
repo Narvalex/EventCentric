@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Data.Entity;
-using System.Data.Entity.Infrastructure;
 using System.Data.Entity.SqlServer;
 using System.Runtime.Remoting.Messaging;
 
@@ -22,16 +21,21 @@ namespace EventCentric.Database
         /// have always been vulnerable to connection breaks due to back-end failures and network instability.
         /// However, in a LAN based environment working against dedicated database servers these errors are rare 
         /// enough that extra logic to handle those failures is not often required.
-        /// Connection Resiliency refers to the ability for EF to automatically retry any commands that fail due to these connection breaks.
-        /// More info: http://msdn.microsoft.com/en-us/data/dn456835.aspx
+        /// Connection Resiliency refers to the ability for EF to automatically retry any commands 
+        /// that fail due to these connection breaks.
+        /// More info: http://msdn.microsoft.com/en-us/data/dn456835.aspx.
+        /// How to suspend info: https://msdn.microsoft.com/en-us/data/dn307226
         /// </remarks>
         public TransientFaultHandlingDbConfiguration()
         {
-            this.SetExecutionStrategy(
-                "System.Data.SqlClient",
-                () => SuspendExecutionStrategy
-                    ? (IDbExecutionStrategy)new DefaultExecutionStrategy()
-                    : new SqlAzureExecutionStrategy(20, TimeSpan.FromSeconds(30)));
+            //this.SetExecutionStrategy(
+            //    "System.Data.SqlClient",
+            //    () => SuspendExecutionStrategy
+            //        ? (IDbExecutionStrategy)new DefaultExecutionStrategy()
+            //        : new SqlAzureExecutionStrategy(int.MaxValue, TimeSpan.FromSeconds(30)));
+
+            this.SetExecutionStrategy("System.Data.SqlClient",
+                () => new SqlAzureExecutionStrategy(int.MaxValue, TimeSpan.FromSeconds(30)));
         }
 
         /// <summary>

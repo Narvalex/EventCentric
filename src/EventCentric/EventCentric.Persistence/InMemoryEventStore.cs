@@ -197,7 +197,7 @@ namespace EventCentric.Persistence
                     Version = incomingEvent.Version,
                     EventType = incomingEvent.GetType().Name,
                     EventCollectionVersion = incomingEvent.EventCollectionVersion,
-                    LocalTime = localNow,
+                    CreationLocalTime = localNow,
                     Ignored = false,
                     Payload = this.serializer.Serialize(incomingEvent)
                 };

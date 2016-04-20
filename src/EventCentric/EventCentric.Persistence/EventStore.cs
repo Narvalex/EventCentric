@@ -8,7 +8,7 @@ using System.Linq;
 using System.Runtime.Caching;
 using System.Threading;
 
-namespace EventCentric.Persistence.SqlServer
+namespace EventCentric.Persistence
 {
     public class EventStore<T> : IEventStore<T> where T : class, IEventSourced
     {
@@ -139,16 +139,16 @@ namespace EventCentric.Persistence.SqlServer
             {
                 using (var context = this.contextFactory.Invoke(false))
                 {
+                    // Check if incoming event is duplicate
+                    if (this.IsDuplicate(incomingEvent.EventId, context))
+                        // Incoming event is duplicate
+                        return this.eventCollectionVersion;
+
                     var currentVersion = context.Events.Any(e => e.StreamId == eventSourced.Id && e.StreamType == this.streamType)
                                           ? context.Events
                                             .Where(e => e.StreamId == eventSourced.Id && e.StreamType == this.streamType)
                                             .Max(e => e.Version)
                                           : 0;
-
-                    // Check if incoming event is duplicate
-                    if (this.IsDuplicate(incomingEvent.EventId, context))
-                        // Incoming event is duplicate
-                        return currentVersion;
 
                     if (currentVersion + 1 != pendingEvents.First().Version)
                         throw new EventStoreConcurrencyException();
@@ -167,7 +167,7 @@ namespace EventCentric.Persistence.SqlServer
                         Version = incomingEvent.Version,
                         EventType = incomingEvent.GetType().Name,
                         EventCollectionVersion = incomingEvent.EventCollectionVersion,
-                        LocalTime = localNow,
+                        CreationLocalTime = localNow,
                         Ignored = false,
                         Payload = this.serializer.Serialize(incomingEvent)
                     };
@@ -178,7 +178,7 @@ namespace EventCentric.Persistence.SqlServer
                     {
                         var subscription = context.Subscriptions.Where(s => s.StreamType == incomingEvent.StreamType && s.SubscriberStreamType == this.streamType).Single();
                         subscription.ProcessorBufferVersion = incomingEvent.ProcessorBufferVersion;
-                        subscription.UpdateLocalTime = now;
+                        subscription.UpdateLocalTime = localNow;
                     }
                     catch (Exception ex)
                     {
