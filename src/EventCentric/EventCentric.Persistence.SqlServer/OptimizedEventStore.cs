@@ -127,7 +127,8 @@ namespace EventCentric.Persistence
                 this.sql.ExecuteReader(this.getEventsQuery, r =>
                 this.serializer.Deserialize<IEvent>(r.GetString("Payload")),
                 new SqlParameter("@StreamType", this.streamType),
-                new SqlParameter("@StreamId", id));
+                new SqlParameter("@StreamId", id))
+                .ToArray();
 
             if (streamOfEvents.Any())
                 return this.aggregateFactory.Invoke(id, streamOfEvents);
@@ -465,7 +466,7 @@ SET [ProcessorBufferVersion] = @ProcessorBufferVersion,
 WHERE [StreamType] = @StreamType AND [SubscriberStreamType] = @SubscriberStreamType";
 
         private readonly string insertOrUpdateSnapshot =
-@"if exists (select * from EventStore.Snapshots where StreamId = @StreamId AND StreamType = @StreamType)
+@"if exists (select StreamType from EventStore.Snapshots where StreamId = @StreamId AND StreamType = @StreamType)
 BEGIN
 UPDATE [EventStore].[Snapshots]
    SET [Version] = @Version
