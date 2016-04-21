@@ -141,7 +141,7 @@ namespace EventCentric.Polling
                     // no events could be try to process. No op
                     return false;
 #if DEBUG
-                this.log.Log($"Optimizing event processing for {eventsToProcess.Count} event/s from {buffer.ProducerName}");
+                this.log.Trace($"Optimizing event processing for {eventsToProcess.Count} event/s from {buffer.ProducerName}");
 #endif
             }
             else
