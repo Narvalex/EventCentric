@@ -22,6 +22,7 @@ namespace EventCentric.Polling
         IMessageHandler<IncomingEventHasBeenProcessed>,
         IMessageHandler<IncomingEventIsPoisoned>
     {
+        private bool stopSilently = false;
         private string microserviceName;
         private readonly ISubscriptionRepository repository;
         private readonly ILongPoller poller;
@@ -190,6 +191,9 @@ namespace EventCentric.Polling
 
         public void Handle(PollResponseWasReceived message)
         {
+            if (this.stopping)
+                return;
+
             var response = message.Response;
 
             SubscriptionBuffer subscription;
@@ -327,6 +331,7 @@ namespace EventCentric.Polling
 
         public void Handle(StopEventPoller message)
         {
+            this.stopSilently = message.StopSilently;
             base.Stop();
         }
 
@@ -364,7 +369,8 @@ namespace EventCentric.Polling
         protected override void OnStopping()
         {
             // Ensure to stop everything;
-            this.log.Log($"{this.microserviceName} poller stopped");
+            if (!this.stopSilently)
+                this.log.Log($"{this.microserviceName} poller stopped");
             this.bus.Publish(new EventPollerStopped());
         }
 
@@ -405,11 +411,6 @@ namespace EventCentric.Polling
             var pool = new List<SubscriptionBuffer>();
             pool.AddRange(this.bufferPool);
             return pool;
-        }
-
-        public void StopSilently()
-        {
-            this.stopping = true;
         }
     }
 }

@@ -141,7 +141,7 @@
     <Compile Include="Serialization\TextSerializerExtensionsForDataContract.cs" />
     <Compile Include="Serialization\TextSerializerExtensions.cs" />
     <Compile Include="Polling\EventInProcessorBucket.cs" />
-    <Compile Include="Polling\MessageReceiver.cs" />
+    <Compile Include="Polling\LongPoller.cs" />
     <Compile Include="Polling\ILongPoller.cs" />
     <Compile Include="Microservice\IMicroserviceClient.cs" />
     <Compile Include="Microservice\MultiMicroserviceClient.cs" />

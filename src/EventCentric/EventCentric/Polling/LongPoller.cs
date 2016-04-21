@@ -10,7 +10,7 @@ using System.Threading;
 
 namespace EventCentric.Transport
 {
-    public class MessageReceiver : Worker, ILongPoller
+    public class LongPoller : Worker, ILongPoller
     {
         private const string inMemoryTransportUrl = "none";
         private readonly TimeSpan timeout;
@@ -18,7 +18,7 @@ namespace EventCentric.Transport
         private readonly string pollerName;
         private readonly IInMemoryEventPublisher inMemoryPublisher;
 
-        public MessageReceiver(IBus bus, ILogger log, TimeSpan timeout, string pollerName, IInMemoryEventPublisher inMemoryPublisher)
+        public LongPoller(IBus bus, ILogger log, TimeSpan timeout, string pollerName, IInMemoryEventPublisher inMemoryPublisher)
             : base(bus)
         {
             Ensure.NotNullNeitherEmtpyNorWhiteSpace(pollerName, "pollerName");

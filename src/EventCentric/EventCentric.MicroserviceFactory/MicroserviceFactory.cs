@@ -77,7 +77,7 @@ namespace EventCentric
             if (isSubscriptor)
             {
                 var pollerConfig = PollerConfig.GetConfig();
-                var receiver = new MessageReceiver(bus, log, TimeSpan.FromMilliseconds(pollerConfig.Timeout), streamFullName, inMemoryPublisher);
+                var receiver = new LongPoller(bus, log, TimeSpan.FromMilliseconds(pollerConfig.Timeout), streamFullName, inMemoryPublisher);
                 var poller = new Poller(bus, log, container.Resolve<ISubscriptionRepository>(), receiver, container.Resolve<ITextSerializer>(), pollerConfig.BufferQueueMaxCount, pollerConfig.EventsToFlushMaxCount);
                 container.RegisterInstance<IMonitoredSubscriber>(poller);
 
@@ -152,7 +152,7 @@ namespace EventCentric
             if (isSubscriptor)
             {
                 var pollerConfig = PollerConfig.GetConfig();
-                var pollerPool = new MessageReceiver(bus, log, TimeSpan.FromMilliseconds(pollerConfig.Timeout), streamFullName, inMemoryPublisher);
+                var pollerPool = new LongPoller(bus, log, TimeSpan.FromMilliseconds(pollerConfig.Timeout), streamFullName, inMemoryPublisher);
                 var poller = new Poller(bus, log, container.Resolve<ISubscriptionRepository>(), pollerPool, container.Resolve<ITextSerializer>(), pollerConfig.BufferQueueMaxCount, pollerConfig.EventsToFlushMaxCount);
                 container.RegisterInstance<IMonitoredSubscriber>(poller);
 
@@ -204,6 +204,7 @@ namespace EventCentric
             var guid = container.Resolve<IGuidProvider>();
 
             // Do not know why an Event Dao will need a denormalizer... and a Publisher!
+            // The only events that can (and sould) be queries is 'ReadModelUpdated'.
             var eventDao = new EventDao(queueContextFactory, streamFullName);
 
             var dbContextConstructor = typeof(TDbContext).GetConstructor(new[] { typeof(bool), typeof(string) });
@@ -215,7 +216,7 @@ namespace EventCentric
             var bus = new Bus();
             container.RegisterInstance<IBus>(bus);
 
-            var receiver = new MessageReceiver(bus, log, TimeSpan.FromMilliseconds(pollerConfig.Timeout), streamFullName, container.Resolve<IInMemoryEventPublisher>());
+            var receiver = new LongPoller(bus, log, TimeSpan.FromMilliseconds(pollerConfig.Timeout), streamFullName, container.Resolve<IInMemoryEventPublisher>());
 
             var subscriptionRepository = new SubscriptionRepository(storeContextFactory, streamFullName, serializer, time);
 

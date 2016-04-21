@@ -16,6 +16,7 @@ using System.Threading;
 namespace EventCentric.Querying
 {
     public class StreamQuery<TState> : MicroserviceWorker, IGiven<TState>, IWhen<TState>, IRun<TState>,
+        IDisposable,
         IMessageHandler<NewIncomingEvents>,
         IMessageHandler<PollResponseWasReceived>,
         IMessageHandler<IncomingEventHasBeenProcessed>
@@ -37,7 +38,7 @@ namespace EventCentric.Querying
             this.queryName = queryName;
 
             this.subRepo = new InMemorySubscriptionRepository();
-            this.poller = new Poller(this.bus, this.log, this.subRepo, new MessageReceiver(this.bus, this.log, TimeSpan.FromMinutes(2), this.queryName, null), new JsonTextSerializer(), 1000, 1000);
+            this.poller = new Poller(this.bus, this.log, this.subRepo, new LongPoller(this.bus, this.log, TimeSpan.FromMinutes(2), this.queryName, null), new JsonTextSerializer(), 1000, 1000);
         }
 
         public IGiven<TState> From(params EventSourceConnection[] connections)
@@ -70,16 +71,11 @@ namespace EventCentric.Querying
             while (!this.stopping)
             {
                 if (stop.Invoke())
-                {
                     break;
-                }
                 else
-                {
                     Thread.Sleep(100);
-                }
             }
 
-            this.poller.StopSilently();
             return this.state;
         }
 
@@ -102,8 +98,6 @@ namespace EventCentric.Querying
 
                 Thread.Sleep(100);
             }
-
-            this.poller.StopSilently();
 
             return this.state;
         }
@@ -197,6 +191,24 @@ namespace EventCentric.Querying
             public bool PollCompleted { get; private set; } = false;
             internal void MarkAsCompleted() => this.PollCompleted = true;
         }
+
+        #region IDisposable Support
+        protected virtual void Dispose(bool disposing)
+        {
+            this.poller.Handle(new StopEventPoller(true));
+        }
+
+        ~StreamQuery()
+        {
+            Dispose(false);
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+        #endregion
     }
 
     public interface IGiven<TState>
