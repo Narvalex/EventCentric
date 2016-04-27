@@ -6,6 +6,11 @@ using System.Threading.Tasks;
 
 namespace EventCentric.Heartbeating
 {
+    /// <summary>
+    /// A heartbeat listener. Since a tipical event centric node is hosted in IIS there is always the risk that a 
+    /// subscriber falls asleep. This is the responsability of the Heartbeat Listener. Keep the subscriber node 
+    /// always alive.
+    /// </summary>
     public class InMemoryHeartbeatListener
     {
         private readonly TimeSpan timeout;

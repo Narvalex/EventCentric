@@ -61,7 +61,6 @@
     <Compile Include="Repository\EventQueueDbContext.cs" />
     <Compile Include="Repository\EventStoreDbContext.cs" />
     <Compile Include="Repository\EventuallyConsistentDbContext.cs" />
-    <Compile Include="Repository\HeartbeatDbContext.cs" />
     <Compile Include="Repository\IViewDao.cs" />
     <Compile Include="Repository\Mapping\EventEntityMap.cs" />
     <Compile Include="Repository\Mapping\EventuallyConsistentResultEntityMap.cs" />
@@ -86,7 +85,6 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Repository\SqlScripts\Commands\InsertHeartbeatSources.sql" />
     <Content Include="Repository\SqlScripts\Commands\InsertSubscriptions.sql" />
     <Content Include="Repository\SqlScripts\ProcessorNodeDb.sql" />
     <Content Include="Repository\SqlScripts\ViewNodeDb.sql" />
