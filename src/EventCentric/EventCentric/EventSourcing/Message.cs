@@ -4,7 +4,7 @@ namespace EventCentric.EventSourcing
 {
     /// <summary>
     /// Every message in the system is actually an event. Commands and events are events.
-    /// But still we call it a message to avoid confucion whether a message is a command or an event.
+    /// But still we call it a message to avoid confusion whether a message is a command or an event.
     /// </summary>
     public class Message : IEvent
     {

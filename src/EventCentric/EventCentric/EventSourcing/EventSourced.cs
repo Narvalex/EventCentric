@@ -40,8 +40,12 @@ namespace EventCentric.EventSourcing
 
         protected T UpdateFromMessage(Message @event)
         {
+            var now = DateTime.UtcNow;
             @event.StreamId = this.id;
             @event.Version = this.version + 1;
+            @event.UtcTime = now;
+            @event.LocalTime = now.ToLocalTime();
+
             this.Apply(@event);
             this.pendingEvents.Add(@event);
             return this as T;

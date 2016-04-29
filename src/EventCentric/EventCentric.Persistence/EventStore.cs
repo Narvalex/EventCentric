@@ -230,8 +230,6 @@ namespace EventCentric.Persistence
                         e.TransactionId = incomingEvent.TransactionId;
                         e.EventId = this.guid.NewGuid();
                         e.StreamType = this.streamType;
-                        e.LocalTime = now;
-                        e.UtcTime = localNow;
 
                         eventEntities.Add(
                             new EventEntity

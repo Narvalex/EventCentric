@@ -14,7 +14,7 @@ namespace PersistenceBenchmark.ConsoleHost
 
             PrintWelcomeMessage(plugin);
 
-            //DbManager.ResetDbs(plugin);
+            DbManager.ResetDbs(plugin);
             var mainContainer = UnityConfig.GetConfiguredContainer(plugin);
 
             var user1App = UnityConfig.UserContainer1.Resolve<UserAppService>();
@@ -40,9 +40,9 @@ namespace PersistenceBenchmark.ConsoleHost
             //user1App.StressWithWavesOfConcurrentUsers(wavesCount: 5, concurrentUsers: 1000);
             //user2App.StressWithWavesOfConcurrentUsers(wavesCount: 5, concurrentUsers: 1000);
 
-            // Light
-            //user1App.StressWithWavesOfConcurrentUsers(wavesCount: 1, concurrentUsers: 1);
-            //user2App.StressWithWavesOfConcurrentUsers(wavesCount: 1, concurrentUsers: 1);
+            //Light
+            user1App.StressWithWavesOfConcurrentUsers(wavesCount: 1, concurrentUsers: 1);
+            user2App.StressWithWavesOfConcurrentUsers(wavesCount: 1, concurrentUsers: 1);
 
             Console.WriteLine("Press enter to stop and clean...");
             Console.ReadLine();
