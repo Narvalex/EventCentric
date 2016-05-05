@@ -39,8 +39,13 @@ namespace PersistenceBenchmark.ConsoleHost
 
             // IN-MEMORY-------------------------------------------------------
             // 100 througput,   completes in 0:20 s 15.777 messgaes    788 m/s
-            user1App.StressWithWavesOfConcurrentUsers(wavesCount: 5, concurrentUsers: 1000);
-            user2App.StressWithWavesOfConcurrentUsers(wavesCount: 5, concurrentUsers: 1000);
+            //user1App.StressWithWavesOfConcurrentUsers(wavesCount: 5, concurrentUsers: 1000);
+            //user2App.StressWithWavesOfConcurrentUsers(wavesCount: 5, concurrentUsers: 1000);
+
+            // SUPER TEST
+            // 100 througput, completes in 07:08 s 40.000 messages     93 m/s
+            user1App.StressWithWavesOfConcurrentUsers(wavesCount: 10, concurrentUsers: 1000);
+            user2App.StressWithWavesOfConcurrentUsers(wavesCount: 10, concurrentUsers: 1000);
 
             //Light
             //user1App.StressWithWavesOfConcurrentUsers(wavesCount: 1, concurrentUsers: 1);
