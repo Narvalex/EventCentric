@@ -61,17 +61,17 @@ namespace PersistenceBenchmark
 
                 UserContainer1 = ContainerFactory.ResolveDependenciesForNewChildContainer(container);
                 services.Add(MicroserviceFactory<UserManagement, UserManagementHandler>
-                    .CreateEventProcessorWithApp<UserAppService>("user1", "user1_app", UserContainer1, user1Config, plugin,
+                    .CreateEventProcessorWithApp<UserAppService>("user1", "user1_app", UserContainer1, user1Config, null, plugin,
                         SetupInMemoryPersistence<UserManagement>));
 
                 UserContainer2 = ContainerFactory.ResolveDependenciesForNewChildContainer(container);
                 services.Add(MicroserviceFactory<UserManagement, UserManagementHandler>
-                    .CreateEventProcessorWithApp<UserAppService>("user2", "user2_app", UserContainer2, user2Config, plugin,
+                    .CreateEventProcessorWithApp<UserAppService>("user2", "user2_app", UserContainer2, user2Config, null, plugin,
                         SetupInMemoryPersistence<UserManagement>));
 
                 PromotionsContainer = ContainerFactory.ResolveDependenciesForNewChildContainer(container);
                 services.Add(MicroserviceFactory<Promotions, PromotionsHandler>.
-                    CreateEventProcessor("promo", PromotionsContainer, promotionsConfig, plugin,
+                    CreateEventProcessor("promo", PromotionsContainer, promotionsConfig, null, plugin,
                         SetupInMemoryPersistence<Promotions>));
 
                 return services;

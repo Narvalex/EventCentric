@@ -62,9 +62,16 @@ namespace EventCentric.Persistence
                 this.eventCollectionVersion = this.Events.Where(e => e.StreamType == this.streamType).Max(e => e.EventCollectionVersion);
         }
 
-        public void Setup(IEnumerable<SubscriptionEntity> subscriptions)
+        public InMemoryEventStore<T> Setup(IEnumerable<SubscriptionEntity> subscriptions)
         {
             subscriptions.ForEach(s => this.Subscriptions.Add(s));
+            return this;
+        }
+
+        public InMemoryEventStore<T> Setup(params SubscriptionEntity[] subscriptions)
+        {
+            subscriptions.ForEach(s => this.Subscriptions.Add(s));
+            return this;
         }
 
         public EventStoreStats GetStats()

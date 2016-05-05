@@ -98,6 +98,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AuthorizationFactory.cs" />
+    <Compile Include="ConfigResolver.cs" />
     <Compile Include="ContainerFactory.cs" />
     <Compile Include="Log\SignalRLogger.cs" />
     <Compile Include="Log\LogHub.cs" />

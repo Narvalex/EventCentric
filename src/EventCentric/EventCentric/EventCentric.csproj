@@ -67,6 +67,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Config\HardcodedEventStoreConfig.cs" />
+    <Compile Include="Config\HardcodedPollerConfig.cs" />
     <Compile Include="EventSourcing\AnInvalidOperationExceptionOccurred.cs" />
     <Compile Include="EventSourcing\Command.cs" />
     <Compile Include="EventSourcing\Event.cs" />
@@ -150,6 +152,7 @@
     <Compile Include="Publishing\Publisher.cs" />
     <Compile Include="Polling\PollResponse.cs" />
     <Compile Include="Utils\CacheAnyEnumerableExtensions.cs" />
+    <Compile Include="Utils\DisposableExtensions.cs" />
     <Compile Include="Utils\FunctionalExtensions\DictionaryExtensions.cs" />
     <Compile Include="Utils\Ensure.cs" />
     <Compile Include="Utils\FunctionalExtensions\CollectionExtensions.cs" />

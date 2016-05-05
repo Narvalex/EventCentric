@@ -165,7 +165,9 @@ namespace EventCentric.Polling
 
             var streams = eventsToProcess.Select(incomingEvent =>
             {
-                ((Message)incomingEvent).ProcessorBufferVersion = processorBufferVersion;
+                var message = (Message)incomingEvent;
+                message.ProcessorBufferVersion = processorBufferVersion;
+                message.StreamType = buffer.StreamType;
 
                 buffer.EventsInProcessorByEcv.TryAdd(incomingEvent.EventCollectionVersion, new EventInProcessorBucket(incomingEvent));
 

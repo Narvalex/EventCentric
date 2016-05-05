@@ -31,7 +31,8 @@ namespace EventCentric
         public static IMicroservice CreateEventProcessor(
             string uniqueName,
             IUnityContainer container,
-            IEventStoreConfig eventStoreConfig,
+            IEventStoreConfig eventStoreConfig = null,
+            IPollerConfig pollerConfig = null,
             PersistencePlugin selectedPlugin = PersistencePlugin.SqlServer,
             Func<InMemoryEventStore<TStream>, InMemoryEventStore<TStream>> setupInMemoryPersistence = null,
             bool isSubscriptor = true,
@@ -40,6 +41,8 @@ namespace EventCentric
             var inMemoryPublisher = container.Resolve<IInMemoryEventPublisher>();
 
             var streamFullName = EnsureStreamCategoryNameIsValid(uniqueName);
+
+            eventStoreConfig = ConfigResolver.ResolveConfig(eventStoreConfig);
 
             var connectionString = eventStoreConfig.ConnectionString;
 
@@ -76,7 +79,7 @@ namespace EventCentric
             // For nodes that polls events from subscribed sources
             if (isSubscriptor)
             {
-                var pollerConfig = PollerConfig.GetConfig();
+                pollerConfig = ConfigResolver.ResolveConfig(pollerConfig);
                 var receiver = new LongPoller(bus, log, TimeSpan.FromMilliseconds(pollerConfig.Timeout), streamFullName, inMemoryPublisher);
                 var poller = new Poller(bus, log, container.Resolve<ISubscriptionRepository>(), receiver, container.Resolve<ITextSerializer>(), pollerConfig.BufferQueueMaxCount, pollerConfig.EventsToFlushMaxCount);
                 container.RegisterInstance<IMonitoredSubscriber>(poller);
@@ -93,7 +96,8 @@ namespace EventCentric
             string uniqueName,
             string appUniqueName,
             IUnityContainer container,
-            IEventStoreConfig eventStoreConfig,
+            IEventStoreConfig eventStoreConfig = null,
+            IPollerConfig pollerConfig = null,
             PersistencePlugin selectedPlugin = PersistencePlugin.SqlServer,
             Func<InMemoryEventStore<TStream>, InMemoryEventStore<TStream>> setupInMemoryPersistence = null,
             bool isSubscriptor = true,
@@ -106,6 +110,8 @@ namespace EventCentric
 
             var streamFullName = EnsureStreamCategoryNameIsValid(uniqueName);
             var appFullName = EnsureStreamCategoryNameIsValid(appUniqueName);
+
+            eventStoreConfig = ConfigResolver.ResolveConfig(eventStoreConfig);
 
             var connectionString = eventStoreConfig.ConnectionString;
 
@@ -151,7 +157,7 @@ namespace EventCentric
 
             if (isSubscriptor)
             {
-                var pollerConfig = PollerConfig.GetConfig();
+                pollerConfig = ConfigResolver.ResolveConfig(pollerConfig);
                 var pollerPool = new LongPoller(bus, log, TimeSpan.FromMilliseconds(pollerConfig.Timeout), streamFullName, inMemoryPublisher);
                 var poller = new Poller(bus, log, container.Resolve<ISubscriptionRepository>(), pollerPool, container.Resolve<ITextSerializer>(), pollerConfig.BufferQueueMaxCount, pollerConfig.EventsToFlushMaxCount);
                 container.RegisterInstance<IMonitoredSubscriber>(poller);
@@ -180,7 +186,8 @@ namespace EventCentric
         public static IMicroservice CreateDenormalizer<TDbContext>(
             string uniqueName,
             IUnityContainer container,
-            IEventStoreConfig eventStoreConfig,
+            IEventStoreConfig eventStoreConfig = null,
+            IPollerConfig pollerConfig = null,
             Func<IBus, ILogger, IEventStore<TStream>, THandler> processorFactory = null)
                 where TDbContext : DbContext, IEventStoreDbContext
         {
@@ -188,7 +195,8 @@ namespace EventCentric
 
             System.Data.Entity.Database.SetInitializer<TDbContext>(null);
 
-            var pollerConfig = PollerConfig.GetConfig();
+            pollerConfig = ConfigResolver.ResolveConfig(pollerConfig);
+            eventStoreConfig = ConfigResolver.ResolveConfig(eventStoreConfig);
 
             var connectionString = eventStoreConfig.ConnectionString;
 

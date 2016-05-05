@@ -34,15 +34,17 @@ namespace PersistenceBenchmark.ConsoleHost
 
             // SQL SERVER ADO.NET ---------------------------------------------
             // 100 througput,   completes in 1:48 m 20.000 messages    185 m/s
+            // SSD
+            // 100 througput,   completes in 1:43 m 20.000 messages    194 m/s
 
             // IN-MEMORY-------------------------------------------------------
-            // 100 througput,   completes in 0:28 s 20.000 messgaes    714 m/s
-            //user1App.StressWithWavesOfConcurrentUsers(wavesCount: 5, concurrentUsers: 1000);
-            //user2App.StressWithWavesOfConcurrentUsers(wavesCount: 5, concurrentUsers: 1000);
+            // 100 througput,   completes in 0:20 s 15.777 messgaes    788 m/s
+            user1App.StressWithWavesOfConcurrentUsers(wavesCount: 5, concurrentUsers: 1000);
+            user2App.StressWithWavesOfConcurrentUsers(wavesCount: 5, concurrentUsers: 1000);
 
             //Light
-            user1App.StressWithWavesOfConcurrentUsers(wavesCount: 1, concurrentUsers: 1);
-            user2App.StressWithWavesOfConcurrentUsers(wavesCount: 1, concurrentUsers: 1);
+            //user1App.StressWithWavesOfConcurrentUsers(wavesCount: 1, concurrentUsers: 1);
+            //user2App.StressWithWavesOfConcurrentUsers(wavesCount: 1, concurrentUsers: 1);
 
             Console.WriteLine("Press enter to stop and clean...");
             Console.ReadLine();
