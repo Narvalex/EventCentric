@@ -295,52 +295,49 @@ namespace EventCentric.Persistence
                             }
 
                             long eventCollectionVersionToPublish;
-                            lock (this)
+                            var eventCollectionBeforeCrash = this.eventCollectionVersion;
+                            try
                             {
-                                var eventCollectionBeforeCrash = this.eventCollectionVersion;
-                                try
+                                for (int i = 0; i < pendingEvents.Count; i++)
                                 {
-                                    for (int i = 0; i < pendingEvents.Count; i++)
+                                    var ecv = Interlocked.Increment(ref this.eventCollectionVersion);
+                                    var @event = pendingEvents[i];
+                                    ((Message)@event).EventCollectionVersion = ecv;
+                                    var entity = eventEntities[i];
+                                    entity.EventCollectionVersion = ecv;
+                                    entity.Payload = this.serializer.Serialize(@event);
+
+                                    // Insert each event
+                                    using (var command = connection.CreateCommand())
                                     {
-                                        var ecv = Interlocked.Increment(ref this.eventCollectionVersion);
-                                        var @event = pendingEvents[i];
-                                        ((Message)@event).EventCollectionVersion = ecv;
-                                        var entity = eventEntities[i];
-                                        entity.EventCollectionVersion = ecv;
-                                        entity.Payload = this.serializer.Serialize(@event);
+                                        command.Transaction = transaction;
+                                        command.CommandType = CommandType.Text;
+                                        command.CommandText = this.appendEventCommand;
+                                        command.Parameters.Add(new SqlParameter("@StreamType", entity.StreamType));
+                                        command.Parameters.Add(new SqlParameter("@StreamId", entity.StreamId));
+                                        command.Parameters.Add(new SqlParameter("@Version", entity.Version));
+                                        command.Parameters.Add(new SqlParameter("@TransactionId", entity.TransactionId));
+                                        command.Parameters.Add(new SqlParameter("@EventId", entity.EventId));
+                                        command.Parameters.Add(new SqlParameter("@EventType", entity.EventType));
+                                        command.Parameters.Add(new SqlParameter("@CorrelationId", entity.CorrelationId));
+                                        command.Parameters.Add(new SqlParameter("@EventCollectionVersion", entity.EventCollectionVersion));
+                                        command.Parameters.Add(new SqlParameter("@LocalTime", entity.LocalTime));
+                                        command.Parameters.Add(new SqlParameter("@UtcTime", entity.UtcTime));
+                                        command.Parameters.Add(new SqlParameter("@Payload", entity.Payload));
 
-                                        // Insert each event
-                                        using (var command = connection.CreateCommand())
-                                        {
-                                            command.Transaction = transaction;
-                                            command.CommandType = CommandType.Text;
-                                            command.CommandText = this.appendEventCommand;
-                                            command.Parameters.Add(new SqlParameter("@StreamType", entity.StreamType));
-                                            command.Parameters.Add(new SqlParameter("@StreamId", entity.StreamId));
-                                            command.Parameters.Add(new SqlParameter("@Version", entity.Version));
-                                            command.Parameters.Add(new SqlParameter("@TransactionId", entity.TransactionId));
-                                            command.Parameters.Add(new SqlParameter("@EventId", entity.EventId));
-                                            command.Parameters.Add(new SqlParameter("@EventType", entity.EventType));
-                                            command.Parameters.Add(new SqlParameter("@CorrelationId", entity.CorrelationId));
-                                            command.Parameters.Add(new SqlParameter("@EventCollectionVersion", entity.EventCollectionVersion));
-                                            command.Parameters.Add(new SqlParameter("@LocalTime", entity.LocalTime));
-                                            command.Parameters.Add(new SqlParameter("@UtcTime", entity.UtcTime));
-                                            command.Parameters.Add(new SqlParameter("@Payload", entity.Payload));
-
-                                            command.ExecuteNonQuery();
-                                        }
+                                        command.ExecuteNonQuery();
                                     }
-                                    transaction.Commit();
-
-                                    eventCollectionVersionToPublish = pendingEvents.Last().EventCollectionVersion;
-                                    //return context.Events.Where(e => e.StreamType == this.streamType).Max(e => e.EventCollectionVersion);
-
                                 }
-                                catch (Exception ex)
-                                {
-                                    this.eventCollectionVersion = eventCollectionBeforeCrash;
-                                    throw ex;
-                                }
+                                transaction.Commit();
+
+                                eventCollectionVersionToPublish = pendingEvents.Last().EventCollectionVersion;
+                                //return context.Events.Where(e => e.StreamType == this.streamType).Max(e => e.EventCollectionVersion);
+
+                            }
+                            catch (Exception ex)
+                            {
+                                this.eventCollectionVersion = eventCollectionBeforeCrash;
+                                throw ex;
                             }
 
                             return eventCollectionVersionToPublish;

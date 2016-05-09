@@ -1,7 +1,6 @@
 ﻿using EventCentric.Messaging;
 using EventCentric.Polling;
 using EventCentric.Publishing;
-using EventCentric.Transport;
 using System.Collections.Generic;
 
 namespace EventCentric.Tests.Publishing.Helpers
@@ -20,14 +19,14 @@ namespace EventCentric.Tests.Publishing.Helpers
 
     public class EventDaoStub : IEventDao
     {
-        public List<NewRawEvent> FindEvents(long fromEventCollectionVersion, int quantity)
+        public NewRawEvent[] FindEvents(long fromEventCollectionVersion, int quantity)
         {
             return new List<NewRawEvent>
             {
                 new NewRawEvent(1, "serializedEventPayloadHere"),
                 new NewRawEvent(2, "serializedEventPayloadHere"),
                 new NewRawEvent(3, "serializedEventPayloadHere")
-            };
+            }.ToArray();
         }
 
         public long GetEventCollectionVersion() => 3;

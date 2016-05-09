@@ -80,14 +80,14 @@ namespace EventCentric.Persistence
         }
 
         #region EventDao
-        public List<NewRawEvent> FindEvents(long fromEventCollectionVersion, int quantity)
+        public NewRawEvent[] FindEvents(long fromEventCollectionVersion, int quantity)
         {
             return this.Events
                         .Where(e => e.StreamType == this.streamType && e.EventCollectionVersion > fromEventCollectionVersion)
                         .OrderBy(e => e.EventCollectionVersion)
                         .Take(quantity)
                         .Select(e => new NewRawEvent(e.EventCollectionVersion, e.Payload))
-                        .ToList();
+                        .ToArray();
         }
 
         public long GetEventCollectionVersion()
@@ -283,29 +283,26 @@ namespace EventCentric.Persistence
                 }
 
                 long eventCollectionVersionToPublish;
-                lock (this)
+                var eventCollectionBeforeCrash = this.eventCollectionVersion;
+                try
                 {
-                    var eventCollectionBeforeCrash = this.eventCollectionVersion;
-                    try
+                    for (int i = 0; i < pendingEvents.Count; i++)
                     {
-                        for (int i = 0; i < pendingEvents.Count; i++)
-                        {
-                            var ecv = Interlocked.Increment(ref this.eventCollectionVersion);
-                            var @event = pendingEvents[i];
-                            ((Message)@event).EventCollectionVersion = ecv;
-                            var entity = eventEntities[i];
-                            entity.EventCollectionVersion = ecv;
-                            entity.Payload = this.serializer.Serialize(@event);
-                            this.Events.Add(entity);
-                        }
+                        var ecv = Interlocked.Increment(ref this.eventCollectionVersion);
+                        var @event = pendingEvents[i];
+                        ((Message)@event).EventCollectionVersion = ecv;
+                        var entity = eventEntities[i];
+                        entity.EventCollectionVersion = ecv;
+                        entity.Payload = this.serializer.Serialize(@event);
+                        this.Events.Add(entity);
+                    }
 
-                        eventCollectionVersionToPublish = pendingEvents.Last().EventCollectionVersion;
-                    }
-                    catch (Exception ex)
-                    {
-                        this.eventCollectionVersion = eventCollectionBeforeCrash;
-                        throw ex;
-                    }
+                    eventCollectionVersionToPublish = pendingEvents.Last().EventCollectionVersion;
+                }
+                catch (Exception ex)
+                {
+                    this.eventCollectionVersion = eventCollectionBeforeCrash;
+                    throw ex;
                 }
 
                 return eventCollectionVersionToPublish;

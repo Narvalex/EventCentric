@@ -3,7 +3,6 @@ using EventCentric.Polling;
 using EventCentric.Publishing;
 using EventCentric.Utils;
 using System;
-using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Linq;
 
@@ -38,14 +37,14 @@ order by EventCollectionVersion";
         /// FindEvents
         /// </summary>
         /// <returns>Events if found, otherwise return empty list.</returns>
-        public List<NewRawEvent> FindEvents(long lastReceivedVersion, int quantity)
+        public NewRawEvent[] FindEvents(long lastReceivedVersion, int quantity)
         {
             return this.sql.ExecuteReader(this.findEventsQuery,
                 r => new NewRawEvent(r.GetInt64("EventCollectionVersion"), r.GetString("Payload")),
                 new SqlParameter("@Quantity", quantity),
                 new SqlParameter("@StreamType", this.streamType),
                 new SqlParameter("@LastReceivedVersion", lastReceivedVersion))
-                .ToList();
+                .ToArray();
         }
 
         // this is just on starting a publisher. No need to be optimized

@@ -93,6 +93,7 @@
     <Compile Include="Handling\HandlerOfTEventSourced.cs" />
     <Compile Include="Handling\IHandles.cs" />
     <Compile Include="Polling\NewRawEvent.cs" />
+    <Compile Include="Publishing\PublisherBase.cs" />
     <Compile Include="Publishing\ServerStatus.cs" />
     <Compile Include="Publishing\IEventDao.cs" />
     <Compile Include="Config\EventStoreConfig.cs" />

@@ -2,7 +2,6 @@
 using EventCentric.Polling;
 using EventCentric.Utils;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 
 namespace EventCentric.Publishing
@@ -25,7 +24,7 @@ namespace EventCentric.Publishing
         /// FindEvents
         /// </summary>
         /// <returns>Events if found, otherwise return empty list.</returns>
-        public List<NewRawEvent> FindEvents(long lastReceivedVersion, int quantity)
+        public NewRawEvent[] FindEvents(long lastReceivedVersion, int quantity)
         {
             using (var context = this.contextFactory(true))
             {
@@ -36,8 +35,7 @@ namespace EventCentric.Publishing
                         .Take(quantity)
                         .ToList()
                         .Select(e => new NewRawEvent(e.EventCollectionVersion, e.Payload))
-                        .ToList();
-
+                        .ToArray();
             }
         }
 

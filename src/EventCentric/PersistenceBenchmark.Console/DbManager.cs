@@ -9,7 +9,15 @@ namespace PersistenceBenchmark
 {
     public static class DbManager
     {
-        public static PersistencePlugin SelectedPlugin => PersistencePlugin.SqlServer;
+        private static PersistencePlugin selected = PersistencePlugin.InMemory;
+
+        public static PersistencePlugin SelectedPlugin => selected;
+
+        public static PersistencePlugin SetPlugin(PersistencePlugin plugin)
+        {
+            selected = plugin;
+            return selected;
+        }
 
         public static string FixedConnectionstring
         {

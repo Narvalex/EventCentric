@@ -10,7 +10,7 @@ namespace PersistenceBenchmark.ConsoleHost
 
         static void Main(string[] args)
         {
-            var plugin = DbManager.SelectedPlugin;
+            var plugin = DbManager.SetPlugin(PersistencePlugin.SqlServer);
 
             PrintWelcomeMessage(plugin);
 
@@ -28,17 +28,17 @@ namespace PersistenceBenchmark.ConsoleHost
 
             // THIS MAKE CRASH, ALMOST
 
-            // SQL SERVER ORM -------------------------------------------------
+            // SQL SERVER ENTITY FRAMEWORK -----------------------------------
             // 50 througput,    completes in 2:48 m 10.000 messages    60 m/s
             // 100 througput,   completes in 4:44 m 20.000 messages    70 m/s
 
             // SQL SERVER ADO.NET ---------------------------------------------
             // 100 througput,   completes in 1:48 m 20.000 messages    185 m/s
-            // SSD
-            // 100 througput,   completes in 1:43 m 20.000 messages    194 m/s
+            // SQL SERVER ADO.NET SSD -----------------------------------------
+            // 100 througput,   completes in 1:29 m 20.000 messages    224 m/s
 
             // IN-MEMORY-------------------------------------------------------
-            // 100 througput,   completes in 0:20 s 15.777 messgaes    788 m/s
+            // 100 througput,   completes in 0:20 s 17.130 messgaes    856 m/s
             //user1App.StressWithWavesOfConcurrentUsers(wavesCount: 5, concurrentUsers: 1000);
             //user2App.StressWithWavesOfConcurrentUsers(wavesCount: 5, concurrentUsers: 1000);
 

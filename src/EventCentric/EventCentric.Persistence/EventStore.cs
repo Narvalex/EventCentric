@@ -247,32 +247,29 @@ namespace EventCentric.Persistence
                     }
 
                     long eventCollectionVersionToPublish;
-                    lock (this)
+                    var eventCollectionBeforeCrash = this.eventCollectionVersion;
+                    try
                     {
-                        var eventCollectionBeforeCrash = this.eventCollectionVersion;
-                        try
+                        for (int i = 0; i < pendingEvents.Count; i++)
                         {
-                            for (int i = 0; i < pendingEvents.Count; i++)
-                            {
-                                var ecv = Interlocked.Increment(ref this.eventCollectionVersion);
-                                var @event = pendingEvents[i];
-                                ((Message)@event).EventCollectionVersion = ecv;
-                                var entity = eventEntities[i];
-                                entity.EventCollectionVersion = ecv;
-                                entity.Payload = this.serializer.Serialize(@event);
-                                context.Events.Add(entity);
-                            }
-                            context.SaveChanges();
-
-                            eventCollectionVersionToPublish = pendingEvents.Last().EventCollectionVersion;
-                            //return context.Events.Where(e => e.StreamType == this.streamType).Max(e => e.EventCollectionVersion);
-
+                            var ecv = Interlocked.Increment(ref this.eventCollectionVersion);
+                            var @event = pendingEvents[i];
+                            ((Message)@event).EventCollectionVersion = ecv;
+                            var entity = eventEntities[i];
+                            entity.EventCollectionVersion = ecv;
+                            entity.Payload = this.serializer.Serialize(@event);
+                            context.Events.Add(entity);
                         }
-                        catch (Exception ex)
-                        {
-                            this.eventCollectionVersion = eventCollectionBeforeCrash;
-                            throw ex;
-                        }
+                        context.SaveChanges();
+
+                        eventCollectionVersionToPublish = pendingEvents.Last().EventCollectionVersion;
+                        //return context.Events.Where(e => e.StreamType == this.streamType).Max(e => e.EventCollectionVersion);
+
+                    }
+                    catch (Exception ex)
+                    {
+                        this.eventCollectionVersion = eventCollectionBeforeCrash;
+                        throw ex;
                     }
 
                     return eventCollectionVersionToPublish;
