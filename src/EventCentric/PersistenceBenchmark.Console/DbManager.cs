@@ -28,7 +28,7 @@ namespace PersistenceBenchmark
                     case PersistencePlugin.SqlServer:
                         return "server = (local); Database = PersistenceBench; User Id = sa; pwd = 123456";
                     case PersistencePlugin.SqlServerCe:
-                        return $"Data Source=|DataDirectory|PersistenceBenchCe.sdf";
+                        return $"Data Source=|DataDirectory|PersistenceBenchCe.sdf; default lock timeout = 600000";
                     default:
                         return string.Empty;
                 };

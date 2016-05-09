@@ -77,8 +77,11 @@ namespace EventCentric.MicroserviceFactory
 
         private static void ResolveForSqlServerCe(IUnityContainer container, string microserviceName, string connectionString)
         {
-            Func<bool, EventStoreCeDbContext> storeContextFactory = isReadOnly => new EventStoreCeDbContext(isReadOnly, connectionString);
-            Func<bool, EventQueueCeDbContext> queueContextFactory = isReadOnly => new EventQueueCeDbContext(isReadOnly, connectionString);
+            Func<bool, EventStoreCeDbContext> storeContextFactory = isReadOnly =>
+                new EventStoreCeDbContext(isReadOnly, connectionString);
+
+            Func<bool, EventQueueCeDbContext> queueContextFactory = isReadOnly =>
+                new EventQueueCeDbContext(isReadOnly, connectionString);
 
             var serializer = container.Resolve<ITextSerializer>();
             var time = container.Resolve<IUtcTimeProvider>();
