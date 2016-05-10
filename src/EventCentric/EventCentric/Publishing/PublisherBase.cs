@@ -1,10 +1,10 @@
 ﻿using EventCentric.Log;
 using EventCentric.Messaging;
+using EventCentric.Messaging.Events;
 using EventCentric.Polling;
 using EventCentric.Transport;
 using EventCentric.Utils;
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
 
@@ -39,7 +39,7 @@ namespace EventCentric.Publishing
         {
             var ecv = this.eventCollectionVersion;
 
-            ICollection<NewRawEvent> newSequentialEvents = new List<NewRawEvent>(this.eventsToPushMaxCount);
+            var newEvents = new NewRawEvent[0];
 
             // last received version could be somehow less than 0. I found once that was -1, 
             // and was always pushing "0 events", as the signal r tracing showed (27/10/2015) 
@@ -48,7 +48,7 @@ namespace EventCentric.Publishing
 
             // the consumer says that is more updated than the source. That is an error. Maybe the publisher did not started yet!
             if (ecv < consumerVersion)
-                return PollResponse.CreateSerializedResponse(true, false, this.streamType, newSequentialEvents, consumerVersion, ecv);
+                return PollResponse.CreateSerializedResponse(true, false, this.streamType, newEvents, consumerVersion, ecv);
 
             bool newEventsWereFound = false;
             var stopwatch = Stopwatch.StartNew();
@@ -64,24 +64,12 @@ namespace EventCentric.Publishing
                 // A Charly le paso. Sucede que limpio la base de datos y justo queria entregar un evento y no devolvia nada.
                 else if (ecv > consumerVersion)
                 {
-                    var newEvents = this.dao.FindEvents(consumerVersion, this.eventsToPushMaxCount);
+                    newEvents = this.dao.FindEvents(consumerVersion, this.eventsToPushMaxCount);
 
-                    // Resilient logic
-                    var expectedVersion = consumerVersion + 1;
-                    if (newEvents.Length > 0 && newEvents[0].EventCollectionVersion == expectedVersion)
+                    if (newEvents.Length > 0)
                     {
                         newEventsWereFound = true;
-
-                        newSequentialEvents.Add(newEvents[0]);
-                        for (int i = 1; i < newEvents.Length; i++)
-                        {
-                            expectedVersion += 1;
-                            if (newEvents[i].EventCollectionVersion == expectedVersion)
-                                newSequentialEvents.Add(newEvents[i]);
-                            else
-                                break;
-                        }
-
+                        this.log.Trace($"{this.streamType} publisher is pushing {newEvents.Length} event/s to {consumerName}");
                         break;
                     }
                     else
@@ -89,7 +77,7 @@ namespace EventCentric.Publishing
                         // Lo que le paso a charly.
                         newEventsWereFound = false;
                         //this.log.Error($"There is an error in the event store or a racy condition. The consumer [{consumerName}] version is {consumerVersion} and the local event collection version should be {this.eventCollectionVersion} but it is not.");
-                        //this.bus.Publish(new FatalErrorOcurred(new FatalErrorException($"There is an error in the event store or a racy condition. The consumer [{consumerName}] version is {consumerVersion} and the local event collection version should be {this.eventCollectionVersion} but it is not.")));
+                        this.bus.Publish(new FatalErrorOcurred(new FatalErrorException($"There is an error in the event store or a racy condition. The consumer [{consumerName}] version is {consumerVersion} and the local event collection version should be {this.eventCollectionVersion} but it is not.")));
                         break;
                     }
                 }
@@ -98,7 +86,7 @@ namespace EventCentric.Publishing
                     break;
             }
 
-            return PollResponse.CreateSerializedResponse(false, newEventsWereFound, this.streamType, newSequentialEvents, consumerVersion, ecv);
+            return PollResponse.CreateSerializedResponse(false, newEventsWereFound, this.streamType, newEvents, consumerVersion, ecv);
         }
     }
 }

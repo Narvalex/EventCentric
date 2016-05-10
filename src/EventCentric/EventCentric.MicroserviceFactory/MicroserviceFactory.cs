@@ -218,7 +218,7 @@ namespace EventCentric
             var dbContextConstructor = typeof(TDbContext).GetConstructor(new[] { typeof(bool), typeof(string) });
             Ensure.CastIsValid(dbContextConstructor, "Type TDbContext must have a constructor with the following signature: ctor(bool, string)");
             Func<bool, IEventStoreDbContext> dbContextFactory = isReadOnly => (TDbContext)dbContextConstructor.Invoke(new object[] { isReadOnly, connectionString });
-            var eventStore = new EventStore<TStream>(streamFullName, serializer, dbContextFactory, time, guid, log);
+            var eventStore = new EventStoreWithOrm<TStream>(streamFullName, serializer, dbContextFactory, time, guid, log);
             container.RegisterInstance<IEventStore<TStream>>(eventStore);
 
             var bus = new Bus();

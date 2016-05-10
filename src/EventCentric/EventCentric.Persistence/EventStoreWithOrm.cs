@@ -10,7 +10,7 @@ using System.Threading;
 
 namespace EventCentric.Persistence
 {
-    public class EventStore<T> : IEventStore<T> where T : class, IEventSourced
+    public class EventStoreWithOrm<T> : IEventStore<T> where T : class, IEventSourced
     {
         private long eventCollectionVersion = 0;
         private readonly string streamType;
@@ -26,7 +26,9 @@ namespace EventCentric.Persistence
         private readonly Func<bool, IEventStoreDbContext> contextFactory;
         private readonly Action<T, IEventStoreDbContext> denormalizeIfApplicable;
 
-        public EventStore(string streamType, ITextSerializer serializer, Func<bool, IEventStoreDbContext> contextFactory, IUtcTimeProvider time, IGuidProvider guid, ILogger log)
+        private readonly object dbLock = new object();
+
+        public EventStoreWithOrm(string streamType, ITextSerializer serializer, Func<bool, IEventStoreDbContext> contextFactory, IUtcTimeProvider time, IGuidProvider guid, ILogger log)
         {
             Ensure.NotNullNeitherEmtpyNorWhiteSpace(streamType, nameof(streamType));
             Ensure.NotNull(serializer, nameof(serializer));
@@ -247,29 +249,32 @@ namespace EventCentric.Persistence
                     }
 
                     long eventCollectionVersionToPublish;
-                    var eventCollectionBeforeCrash = this.eventCollectionVersion;
-                    try
+                    lock (this.dbLock)
                     {
-                        for (int i = 0; i < pendingEvents.Count; i++)
+                        var eventCollectionBeforeCrash = this.eventCollectionVersion;
+                        try
                         {
-                            var ecv = Interlocked.Increment(ref this.eventCollectionVersion);
-                            var @event = pendingEvents[i];
-                            ((Message)@event).EventCollectionVersion = ecv;
-                            var entity = eventEntities[i];
-                            entity.EventCollectionVersion = ecv;
-                            entity.Payload = this.serializer.Serialize(@event);
-                            context.Events.Add(entity);
+                            for (int i = 0; i < pendingEvents.Count; i++)
+                            {
+                                var ecv = Interlocked.Increment(ref this.eventCollectionVersion);
+                                var @event = pendingEvents[i];
+                                ((Message)@event).EventCollectionVersion = ecv;
+                                var entity = eventEntities[i];
+                                entity.EventCollectionVersion = ecv;
+                                entity.Payload = this.serializer.Serialize(@event);
+                                context.Events.Add(entity);
+                            }
+                            context.SaveChanges();
+
+                            eventCollectionVersionToPublish = pendingEvents.Last().EventCollectionVersion;
+                            //return context.Events.Where(e => e.StreamType == this.streamType).Max(e => e.EventCollectionVersion);
+
                         }
-                        context.SaveChanges();
-
-                        eventCollectionVersionToPublish = pendingEvents.Last().EventCollectionVersion;
-                        //return context.Events.Where(e => e.StreamType == this.streamType).Max(e => e.EventCollectionVersion);
-
-                    }
-                    catch (Exception ex)
-                    {
-                        this.eventCollectionVersion = eventCollectionBeforeCrash;
-                        throw ex;
+                        catch (Exception ex)
+                        {
+                            this.eventCollectionVersion = eventCollectionBeforeCrash;
+                            throw ex;
+                        }
                     }
 
                     return eventCollectionVersionToPublish;

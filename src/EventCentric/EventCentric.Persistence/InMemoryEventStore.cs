@@ -34,6 +34,8 @@ namespace EventCentric.Persistence
         private readonly ConcurrentBag<SnapshotEntity> Snapshots = new ConcurrentBag<SnapshotEntity>();
         private readonly ConcurrentBag<InboxEntity> Inbox = new ConcurrentBag<InboxEntity>();
 
+        private readonly object dbLock = new object();
+
         public InMemoryEventStore(string microserviceName, IUtcTimeProvider time, ITextSerializer serializer, IGuidProvider guid, ILogger log)
         {
             Ensure.NotNull(microserviceName, nameof(microserviceName));
@@ -283,26 +285,29 @@ namespace EventCentric.Persistence
                 }
 
                 long eventCollectionVersionToPublish;
-                var eventCollectionBeforeCrash = this.eventCollectionVersion;
-                try
+                lock (this.dbLock)
                 {
-                    for (int i = 0; i < pendingEvents.Count; i++)
+                    var eventCollectionBeforeCrash = this.eventCollectionVersion;
+                    try
                     {
-                        var ecv = Interlocked.Increment(ref this.eventCollectionVersion);
-                        var @event = pendingEvents[i];
-                        ((Message)@event).EventCollectionVersion = ecv;
-                        var entity = eventEntities[i];
-                        entity.EventCollectionVersion = ecv;
-                        entity.Payload = this.serializer.Serialize(@event);
-                        this.Events.Add(entity);
-                    }
+                        for (int i = 0; i < pendingEvents.Count; i++)
+                        {
+                            var ecv = Interlocked.Increment(ref this.eventCollectionVersion);
+                            var @event = pendingEvents[i];
+                            ((Message)@event).EventCollectionVersion = ecv;
+                            var entity = eventEntities[i];
+                            entity.EventCollectionVersion = ecv;
+                            entity.Payload = this.serializer.Serialize(@event);
+                            this.Events.Add(entity);
+                        }
 
-                    eventCollectionVersionToPublish = pendingEvents.Last().EventCollectionVersion;
-                }
-                catch (Exception ex)
-                {
-                    this.eventCollectionVersion = eventCollectionBeforeCrash;
-                    throw ex;
+                        eventCollectionVersionToPublish = pendingEvents.Last().EventCollectionVersion;
+                    }
+                    catch (Exception ex)
+                    {
+                        this.eventCollectionVersion = eventCollectionBeforeCrash;
+                        throw ex;
+                    }
                 }
 
                 return eventCollectionVersionToPublish;
