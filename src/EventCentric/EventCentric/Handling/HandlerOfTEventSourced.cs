@@ -23,7 +23,7 @@ namespace EventCentric.Handling
         private readonly IEventStore<TEventSourced> store;
         private readonly Func<Guid, TEventSourced> newAggregateFactory;
         private readonly ConcurrentDictionary<string, object> streamLocksById;
-        protected readonly ConcurrentBag<Guid> poisonedStreams;
+        private readonly ConcurrentBag<Guid> poisonedStreams;
 
         public HandlerOf(IBus bus, ILogger log, IEventStore<TEventSourced> store)
             : base(bus, log)
