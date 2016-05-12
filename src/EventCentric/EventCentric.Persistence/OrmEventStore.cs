@@ -10,7 +10,7 @@ using System.Threading;
 
 namespace EventCentric.Persistence
 {
-    public class EventStoreWithOrm<T> : IEventStore<T> where T : class, IEventSourced
+    public class OrmEventStore<T> : IEventStore<T> where T : class, IEventSourced
     {
         private long eventCollectionVersion = 0;
         private readonly string streamType;
@@ -28,7 +28,7 @@ namespace EventCentric.Persistence
 
         private readonly object dbLock = new object();
 
-        public EventStoreWithOrm(string streamType, ITextSerializer serializer, Func<bool, IEventStoreDbContext> contextFactory, IUtcTimeProvider time, IGuidProvider guid, ILogger log)
+        public OrmEventStore(string streamType, ITextSerializer serializer, Func<bool, IEventStoreDbContext> contextFactory, IUtcTimeProvider time, IGuidProvider guid, ILogger log)
         {
             Ensure.NotNullNeitherEmtpyNorWhiteSpace(streamType, nameof(streamType));
             Ensure.NotNull(serializer, nameof(serializer));

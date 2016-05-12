@@ -4,7 +4,11 @@ using System.Linq;
 
 namespace EventCentric.EventSourcing
 {
-    public class StateOf<T> : EventSourced<T>, IUpdatesWhen<AnInvalidOperationExceptionOccurred> where T : class, IEventSourced
+    public class StateOf<T> : EventSourced<T>,
+        IUpdatesWhen<AnInvalidOperationExceptionOccurred>,
+        IUpdatesWhen<Event>,
+        IUpdatesAfterSending<Command>
+        where T : class, IEventSourced
     {
         public StateOf(Guid id) : base(id) { }
 
@@ -49,5 +53,9 @@ namespace EventCentric.EventSourcing
         public T Throw(string message) => this.Update(new AnInvalidOperationExceptionOccurred(message));
 
         public virtual void When(AnInvalidOperationExceptionOccurred e) { }
+
+        public void When(Event e) { }
+
+        public void AfterSending(Command c) { }
     }
 }

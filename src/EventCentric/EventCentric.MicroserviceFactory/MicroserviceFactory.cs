@@ -213,12 +213,12 @@ namespace EventCentric
 
             // Do not know why an Event Dao will need a denormalizer... and a Publisher!
             // The only events that can (and sould) be queries is 'ReadModelUpdated'.
-            var eventDao = new EventDao(queueContextFactory, streamFullName);
+            var eventDao = new OrmEventDao(queueContextFactory, streamFullName);
 
             var dbContextConstructor = typeof(TDbContext).GetConstructor(new[] { typeof(bool), typeof(string) });
             Ensure.CastIsValid(dbContextConstructor, "Type TDbContext must have a constructor with the following signature: ctor(bool, string)");
             Func<bool, IEventStoreDbContext> dbContextFactory = isReadOnly => (TDbContext)dbContextConstructor.Invoke(new object[] { isReadOnly, connectionString });
-            var eventStore = new EventStoreWithOrm<TStream>(streamFullName, serializer, dbContextFactory, time, guid, log);
+            var eventStore = new OrmEventStore<TStream>(streamFullName, serializer, dbContextFactory, time, guid, log);
             container.RegisterInstance<IEventStore<TStream>>(eventStore);
 
             var bus = new SystemSynchronousBus();

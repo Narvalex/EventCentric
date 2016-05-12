@@ -89,10 +89,10 @@ namespace EventCentric.MicroserviceFactory
             var subscriptionRepository = new SubscriptionRepository(storeContextFactory, microserviceName, serializer, time);
             container.RegisterInstance<ISubscriptionRepository>(subscriptionRepository);
 
-            var eventDao = new EventDao(queueContextFactory, microserviceName);
+            var eventDao = new OrmEventDao(queueContextFactory, microserviceName);
             container.RegisterInstance<IEventDao>(eventDao);
 
-            var eventStore = new EventStoreWithOrm<TStream>(microserviceName, serializer, storeContextFactory, time, container.Resolve<IGuidProvider>(), container.Resolve<ILogger>());
+            var eventStore = new OrmEventStore<TStream>(microserviceName, serializer, storeContextFactory, time, container.Resolve<IGuidProvider>(), container.Resolve<ILogger>());
             container.RegisterInstance<IEventStore<TStream>>(eventStore);
         }
     }

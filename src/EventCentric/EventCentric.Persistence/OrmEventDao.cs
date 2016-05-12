@@ -6,12 +6,12 @@ using System.Linq;
 
 namespace EventCentric.Publishing
 {
-    public class EventDao : IEventDao
+    public class OrmEventDao : IEventDao
     {
         private readonly Func<bool, IEventQueueDbContext> contextFactory;
         private readonly string streamType;
 
-        public EventDao(Func<bool, IEventQueueDbContext> contextFactory, string streamType)
+        public OrmEventDao(Func<bool, IEventQueueDbContext> contextFactory, string streamType)
         {
             Ensure.NotNull(contextFactory, nameof(contextFactory));
             Ensure.NotNullNeitherEmtpyNorWhiteSpace(streamType, nameof(streamType));
