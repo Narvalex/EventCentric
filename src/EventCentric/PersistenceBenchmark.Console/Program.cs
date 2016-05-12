@@ -36,11 +36,13 @@ namespace PersistenceBenchmark.ConsoleHost
             // 100 througput,   completes in 1:48 m 20.000 messages    185 m/s
             // SQL SERVER ADO.NET SSD -----------------------------------------
             // 200 througput,   completes in 38 s 10.000 messages    263 m/s
+            //user1App.StressWithWavesOfConcurrentUsers(wavesCount: 5, concurrentUsers: 500);
+            //user2App.StressWithWavesOfConcurrentUsers(wavesCount: 5, concurrentUsers: 500);
 
             // IN-MEMORY-------------------------------------------------------
-            // 100 througput,   completes in 0:20 s 17.130 messgaes    856 m/s
-            user1App.StressWithWavesOfConcurrentUsers(wavesCount: 5, concurrentUsers: 500);
-            user2App.StressWithWavesOfConcurrentUsers(wavesCount: 5, concurrentUsers: 500);
+            // 100 througput,   completes in 0:20 s 16.233 messgaes    811 m/s
+            user1App.StressWithWavesOfConcurrentUsers(wavesCount: 5, concurrentUsers: 1000);
+            user2App.StressWithWavesOfConcurrentUsers(wavesCount: 5, concurrentUsers: 1000);
 
             // SUPER TEST
             // 100 througput, completes in 07:08 s 40.000 messages     93 m/s
