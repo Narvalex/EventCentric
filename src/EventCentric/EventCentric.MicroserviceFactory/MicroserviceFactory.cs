@@ -55,7 +55,7 @@ namespace EventCentric
 
             var eventStore = container.Resolve<IEventStore<TStream>>();
 
-            var bus = new SystemBus();
+            var bus = new SystemSynchronousBus();
             container.RegisterInstance<ISystemBus>(bus);
 
             var publisher = new Publisher(streamFullName, bus, log, container.Resolve<IEventDao>(), eventStoreConfig.PushMaxCount, TimeSpan.FromMilliseconds(eventStoreConfig.LongPollingTimeout));
@@ -125,7 +125,7 @@ namespace EventCentric
             var eventStore = container.Resolve<IEventStore<TStream>>();
             var eventDao = container.Resolve<IEventDao>();
 
-            var bus = new SystemBus();
+            var bus = new SystemSynchronousBus();
             container.RegisterInstance<ISystemBus>(bus);
 
             IPollableEventSource publisher;
@@ -221,7 +221,7 @@ namespace EventCentric
             var eventStore = new EventStoreWithOrm<TStream>(streamFullName, serializer, dbContextFactory, time, guid, log);
             container.RegisterInstance<IEventStore<TStream>>(eventStore);
 
-            var bus = new SystemBus();
+            var bus = new SystemSynchronousBus();
             container.RegisterInstance<ISystemBus>(bus);
 
             var receiver = new LongPoller(bus, log, TimeSpan.FromMilliseconds(pollerConfig.Timeout), streamFullName, container.Resolve<IInMemoryEventPublisher>());

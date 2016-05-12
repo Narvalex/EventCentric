@@ -100,7 +100,6 @@
     <Compile Include="Config\IPollerConfig.cs" />
     <Compile Include="Config\PollerConfig.cs" />
     <Compile Include="Log\ILogger.cs" />
-    <Compile Include="Messaging\SynchronousBus.cs" />
     <Compile Include="Publishing\OcassionallyConnectedSource.cs" />
     <Compile Include="Publishing\OcassionallyConnectedPublisher.cs" />
     <Compile Include="Config\IEventStoreConfig.cs" />
@@ -126,7 +125,7 @@
     <Compile Include="EventSourcing\IUpdates.cs" />
     <Compile Include="EventSourcing\StreamNotFoundException.cs" />
     <Compile Include="Microservice\MicroserviceHost.cs" />
-    <Compile Include="Messaging\SystemBus.cs" />
+    <Compile Include="Messaging\SystemSynchronousBus.cs" />
     <Compile Include="Messaging\Commands\StartEngineCommands.cs" />
     <Compile Include="Messaging\Commands\StopEngineCommands.cs" />
     <Compile Include="Messaging\Envelope.cs" />

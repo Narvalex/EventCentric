@@ -4,7 +4,8 @@ using System.Linq;
 
 namespace EventCentric.Messaging
 {
-    public class SystemBus : ISystemBus, IBusRegistry
+    // An synchornous bus is a lot more faster than an async one
+    public class SystemSynchronousBus : ISystemBus, IBusRegistry
     {
         private Dictionary<Type, List<ISystemHandler>> handlersByMessageType = new Dictionary<Type, List<ISystemHandler>>();
 
