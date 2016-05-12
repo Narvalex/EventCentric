@@ -19,7 +19,7 @@ namespace EventCentric.Publishing
         protected readonly int eventsToPushMaxCount;
         protected readonly TimeSpan longPollingTimeout;
 
-        public PublisherBase(string streamType, ISystemBus bus, ILogger log, IEventDao dao, TimeSpan pollTimeout, int eventsToPushMaxCount)
+        public PublisherBase(string streamType, IBus bus, ILogger log, IEventDao dao, TimeSpan pollTimeout, int eventsToPushMaxCount)
             : base(bus, log)
         {
             Ensure.NotNull(dao, nameof(dao));

@@ -2,7 +2,7 @@
 {
     public interface IMessage { }
 
-    public interface ISystemBus
+    public interface IBus
     {
         // It is not for hight contention 
         void Publish(IMessage message);

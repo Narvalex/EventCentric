@@ -28,7 +28,7 @@ namespace EventCentric.Publishing
         // locks
         private readonly object updateVersionlock = new object();
 
-        public OcassionallyConnectedPublisher(string streamType, ISystemBus bus, ILogger log, IEventDao dao, int eventsToPushMaxCount, TimeSpan pollTimeout,
+        public OcassionallyConnectedPublisher(string streamType, IBus bus, ILogger log, IEventDao dao, int eventsToPushMaxCount, TimeSpan pollTimeout,
             string clientVersion, string serverUrl, string serverToken, string serverName)
             : base(streamType, bus, log, dao, pollTimeout, eventsToPushMaxCount)
         {

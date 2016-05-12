@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace EventCentric.Tests.Publishing.Helpers
 {
-    public class BusStub : ISystemBus, IBusRegistry
+    public class BusStub : IBus, IBusRegistry
     {
         public void Publish(IMessage message)
         {

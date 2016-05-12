@@ -36,7 +36,7 @@ namespace EventCentric
             PersistencePlugin selectedPlugin = PersistencePlugin.SqlServer,
             Func<InMemoryEventStore<TStream>, InMemoryEventStore<TStream>> setupInMemoryPersistence = null,
             bool isSubscriptor = true,
-            Func<ISystemBus, ILogger, IEventStore<TStream>, THandler> processorFactory = null)
+            Func<IBus, ILogger, IEventStore<TStream>, THandler> processorFactory = null)
         {
             var inMemoryPublisher = container.Resolve<IInMemoryEventPublisher>();
 
@@ -56,7 +56,7 @@ namespace EventCentric
             var eventStore = container.Resolve<IEventStore<TStream>>();
 
             var bus = new SystemSynchronousBus();
-            container.RegisterInstance<ISystemBus>(bus);
+            container.RegisterInstance<IBus>(bus);
 
             var publisher = new Publisher(streamFullName, bus, log, container.Resolve<IEventDao>(), eventStoreConfig.PushMaxCount, TimeSpan.FromMilliseconds(eventStoreConfig.LongPollingTimeout));
             container.RegisterInstance<IPollableEventSource>(publisher);
@@ -67,7 +67,7 @@ namespace EventCentric
             // Processor factory
             if (processorFactory == null)
             {
-                var constructor = typeof(THandler).GetConstructor(new[] { typeof(ISystemBus), typeof(ILogger), typeof(IEventStore<TStream>) });
+                var constructor = typeof(THandler).GetConstructor(new[] { typeof(IBus), typeof(ILogger), typeof(IEventStore<TStream>) });
                 Ensure.CastIsValid(constructor, "Type TProcessor must have a valid constructor with the following signature: .ctor(IBus, ILogger, IEventStore<T>)");
                 var processor = (THandler)constructor.Invoke(new object[] { bus, log, eventStore });
             }
@@ -102,8 +102,8 @@ namespace EventCentric
             Func<InMemoryEventStore<TStream>, InMemoryEventStore<TStream>> setupInMemoryPersistence = null,
             bool isSubscriptor = true,
             Func<IGuidProvider, ILogger, string, int, TApp> appFactory = null,
-            Func<ISystemBus, ILogger, IEventStore<TStream>, THandler> processorFactory = null,
-            Func<string, ISystemBus, ILogger, IEventDao, int, TimeSpan, IPollableEventSource> publisherFactory = null)
+            Func<IBus, ILogger, IEventStore<TStream>, THandler> processorFactory = null,
+            Func<string, IBus, ILogger, IEventDao, int, TimeSpan, IPollableEventSource> publisherFactory = null)
                 where TApp : ApplicationService
         {
             var inMemoryPublisher = container.Resolve<IInMemoryEventPublisher>();
@@ -126,7 +126,7 @@ namespace EventCentric
             var eventDao = container.Resolve<IEventDao>();
 
             var bus = new SystemSynchronousBus();
-            container.RegisterInstance<ISystemBus>(bus);
+            container.RegisterInstance<IBus>(bus);
 
             IPollableEventSource publisher;
             if (publisherFactory == null)
@@ -144,7 +144,7 @@ namespace EventCentric
 
             if (processorFactory == null)
             {
-                var constructor = typeof(THandler).GetConstructor(new[] { typeof(ISystemBus), typeof(ILogger), typeof(IEventStore<TStream>) });
+                var constructor = typeof(THandler).GetConstructor(new[] { typeof(IBus), typeof(ILogger), typeof(IEventStore<TStream>) });
                 Ensure.CastIsValid(constructor, "Type TProcessor must have a valid constructor with the following signature: .ctor(IBus, ILogger, IEventStore<T>)");
                 var processor = (THandler)constructor.Invoke(new object[] { bus, log, eventStore });
             }
@@ -188,7 +188,7 @@ namespace EventCentric
             IUnityContainer container,
             IEventStoreConfig eventStoreConfig = null,
             IPollerConfig pollerConfig = null,
-            Func<ISystemBus, ILogger, IEventStore<TStream>, THandler> processorFactory = null)
+            Func<IBus, ILogger, IEventStore<TStream>, THandler> processorFactory = null)
                 where TDbContext : DbContext, IEventStoreDbContext
         {
             var streamFullName = EnsureStreamCategoryNameIsValid(uniqueName);
@@ -222,7 +222,7 @@ namespace EventCentric
             container.RegisterInstance<IEventStore<TStream>>(eventStore);
 
             var bus = new SystemSynchronousBus();
-            container.RegisterInstance<ISystemBus>(bus);
+            container.RegisterInstance<IBus>(bus);
 
             var receiver = new LongPoller(bus, log, TimeSpan.FromMilliseconds(pollerConfig.Timeout), streamFullName, container.Resolve<IInMemoryEventPublisher>());
 
@@ -239,7 +239,7 @@ namespace EventCentric
 
             if (processorFactory == null)
             {
-                var processorConstructor = typeof(THandler).GetConstructor(new[] { typeof(ISystemBus), typeof(ILogger), typeof(IEventStore<TStream>) });
+                var processorConstructor = typeof(THandler).GetConstructor(new[] { typeof(IBus), typeof(ILogger), typeof(IEventStore<TStream>) });
                 Ensure.CastIsValid(processorConstructor, "Type THandler must have a valid constructor with the following signature: .ctor(IBus, ILogger, IEventStore<T>)");
                 var processor = (THandler)processorConstructor.Invoke(new object[] { bus, log, eventStore });
             }

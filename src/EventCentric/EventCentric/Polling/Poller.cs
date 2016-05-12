@@ -42,7 +42,7 @@ namespace EventCentric.Polling
 
         private readonly object lockObject = new object();
 
-        public Poller(ISystemBus bus, ILogger log, ISubscriptionRepository repository, ILongPoller poller, ITextSerializer serializer,
+        public Poller(IBus bus, ILogger log, ISubscriptionRepository repository, ILongPoller poller, ITextSerializer serializer,
             int queueMaxCount, int eventsToFlushMaxCount)
             : base(bus, log)
         {

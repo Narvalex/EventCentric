@@ -25,7 +25,7 @@ namespace EventCentric.Handling
         private readonly ConcurrentDictionary<string, object> streamLocksById;
         private readonly ConcurrentBag<Guid> poisonedStreams;
 
-        public HandlerOf(ISystemBus bus, ILogger log, IEventStore<TEventSourced> store)
+        public HandlerOf(IBus bus, ILogger log, IEventStore<TEventSourced> store)
             : base(bus, log)
         {
             Ensure.NotNull(store, "store");

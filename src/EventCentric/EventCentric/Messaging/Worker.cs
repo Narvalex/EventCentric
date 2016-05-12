@@ -4,9 +4,9 @@ namespace EventCentric.Messaging
 {
     public abstract class Worker : ISystemHandler
     {
-        protected readonly ISystemBus bus;
+        protected readonly IBus bus;
 
-        public Worker(ISystemBus bus)
+        public Worker(IBus bus)
         {
             Ensure.NotNull(bus, "bus");
 

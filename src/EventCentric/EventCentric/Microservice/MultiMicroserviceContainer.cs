@@ -11,7 +11,7 @@ namespace EventCentric.Microservice
     {
         private List<IMicroservice> services;
 
-        public MultiMicroserviceContainer(ISystemBus bus, ILogger log, IEnumerable<IMicroservice> services)
+        public MultiMicroserviceContainer(IBus bus, ILogger log, IEnumerable<IMicroservice> services)
             : base(bus, log)
         {
             this.services = services.ToList();

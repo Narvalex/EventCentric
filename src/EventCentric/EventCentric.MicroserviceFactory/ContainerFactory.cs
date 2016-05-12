@@ -30,7 +30,7 @@ namespace EventCentric.MicroserviceFactory
             container.RegisterInstance<IGuidProvider>(new SequentialGuid());
 
             // Do not share this with child dependencies
-            container.RegisterInstance<ISystemBus>(new SystemSynchronousBus());
+            container.RegisterInstance<IBus>(new SystemSynchronousBus());
 
             return container;
         }

@@ -18,7 +18,7 @@ namespace EventCentric
     {
         private bool hasPoller;
 
-        public MicroserviceHost(string eventSourceName, ISystemBus bus, ILogger log, bool hasPoller)
+        public MicroserviceHost(string eventSourceName, IBus bus, ILogger log, bool hasPoller)
             : base(eventSourceName, bus, log)
         {
             this.Status = WorkerStatus.Down;

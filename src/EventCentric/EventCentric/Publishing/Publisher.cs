@@ -14,7 +14,7 @@ namespace EventCentric.Publishing
         // locks
         private readonly object versionlock = new object();
 
-        public Publisher(string streamType, ISystemBus bus, ILogger log, IEventDao dao, int eventsToPushMaxCount, TimeSpan pollTimeout)
+        public Publisher(string streamType, IBus bus, ILogger log, IEventDao dao, int eventsToPushMaxCount, TimeSpan pollTimeout)
             : base(streamType, bus, log, dao, pollTimeout, eventsToPushMaxCount)
         { }
 

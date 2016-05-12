@@ -32,7 +32,7 @@ namespace EventCentric.MicroserviceFactory
                 DbConfiguration.SetConfiguration(new TransientFaultHandlingDbConfiguration());
                 mainContainer = ContainerFactory.ResolveCommonDependenciesForMainContainer(mainContainer, useSignalRLog, verbose);
                 multiContainer = new MultiMicroserviceContainer(
-                    mainContainer.Resolve<ISystemBus>(),
+                    mainContainer.Resolve<IBus>(),
                     mainContainer.Resolve<ILogger>(),
                     microservicesFactory.Invoke());
 

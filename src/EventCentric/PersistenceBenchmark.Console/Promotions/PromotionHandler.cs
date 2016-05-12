@@ -8,7 +8,7 @@ namespace PersistenceBenchmark.PromotionsStream
     public class PromotionsHandler : HandlerOf<Promotions>,
         IHandles<UserCreatedOrUpdated>
     {
-        public PromotionsHandler(ISystemBus bus, ILogger log, IEventStore<Promotions> store) : base(bus, log, store) { }
+        public PromotionsHandler(IBus bus, ILogger log, IEventStore<Promotions> store) : base(bus, log, store) { }
 
         public IMessageHandling Handle(UserCreatedOrUpdated e) =>
             base.FromNewStreamIfNotExists(e.UserId, state =>

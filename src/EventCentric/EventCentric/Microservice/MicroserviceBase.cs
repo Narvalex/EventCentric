@@ -8,7 +8,7 @@ namespace EventCentric
 {
     public abstract class MicroserviceBase : MicroserviceWorker
     {
-        protected MicroserviceBase(string name, ISystemBus bus, ILogger log)
+        protected MicroserviceBase(string name, IBus bus, ILogger log)
             : base(bus, log)
         {
             Ensure.NotNullNeitherEmtpyNorWhiteSpace(name, "name");

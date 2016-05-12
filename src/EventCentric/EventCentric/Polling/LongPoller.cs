@@ -18,7 +18,7 @@ namespace EventCentric.Transport
         private readonly string pollerName;
         private readonly IInMemoryEventPublisher inMemoryPublisher;
 
-        public LongPoller(ISystemBus bus, ILogger log, TimeSpan timeout, string pollerName, IInMemoryEventPublisher inMemoryPublisher)
+        public LongPoller(IBus bus, ILogger log, TimeSpan timeout, string pollerName, IInMemoryEventPublisher inMemoryPublisher)
             : base(bus)
         {
             Ensure.NotNullNeitherEmtpyNorWhiteSpace(pollerName, "pollerName");
