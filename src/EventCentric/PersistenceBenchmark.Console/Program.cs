@@ -40,7 +40,7 @@ namespace PersistenceBenchmark.ConsoleHost
             //user2App.StressWithWavesOfConcurrentUsers(wavesCount: 5, concurrentUsers: 500);
 
             // IN-MEMORY-------------------------------------------------------
-            // 100 througput,   completes in 0:20 s 16.233 messgaes    811 m/s
+            // 100 througput,   completes in 0:20 s 16.900 messgaes    845 m/s
             user1App.StressWithWavesOfConcurrentUsers(wavesCount: 5, concurrentUsers: 1000);
             user2App.StressWithWavesOfConcurrentUsers(wavesCount: 5, concurrentUsers: 1000);
 

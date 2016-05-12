@@ -14,7 +14,7 @@ namespace EventCentric.Publishing
         // locks
         private readonly object versionlock = new object();
 
-        public Publisher(string streamType, IBus bus, ILogger log, IEventDao dao, int eventsToPushMaxCount, TimeSpan pollTimeout)
+        public Publisher(string streamType, ISystemBus bus, ILogger log, IEventDao dao, int eventsToPushMaxCount, TimeSpan pollTimeout)
             : base(streamType, bus, log, dao, pollTimeout, eventsToPushMaxCount)
         { }
 
@@ -49,9 +49,8 @@ namespace EventCentric.Publishing
                 this.log.Log($"{this.SourceName} publisher started. Current event collection version is {currentVersion}");
 
                 // Event-sourcing-like approach :)
-                this.bus.Publish(
-                    new EventStoreHasBeenUpdated(currentVersion),
-                    new EventPublisherStarted());
+                this.bus.Publish(new EventStoreHasBeenUpdated(currentVersion));
+                this.bus.Publish(new EventPublisherStarted());
             }
             catch (Exception ex)
             {

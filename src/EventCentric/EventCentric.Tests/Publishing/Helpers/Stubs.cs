@@ -5,13 +5,13 @@ using System.Collections.Generic;
 
 namespace EventCentric.Tests.Publishing.Helpers
 {
-    public class BusStub : IBus, IBusRegistry
+    public class BusStub : ISystemBus, IBusRegistry
     {
         public void Publish(IMessage message)
         {
         }
 
-        public void Register(IWorker worker)
+        public void Register(ISystemHandler worker)
         {
 
         }

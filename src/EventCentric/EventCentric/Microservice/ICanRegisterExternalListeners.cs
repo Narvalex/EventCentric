@@ -4,6 +4,6 @@ namespace EventCentric.Microservice
 {
     public interface ICanRegisterExternalListeners
     {
-        void Register(IWorker externalListener);
+        void Register(ISystemHandler externalListener);
     }
 }

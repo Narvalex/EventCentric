@@ -6,7 +6,7 @@ using System.Reflection;
 
 namespace EventCentric.Messaging
 {
-    public class SynchronousBus : IBus, IBusRegistry
+    public class SynchronousBus : ISystemBus, IBusRegistry
     {
         private readonly Dictionary<Type, List<Tuple<Type, Action<Envelope>>>> handlersByMessageType;
         private readonly Dictionary<Type, Action<IMessage>> dispatchersByMessageType;
@@ -28,7 +28,7 @@ namespace EventCentric.Messaging
                 dispatch(message);
         }
 
-        public void Register(IWorker worker)
+        public void Register(ISystemHandler worker)
         {
             var handlerType = worker.GetType();
 
@@ -50,7 +50,7 @@ namespace EventCentric.Messaging
             }
         }
 
-        private IEnumerable<Tuple<Type, Action<Envelope>>> BuildHandlerInvocations(IWorker worker)
+        private IEnumerable<Tuple<Type, Action<Envelope>>> BuildHandlerInvocations(ISystemHandler worker)
         {
             var interfaces = worker.GetType().GetInterfaces();
 
@@ -63,7 +63,7 @@ namespace EventCentric.Messaging
             return messageHandlerInvocations;
         }
 
-        private Action<Envelope> BuildHandlerInvocation(IWorker worker, Type handlerType, Type messageType)
+        private Action<Envelope> BuildHandlerInvocation(ISystemHandler worker, Type handlerType, Type messageType)
         {
             var envelopeType = typeof(Envelope<>).MakeGenericType(messageType);
             var parameter = Expression.Parameter(typeof(Envelope));

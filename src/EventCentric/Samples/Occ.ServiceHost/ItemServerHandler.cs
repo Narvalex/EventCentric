@@ -9,7 +9,7 @@ namespace Occ.Server
     public class ItemServerHandler : HandlerOf<ItemServer>,
         IHandles<NewItemNeedsToBeAcceptedByTheServer>
     {
-        public ItemServerHandler(IBus bus, ILogger log, IEventStore<ItemServer> store) : base(bus, log, store)
+        public ItemServerHandler(ISystemBus bus, ILogger log, IEventStore<ItemServer> store) : base(bus, log, store)
         {
         }
 

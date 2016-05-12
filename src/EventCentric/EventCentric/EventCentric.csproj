@@ -113,7 +113,6 @@
     <Compile Include="Microservice\IMicroservice.cs" />
     <Compile Include="Messaging\Events\FatalErrorOcurred.cs" />
     <Compile Include="Messaging\FatalErrorException.cs" />
-    <Compile Include="Messaging\BusExtensions.cs" />
     <Compile Include="Messaging\PoisonMessageException.cs" />
     <Compile Include="Microservice\WorkerStatus.cs" />
     <Compile Include="Messaging\InMemoryEventPublisher.cs" />
@@ -127,7 +126,7 @@
     <Compile Include="EventSourcing\IUpdates.cs" />
     <Compile Include="EventSourcing\StreamNotFoundException.cs" />
     <Compile Include="Microservice\MicroserviceHost.cs" />
-    <Compile Include="Messaging\Bus.cs" />
+    <Compile Include="Messaging\SystemBus.cs" />
     <Compile Include="Messaging\Commands\StartEngineCommands.cs" />
     <Compile Include="Messaging\Commands\StopEngineCommands.cs" />
     <Compile Include="Messaging\Envelope.cs" />
@@ -136,7 +135,7 @@
     <Compile Include="Messaging\Events\IncomingMessageIsPoisoned.cs" />
     <Compile Include="Messaging\Events\NewIncomingEvents.cs" />
     <Compile Include="Messaging\Events\EventStoreHasBeenUpdated.cs" />
-    <Compile Include="Messaging\IBus.cs" />
+    <Compile Include="Messaging\ISystemBus.cs" />
     <Compile Include="Publishing\IPollableEventSource.cs" />
     <Compile Include="Serialization\ITextSerializer.cs" />
     <Compile Include="Serialization\JsonTextSerializerWithIdentedFormatting.cs" />

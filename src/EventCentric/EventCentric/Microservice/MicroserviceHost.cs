@@ -18,7 +18,7 @@ namespace EventCentric
     {
         private bool hasPoller;
 
-        public MicroserviceHost(string eventSourceName, IBus bus, ILogger log, bool hasPoller)
+        public MicroserviceHost(string eventSourceName, ISystemBus bus, ILogger log, bool hasPoller)
             : base(eventSourceName, bus, log)
         {
             this.Status = WorkerStatus.Down;
@@ -91,13 +91,15 @@ namespace EventCentric
             {
                 this.Status = WorkerStatus.ShuttingDown;
 
-                this.bus.Publish(new StopEventProcessor(), new StopEventPublisher(), new StopEventPoller());
+                this.bus.Publish(new StopEventProcessor());
+                this.bus.Publish(new StopEventPublisher());
+                this.bus.Publish(new StopEventPoller());
                 this.Status = WorkerStatus.Down;
                 this.OnStopping();
             }
         }
 
-        public void Register(IWorker externalListener) =>
+        public void Register(ISystemHandler externalListener) =>
            ((IBusRegistry)base.bus).Register(externalListener);
 
         public void Handle(EventPollerStarted message)

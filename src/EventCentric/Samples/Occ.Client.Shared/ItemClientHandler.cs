@@ -10,7 +10,7 @@ namespace Occ.Client.Shared
         IHandles<CreateNewItem>,
         IHandles<NewItemCreated>
     {
-        public ItemClientHandler(IBus bus, ILogger log, IEventStore<ItemClient> store) : base(bus, log, store)
+        public ItemClientHandler(ISystemBus bus, ILogger log, IEventStore<ItemClient> store) : base(bus, log, store)
         {
         }
 

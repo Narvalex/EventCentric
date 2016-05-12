@@ -14,7 +14,7 @@ namespace EventCentric
         protected FatalErrorException fatalException = null;
         protected ILogger log;
 
-        public MicroserviceWorker(IBus bus, ILogger log)
+        public MicroserviceWorker(ISystemBus bus, ILogger log)
             : base(bus)
         {
             Ensure.NotNull(log, "log");

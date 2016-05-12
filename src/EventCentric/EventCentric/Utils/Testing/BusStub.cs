@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace EventCentric.Utils.Testing
 {
-    public class BusStub : IBus, IBusRegistry
+    public class BusStub : ISystemBus, IBusRegistry
     {
         public readonly List<IMessage> Messages = new List<IMessage>();
 
@@ -19,7 +19,7 @@ namespace EventCentric.Utils.Testing
 
         }
 
-        public void Register(IWorker worker)
+        public void Register(ISystemHandler worker)
         { }
     }
 }

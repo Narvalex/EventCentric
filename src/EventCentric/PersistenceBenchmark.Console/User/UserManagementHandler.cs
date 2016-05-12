@@ -9,7 +9,7 @@ namespace PersistenceBenchmark
         IHandles<CreateOrUpdateUser>
     //IHandles<FreePointsRewardedToUser>
     {
-        public UserManagementHandler(IBus bus, ILogger log, IEventStore<UserManagement> store) : base(bus, log, store) { }
+        public UserManagementHandler(ISystemBus bus, ILogger log, IEventStore<UserManagement> store) : base(bus, log, store) { }
 
         //public IMessageHandling Handle(FreePointsRewardedToUser e)
         //{
