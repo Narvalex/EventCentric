@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 
 namespace EventCentric.Messaging
 {
-    // An synchornous bus is a lot more faster than an async one
     public class SystemSynchronousBus : ISystemBus, IBusRegistry
     {
         private Dictionary<Type, List<ISystemHandler>> handlersByMessageType = new Dictionary<Type, List<ISystemHandler>>();
@@ -13,7 +13,8 @@ namespace EventCentric.Messaging
         {
             List<ISystemHandler> handlers;
             if (this.handlersByMessageType.TryGetValue(message.GetType(), out handlers))
-                handlers.ForEach(handler => ((dynamic)handler).Handle((dynamic)message));
+                handlers.ForEach(handler => ThreadPool.UnsafeQueueUserWorkItem(
+                    new WaitCallback(_ => ((dynamic)handler).Handle((dynamic)message)), null));
             else
                 throw new InvalidOperationException($"There are any handler registered for system message of type {message.GetType().FullName}");
         }
