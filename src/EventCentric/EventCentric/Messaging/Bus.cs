@@ -19,10 +19,10 @@ namespace EventCentric.Messaging
                 throw new InvalidOperationException($"There are any handler registered for system message of type {message.GetType().FullName}");
         }
 
-        public void Register(ISystemHandler worker)
+        public void Register(ISystemHandler handler)
         {
             var genericHandler = typeof(IMessageHandler<>);
-            worker
+            handler
             .GetType()
             .GetInterfaces()
             .Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == genericHandler)
@@ -35,7 +35,7 @@ namespace EventCentric.Messaging
                     handlers = new List<ISystemHandler>();
                     this.handlersByMessageType[messageType] = handlers;
                 }
-                handlers.Add(worker);
+                handlers.Add(handler);
             });
         }
     }
