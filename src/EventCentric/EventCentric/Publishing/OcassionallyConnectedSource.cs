@@ -1,4 +1,4 @@
-﻿using EventCentric.Polling;
+﻿using EventCentric.EventSourcing;
 using EventCentric.Publishing.Dto;
 using EventCentric.Transport;
 using EventCentric.Utils;
@@ -41,7 +41,7 @@ namespace EventCentric.Publishing
                 }
                 else
                 {
-                    clientResponse = PollResponse.CreateSerializedResponse(false, false, clientResponse.StreamType, new List<NewRawEvent>(), 0, 0);
+                    clientResponse = PollResponse.CreateSerializedResponse(false, false, clientResponse.StreamType, new List<SerializedEvent>(), 0, 0);
                 }
 
                 return clientResponse;

@@ -1,8 +1,8 @@
-﻿namespace EventCentric.Polling
+﻿namespace EventCentric.EventSourcing
 {
-    public class NewRawEvent
+    public class SerializedEvent
     {
-        public NewRawEvent(long eventCollectionVersion, string payload)
+        public SerializedEvent(long eventCollectionVersion, string payload)
         {
             this.EventCollectionVersion = eventCollectionVersion;
             this.Payload = payload;

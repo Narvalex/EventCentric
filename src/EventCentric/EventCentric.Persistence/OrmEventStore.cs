@@ -127,11 +127,11 @@ namespace EventCentric.Persistence
             return aggregate;
         }
 
-        public long Save(T eventSourced, IEvent incomingEvent)
+        public void Save(T eventSourced, IEvent incomingEvent)
         {
             var pendingEvents = eventSourced.PendingEvents;
             if (pendingEvents.Count == 0)
-                return this.eventCollectionVersion;
+                return;
 
             if (eventSourced.Id == default(Guid))
                 throw new ArgumentOutOfRangeException("StreamId", $"The eventsourced of type {typeof(T).FullName} has a default GUID value for its stream id, which is not valid");
@@ -144,7 +144,7 @@ namespace EventCentric.Persistence
                     // Check if incoming event is duplicate
                     if (this.IsDuplicate(incomingEvent.EventId, context))
                         // Incoming event is duplicate
-                        return this.eventCollectionVersion;
+                        return;
 
                     var currentVersion = context.Events.Any(e => e.StreamId == eventSourced.Id && e.StreamType == this.streamType)
                                           ? context.Events
@@ -248,7 +248,6 @@ namespace EventCentric.Persistence
                             });
                     }
 
-                    long eventCollectionVersionToPublish;
                     lock (this.dbLock)
                     {
                         var eventCollectionBeforeCrash = this.eventCollectionVersion;
@@ -266,9 +265,7 @@ namespace EventCentric.Persistence
                             }
                             context.SaveChanges();
 
-                            eventCollectionVersionToPublish = pendingEvents.Last().EventCollectionVersion;
-                            //return context.Events.Where(e => e.StreamType == this.streamType).Max(e => e.EventCollectionVersion);
-
+                            this.CurrentEventCollectionVersion = this.eventCollectionVersion;
                         }
                         catch (Exception ex)
                         {
@@ -276,8 +273,6 @@ namespace EventCentric.Persistence
                             throw ex;
                         }
                     }
-
-                    return eventCollectionVersionToPublish;
                 }
             }
             catch (Exception ex)
@@ -317,6 +312,27 @@ namespace EventCentric.Persistence
             {
                 context.Snapshots.Remove(context.Snapshots.Single(x => x.StreamId == streamId));
                 context.SaveChanges();
+            }
+        }
+
+        public long CurrentEventCollectionVersion { get; private set; }
+
+        /// <summary>
+        /// FindEvents
+        /// </summary>
+        /// <returns>Events if found, otherwise return empty list.</returns>
+        public SerializedEvent[] FindEvents(long lastReceivedVersion, int quantity)
+        {
+            using (var context = this.contextFactory(true))
+            {
+                return context
+                        .Events
+                        .Where(e => e.StreamType == this.streamType && e.EventCollectionVersion > lastReceivedVersion)
+                        .OrderBy(e => e.EventCollectionVersion)
+                        .Take(quantity)
+                        .ToList()
+                        .Select(e => new SerializedEvent(e.EventCollectionVersion, e.Payload))
+                        .ToArray();
             }
         }
     }

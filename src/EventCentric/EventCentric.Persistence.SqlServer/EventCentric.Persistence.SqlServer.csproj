@@ -55,7 +55,6 @@
     <Compile Include="Database\SqlClientExtensions.cs" />
     <Compile Include="Database\SqlClientLite.cs" />
     <Compile Include="Database\TransientFaultHandlingDbConfiguration.cs" />
-    <Compile Include="OptimizedEventDao.cs" />
     <Compile Include="OptimizedEventStore.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Repository\EventQueueDbContext.cs" />

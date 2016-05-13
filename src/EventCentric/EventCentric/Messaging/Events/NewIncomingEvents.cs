@@ -10,6 +10,9 @@ namespace EventCentric.Messaging.Events
             this.IncomingEvents = incomingEvents;
         }
 
+        /// <summary>
+        /// The events are just ordered by event collection version. Concurrency should be handled by the handler
+        /// </summary>
         public IEnumerable<IEvent> IncomingEvents { get; }
     }
 }

@@ -38,7 +38,6 @@ namespace EventCentric.MicroserviceFactory
                     setupInMemoryPersistence.Invoke(persitence);
 
                     container.RegisterInstance<ISubscriptionRepository>(persitence);
-                    container.RegisterInstance<IEventDao>(persitence);
                     container.RegisterInstance<IEventStore<TStream>>(persitence);
                     break;
 
@@ -68,9 +67,6 @@ namespace EventCentric.MicroserviceFactory
             var subscriptionRepository = new SubscriptionRepository(storeContextFactory, microserviceName, serializer, time);
             container.RegisterInstance<ISubscriptionRepository>(subscriptionRepository);
 
-            var eventDao = new OptimizedEventDao(queueContextFactory, connectionString, microserviceName);
-            container.RegisterInstance<IEventDao>(eventDao);
-
             var eventStore = new OptimizedEventStore<TStream>(microserviceName, serializer, connectionString, time, container.Resolve<IGuidProvider>(), container.Resolve<ILogger>());
             container.RegisterInstance<IEventStore<TStream>>(eventStore);
         }
@@ -88,9 +84,6 @@ namespace EventCentric.MicroserviceFactory
 
             var subscriptionRepository = new SubscriptionRepository(storeContextFactory, microserviceName, serializer, time);
             container.RegisterInstance<ISubscriptionRepository>(subscriptionRepository);
-
-            var eventDao = new OrmEventDao(queueContextFactory, microserviceName);
-            container.RegisterInstance<IEventDao>(eventDao);
 
             var eventStore = new OrmEventStore<TStream>(microserviceName, serializer, storeContextFactory, time, container.Resolve<IGuidProvider>(), container.Resolve<ILogger>());
             container.RegisterInstance<IEventStore<TStream>>(eventStore);

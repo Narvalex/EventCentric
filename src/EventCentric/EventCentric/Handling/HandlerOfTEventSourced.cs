@@ -9,6 +9,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 
 namespace EventCentric.Handling
 {
@@ -55,10 +56,17 @@ namespace EventCentric.Handling
             if (this.log.Verbose)
                 this.log.Trace($"{name} is now handling {message.IncomingEvents.Count()} message/s");
 
-            foreach (var incomingEvent in message.IncomingEvents)
-                this.HandleGracefully(incomingEvent);
+            var streams = message.IncomingEvents.GroupBy(e => e.StreamId);
 
-            this.log.Trace($"{name} handled {message.IncomingEvents.Count()} message/s");
+            foreach (var stream in streams)
+            {
+                ThreadPool.UnsafeQueueUserWorkItem(new WaitCallback(_ =>
+                {
+                    foreach (var e in stream)
+                        this.HandleGracefully(e);
+                }),
+                null);
+            }
         }
 
         private void HandleGracefully(IEvent incomingEvent)
@@ -156,8 +164,7 @@ namespace EventCentric.Handling
         private void HandleAndSaveChanges(IEvent incomingEvent, IMessageHandling handling)
         {
             var eventSourced = handling.Handle.Invoke();
-            var version = this.store.Save((TEventSourced)eventSourced, incomingEvent);
-            this.bus.Publish(new EventStoreHasBeenUpdated(version));
+            this.store.Save((TEventSourced)eventSourced, incomingEvent);
             this.PublishIncomingEventHasBeenProcessed(incomingEvent);
         }
 

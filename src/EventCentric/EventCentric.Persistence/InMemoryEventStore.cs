@@ -2,7 +2,6 @@
 using EventCentric.Log;
 using EventCentric.Messaging;
 using EventCentric.Polling;
-using EventCentric.Publishing;
 using EventCentric.Serialization;
 using EventCentric.Utils;
 using System;
@@ -14,10 +13,7 @@ using System.Threading;
 
 namespace EventCentric.Persistence
 {
-    public class InMemoryEventStore<T> :
-        ISubscriptionRepository,
-        IEventDao,
-        IEventStore<T> where T : class, IEventSourced
+    public class InMemoryEventStore<T> : ISubscriptionRepository, IEventStore<T> where T : class, IEventSourced
     {
         private long eventCollectionVersion = 0;
         private readonly string streamType;
@@ -82,13 +78,13 @@ namespace EventCentric.Persistence
         }
 
         #region EventDao
-        public NewRawEvent[] FindEvents(long fromEventCollectionVersion, int quantity)
+        public SerializedEvent[] FindEvents(long fromEventCollectionVersion, int quantity)
         {
             return this.Events
                         .Where(e => e.StreamType == this.streamType && e.EventCollectionVersion > fromEventCollectionVersion)
                         .OrderBy(e => e.EventCollectionVersion)
                         .Take(quantity)
-                        .Select(e => new NewRawEvent(e.EventCollectionVersion, e.Payload))
+                        .Select(e => new SerializedEvent(e.EventCollectionVersion, e.Payload))
                         .ToArray();
         }
 
@@ -166,11 +162,11 @@ namespace EventCentric.Persistence
             return aggregate;
         }
 
-        public long Save(T eventSourced, IEvent incomingEvent)
+        public void Save(T eventSourced, IEvent incomingEvent)
         {
             var pendingEvents = eventSourced.PendingEvents;
             if (pendingEvents.Count == 0)
-                return this.eventCollectionVersion;
+                return;
 
             if (eventSourced.Id == default(Guid))
                 throw new ArgumentOutOfRangeException("StreamId", $"The eventsourced of type {typeof(T).FullName} has a default GUID value for its stream id, which is not valid");
@@ -187,7 +183,7 @@ namespace EventCentric.Persistence
                 // Check if incoming event is duplicate
                 if (this.IsDuplicate(incomingEvent.EventId))
                     // Incoming event is duplicate
-                    return currentVersion;
+                    return;
 
                 if (currentVersion + 1 != pendingEvents.First().Version)
                     throw new EventStoreConcurrencyException();
@@ -284,7 +280,6 @@ namespace EventCentric.Persistence
                         });
                 }
 
-                long eventCollectionVersionToPublish;
                 lock (this.dbLock)
                 {
                     var eventCollectionBeforeCrash = this.eventCollectionVersion;
@@ -301,7 +296,7 @@ namespace EventCentric.Persistence
                             this.Events.Add(entity);
                         }
 
-                        eventCollectionVersionToPublish = pendingEvents.Last().EventCollectionVersion;
+                        this.CurrentEventCollectionVersion = this.eventCollectionVersion;
                     }
                     catch (Exception ex)
                     {
@@ -309,8 +304,6 @@ namespace EventCentric.Persistence
                         throw ex;
                     }
                 }
-
-                return eventCollectionVersionToPublish;
             }
             catch (Exception ex)
             {
@@ -349,6 +342,8 @@ namespace EventCentric.Persistence
         {
             return this.Inbox.Any(e => e.EventId == eventId);
         }
+
+        public long CurrentEventCollectionVersion { get; private set; }
         #endregion
     }
 

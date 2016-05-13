@@ -25,7 +25,7 @@ namespace EventCentric.Transport
             return response;
         }
 
-        public static PollResponse CreateSerializedResponse(bool errorDetected, bool newEventsWereFound, string streamType, IEnumerable<NewRawEvent> newRawEvents, long consumerVersion, long producerVersion)
+        public static PollResponse CreateSerializedResponse(bool errorDetected, bool newEventsWereFound, string streamType, IEnumerable<SerializedEvent> newRawEvents, long consumerVersion, long producerVersion)
         {
             var r = CreateBaseResponse(errorDetected, newEventsWereFound, streamType, consumerVersion, producerVersion);
 
@@ -52,7 +52,7 @@ namespace EventCentric.Transport
         public bool IsSerialized { get; set; }
 
         public string StreamType { get; set; }
-        public IEnumerable<NewRawEvent> NewRawEvents { get; set; }
+        public IEnumerable<SerializedEvent> NewRawEvents { get; set; }
         public IEnumerable<IEvent> Events { get; set; }
 
         // Metrics

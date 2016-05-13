@@ -33,9 +33,9 @@ namespace EventCentric.EventSourcing
             return e;
         }
 
-        public static NewRawEvent AsNewRawEvent(this IEvent @event, ITextSerializer serializer)
+        public static SerializedEvent AsNewRawEvent(this IEvent @event, ITextSerializer serializer)
         {
-            return new NewRawEvent(@event.EventCollectionVersion, serializer.Serialize(@event));
+            return new SerializedEvent(@event.EventCollectionVersion, serializer.Serialize(@event));
         }
     }
 }

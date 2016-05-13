@@ -1,4 +1,5 @@
-﻿using EventCentric.Log;
+﻿using EventCentric.EventSourcing;
+using EventCentric.Log;
 using EventCentric.Messaging;
 using EventCentric.Messaging.Commands;
 using EventCentric.Messaging.Events;
@@ -16,8 +17,7 @@ namespace EventCentric.Publishing
     // This is an ocassionally connected client publisher. The publisher of the client.
     public class OcassionallyConnectedPublisher : PublisherBase, IPollableEventSource,
         IMessageHandler<StartEventPublisher>,
-        IMessageHandler<StopEventPublisher>,
-        IMessageHandler<EventStoreHasBeenUpdated>
+        IMessageHandler<StopEventPublisher>
     {
         private readonly string clientVersion;
         private readonly string serverUrl;
@@ -25,12 +25,9 @@ namespace EventCentric.Publishing
         private readonly string serverName;
         private long serverEventCollectionVersion = 0;
 
-        // locks
-        private readonly object updateVersionlock = new object();
-
-        public OcassionallyConnectedPublisher(string streamType, IBus bus, ILogger log, IEventDao dao, int eventsToPushMaxCount, TimeSpan pollTimeout,
+        public OcassionallyConnectedPublisher(string streamType, IEventStore store, IBus bus, ILogger log, int eventsToPushMaxCount, TimeSpan pollTimeout,
             string clientVersion, string serverUrl, string serverToken, string serverName)
-            : base(streamType, bus, log, dao, pollTimeout, eventsToPushMaxCount)
+            : base(streamType, store, bus, log, pollTimeout, eventsToPushMaxCount)
         {
             Ensure.Positive(eventsToPushMaxCount, "eventsToPushMaxCount");
 
@@ -46,15 +43,6 @@ namespace EventCentric.Publishing
 
         public string SourceName => this.streamType;
 
-        public void Handle(EventStoreHasBeenUpdated message)
-        {
-            lock (this.updateVersionlock)
-            {
-                if (message.EventCollectionVersion > this.eventCollectionVersion)
-                    this.eventCollectionVersion = message.EventCollectionVersion;
-            }
-        }
-
         public void Handle(StopEventPublisher message)
         {
             base.Stop();
@@ -67,7 +55,7 @@ namespace EventCentric.Publishing
 
         private void SyncWithServer()
         {
-            while (this.eventCollectionVersion == 0)
+            while (this.store.CurrentEventCollectionVersion == 0)
                 Thread.Sleep(1);
 
             while (!base.stopping)
@@ -118,13 +106,12 @@ namespace EventCentric.Publishing
             try
             {
                 // We handle exceptions on dao.
-                var currentVersion = this.dao.GetEventCollectionVersion();
+                var currentVersion = this.store.CurrentEventCollectionVersion;
                 Task.Factory.StartNewLongRunning(() => this.SyncWithServer());
 
                 this.log.Log($"{this.SourceName} publisher started. Current event collection version is: {currentVersion}");
 
                 // Event-sourcing-like approach :)
-                this.bus.Publish(new EventStoreHasBeenUpdated(currentVersion));
                 this.bus.Publish(new EventPublisherStarted());
             }
             catch (Exception ex)

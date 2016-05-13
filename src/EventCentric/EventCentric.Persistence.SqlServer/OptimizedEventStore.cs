@@ -150,11 +150,11 @@ namespace EventCentric.Persistence
             return aggregate;
         }
 
-        public long Save(T eventSourced, IEvent incomingEvent)
+        public void Save(T eventSourced, IEvent incomingEvent)
         {
             var pendingEvents = eventSourced.PendingEvents;
             if (pendingEvents.Count == 0)
-                return this.eventCollectionVersion;
+                return;
 
             if (eventSourced.Id == default(Guid))
                 throw new ArgumentOutOfRangeException("StreamId", $"The eventsourced of type {typeof(T).FullName} has a default GUID value for its stream id, which is not valid");
@@ -176,7 +176,7 @@ namespace EventCentric.Persistence
                         using (var reader = command.ExecuteReader())
                         {
                             if (reader.Read())
-                                return this.eventCollectionVersion;
+                                return;
                         }
                     }
 
@@ -295,7 +295,6 @@ namespace EventCentric.Persistence
                                     });
                             }
 
-                            long eventCollectionVersionToPublish;
                             lock (this.dbLock)
                             {
                                 var eventCollectionBeforeCrash = this.eventCollectionVersion;
@@ -333,9 +332,7 @@ namespace EventCentric.Persistence
                                     }
                                     transaction.Commit();
 
-                                    eventCollectionVersionToPublish = pendingEvents.Last().EventCollectionVersion;
-                                    //return context.Events.Where(e => e.StreamType == this.streamType).Max(e => e.EventCollectionVersion);
-
+                                    this.CurrentEventCollectionVersion = this.eventCollectionVersion;
                                 }
                                 catch (Exception ex)
                                 {
@@ -343,8 +340,6 @@ namespace EventCentric.Persistence
                                     throw ex;
                                 }
                             }
-
-                            return eventCollectionVersionToPublish;
                         }
                         catch (Exception)
                         {
@@ -404,6 +399,22 @@ namespace EventCentric.Persistence
             cache.Remove(streamId.ToString());
             this.sql.ExecuteNonQuery(this.removeSnapshotCommand,
                 new SqlParameter("@StreamId", streamId), new SqlParameter(@"StreamType", this.streamType));
+        }
+
+        public long CurrentEventCollectionVersion { get; private set; }
+
+        /// <summary>
+        /// FindEvents
+        /// </summary>
+        /// <returns>Events if found, otherwise return empty list.</returns>
+        public SerializedEvent[] FindEvents(long lastReceivedVersion, int quantity)
+        {
+            return this.sql.ExecuteReader(this.findEventsQuery,
+                r => new SerializedEvent(r.GetInt64("EventCollectionVersion"), r.GetString("Payload")),
+                new SqlParameter("@Quantity", quantity),
+                new SqlParameter("@StreamType", this.streamType),
+                new SqlParameter("@LastReceivedVersion", lastReceivedVersion))
+                .ToArray();
         }
 
         #region Scripts
@@ -516,6 +527,15 @@ VALUES
     ,@LocalTime
     ,@UtcTime
     ,@Payload)";
+
+        private readonly string findEventsQuery =
+@"select top (@Quantity)
+EventCollectionVersion,
+Payload
+from EventStore.Events
+where StreamType = @StreamType
+and EventCollectionVersion > @LastReceivedVersion
+order by EventCollectionVersion";
         #endregion
     }
 }

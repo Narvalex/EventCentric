@@ -92,10 +92,9 @@
     <Compile Include="Polling\IMonitoredSubscription.cs" />
     <Compile Include="Handling\HandlerOfTEventSourced.cs" />
     <Compile Include="Handling\IHandles.cs" />
-    <Compile Include="Polling\NewRawEvent.cs" />
+    <Compile Include="EventSourcing\SerializedEvent.cs" />
     <Compile Include="Publishing\PublisherBase.cs" />
     <Compile Include="Publishing\ServerStatus.cs" />
-    <Compile Include="Publishing\IEventDao.cs" />
     <Compile Include="Config\EventStoreConfig.cs" />
     <Compile Include="Config\IPollerConfig.cs" />
     <Compile Include="Config\PollerConfig.cs" />
@@ -128,12 +127,10 @@
     <Compile Include="Messaging\Bus.cs" />
     <Compile Include="Messaging\Commands\StartEngineCommands.cs" />
     <Compile Include="Messaging\Commands\StopEngineCommands.cs" />
-    <Compile Include="Messaging\Envelope.cs" />
     <Compile Include="Messaging\Events\EngineStartedEvents.cs" />
     <Compile Include="Messaging\Events\EngineStoppedEvents.cs" />
     <Compile Include="Messaging\Events\IncomingMessageIsPoisoned.cs" />
     <Compile Include="Messaging\Events\NewIncomingEvents.cs" />
-    <Compile Include="Messaging\Events\EventStoreHasBeenUpdated.cs" />
     <Compile Include="Messaging\IBus.cs" />
     <Compile Include="Publishing\IPollableEventSource.cs" />
     <Compile Include="Serialization\ITextSerializer.cs" />

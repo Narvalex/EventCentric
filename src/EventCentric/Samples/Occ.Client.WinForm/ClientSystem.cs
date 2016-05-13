@@ -26,8 +26,8 @@ namespace Occ.Client.WinForm
                     appUniqueName: $"{userName}App",
                     container: this.container,
                     eventStoreConfig: config,
-                    publisherFactory: (streamType, bus, log, dao, eventsToPushMaxCount, pollTimeout)
-                        => new OcassionallyConnectedPublisher(streamType, bus, log, dao, eventsToPushMaxCount, pollTimeout, "v1",
+                    publisherFactory: (streamType, store, bus, log, eventsToPushMaxCount, pollTimeout)
+                        => new OcassionallyConnectedPublisher(streamType, store, bus, log, eventsToPushMaxCount, pollTimeout, "v1",
                             "http://localhost:51343/client-proxy/upload", "123", "OccServer")));
         }
     }

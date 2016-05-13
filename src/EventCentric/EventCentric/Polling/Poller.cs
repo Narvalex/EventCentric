@@ -173,20 +173,12 @@ namespace EventCentric.Polling
 
                 return incomingEvent;
                 //this.bus.Publish(new NewIncomingEvents(incomingEvent));
-            })
-            .GroupBy(x => x.StreamId, x => x,
-                    (key, group) => new
-                    {
-                        StreamId = key,
-                        Events = group
-                    });
+            });
 
-            foreach (var stream in streams)
-                // no need to order by again
-                //this.bus.Publish(new NewIncomingEvents(stream.Events.OrderBy(x => x.Version))); 
-                this.bus.Publish(new NewIncomingEvents(stream.Events));
+            this.bus.Publish(new NewIncomingEvents(streams));
 
-            this.log.Trace($"{this.microserviceName} is handling {eventsToProcess.Count} event/s of {buffer.StreamType} queue with {eventsInQueueCount} event/s pulled from {buffer.Url}");
+            if (log.Verbose)
+                this.log.Trace($"{this.microserviceName} is handling {eventsToProcess.Count} event/s of {buffer.StreamType} queue with {eventsInQueueCount} event/s pulled from {buffer.Url}");
 
             return true;
         }
@@ -299,8 +291,7 @@ namespace EventCentric.Polling
                     .Where(s => s.StreamType == message.StreamType)
                     .Single();
 
-            e.EventsInProcessorByEcv[message.EventCollectionVersion]
-            .MarkEventAsProcessed();
+            e.EventsInProcessorByEcv[message.EventCollectionVersion].MarkEventAsProcessed();
         }
 
         public void Handle(IncomingEventIsPoisoned message)
@@ -358,7 +349,7 @@ namespace EventCentric.Polling
                 lines.Add($"| --> Subscription {subscriptionCount} | Name: {subscription.StreamType} | {subscription.Url} | Buffer version: {subscription.CurrentBufferVersion}");
             }
 
-            Task.Factory.StartNewLongRunning(() => this.KeepTheBufferFull());
+            Task.Factory.StartNewLongRunning(this.KeepTheBufferFull);
             this.DispatchEventsFromBufferPool();
 
             // Ensure to start everything;
@@ -390,7 +381,6 @@ namespace EventCentric.Polling
                         if (isStarving)
                             Thread.Sleep(1);
                     }
-
                 });
             }
         }

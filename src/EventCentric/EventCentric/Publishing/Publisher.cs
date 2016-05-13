@@ -1,4 +1,5 @@
-﻿using EventCentric.Log;
+﻿using EventCentric.EventSourcing;
+using EventCentric.Log;
 using EventCentric.Messaging;
 using EventCentric.Messaging.Commands;
 using EventCentric.Messaging.Events;
@@ -8,26 +9,13 @@ namespace EventCentric.Publishing
 {
     public class Publisher : PublisherBase, IPollableEventSource,
         IMessageHandler<StartEventPublisher>,
-        IMessageHandler<StopEventPublisher>,
-        IMessageHandler<EventStoreHasBeenUpdated>
+        IMessageHandler<StopEventPublisher>
     {
-        // locks
-        private readonly object versionlock = new object();
-
-        public Publisher(string streamType, IBus bus, ILogger log, IEventDao dao, int eventsToPushMaxCount, TimeSpan pollTimeout)
-            : base(streamType, bus, log, dao, pollTimeout, eventsToPushMaxCount)
+        public Publisher(string streamType, IEventStore store, IBus bus, ILogger log, int eventsToPushMaxCount, TimeSpan pollTimeout)
+            : base(streamType, store, bus, log, pollTimeout, eventsToPushMaxCount)
         { }
 
         public string SourceName => this.streamType;
-
-        public void Handle(EventStoreHasBeenUpdated message)
-        {
-            lock (this.versionlock)
-            {
-                if (message.EventCollectionVersion > this.eventCollectionVersion)
-                    this.eventCollectionVersion = message.EventCollectionVersion;
-            }
-        }
 
         public void Handle(StopEventPublisher message)
         {
@@ -44,12 +32,11 @@ namespace EventCentric.Publishing
             try
             {
                 // We handle exceptions on dao.
-                var currentVersion = this.dao.GetEventCollectionVersion();
+                var currentVersion = this.store.CurrentEventCollectionVersion;
 
                 this.log.Log($"{this.SourceName} publisher started. Current event collection version is {currentVersion}");
 
                 // Event-sourcing-like approach :)
-                this.bus.Publish(new EventStoreHasBeenUpdated(currentVersion));
                 this.bus.Publish(new EventPublisherStarted());
             }
             catch (Exception ex)
