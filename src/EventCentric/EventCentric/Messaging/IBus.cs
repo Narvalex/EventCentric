@@ -17,6 +17,6 @@
 
     public interface IBusRegistry
     {
-        void Register(ISystemHandler worker);
+        void Register(ISystemHandler handler);
     }
 }
