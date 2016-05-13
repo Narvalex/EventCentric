@@ -5,7 +5,7 @@ using System.Threading;
 
 namespace EventCentric.Messaging
 {
-    public class SystemSynchronousBus : IBus, IBusRegistry
+    public class Bus : IBus, IBusRegistry
     {
         private Dictionary<Type, List<ISystemHandler>> handlersByMessageType = new Dictionary<Type, List<ISystemHandler>>();
 

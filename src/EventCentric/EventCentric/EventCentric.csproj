@@ -125,7 +125,7 @@
     <Compile Include="EventSourcing\IUpdates.cs" />
     <Compile Include="EventSourcing\StreamNotFoundException.cs" />
     <Compile Include="Microservice\MicroserviceHost.cs" />
-    <Compile Include="Messaging\SystemSynchronousBus.cs" />
+    <Compile Include="Messaging\Bus.cs" />
     <Compile Include="Messaging\Commands\StartEngineCommands.cs" />
     <Compile Include="Messaging\Commands\StopEngineCommands.cs" />
     <Compile Include="Messaging\Envelope.cs" />

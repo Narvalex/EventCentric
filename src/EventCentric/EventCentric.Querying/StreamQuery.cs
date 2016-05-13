@@ -31,7 +31,7 @@ namespace EventCentric.Querying
         private Dictionary<Type, Func<TState, IEvent, TState>> handlers = new Dictionary<Type, Func<TState, IEvent, TState>>();
 
         public StreamQuery(string queryName = "AnonymousEventStreamQuery", bool verbose = true)
-            : base(new SystemSynchronousBus(), new ConsoleLogger(verbose))
+            : base(new Bus(), new ConsoleLogger(verbose))
         {
             Ensure.NotNullNeitherEmtpyNorWhiteSpace(queryName, nameof(queryName));
 
