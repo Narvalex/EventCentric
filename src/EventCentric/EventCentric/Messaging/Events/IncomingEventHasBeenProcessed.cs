@@ -1,14 +1,14 @@
-﻿namespace EventCentric.Messaging.Events
+﻿using EventCentric.EventSourcing;
+
+namespace EventCentric.Messaging.Events
 {
-    public struct IncomingEventHasBeenProcessed : IMessage
+    public struct IncomingEventsHasBeenProcessed : IMessage
     {
-        public IncomingEventHasBeenProcessed(string streamType, long eventCollectionVersion)
+        public IncomingEventsHasBeenProcessed(IEvent[] events)
         {
-            this.StreamType = streamType;
-            this.EventCollectionVersion = eventCollectionVersion;
+            this.Events = events;
         }
 
-        public string StreamType { get; }
-        public long EventCollectionVersion { get; }
+        public IEvent[] Events { get; }
     }
 }

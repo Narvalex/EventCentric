@@ -19,7 +19,7 @@ namespace EventCentric.Polling
         IMessageHandler<StartEventPoller>,
         IMessageHandler<StopEventPoller>,
         IMessageHandler<PollResponseWasReceived>,
-        IMessageHandler<IncomingEventHasBeenProcessed>,
+        IMessageHandler<IncomingEventsHasBeenProcessed>,
         IMessageHandler<IncomingEventIsPoisoned>
     {
         private bool stopSilently = false;
@@ -285,13 +285,17 @@ namespace EventCentric.Polling
                 this.log.Trace($"{this.microserviceName} pulled {messageCount} event/s from {subscription.StreamType}");
         }
 
-        public void Handle(IncomingEventHasBeenProcessed message)
+        public void Handle(IncomingEventsHasBeenProcessed message)
         {
-            var e = this.bufferPool
-                    .Where(s => s.StreamType == message.StreamType)
-                    .Single();
-
-            e.EventsInProcessorByEcv[message.EventCollectionVersion].MarkEventAsProcessed();
+            for (int i = 0; i < message.Events.Length; i++)
+            {
+                var e = message.Events[i];
+                this.bufferPool
+                .Where(s => s.StreamType == e.StreamType)
+                .Single()
+                .EventsInProcessorByEcv[e.EventCollectionVersion]
+                .MarkEventAsProcessed();
+            }
         }
 
         public void Handle(IncomingEventIsPoisoned message)

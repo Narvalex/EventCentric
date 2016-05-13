@@ -57,13 +57,19 @@ namespace EventCentric.Handling
                 this.log.Trace($"{name} is now handling {message.IncomingEvents.Count()} message/s");
 
             var streams = message.IncomingEvents.GroupBy(e => e.StreamId);
-
             foreach (var stream in streams)
             {
                 ThreadPool.UnsafeQueueUserWorkItem(new WaitCallback(_ =>
                 {
-                    foreach (var e in stream)
+                    var streamCount = stream.Count();
+                    var processedEvents = new IEvent[streamCount];
+                    for (int i = 0; i < streamCount; i++)
+                    {
+                        var e = stream.ElementAt(i);
                         this.HandleGracefully(e);
+                        processedEvents[i] = e;
+                    }
+                    this.bus.Publish(new IncomingEventsHasBeenProcessed(processedEvents));
                 }),
                 null);
             }
@@ -78,7 +84,7 @@ namespace EventCentric.Handling
 
                 if (handling.ShouldBeIgnored)
                 {
-                    this.Ignore(incomingEvent);
+                    // happily ignore! :)
                     return;
                 }
 
@@ -94,9 +100,7 @@ namespace EventCentric.Handling
                     try
                     {
                         if (!this.poisonedStreams.Where(p => p == handling.StreamId).Any())
-                        {
                             this.HandleAndSaveChanges(incomingEvent, handling);
-                        }
 
                         if (this.log.Verbose)
                             this.log.Trace($"{name} successfully handled message of type {incomingEvent.GetType().Name}");
@@ -105,7 +109,7 @@ namespace EventCentric.Handling
                     {
                         // we igonore it, just to protect our servers to get down.
                         this.log.Error(ex, $"The stream {handling.StreamId} was not found. Ignoring message. You can retry by reseting the subscription table.");
-                        this.Ignore(incomingEvent);
+                        return;
                     }
                     catch (RuntimeBinderException ex)
                     {
@@ -125,7 +129,7 @@ namespace EventCentric.Handling
                         {
                             if (this.store.IsDuplicate(incomingEvent.EventId))
                             {
-                                this.Ignore(incomingEvent);
+                                // Happily ignore :)
                                 return;
                             }
                         }
@@ -139,7 +143,6 @@ namespace EventCentric.Handling
                         {
                             this.store.DeleteSnapshot(handling.StreamId);
                             this.HandleAndSaveChanges(incomingEvent, handling);
-                            return;
                         }
                         catch (Exception deleteSnapshotEx)
                         {
@@ -165,7 +168,6 @@ namespace EventCentric.Handling
         {
             var eventSourced = handling.Handle.Invoke();
             this.store.Save((TEventSourced)eventSourced, incomingEvent);
-            this.PublishIncomingEventHasBeenProcessed(incomingEvent);
         }
 
         public void Handle(StartEventProcessor message)
@@ -194,11 +196,6 @@ namespace EventCentric.Handling
         private IMessageHandling BuildHandlingInvocation(Guid streamId, Func<TEventSourced, TEventSourced> handle, Func<TEventSourced> aggregateFactory)
             => new MessageHandling(false, streamId, () => handle.Invoke(aggregateFactory.Invoke()));
 
-        private void PublishIncomingEventHasBeenProcessed(IEvent incomingEvent)
-        {
-            this.bus.Publish(new IncomingEventHasBeenProcessed(incomingEvent.StreamType, incomingEvent.EventCollectionVersion));
-        }
-
         protected IMessageHandling FromNewStreamIfNotExists(Guid id, Func<TEventSourced, TEventSourced> handle)
             => this.BuildHandlingInvocation(id, handle, () =>
             {
@@ -217,19 +214,6 @@ namespace EventCentric.Handling
             if (this.log.Verbose)
                 this.log.Trace($"{name} is automatically ignoring message of type {message.GetType().Name} because no handling method where found");
             return new MessageHandling(true, default(Guid), () => null);
-        }
-
-        /// <summary>
-        /// Mark as ignored in the inbox table and in the subscription table. 
-        /// This node is not subscribed to this event, but is interested in other events that
-        /// happened in the source. Or is DUPLICATE
-        /// </summary>
-        /// <param name="@event">The <see cref="IEvent"/> to be igonred.</param>
-        private void Ignore(IEvent incomingEvent)
-        {
-            if (this.log.Verbose)
-                this.log.Trace($"{name} is deliberately ignoring message of type {incomingEvent.GetType().Name}");
-            this.PublishIncomingEventHasBeenProcessed(incomingEvent);
         }
     }
 }
