@@ -56,7 +56,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Occ.ServiceHost", "Samples\
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "PingPong", "PingPong", "{A1404052-9A75-4043-B699-CDE31E4C586F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PingPong.Server", "PingPong.Server\PingPong.Server.csproj", "{2096C603-33B2-4F47-9048-EAAEEC7AB782}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PingPong.Server", "Samples\PingPong\PingPong.Server\PingPong.Server.csproj", "{2096C603-33B2-4F47-9048-EAAEEC7AB782}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
