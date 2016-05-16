@@ -167,7 +167,7 @@ namespace EventCentric.Handling
         private void HandleAndSaveChanges(IEvent incomingEvent, IMessageHandling handling)
         {
             var eventSourced = handling.Handle.Invoke();
-            this.store.Save((TEventSourced)eventSourced, incomingEvent);
+            this.store.Save(eventSourced as TEventSourced, incomingEvent);
         }
 
         public void Handle(StartEventProcessor message)

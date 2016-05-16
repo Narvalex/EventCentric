@@ -34,8 +34,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventCentric.Querying", "Ev
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventCentric.MicroserviceFactory", "EventCentric.MicroserviceFactory\EventCentric.MicroserviceFactory.csproj", "{44302C31-F9A4-4531-A43A-0E33CC5D4FD2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PersistenceBenchmark.Console", "PersistenceBenchmark.Console\PersistenceBenchmark.Console.csproj", "{0BEC8B22-1C08-4085-969C-510F4D2310CF}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Samples", "Samples", "{13AA8C91-A11C-494C-95A8-FD97BE15F336}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "OccasionallyConnectedClients", "OccasionallyConnectedClients", "{368C0568-D666-4AD2-A902-29E24B730D2D}"
@@ -53,6 +51,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventCentric.Persistence.SqlServer", "EventCentric.Persistence.SqlServer\EventCentric.Persistence.SqlServer.csproj", "{2ECDB874-5E04-47CB-9AB1-8262159AC3B9}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventCentric.Persistence.SqlServerCe", "EventCentric.Persistence.SqlServerCe\EventCentric.Persistence.SqlServerCe.csproj", "{DDD72DDE-73AA-492F-96E4-F7300DEA3689}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PersistenceBenchmark.Console", "Samples\PersistenceBenchmark.Console\PersistenceBenchmark.Console.csproj", "{0BEC8B22-1C08-4085-969C-510F4D2310CF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -84,10 +84,6 @@ Global
 		{44302C31-F9A4-4531-A43A-0E33CC5D4FD2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{44302C31-F9A4-4531-A43A-0E33CC5D4FD2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{44302C31-F9A4-4531-A43A-0E33CC5D4FD2}.Release|Any CPU.Build.0 = Release|Any CPU
-		{0BEC8B22-1C08-4085-969C-510F4D2310CF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{0BEC8B22-1C08-4085-969C-510F4D2310CF}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{0BEC8B22-1C08-4085-969C-510F4D2310CF}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{0BEC8B22-1C08-4085-969C-510F4D2310CF}.Release|Any CPU.Build.0 = Release|Any CPU
 		{36190E4C-5FAC-4C17-9BBA-0CB610373232}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{36190E4C-5FAC-4C17-9BBA-0CB610373232}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{36190E4C-5FAC-4C17-9BBA-0CB610373232}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -116,17 +112,21 @@ Global
 		{DDD72DDE-73AA-492F-96E4-F7300DEA3689}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DDD72DDE-73AA-492F-96E4-F7300DEA3689}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DDD72DDE-73AA-492F-96E4-F7300DEA3689}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0BEC8B22-1C08-4085-969C-510F4D2310CF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0BEC8B22-1C08-4085-969C-510F4D2310CF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0BEC8B22-1C08-4085-969C-510F4D2310CF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0BEC8B22-1C08-4085-969C-510F4D2310CF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{0BEC8B22-1C08-4085-969C-510F4D2310CF} = {13AA8C91-A11C-494C-95A8-FD97BE15F336}
 		{368C0568-D666-4AD2-A902-29E24B730D2D} = {13AA8C91-A11C-494C-95A8-FD97BE15F336}
 		{36190E4C-5FAC-4C17-9BBA-0CB610373232} = {368C0568-D666-4AD2-A902-29E24B730D2D}
 		{26A9CDB0-540C-463F-AB8E-C8F25D693543} = {368C0568-D666-4AD2-A902-29E24B730D2D}
 		{F8EC93E0-94B6-4DEC-9166-6F3D11D79483} = {368C0568-D666-4AD2-A902-29E24B730D2D}
 		{26DED214-EFB8-4BA0-9DE7-7B78F50CD043} = {368C0568-D666-4AD2-A902-29E24B730D2D}
+		{0BEC8B22-1C08-4085-969C-510F4D2310CF} = {13AA8C91-A11C-494C-95A8-FD97BE15F336}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		EnterpriseLibraryConfigurationToolBinariesPath = packages\Unity.2.1.505.2\lib\NET35
