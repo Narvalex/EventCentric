@@ -13,15 +13,15 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventCentric.Authorization"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Docs", "Docs", "{7B295ED5-3D1D-4696-B767-21792E717374}"
 	ProjectSection(SolutionItems) = preProject
-		AboutEventSourceController.txt = AboutEventSourceController.txt
+		..\Docs\AboutEventSourceController.txt = ..\Docs\AboutEventSourceController.txt
 		..\Docs\AboutHeartbeatController.txt = ..\Docs\AboutHeartbeatController.txt
-		AboutNamingConventions.txt = AboutNamingConventions.txt
-		AboutOcassionallyConnectedClients.txt = AboutOcassionallyConnectedClients.txt
-		AboutRestCallsBetweenNodes.txt = AboutRestCallsBetweenNodes.txt
-		AboutScheduling.txt = AboutScheduling.txt
-		AboutStreamTypeResolver.txt = AboutStreamTypeResolver.txt
-		AboutSubscriptions.txt = AboutSubscriptions.txt
-		AboutTfsIgnore.txt = AboutTfsIgnore.txt
+		..\Docs\AboutNamingConventions.txt = ..\Docs\AboutNamingConventions.txt
+		..\Docs\AboutOcassionallyConnectedClients.txt = ..\Docs\AboutOcassionallyConnectedClients.txt
+		..\Docs\AboutRestCallsBetweenNodes.txt = ..\Docs\AboutRestCallsBetweenNodes.txt
+		..\Docs\AboutScheduling.txt = ..\Docs\AboutScheduling.txt
+		..\Docs\AboutStreamTypeResolver.txt = ..\Docs\AboutStreamTypeResolver.txt
+		..\Docs\AboutSubscriptions.txt = ..\Docs\AboutSubscriptions.txt
+		..\Docs\AboutTfsIgnore.txt = ..\Docs\AboutTfsIgnore.txt
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{397224F2-E917-47C0-A197-04504D3CA3A8}"
@@ -36,15 +36,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventCentric.MicroserviceFa
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Samples", "Samples", "{13AA8C91-A11C-494C-95A8-FD97BE15F336}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "OccasionallyConnectedClients", "OccasionallyConnectedClients", "{368C0568-D666-4AD2-A902-29E24B730D2D}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Occ.Messages", "Samples\Occ.Messages\Occ.Messages.csproj", "{36190E4C-5FAC-4C17-9BBA-0CB610373232}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Occ.Client.Shared", "Samples\Occ.Client.Shared\Occ.Client.Shared.csproj", "{26A9CDB0-540C-463F-AB8E-C8F25D693543}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Occ.Client.WinForm", "Samples\Occ.Client.WinForm\Occ.Client.WinForm.csproj", "{F8EC93E0-94B6-4DEC-9166-6F3D11D79483}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Occ.ServiceHost", "Samples\Occ.ServiceHost\Occ.ServiceHost.csproj", "{26DED214-EFB8-4BA0-9DE7-7B78F50CD043}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Occ", "Occ", "{368C0568-D666-4AD2-A902-29E24B730D2D}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventCentric.Persistence", "EventCentric.Persistence\EventCentric.Persistence.csproj", "{C01C199E-C7BC-45D4-A1D5-B521F333E57E}"
 EndProject
@@ -53,6 +45,14 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventCentric.Persistence.SqlServerCe", "EventCentric.Persistence.SqlServerCe\EventCentric.Persistence.SqlServerCe.csproj", "{DDD72DDE-73AA-492F-96E4-F7300DEA3689}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PersistenceBenchmark.Console", "Samples\PersistenceBenchmark.Console\PersistenceBenchmark.Console.csproj", "{0BEC8B22-1C08-4085-969C-510F4D2310CF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Occ.Client.Shared", "Samples\Occ\Occ.Client.Shared\Occ.Client.Shared.csproj", "{26A9CDB0-540C-463F-AB8E-C8F25D693543}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Occ.Client.WinForm", "Samples\Occ\Occ.Client.WinForm\Occ.Client.WinForm.csproj", "{F8EC93E0-94B6-4DEC-9166-6F3D11D79483}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Occ.Messages", "Samples\Occ\Occ.Messages\Occ.Messages.csproj", "{36190E4C-5FAC-4C17-9BBA-0CB610373232}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Occ.ServiceHost", "Samples\Occ\Occ.ServiceHost\Occ.ServiceHost.csproj", "{26DED214-EFB8-4BA0-9DE7-7B78F50CD043}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -84,22 +84,6 @@ Global
 		{44302C31-F9A4-4531-A43A-0E33CC5D4FD2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{44302C31-F9A4-4531-A43A-0E33CC5D4FD2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{44302C31-F9A4-4531-A43A-0E33CC5D4FD2}.Release|Any CPU.Build.0 = Release|Any CPU
-		{36190E4C-5FAC-4C17-9BBA-0CB610373232}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{36190E4C-5FAC-4C17-9BBA-0CB610373232}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{36190E4C-5FAC-4C17-9BBA-0CB610373232}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{36190E4C-5FAC-4C17-9BBA-0CB610373232}.Release|Any CPU.Build.0 = Release|Any CPU
-		{26A9CDB0-540C-463F-AB8E-C8F25D693543}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{26A9CDB0-540C-463F-AB8E-C8F25D693543}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{26A9CDB0-540C-463F-AB8E-C8F25D693543}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{26A9CDB0-540C-463F-AB8E-C8F25D693543}.Release|Any CPU.Build.0 = Release|Any CPU
-		{F8EC93E0-94B6-4DEC-9166-6F3D11D79483}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{F8EC93E0-94B6-4DEC-9166-6F3D11D79483}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{F8EC93E0-94B6-4DEC-9166-6F3D11D79483}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{F8EC93E0-94B6-4DEC-9166-6F3D11D79483}.Release|Any CPU.Build.0 = Release|Any CPU
-		{26DED214-EFB8-4BA0-9DE7-7B78F50CD043}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{26DED214-EFB8-4BA0-9DE7-7B78F50CD043}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{26DED214-EFB8-4BA0-9DE7-7B78F50CD043}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{26DED214-EFB8-4BA0-9DE7-7B78F50CD043}.Release|Any CPU.Build.0 = Release|Any CPU
 		{C01C199E-C7BC-45D4-A1D5-B521F333E57E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{C01C199E-C7BC-45D4-A1D5-B521F333E57E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C01C199E-C7BC-45D4-A1D5-B521F333E57E}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -116,17 +100,33 @@ Global
 		{0BEC8B22-1C08-4085-969C-510F4D2310CF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0BEC8B22-1C08-4085-969C-510F4D2310CF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0BEC8B22-1C08-4085-969C-510F4D2310CF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{26A9CDB0-540C-463F-AB8E-C8F25D693543}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{26A9CDB0-540C-463F-AB8E-C8F25D693543}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{26A9CDB0-540C-463F-AB8E-C8F25D693543}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{26A9CDB0-540C-463F-AB8E-C8F25D693543}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F8EC93E0-94B6-4DEC-9166-6F3D11D79483}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F8EC93E0-94B6-4DEC-9166-6F3D11D79483}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F8EC93E0-94B6-4DEC-9166-6F3D11D79483}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F8EC93E0-94B6-4DEC-9166-6F3D11D79483}.Release|Any CPU.Build.0 = Release|Any CPU
+		{36190E4C-5FAC-4C17-9BBA-0CB610373232}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{36190E4C-5FAC-4C17-9BBA-0CB610373232}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{36190E4C-5FAC-4C17-9BBA-0CB610373232}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{36190E4C-5FAC-4C17-9BBA-0CB610373232}.Release|Any CPU.Build.0 = Release|Any CPU
+		{26DED214-EFB8-4BA0-9DE7-7B78F50CD043}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{26DED214-EFB8-4BA0-9DE7-7B78F50CD043}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{26DED214-EFB8-4BA0-9DE7-7B78F50CD043}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{26DED214-EFB8-4BA0-9DE7-7B78F50CD043}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{368C0568-D666-4AD2-A902-29E24B730D2D} = {13AA8C91-A11C-494C-95A8-FD97BE15F336}
-		{36190E4C-5FAC-4C17-9BBA-0CB610373232} = {368C0568-D666-4AD2-A902-29E24B730D2D}
+		{0BEC8B22-1C08-4085-969C-510F4D2310CF} = {13AA8C91-A11C-494C-95A8-FD97BE15F336}
 		{26A9CDB0-540C-463F-AB8E-C8F25D693543} = {368C0568-D666-4AD2-A902-29E24B730D2D}
 		{F8EC93E0-94B6-4DEC-9166-6F3D11D79483} = {368C0568-D666-4AD2-A902-29E24B730D2D}
+		{36190E4C-5FAC-4C17-9BBA-0CB610373232} = {368C0568-D666-4AD2-A902-29E24B730D2D}
 		{26DED214-EFB8-4BA0-9DE7-7B78F50CD043} = {368C0568-D666-4AD2-A902-29E24B730D2D}
-		{0BEC8B22-1C08-4085-969C-510F4D2310CF} = {13AA8C91-A11C-494C-95A8-FD97BE15F336}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		EnterpriseLibraryConfigurationToolBinariesPath = packages\Unity.2.1.505.2\lib\NET35
