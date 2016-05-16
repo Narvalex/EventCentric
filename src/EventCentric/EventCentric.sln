@@ -58,6 +58,12 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "PingPong", "PingPong", "{A1
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PingPong.Server", "Samples\PingPong\PingPong.Server\PingPong.Server.csproj", "{2096C603-33B2-4F47-9048-EAAEEC7AB782}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PingPong.Client", "Samples\PingPong\PingPong.Client\PingPong.Client.csproj", "{2C720450-720E-491F-AC14-DFD177F9FA8F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PingPong.Reports", "Samples\PingPong\PingPong.Reports\PingPong.Reports.csproj", "{83F206BE-4076-49A9-9018-AC70E78393A8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PingPong.Common", "Samples\PingPong\PingPong.Common\PingPong.Common.csproj", "{F5050292-C8D2-4BC6-9149-512A744A019E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -124,6 +130,18 @@ Global
 		{2096C603-33B2-4F47-9048-EAAEEC7AB782}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2096C603-33B2-4F47-9048-EAAEEC7AB782}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2096C603-33B2-4F47-9048-EAAEEC7AB782}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2C720450-720E-491F-AC14-DFD177F9FA8F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2C720450-720E-491F-AC14-DFD177F9FA8F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2C720450-720E-491F-AC14-DFD177F9FA8F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2C720450-720E-491F-AC14-DFD177F9FA8F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{83F206BE-4076-49A9-9018-AC70E78393A8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{83F206BE-4076-49A9-9018-AC70E78393A8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{83F206BE-4076-49A9-9018-AC70E78393A8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{83F206BE-4076-49A9-9018-AC70E78393A8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F5050292-C8D2-4BC6-9149-512A744A019E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F5050292-C8D2-4BC6-9149-512A744A019E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F5050292-C8D2-4BC6-9149-512A744A019E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F5050292-C8D2-4BC6-9149-512A744A019E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -137,6 +155,9 @@ Global
 		{26DED214-EFB8-4BA0-9DE7-7B78F50CD043} = {368C0568-D666-4AD2-A902-29E24B730D2D}
 		{A1404052-9A75-4043-B699-CDE31E4C586F} = {13AA8C91-A11C-494C-95A8-FD97BE15F336}
 		{2096C603-33B2-4F47-9048-EAAEEC7AB782} = {A1404052-9A75-4043-B699-CDE31E4C586F}
+		{2C720450-720E-491F-AC14-DFD177F9FA8F} = {A1404052-9A75-4043-B699-CDE31E4C586F}
+		{83F206BE-4076-49A9-9018-AC70E78393A8} = {A1404052-9A75-4043-B699-CDE31E4C586F}
+		{F5050292-C8D2-4BC6-9149-512A744A019E} = {A1404052-9A75-4043-B699-CDE31E4C586F}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		EnterpriseLibraryConfigurationToolBinariesPath = packages\Unity.2.1.505.2\lib\NET35

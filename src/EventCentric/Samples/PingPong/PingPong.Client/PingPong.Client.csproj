@@ -4,11 +4,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{2096C603-33B2-4F47-9048-EAAEEC7AB782}</ProjectGuid>
+    <ProjectGuid>{2C720450-720E-491F-AC14-DFD177F9FA8F}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>PingPong.Server</RootNamespace>
-    <AssemblyName>PingPong.Server</AssemblyName>
+    <RootNamespace>PingPong.Client</RootNamespace>
+    <AssemblyName>PingPong.Client</AssemblyName>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
@@ -43,8 +43,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Domain\GameManager.cs" />
-    <Compile Include="Domain\Match.cs" />
+    <Compile Include="Domain\PingPongClientApp.cs" />
+    <Compile Include="Domain\Player.cs" />
+    <Compile Include="Domain\PlayerHandler.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -68,8 +69,11 @@
       <Project>{4b00e8dd-813c-4abb-8c87-c664d188f62c}</Project>
       <Name>EventCentric</Name>
     </ProjectReference>
+    <ProjectReference Include="..\PingPong.Common\PingPong.Common.csproj">
+      <Project>{f5050292-c8d2-4bc6-9149-512a744a019e}</Project>
+      <Name>PingPong.Common</Name>
+    </ProjectReference>
   </ItemGroup>
-  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

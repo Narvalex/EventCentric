@@ -4,17 +4,15 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{2096C603-33B2-4F47-9048-EAAEEC7AB782}</ProjectGuid>
-    <OutputType>Exe</OutputType>
+    <ProjectGuid>{F5050292-C8D2-4BC6-9149-512A744A019E}</ProjectGuid>
+    <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>PingPong.Server</RootNamespace>
-    <AssemblyName>PingPong.Server</AssemblyName>
+    <RootNamespace>PingPong.Common</RootNamespace>
+    <AssemblyName>PingPong.Common</AssemblyName>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
-    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
@@ -24,7 +22,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
@@ -43,33 +40,24 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Domain\GameManager.cs" />
-    <Compile Include="Domain\Match.cs" />
-    <Compile Include="Program.cs" />
+    <Compile Include="Messages\Client\CreateOrJoinAMatch.cs" />
+    <Compile Include="Messages\Client\NewPlayerRegistered.cs" />
+    <Compile Include="Messages\Client\RegisterPlayerAndStartPlaying.cs" />
+    <Compile Include="Messages\Server\GameOver.cs" />
+    <Compile Include="Messages\Server\MatchCreatedAndWaitingForSecondPlayerToStart.cs" />
+    <Compile Include="Messages\Server\PlayerJoinedMatchAndGameStarts.cs" />
+    <Compile Include="Messages\Server\SetFinished.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="App.config" />
+    <Folder Include="Messages\Reports\" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\EventCentric.MicroserviceFactory\EventCentric.MicroserviceFactory.csproj">
-      <Project>{44302c31-f9a4-4531-a43a-0e33cc5d4fd2}</Project>
-      <Name>EventCentric.MicroserviceFactory</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\..\EventCentric.Persistence.SqlServer\EventCentric.Persistence.SqlServer.csproj">
-      <Project>{2ecdb874-5e04-47cb-9ab1-8262159ac3b9}</Project>
-      <Name>EventCentric.Persistence.SqlServer</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\..\EventCentric.Persistence\EventCentric.Persistence.csproj">
-      <Project>{c01c199e-c7bc-45d4-a1d5-b521f333e57e}</Project>
-      <Name>EventCentric.Persistence</Name>
-    </ProjectReference>
     <ProjectReference Include="..\..\..\EventCentric\EventCentric.csproj">
       <Project>{4b00e8dd-813c-4abb-8c87-c664d188f62c}</Project>
       <Name>EventCentric</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
