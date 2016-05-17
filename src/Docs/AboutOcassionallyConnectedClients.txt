@@ -1,22 +1,13 @@
-1. A new table, like
-EventStore.OcaccionallyConnectedClients
-StreamType			| DateTime
-ProductorElzevir
-With this table we can register the OCCProxy, and with the subscription tables we can register 
-the current ECVersion of each OCC
-The proxy registers in the singleton OCCProxy
+Example of an ocassionally connected client (a winform app, for example)
 
-2. The severs subscribers polls IInMemoryPublisher, when polling, they updates the OCCProxy in what ECVersion number
-they are already.
-
-3. The Client, when online, they try to issue a get to the OCCProxy to get the current ECVersion, the first time 
-they tell that they do not know with number they have. When getting a response, they save in memory the number of the
-ECVersion of the server. With that information they post the new events from that version on. After posting, 
-they polls for an update of the ECVersion of the server.
-
-4. When updated they try to post again.
-
-5. Ther must be a version checking for each "GET", and "POST" to the server. If the required version from the server fails
-the server will reject messages and tell the client that is outdated. 
-
-6. If the subscription is removed, the client can no longer "POST" events.
+  SingleMicroserviceInitializer.Run(container: this.container, useSignalRLog: false,
+                microserviceFactory: () =>
+                MicroserviceFactory<ItemClient, ItemClientHandler>
+                .CreateEventProcessorWithApp<ItemClientApp>(
+                    uniqueName: $"{userName}",
+                    appUniqueName: $"{userName}App",
+                    container: this.container,
+                    eventStoreConfig: config,
+                    publisherFactory: (streamType, store, bus, log, eventsToPushMaxCount, pollTimeout)
+                        => new OcassionallyConnectedPublisher(streamType, store, bus, log, eventsToPushMaxCount, pollTimeout, "v1",
+                            "http://localhost:51343/client-proxy/upload", "123", "OccServer")));
