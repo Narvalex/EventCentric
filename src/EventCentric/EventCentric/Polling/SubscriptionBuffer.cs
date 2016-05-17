@@ -34,12 +34,12 @@ namespace EventCentric.Polling
         /// <summary>
         /// A queue where the events are being reserved
         /// </summary>
-        public volatile ConcurrentQueue<IEvent> NewEventsQueue;
+        internal ConcurrentQueue<IEvent> NewEventsQueue;
 
         /// <summary>
         /// A bag that monitors the events that are currently being processed
         /// </summary>
-        public volatile ConcurrentDictionary<long, EventInProcessorBucket> EventsInProcessorByEcv;
+        internal ConcurrentDictionary<long, EventInProcessorBucket> EventsInProcessorByEcv;
 
         // Metrics
         public long ConsumerVersion { get; internal set; }

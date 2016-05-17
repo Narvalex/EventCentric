@@ -19,7 +19,7 @@ namespace EventCentric.Polling
         IMessageHandler<StartEventPoller>,
         IMessageHandler<StopEventPoller>,
         IMessageHandler<PollResponseWasReceived>,
-        IMessageHandler<IncomingEventsHasBeenProcessed>,
+        IMessageHandler<IncomingEventHasBeenProcessed>,
         IMessageHandler<IncomingEventIsPoisoned>
     {
         private bool stopSilently = false;
@@ -65,15 +65,15 @@ namespace EventCentric.Polling
 
         private bool TryFill()
         {
-            var subscriptonsReadyForPolling = this.bufferPool
+            var subscriptionsReadyForPolling = this.bufferPool
                                                   .Where(s => !s.IsPolling && !s.IsPoisoned && s.NewEventsQueue.Count < queueMaxCount)
                                                   .ToArray();
 
-            if (!subscriptonsReadyForPolling.Any())
+            if (!subscriptionsReadyForPolling.Any())
                 // all subscriptions are being polled
                 return false;
 
-            foreach (var subscription in subscriptonsReadyForPolling)
+            foreach (var subscription in subscriptionsReadyForPolling)
             {
                 subscription.IsPolling = true;
                 ThreadPool.UnsafeQueueUserWorkItem(new WaitCallback(_ =>
@@ -207,6 +207,13 @@ namespace EventCentric.Polling
                 throw;
             }
 
+            if (message.Response.ErrorDetected)
+            {
+                this.log.Error($"An error was detected while polling {message.Response.StreamType}");
+                subscription.IsPolling = false;
+                return;
+            }
+
             if (response.NewEventsWereFound)
             {
                 var orderedEvents =
@@ -254,7 +261,7 @@ namespace EventCentric.Polling
                         })
                         .OrderBy(e => e.EventCollectionVersion)
 
-                    // Not serialize, we just need to put in order...
+                    // Not serialized, we just need to put in order...
                     : response.Events.OrderBy(e => e.EventCollectionVersion);
 
                 subscription.CurrentBufferVersion = orderedEvents.Max(e => e.EventCollectionVersion);
@@ -266,36 +273,27 @@ namespace EventCentric.Polling
                 }
             }
 
-            if (!response.ErrorDetected)
-            {
-                subscription.ConsumerVersion = response.ConsumerVersion;
-                subscription.ProducerVersion = response.ProducerVersion;
-            }
+            subscription.ConsumerVersion = response.ConsumerVersion;
+            subscription.ProducerVersion = response.ProducerVersion;
 
             subscription.IsPolling = false;
 
-            if (response.ErrorDetected)
+            if (this.log.Verbose)
             {
-                this.log.Trace($"{this.microserviceName} got an error while polling {subscription.StreamType}");
-                return;
+                var messageCount = response.IsSerialized ? response.NewRawEvents.Count() : response.Events.Count();
+                if (messageCount > 0)
+                    this.log.Trace($"{this.microserviceName} pulled {messageCount} event/s from {subscription.StreamType}");
             }
-
-            var messageCount = response.IsSerialized ? response.NewRawEvents.Count() : response.Events.Count();
-            if (messageCount > 0)
-                this.log.Trace($"{this.microserviceName} pulled {messageCount} event/s from {subscription.StreamType}");
         }
 
-        public void Handle(IncomingEventsHasBeenProcessed message)
+        public void Handle(IncomingEventHasBeenProcessed message)
         {
-            for (int i = 0; i < message.Events.Length; i++)
-            {
-                var e = message.Events[i];
-                this.bufferPool
-                .Where(s => s.StreamType == e.StreamType)
-                .Single()
-                .EventsInProcessorByEcv[e.EventCollectionVersion]
-                .MarkEventAsProcessed();
-            }
+            var e = message.Event;
+            this.bufferPool
+            .Where(s => s.StreamType == e.StreamType)
+            .Single()
+            .EventsInProcessorByEcv[e.EventCollectionVersion]
+            .MarkEventAsProcessed();
         }
 
         public void Handle(IncomingEventIsPoisoned message)
@@ -377,14 +375,9 @@ namespace EventCentric.Polling
             {
                 Task.Factory.StartNewLongRunning(() =>
                 {
-
                     while (!base.stopping)
-                    {
-                        var isStarving = !this.TryFlush(buffer);
-
-                        if (isStarving)
+                        if (!this.TryFlush(buffer))
                             Thread.Sleep(1);
-                    }
                 });
             }
         }
@@ -392,12 +385,8 @@ namespace EventCentric.Polling
         private void KeepTheBufferFull()
         {
             while (!base.stopping)
-            {
-                var isStarving = !this.TryFill();
-
-                if (isStarving)
+                if (!this.TryFill())
                     Thread.Sleep(1);
-            }
         }
 
         public IMonitoredSubscription[] GetSubscriptionsMetrics() => this.bufferPool;

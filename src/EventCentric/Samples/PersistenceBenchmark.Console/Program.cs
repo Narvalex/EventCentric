@@ -31,8 +31,8 @@ namespace PersistenceBenchmark.ConsoleHost
             // 100 througput,   completes in 35 s 10.000 messages    285 m/s
             if (plugin == PersistencePlugin.SqlServer)
             {
-                user1App.StressWithWavesOfConcurrentUsers(wavesCount: 5, concurrentUsers: 1000);
-                user2App.StressWithWavesOfConcurrentUsers(wavesCount: 5, concurrentUsers: 1000);
+                user1App.StressWithWavesOfConcurrentUsers(wavesCount: 100, concurrentUsers: 25);
+                user2App.StressWithWavesOfConcurrentUsers(wavesCount: 100, concurrentUsers: 25);
             }
 
             // IN-MEMORY-------------------------------------------------------

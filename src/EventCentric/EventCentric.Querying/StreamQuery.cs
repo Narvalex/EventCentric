@@ -19,7 +19,7 @@ namespace EventCentric.Querying
         IDisposable,
         IMessageHandler<NewIncomingEvents>,
         IMessageHandler<PollResponseWasReceived>,
-        IMessageHandler<IncomingEventsHasBeenProcessed>
+        IMessageHandler<IncomingEventHasBeenProcessed>
     {
         private readonly string queryName;
         private readonly InMemorySubscriptionRepository subRepo;
@@ -125,6 +125,7 @@ namespace EventCentric.Querying
                     try
                     {
                         this.state = this.handlers[@event.GetType()].Invoke(this.state, @event);
+                        this.bus.Publish(new IncomingEventHasBeenProcessed(@event));
                     }
                     catch (Exception ex)
                     {
@@ -136,7 +137,7 @@ namespace EventCentric.Querying
                 }
             }
 
-            this.bus.Publish(new IncomingEventsHasBeenProcessed(message.IncomingEvents.ToArray()));
+
         }
 
         public void Handle(PollResponseWasReceived message)
@@ -161,24 +162,21 @@ namespace EventCentric.Querying
             }
         }
 
-        public void Handle(IncomingEventsHasBeenProcessed message)
+        public void Handle(IncomingEventHasBeenProcessed message)
         {
-            for (int i = 0; i < message.Events.Length; i++)
+            var e = message.Event;
+            var producer = this.producers.Single(x => x.ProducerName == e.StreamType);
+            if (producer.MaxVersionToReceive == e.EventCollectionVersion)
             {
-                var e = message.Events[i];
-                var producer = this.producers.Single(x => x.ProducerName == e.StreamType);
-                if (producer.MaxVersionToReceive == e.EventCollectionVersion)
+                while (!this.stopping)
                 {
-                    while (!this.stopping)
-                    {
-                        if (this.poller.GetBufferPool().Single(x => x.StreamType == producer.ProducerName).CurrentBufferVersion >= producer.MaxVersionToReceive)
-                            break;
+                    if (this.poller.GetBufferPool().Single(x => x.StreamType == producer.ProducerName).CurrentBufferVersion >= producer.MaxVersionToReceive)
+                        break;
 
-                        Thread.Sleep(100);
-                    }
-
-                    producer.MarkAsCompleted();
+                    Thread.Sleep(100);
                 }
+
+                producer.MarkAsCompleted();
             }
         }
 

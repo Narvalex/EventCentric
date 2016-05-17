@@ -61,15 +61,11 @@ namespace EventCentric.Handling
             {
                 ThreadPool.UnsafeQueueUserWorkItem(new WaitCallback(_ =>
                 {
-                    var streamCount = stream.Count();
-                    var processedEvents = new IEvent[streamCount];
-                    for (int i = 0; i < streamCount; i++)
+                    foreach (var e in stream)
                     {
-                        var e = stream.ElementAt(i);
                         this.HandleGracefully(e);
-                        processedEvents[i] = e;
+                        this.bus.Publish(new IncomingEventHasBeenProcessed(e));
                     }
-                    this.bus.Publish(new IncomingEventsHasBeenProcessed(processedEvents));
                 }),
                 null);
             }

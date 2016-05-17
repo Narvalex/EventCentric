@@ -2,13 +2,13 @@
 
 namespace EventCentric.Messaging.Events
 {
-    public struct IncomingEventsHasBeenProcessed : IMessage
+    public struct IncomingEventHasBeenProcessed : IMessage
     {
-        public IncomingEventsHasBeenProcessed(IEvent[] events)
+        public IncomingEventHasBeenProcessed(IEvent e)
         {
-            this.Events = events;
+            this.Event = e;
         }
 
-        public IEvent[] Events { get; }
+        public IEvent Event { get; }
     }
 }
