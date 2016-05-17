@@ -49,6 +49,7 @@ namespace EventCentric.Publishing
                 return PollResponse.CreateSerializedResponse(true, false, this.streamType, newEvents, consumerVersion, ecv);
 
             bool newEventsWereFound = false;
+            var errorDetected = false;
             var stopwatch = Stopwatch.StartNew();
             while (!this.stopping && stopwatch.Elapsed < this.longPollingTimeout)
             {
@@ -74,6 +75,7 @@ namespace EventCentric.Publishing
                     {
                         // Lo que le paso a charly.
                         newEventsWereFound = false;
+                        errorDetected = true;
                         var errorMessage = $"There is an error in the event store or a racy condition. The consumer [{consumerName}] version is {consumerVersion} and the local event collection version should be {ecv} but it is not.";
                         this.log.Error(errorMessage);
                         this.bus.Publish(new FatalErrorOcurred(new FatalErrorException(errorMessage)));
@@ -85,7 +87,7 @@ namespace EventCentric.Publishing
                     break;
             }
 
-            return PollResponse.CreateSerializedResponse(false, newEventsWereFound, this.streamType, newEvents, consumerVersion, ecv);
+            return PollResponse.CreateSerializedResponse(errorDetected, newEventsWereFound, this.streamType, newEvents, consumerVersion, ecv);
         }
     }
 }
