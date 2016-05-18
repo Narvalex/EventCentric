@@ -7,7 +7,7 @@
     <ProjectGuid>{A0C65487-79DD-4E96-A2BC-364392CDFD52}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>EventCentric.net4.Authorization</RootNamespace>
+    <RootNamespace>EventCentric.Authorization</RootNamespace>
     <AssemblyName>EventCentric.net4.Authorization</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
