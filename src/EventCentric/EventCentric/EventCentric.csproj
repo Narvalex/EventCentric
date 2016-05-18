@@ -136,7 +136,6 @@
     <Compile Include="Serialization\ITextSerializer.cs" />
     <Compile Include="Serialization\JsonTextSerializerWithIdentedFormatting.cs" />
     <Compile Include="Serialization\JsonTextSerializer.cs" />
-    <Compile Include="Serialization\TextSerializerExtensionsForDataContract.cs" />
     <Compile Include="Serialization\TextSerializerExtensions.cs" />
     <Compile Include="Polling\EventInProcessorBucket.cs" />
     <Compile Include="Polling\LongPoller.cs" />

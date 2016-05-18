@@ -77,8 +77,14 @@ namespace EventCentric.Authorization
 
         private IEnumerable<T> GetAuthAttributes<T>(HttpActionDescriptor descriptor) where T : class
         {
+#if NET461
             return descriptor.GetCustomAttributes<T>(true)
                     .Concat(descriptor.ControllerDescriptor.GetCustomAttributes<T>(true));
+#endif
+#if NET4
+            return descriptor.GetCustomAttributes<T>()
+                    .Concat(descriptor.ControllerDescriptor.GetCustomAttributes<T>());
+#endif
         }
 
         bool IsApiPageRequested(HttpActionContext actionContext)
