@@ -6,7 +6,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Caching;
-using System.Threading;
 
 namespace EventCentric.Persistence
 {
@@ -25,10 +24,11 @@ namespace EventCentric.Persistence
 
         private readonly Func<bool, IEventStoreDbContext> contextFactory;
         private readonly Action<T, IEventStoreDbContext> denormalizeIfApplicable;
+        private readonly Func<IEvent, DateTime, InboxEntity> inboxEntityFactory;
 
         private readonly object dbLock = new object();
 
-        public OrmEventStore(string streamType, ITextSerializer serializer, Func<bool, IEventStoreDbContext> contextFactory, IUtcTimeProvider time, IGuidProvider guid, ILogger log)
+        public OrmEventStore(string streamType, ITextSerializer serializer, Func<bool, IEventStoreDbContext> contextFactory, IUtcTimeProvider time, IGuidProvider guid, ILogger log, bool persistIncomingPayloads)
         {
             Ensure.NotNullNeitherEmtpyNorWhiteSpace(streamType, nameof(streamType));
             Ensure.NotNull(serializer, nameof(serializer));
@@ -64,6 +64,29 @@ namespace EventCentric.Persistence
                 if (context.Events.Any(e => e.StreamType == this.streamType))
                     this.eventCollectionVersion = context.Events.Where(e => e.StreamType == this.streamType).Max(e => e.EventCollectionVersion);
             }
+            this.CurrentEventCollectionVersion = this.eventCollectionVersion;
+
+            if (persistIncomingPayloads)
+                this.inboxEntityFactory = (IEvent incomingEvent, DateTime localNow) => new InboxEntity
+                {
+                    InboxStreamType = this.streamType,
+                    EventId = incomingEvent.EventId,
+                    TransactionId = incomingEvent.TransactionId,
+                    StreamType = incomingEvent.StreamType,
+                    StreamId = incomingEvent.StreamId,
+                    Version = incomingEvent.Version,
+                    EventType = incomingEvent.GetType().Name,
+                    EventCollectionVersion = incomingEvent.EventCollectionVersion,
+                    CreationLocalTime = localNow,
+                    Payload = this.serializer.Serialize(incomingEvent)
+                };
+            else
+                this.inboxEntityFactory = (IEvent incomingEvent, DateTime localNow) => new InboxEntity
+                {
+                    InboxStreamType = this.streamType,
+                    EventId = incomingEvent.EventId,
+                    CreationLocalTime = localNow
+                };
         }
 
         public T Find(Guid id)
@@ -159,21 +182,7 @@ namespace EventCentric.Persistence
                     var localNow = this.time.Now.ToLocalTime();
 
                     // Log the incoming message in the inbox
-                    var message = new InboxEntity
-                    {
-                        InboxStreamType = this.streamType,
-                        EventId = incomingEvent.EventId,
-                        TransactionId = incomingEvent.TransactionId,
-                        StreamType = incomingEvent.StreamType,
-                        StreamId = incomingEvent.StreamId,
-                        Version = incomingEvent.Version,
-                        EventType = incomingEvent.GetType().Name,
-                        EventCollectionVersion = incomingEvent.EventCollectionVersion,
-                        CreationLocalTime = localNow,
-                        Ignored = false,
-                        Payload = this.serializer.Serialize(incomingEvent)
-                    };
-                    context.Inbox.Add(message);
+                    context.Inbox.Add(this.inboxEntityFactory.Invoke(incomingEvent, localNow));
 
                     // Update subscription
                     try
@@ -255,11 +264,11 @@ namespace EventCentric.Persistence
                         {
                             for (int i = 0; i < pendingEvents.Count; i++)
                             {
-                                var ecv = Interlocked.Increment(ref this.eventCollectionVersion);
+                                this.eventCollectionVersion += 1;
                                 var @event = pendingEvents[i];
-                                ((Message)@event).EventCollectionVersion = ecv;
+                                ((Message)@event).EventCollectionVersion = this.eventCollectionVersion;
                                 var entity = eventEntities[i];
-                                entity.EventCollectionVersion = ecv;
+                                entity.EventCollectionVersion = this.eventCollectionVersion;
                                 entity.Payload = this.serializer.Serialize(@event);
                                 context.Events.Add(entity);
                             }

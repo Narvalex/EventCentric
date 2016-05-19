@@ -29,10 +29,11 @@ namespace EventCentric.Persistence
         private readonly ConcurrentBag<SubscriptionEntity> Subscriptions = new ConcurrentBag<SubscriptionEntity>();
         private readonly ConcurrentBag<SnapshotEntity> Snapshots = new ConcurrentBag<SnapshotEntity>();
         private readonly ConcurrentBag<InboxEntity> Inbox = new ConcurrentBag<InboxEntity>();
+        private readonly Func<IEvent, InboxEntity> inboxEntityFactory;
 
         private readonly object dbLock = new object();
 
-        public InMemoryEventStore(string microserviceName, IUtcTimeProvider time, ITextSerializer serializer, IGuidProvider guid, ILogger log)
+        public InMemoryEventStore(string microserviceName, IUtcTimeProvider time, ITextSerializer serializer, IGuidProvider guid, ILogger log, bool persistIncomingPayloads)
         {
             Ensure.NotNull(microserviceName, nameof(microserviceName));
             Ensure.NotNull(time, nameof(time));
@@ -56,8 +57,19 @@ namespace EventCentric.Persistence
             Ensure.CastIsValid(fromStreamConstructor, "Type T must have a constructor with the following signature: .ctor(Guid, IEnumerable<IEvent>)");
             this.aggregateFactory = (id, streamOfEvents) => (T)fromStreamConstructor.Invoke(new object[] { id, streamOfEvents });
 
+            if (persistIncomingPayloads)
+                this.inboxEntityFactory = incomingEvent => new InboxEntity
+                {
+                    InboxStreamType = this.streamType,
+                    EventId = incomingEvent.EventId,
+                    Payload = this.serializer.Serialize(incomingEvent)
+                };
+            else
+                this.inboxEntityFactory = incomingEvent => new InboxEntity { InboxStreamType = this.streamType, EventId = incomingEvent.EventId };
+
             if (this.Events.Any(e => e.StreamType == this.streamType))
                 this.eventCollectionVersion = this.Events.Where(e => e.StreamType == this.streamType).Max(e => e.EventCollectionVersion);
+            this.CurrentEventCollectionVersion = this.eventCollectionVersion;
         }
 
         public InMemoryEventStore<T> Setup(IEnumerable<SubscriptionEntity> subscriptions)
@@ -77,7 +89,6 @@ namespace EventCentric.Persistence
             return new EventStoreStats(this.Events.Count(), this.Inbox.Count());
         }
 
-        #region EventDao
         public SerializedEvent[] FindEvents(long fromEventCollectionVersion, int quantity)
         {
             return this.Events
@@ -95,7 +106,6 @@ namespace EventCentric.Persistence
                     : this.Events.Where(e => e.StreamType == this.streamType)
                         .Max(e => e.EventCollectionVersion);
         }
-        #endregion
 
         #region SubscriptionRepository
         public void FlagSubscriptionAsPoisoned(IEvent poisonedEvent, PoisonMessageException exception)
@@ -192,21 +202,7 @@ namespace EventCentric.Persistence
                 var localNow = this.time.Now.ToLocalTime();
 
                 // Log the incoming message in the inbox
-                var message = new InboxEntity
-                {
-                    InboxStreamType = this.streamType,
-                    EventId = incomingEvent.EventId,
-                    TransactionId = incomingEvent.TransactionId,
-                    StreamType = incomingEvent.StreamType,
-                    StreamId = incomingEvent.StreamId,
-                    Version = incomingEvent.Version,
-                    EventType = incomingEvent.GetType().Name,
-                    EventCollectionVersion = incomingEvent.EventCollectionVersion,
-                    CreationLocalTime = localNow,
-                    Ignored = false,
-                    Payload = this.serializer.Serialize(incomingEvent)
-                };
-                this.Inbox.Add(message);
+                this.Inbox.Add(this.inboxEntityFactory.Invoke(incomingEvent));
 
                 // Update subscription
                 try
@@ -287,15 +283,18 @@ namespace EventCentric.Persistence
                     {
                         for (int i = 0; i < pendingEvents.Count; i++)
                         {
-                            var ecv = Interlocked.Increment(ref this.eventCollectionVersion);
+                            this.eventCollectionVersion += 1;
                             var @event = pendingEvents[i];
-                            ((Message)@event).EventCollectionVersion = ecv;
+                            ((Message)@event).EventCollectionVersion = this.eventCollectionVersion;
                             var entity = eventEntities[i];
-                            entity.EventCollectionVersion = ecv;
+                            entity.EventCollectionVersion = this.eventCollectionVersion;
                             entity.Payload = this.serializer.Serialize(@event);
+
                             this.Events.Add(entity);
                         }
 
+                        var random = new Random();
+                        Thread.Sleep(random.Next(1, 100));
                         this.CurrentEventCollectionVersion = this.eventCollectionVersion;
                     }
                     catch (Exception ex)

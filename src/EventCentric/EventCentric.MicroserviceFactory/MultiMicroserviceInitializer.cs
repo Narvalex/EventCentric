@@ -18,7 +18,7 @@ namespace EventCentric.MicroserviceFactory
 
         public static void Run(
             IUnityContainer mainContainer,
-            Func<List<IMicroservice>> microservicesFactory,
+            Func<IEnumerable<IMicroservice>> microservicesFactories,
             bool useSignalRLog = true,
             bool verbose = true,
             params IPollableEventSource[] ocassionallyConnectedSources)
@@ -34,7 +34,7 @@ namespace EventCentric.MicroserviceFactory
                 multiContainer = new MultiMicroserviceContainer(
                     mainContainer.Resolve<IBus>(),
                     mainContainer.Resolve<ILogger>(),
-                    microservicesFactory.Invoke());
+                    microservicesFactories.Invoke());
 
                 var inMemoryEventPublisher = mainContainer.Resolve<IInMemoryEventPublisher>();
                 ocassionallyConnectedSources.ForEach(x => inMemoryEventPublisher.Register(x));

@@ -9,7 +9,6 @@ using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Runtime.Caching;
-using System.Threading;
 
 namespace EventCentric.Persistence
 {
@@ -26,12 +25,13 @@ namespace EventCentric.Persistence
 
         private readonly Func<Guid, IEnumerable<IEvent>, T> aggregateFactory;
         private readonly Func<Guid, ISnapshot, T> originatorAggregateFactory;
+        private readonly Action<SqlConnection, SqlTransaction, DateTime, IEvent> addToInboxFactory;
 
         private readonly string connectionString;
         private readonly SqlClientLite sql;
         private readonly object dbLock = new object();
 
-        public OptimizedEventStore(string streamType, ITextSerializer serializer, string connectionString, IUtcTimeProvider time, IGuidProvider guid, ILogger log)
+        public OptimizedEventStore(string streamType, ITextSerializer serializer, string connectionString, IUtcTimeProvider time, IGuidProvider guid, ILogger log, bool persistIncomingPayloads)
         {
             Ensure.NotNullNeitherEmtpyNorWhiteSpace(streamType, nameof(streamType));
             Ensure.NotNull(serializer, nameof(serializer));
@@ -60,6 +60,12 @@ namespace EventCentric.Persistence
             this.aggregateFactory = (id, streamOfEvents) => (T)fromStreamConstructor.Invoke(new object[] { id, streamOfEvents });
 
             this.eventCollectionVersion = this.GetLatestEventCollectionVersionFromDb();
+            this.CurrentEventCollectionVersion = this.eventCollectionVersion;
+
+            if (persistIncomingPayloads)
+                this.addToInboxFactory = this.AddToInboxWithPayload;
+            else
+                this.addToInboxFactory = this.AddToInboxWithoutPayload;
         }
 
         private long GetLatestEventCollectionVersionFromDb()
@@ -222,25 +228,7 @@ namespace EventCentric.Persistence
                         try
                         {
                             // Log the incoming message in the inbox
-                            using (var command = connection.CreateCommand())
-                            {
-                                command.Transaction = transaction;
-                                command.CommandType = CommandType.Text;
-                                command.CommandText = this.addToInboxCommand;
-                                command.Parameters.Add(new SqlParameter("@InboxStreamType", this.streamType));
-                                command.Parameters.Add(new SqlParameter("@EventId", incomingEvent.EventId));
-                                command.Parameters.Add(new SqlParameter("@TransactionId", incomingEvent.TransactionId));
-                                command.Parameters.Add(new SqlParameter("@StreamType", incomingEvent.StreamType));
-                                command.Parameters.Add(new SqlParameter("@StreamId", incomingEvent.StreamId));
-                                command.Parameters.Add(new SqlParameter("@Version", incomingEvent.Version));
-                                command.Parameters.Add(new SqlParameter("@EventType", incomingEvent.GetType().Name));
-                                command.Parameters.Add(new SqlParameter("@EventCollectionVersion", incomingEvent.EventCollectionVersion));
-                                command.Parameters.Add(new SqlParameter("@CreationLocalTime", localNow));
-                                command.Parameters.Add(new SqlParameter("@Ignored", false));
-                                command.Parameters.Add(new SqlParameter("@Payload", this.serializer.Serialize(incomingEvent)));
-
-                                command.ExecuteNonQuery();
-                            }
+                            this.addToInboxFactory.Invoke(connection, transaction, localNow, incomingEvent);
 
                             // Update subscription
                             using (var command = connection.CreateCommand())
@@ -302,11 +290,11 @@ namespace EventCentric.Persistence
                                 {
                                     for (int i = 0; i < pendingEvents.Count; i++)
                                     {
-                                        var ecv = Interlocked.Increment(ref this.eventCollectionVersion);
+                                        this.eventCollectionVersion += 1;
                                         var @event = pendingEvents[i];
-                                        ((Message)@event).EventCollectionVersion = ecv;
+                                        ((Message)@event).EventCollectionVersion = this.eventCollectionVersion;
                                         var entity = eventEntities[i];
-                                        entity.EventCollectionVersion = ecv;
+                                        entity.EventCollectionVersion = this.eventCollectionVersion;
                                         entity.Payload = this.serializer.Serialize(@event);
 
                                         // Insert each event
@@ -371,6 +359,43 @@ namespace EventCentric.Persistence
                 }
 
                 throw;
+            }
+        }
+
+        private void AddToInboxWithPayload(SqlConnection connection, SqlTransaction transaction, DateTime localNow, IEvent incomingEvent)
+        {
+            using (var command = connection.CreateCommand())
+            {
+                command.Transaction = transaction;
+                command.CommandType = CommandType.Text;
+                command.CommandText = this.addToInboxWithPayloadCommand;
+                command.Parameters.Add(new SqlParameter("@InboxStreamType", this.streamType));
+                command.Parameters.Add(new SqlParameter("@EventId", incomingEvent.EventId));
+                command.Parameters.Add(new SqlParameter("@TransactionId", incomingEvent.TransactionId));
+                command.Parameters.Add(new SqlParameter("@StreamType", incomingEvent.StreamType));
+                command.Parameters.Add(new SqlParameter("@StreamId", incomingEvent.StreamId));
+                command.Parameters.Add(new SqlParameter("@Version", incomingEvent.Version));
+                command.Parameters.Add(new SqlParameter("@EventType", incomingEvent.GetType().Name));
+                command.Parameters.Add(new SqlParameter("@EventCollectionVersion", incomingEvent.EventCollectionVersion));
+                command.Parameters.Add(new SqlParameter("@CreationLocalTime", localNow));
+                command.Parameters.Add(new SqlParameter("@Payload", this.serializer.Serialize(incomingEvent)));
+
+                command.ExecuteNonQuery();
+            }
+        }
+
+        private void AddToInboxWithoutPayload(SqlConnection connection, SqlTransaction transaction, DateTime localNow, IEvent incomingEvent)
+        {
+            using (var command = connection.CreateCommand())
+            {
+                command.Transaction = transaction;
+                command.CommandType = CommandType.Text;
+                command.CommandText = this.addToInboxWithoutPayloadCommand;
+                command.Parameters.Add(new SqlParameter("@InboxStreamType", this.streamType));
+                command.Parameters.Add(new SqlParameter("@EventId", incomingEvent.EventId));
+                command.Parameters.Add(new SqlParameter("@CreationLocalTime", localNow));
+
+                command.ExecuteNonQuery();
             }
         }
 
@@ -443,7 +468,7 @@ where StreamType = @StreamType
 and StreamId = @StreamId
 order by [Version] desc";
 
-        private readonly string addToInboxCommand =
+        private readonly string addToInboxWithPayloadCommand =
 @"INSERT INTO [EventStore].[Inbox]
     ([InboxStreamType]
     ,[EventId]
@@ -453,7 +478,6 @@ order by [Version] desc";
     ,[Version]
     ,[EventType]
     ,[EventCollectionVersion]
-    ,[Ignored]
     ,[CreationLocalTime]
     ,[Payload])
 VALUES
@@ -465,9 +489,18 @@ VALUES
     @Version, 
     @EventType, 
     @EventCollectionVersion, 
-    @Ignored, 
     @CreationLocalTime,
     @Payload)";
+
+        private readonly string addToInboxWithoutPayloadCommand =
+@"INSERT INTO [EventStore].[Inbox]
+    ([InboxStreamType]
+    ,[EventId]
+    ,[CreationLocalTime])
+VALUES
+    (@InboxStreamType, 
+    @EventId,
+    @CreationLocalTime)";
 
         private readonly string updateSubscriptionCommand =
 @"UPDATE [EventStore].[Subscriptions]

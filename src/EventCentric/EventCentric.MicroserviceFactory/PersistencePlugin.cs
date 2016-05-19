@@ -4,7 +4,6 @@ using EventCentric.Persistence;
 using EventCentric.Persistence.SqlServer;
 using EventCentric.Persistence.SqlServerCe;
 using EventCentric.Polling;
-using EventCentric.Publishing;
 using EventCentric.Serialization;
 using EventCentric.Utils;
 using Microsoft.Practices.Unity;
@@ -22,7 +21,9 @@ namespace EventCentric.MicroserviceFactory
     public static class PersistencePluginResolver<TStream> where TStream : class, IEventSourced
     {
         public static IUnityContainer ResolvePersistence(IUnityContainer container, PersistencePlugin selectedPlugin, string microserviceName,
-            string connectionString,                                            // Sql Based persistence
+            string connectionString,
+            bool persistIncomingPayloads,
+            // Sql Based persistence
             Func<InMemoryEventStore<TStream>, InMemoryEventStore<TStream>> setupInMemoryPersistence)
         {
             switch (selectedPlugin)
@@ -33,20 +34,22 @@ namespace EventCentric.MicroserviceFactory
                         container.Resolve<IUtcTimeProvider>(),
                         container.Resolve<ITextSerializer>(),
                         container.Resolve<IGuidProvider>(),
-                        container.Resolve<ILogger>());
+                        container.Resolve<ILogger>(),
+                        persistIncomingPayloads);
 
-                    setupInMemoryPersistence.Invoke(persitence);
+                    if (setupInMemoryPersistence != null)
+                        setupInMemoryPersistence.Invoke(persitence);
 
                     container.RegisterInstance<ISubscriptionRepository>(persitence);
                     container.RegisterInstance<IEventStore<TStream>>(persitence);
                     break;
 
                 case PersistencePlugin.SqlServer:
-                    ResolveForSqlServer(container, microserviceName, connectionString);
+                    ResolveForSqlServer(container, microserviceName, connectionString, persistIncomingPayloads);
                     break;
 
                 case PersistencePlugin.SqlServerCe:
-                    ResolveForSqlServerCe(container, microserviceName, connectionString);
+                    ResolveForSqlServerCe(container, microserviceName, connectionString, persistIncomingPayloads);
                     break;
 
                 default:
@@ -56,7 +59,7 @@ namespace EventCentric.MicroserviceFactory
             return container;
         }
 
-        private static void ResolveForSqlServer(IUnityContainer container, string microserviceName, string connectionString)
+        private static void ResolveForSqlServer(IUnityContainer container, string microserviceName, string connectionString, bool persistIncomingPayloads)
         {
             Func<bool, EventStoreDbContext> storeContextFactory = isReadOnly => new EventStoreDbContext(isReadOnly, connectionString);
             Func<bool, EventQueueDbContext> queueContextFactory = isReadOnly => new EventQueueDbContext(isReadOnly, connectionString);
@@ -67,11 +70,11 @@ namespace EventCentric.MicroserviceFactory
             var subscriptionRepository = new SubscriptionRepository(storeContextFactory, microserviceName, serializer, time);
             container.RegisterInstance<ISubscriptionRepository>(subscriptionRepository);
 
-            var eventStore = new OptimizedEventStore<TStream>(microserviceName, serializer, connectionString, time, container.Resolve<IGuidProvider>(), container.Resolve<ILogger>());
+            var eventStore = new OptimizedEventStore<TStream>(microserviceName, serializer, connectionString, time, container.Resolve<IGuidProvider>(), container.Resolve<ILogger>(), persistIncomingPayloads);
             container.RegisterInstance<IEventStore<TStream>>(eventStore);
         }
 
-        private static void ResolveForSqlServerCe(IUnityContainer container, string microserviceName, string connectionString)
+        private static void ResolveForSqlServerCe(IUnityContainer container, string microserviceName, string connectionString, bool persistIncomingPayloads)
         {
             Func<bool, EventStoreCeDbContext> storeContextFactory = isReadOnly =>
                 new EventStoreCeDbContext(isReadOnly, connectionString);
@@ -85,7 +88,7 @@ namespace EventCentric.MicroserviceFactory
             var subscriptionRepository = new SubscriptionRepository(storeContextFactory, microserviceName, serializer, time);
             container.RegisterInstance<ISubscriptionRepository>(subscriptionRepository);
 
-            var eventStore = new OrmEventStore<TStream>(microserviceName, serializer, storeContextFactory, time, container.Resolve<IGuidProvider>(), container.Resolve<ILogger>());
+            var eventStore = new OrmEventStore<TStream>(microserviceName, serializer, storeContextFactory, time, container.Resolve<IGuidProvider>(), container.Resolve<ILogger>(), persistIncomingPayloads);
             container.RegisterInstance<IEventStore<TStream>>(eventStore);
         }
     }

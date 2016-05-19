@@ -116,15 +116,14 @@ CREATE TABLE[EventStore].[Inbox](
 	[InboxStreamType] [nvarchar](128) NOT NULL,
     [EventId] [uniqueidentifier] NOT NULL,
 	CONSTRAINT EventStore_Inbox_EventId UNIQUE(EventId),
-    [TransactionId] [uniqueidentifier] NOT NULL,
-	[StreamType] [nvarchar] (255) NOT NULL,
-    [StreamId] [uniqueidentifier] NOT NULL,
-    [Version] [bigint] NOT NULL,
-    [EventType] [nvarchar] (255) NOT NULL,
-    [EventCollectionVersion] [bigint] NOT NULL,
-    [Ignored] [bit] NULL,
+    [TransactionId] [uniqueidentifier] NULL,
+	[StreamType] [nvarchar] (255) NULL,
+    [StreamId] [uniqueidentifier] NULL,
+    [Version] [bigint] NULL,
+    [EventType] [nvarchar] (255) NULL,
+    [EventCollectionVersion] [bigint] NULL,
     [CreationLocalTime] [datetime] NOT NULL,
-	[Payload] [nvarchar] (max) NOT NULL
+	[Payload] [nvarchar] (max) NULL
 
 PRIMARY KEY CLUSTERED
 (

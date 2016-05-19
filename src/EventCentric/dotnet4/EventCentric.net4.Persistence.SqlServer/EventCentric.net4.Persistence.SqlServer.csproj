@@ -62,6 +62,9 @@
     <Compile Include="..\..\EventCentric.Persistence.SqlServer\Database\TransientFaultHandlingDbConfiguration.cs">
       <Link>Database\TransientFaultHandlingDbConfiguration.cs</Link>
     </Compile>
+    <Compile Include="..\..\EventCentric.Persistence.SqlServer\OptimizedEventStore.cs">
+      <Link>Repository\OptimizedEventStore.cs</Link>
+    </Compile>
     <Compile Include="..\..\EventCentric.Persistence.SqlServer\Repository\EventQueueDbContext.cs">
       <Link>Repository\EventQueueDbContext.cs</Link>
     </Compile>
@@ -95,7 +98,6 @@
     <Compile Include="..\..\EventCentric.Persistence.SqlServer\Repository\ViewDao.cs">
       <Link>Repository\ViewDao.cs</Link>
     </Compile>
-    <Compile Include="OptimizedEventStore.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

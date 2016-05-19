@@ -1,4 +1,5 @@
 ﻿using EventCentric.Config;
+using System;
 
 namespace EventCentric.MicroserviceFactory
 {
@@ -6,12 +7,27 @@ namespace EventCentric.MicroserviceFactory
     {
         internal static IEventStoreConfig ResolveConfig(IEventStoreConfig providedConfig)
         {
-            return providedConfig != null ? providedConfig : EventStoreConfig.GetConfig();
+            try
+            {
+                return providedConfig != null ? providedConfig : EventStoreConfig.GetConfig();
+            }
+            catch (ArgumentNullException)
+            {
+                return new HardcodedEventStoreConfig();
+            }
+
         }
 
         internal static IPollerConfig ResolveConfig(IPollerConfig providedConfig)
         {
-            return providedConfig != null ? providedConfig : PollerConfig.GetConfig();
+            try
+            {
+                return providedConfig != null ? providedConfig : PollerConfig.GetConfig();
+            }
+            catch (ArgumentNullException)
+            {
+                return new HardcodedPollerConfig();
+            }
         }
     }
 }

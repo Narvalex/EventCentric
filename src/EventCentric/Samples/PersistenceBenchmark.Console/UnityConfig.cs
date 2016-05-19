@@ -16,6 +16,7 @@ namespace PersistenceBenchmark
     /// </summary>
     public class UnityConfig
     {
+        private static bool persistIncomingEvents = false;
 
         public static StatsMonitor StatsMonitor = new StatsMonitor();
         private static PersistencePlugin plugin;
@@ -61,17 +62,17 @@ namespace PersistenceBenchmark
 
                 UserContainer1 = ContainerFactory.ResolveDependenciesForNewChildContainer(container);
                 services.Add(MicroserviceFactory<UserManagement, UserManagementHandler>
-                    .CreateEventProcessorWithApp<UserAppService>("user1", "user1_app", UserContainer1, user1Config, null, plugin,
+                    .CreateEventProcessorWithApp<UserAppService>("user1", "user1_app", UserContainer1, user1Config, null, plugin, persistIncomingEvents,
                         SetupInMemoryPersistence<UserManagement>));
 
                 UserContainer2 = ContainerFactory.ResolveDependenciesForNewChildContainer(container);
                 services.Add(MicroserviceFactory<UserManagement, UserManagementHandler>
-                    .CreateEventProcessorWithApp<UserAppService>("user2", "user2_app", UserContainer2, user2Config, null, plugin,
+                    .CreateEventProcessorWithApp<UserAppService>("user2", "user2_app", UserContainer2, user2Config, null, plugin, persistIncomingEvents,
                         SetupInMemoryPersistence<UserManagement>));
 
                 PromotionsContainer = ContainerFactory.ResolveDependenciesForNewChildContainer(container);
                 services.Add(MicroserviceFactory<Promotions, PromotionsHandler>.
-                    CreateEventProcessor("promo", PromotionsContainer, promotionsConfig, null, plugin,
+                    CreateEventProcessor("promo", PromotionsContainer, promotionsConfig, null, plugin, persistIncomingEvents,
                         SetupInMemoryPersistence<Promotions>));
 
                 return services;

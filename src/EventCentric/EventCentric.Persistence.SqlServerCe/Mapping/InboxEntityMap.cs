@@ -42,7 +42,6 @@ namespace EventCentric.Persistence
             this.Property(t => t.Version).HasColumnName("Version");
             this.Property(t => t.EventType).HasColumnName("EventType");
             this.Property(t => t.EventCollectionVersion).HasColumnName("EventCollectionVersion");
-            this.Property(t => t.Ignored).HasColumnName("Ignored");
             this.Property(t => t.CreationLocalTime).HasColumnName("CreationLocalTime");
             this.Property(t => t.Payload).HasColumnName("Payload");
         }

@@ -34,6 +34,7 @@ namespace EventCentric
             IEventStoreConfig eventStoreConfig = null,
             IPollerConfig pollerConfig = null,
             PersistencePlugin selectedPlugin = PersistencePlugin.SqlServer,
+            bool persistIncomingPayloads = true,
             Func<InMemoryEventStore<TStream>, InMemoryEventStore<TStream>> setupInMemoryPersistence = null,
             bool isSubscriptor = true,
             Func<IBus, ILogger, IEventStore<TStream>, THandler> processorFactory = null)
@@ -49,7 +50,7 @@ namespace EventCentric
             AuthorizationFactory.SetToken(eventStoreConfig);
 
             PersistencePluginResolver<TStream>.ResolvePersistence(
-                container, selectedPlugin, streamFullName, connectionString, setupInMemoryPersistence);
+                container, selectedPlugin, streamFullName, connectionString, persistIncomingPayloads, setupInMemoryPersistence);
 
             var log = container.Resolve<ILogger>();
 
@@ -99,6 +100,7 @@ namespace EventCentric
             IEventStoreConfig eventStoreConfig = null,
             IPollerConfig pollerConfig = null,
             PersistencePlugin selectedPlugin = PersistencePlugin.SqlServer,
+            bool persistIncomingPayloads = true,
             Func<InMemoryEventStore<TStream>, InMemoryEventStore<TStream>> setupInMemoryPersistence = null,
             bool isSubscriptor = true,
             Func<IGuidProvider, ILogger, string, int, TApp> appFactory = null,
@@ -118,7 +120,7 @@ namespace EventCentric
             AuthorizationFactory.SetToken(eventStoreConfig);
 
             PersistencePluginResolver<TStream>.ResolvePersistence(
-                container, selectedPlugin, streamFullName, connectionString, setupInMemoryPersistence);
+                container, selectedPlugin, streamFullName, connectionString, persistIncomingPayloads, setupInMemoryPersistence);
 
             var log = container.Resolve<ILogger>();
 
@@ -187,6 +189,7 @@ namespace EventCentric
             IUnityContainer container,
             IEventStoreConfig eventStoreConfig = null,
             IPollerConfig pollerConfig = null,
+            bool persistIncomingPayloads = true,
             Func<IBus, ILogger, IEventStore<TStream>, THandler> processorFactory = null)
                 where TDbContext : DbContext, IEventStoreDbContext
         {
@@ -216,7 +219,7 @@ namespace EventCentric
             var dbContextConstructor = typeof(TDbContext).GetConstructor(new[] { typeof(bool), typeof(string) });
             Ensure.CastIsValid(dbContextConstructor, "Type TDbContext must have a constructor with the following signature: ctor(bool, string)");
             Func<bool, IEventStoreDbContext> dbContextFactory = isReadOnly => (TDbContext)dbContextConstructor.Invoke(new object[] { isReadOnly, connectionString });
-            var eventStore = new OrmEventStore<TStream>(streamFullName, serializer, dbContextFactory, time, guid, log);
+            var eventStore = new OrmEventStore<TStream>(streamFullName, serializer, dbContextFactory, time, guid, log, persistIncomingPayloads);
             container.RegisterInstance<IEventStore<TStream>>(eventStore);
 
             var bus = new Bus();

@@ -209,7 +209,7 @@ namespace EventCentric.Polling
 
             if (message.Response.ErrorDetected)
             {
-                this.log.Error($"An error was detected while polling {message.Response.StreamType}");
+                this.log.Error($"An error was detected while polling {message.Response.StreamType}. The error will be ignored and polling will continue with safety.");
                 subscription.IsPolling = false;
                 return;
             }

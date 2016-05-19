@@ -15,21 +15,21 @@ namespace EventCentric.Persistence.SqlServer
                 .HasMaxLength(255);
 
             this.Property(t => t.StreamType)
-                .IsRequired()
+                .IsOptional()
                 .HasMaxLength(255);
 
             this.Property(t => t.EventType)
-                .IsRequired()
+                .IsOptional()
                 .HasMaxLength(255);
 
             this.Property(t => t.Payload)
-                .IsRequired();
+                .IsOptional();
 
             this.Property(t => t.EventCollectionVersion)
-                .IsRequired();
+                .IsOptional();
 
             this.Property(t => t.TransactionId)
-                .IsRequired();
+                .IsOptional();
 
             // Table & Column Mappings
             this.ToTable("Inbox", "EventStore");
@@ -42,7 +42,6 @@ namespace EventCentric.Persistence.SqlServer
             this.Property(t => t.Version).HasColumnName("Version");
             this.Property(t => t.EventType).HasColumnName("EventType");
             this.Property(t => t.EventCollectionVersion).HasColumnName("EventCollectionVersion");
-            this.Property(t => t.Ignored).HasColumnName("Ignored");
             this.Property(t => t.CreationLocalTime).HasColumnName("CreationLocalTime");
             this.Property(t => t.Payload).HasColumnName("Payload");
         }

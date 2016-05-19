@@ -24,13 +24,12 @@ namespace EventCentric.Persistence
         public long InboxId { get; set; }
         public string InboxStreamType { get; set; }
         public Guid EventId { get; set; }
-        public Guid TransactionId { get; set; }
+        public Guid? TransactionId { get; set; }
         public string StreamType { get; set; }
-        public Guid StreamId { get; set; }
-        public long Version { get; set; }
+        public Guid? StreamId { get; set; }
+        public long? Version { get; set; }
         public string EventType { get; set; }
-        public long EventCollectionVersion { get; set; }
-        public bool Ignored { get; set; }
+        public long? EventCollectionVersion { get; set; }
         public DateTime CreationLocalTime { get; set; }
         public string Payload { get; set; }
     }
@@ -47,13 +46,26 @@ namespace EventCentric.Persistence
 
     public class SubscriptionEntity
     {
+        /// <summary>
+        /// The subscriber's stream unique name
+        /// </summary>
         public string SubscriberStreamType { get; set; }
+
+        /// <summary>
+        /// The producer's stream name
+        /// </summary>
         public string StreamType { get; set; }
+
+        /// <summary>
+        /// The url of the producer. If the producer shares memory with the consumer, 
+        /// then the url should be "none"
+        /// </summary>
         public string Url { get; set; }
         public string Token { get; set; }
         public long ProcessorBufferVersion { get; set; }
         public bool IsPoisoned { get; set; }
         public bool WasCanceled { get; set; }
+
         /// <summary>
         /// The event collection version of the poisoned message.
         /// </summary>

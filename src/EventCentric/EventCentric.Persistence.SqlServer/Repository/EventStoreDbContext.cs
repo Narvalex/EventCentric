@@ -1,4 +1,3 @@
-using EventCentric.Database;
 using System.Data.Entity;
 
 namespace EventCentric.Persistence.SqlServer
