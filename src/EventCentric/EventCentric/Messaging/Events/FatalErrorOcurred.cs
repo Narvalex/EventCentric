@@ -1,7 +1,12 @@
-﻿namespace EventCentric.Messaging.Events
+﻿using System.Threading;
+
+namespace EventCentric.Messaging.Events
 {
-    public struct FatalErrorOcurred : IMessage
+    public class FatalErrorOcurred : SystemMessage
     {
+        private static readonly int TypeId = Interlocked.Increment(ref NextMessageId);
+        public override int MessageTypeId { get { return TypeId; } }
+
         public FatalErrorOcurred(FatalErrorException exception)
         {
             this.Exception = exception;

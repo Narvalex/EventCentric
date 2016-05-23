@@ -10,7 +10,7 @@ namespace PersistenceBenchmark.ConsoleHost
 
         static void Main(string[] args)
         {
-            var plugin = DbManager.SetPlugin(PersistencePlugin.InMemory);
+            var plugin = DbManager.SetPlugin(PersistencePlugin.SqlServer);
 
             PrintWelcomeMessage(plugin);
 
@@ -28,15 +28,15 @@ namespace PersistenceBenchmark.ConsoleHost
 
 
             // SQL SERVER ADO.NET --------------------------------------------
-            // 100 througput,   completes in 34 s 10.000 messages    294 m/s
+            // 100 througput,   completes in 20 s 7.633 messages    381 m/s
             if (plugin == PersistencePlugin.SqlServer)
             {
-                user1App.StressWithWavesOfConcurrentUsers(wavesCount: 100, concurrentUsers: 25);
-                user2App.StressWithWavesOfConcurrentUsers(wavesCount: 100, concurrentUsers: 25);
+                user1App.StressWithWavesOfConcurrentUsers(wavesCount: 5, concurrentUsers: 1000);
+                user2App.StressWithWavesOfConcurrentUsers(wavesCount: 5, concurrentUsers: 1000);
             }
 
             // IN-MEMORY-------------------------------------------------------
-            // 100 througput,   completes in 0:20 s 16.567 messgaes    828 m/s
+            // 100 througput,   completes in 0:20 s 17.380 messgaes    869 m/s
             if (plugin == PersistencePlugin.InMemory)
             {
                 user1App.StressWithWavesOfConcurrentUsers(wavesCount: 5, concurrentUsers: 1000);
@@ -58,6 +58,8 @@ namespace PersistenceBenchmark.ConsoleHost
                 UnityConfig.StatsMonitor.PrintStats();
 
             DbManager.DropDb(plugin);
+            Console.WriteLine("Press enter to exit...");
+            Console.ReadLine();
         }
 
         private static void PrintWelcomeMessage(PersistencePlugin plugin)

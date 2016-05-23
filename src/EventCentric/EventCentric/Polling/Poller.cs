@@ -397,5 +397,14 @@ namespace EventCentric.Polling
             pool.AddRange(this.bufferPool);
             return pool;
         }
+
+        protected override void RegisterHandlersInBus(IBusRegistry bus)
+        {
+            bus.Register<StartEventPoller>(this);
+            bus.Register<StopEventPoller>(this);
+            bus.Register<PollResponseWasReceived>(this);
+            bus.Register<IncomingEventHasBeenProcessed>(this);
+            bus.Register<IncomingEventIsPoisoned>(this);
+        }
     }
 }

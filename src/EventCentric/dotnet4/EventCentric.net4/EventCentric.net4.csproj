@@ -192,6 +192,9 @@
     <Compile Include="..\..\EventCentric\Messaging\PoisonMessageException.cs">
       <Link>Messaging\PoisonMessageException.cs</Link>
     </Compile>
+    <Compile Include="..\..\EventCentric\Messaging\SystemMessage.cs">
+      <Link>SystemMessage.cs</Link>
+    </Compile>
     <Compile Include="..\..\EventCentric\Messaging\Worker.cs">
       <Link>Messaging\Worker.cs</Link>
     </Compile>
@@ -209,9 +212,6 @@
     </Compile>
     <Compile Include="..\..\EventCentric\Microservice\INamedEventSource.cs">
       <Link>Microservice\INamedEventSource.cs</Link>
-    </Compile>
-    <Compile Include="..\..\EventCentric\Microservice\MicroserviceBase.cs">
-      <Link>Microservice\MicroserviceBase.cs</Link>
     </Compile>
     <Compile Include="..\..\EventCentric\Microservice\MicroserviceHost.cs">
       <Link>Microservice\MicroserviceHost.cs</Link>

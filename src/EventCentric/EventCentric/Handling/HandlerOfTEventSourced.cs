@@ -211,5 +211,12 @@ namespace EventCentric.Handling
                 this.log.Trace($"{name} is automatically ignoring message of type {message.GetType().Name} because no handling method where found");
             return new MessageHandling(true, default(Guid), () => null);
         }
+
+        protected override void RegisterHandlersInBus(IBusRegistry bus)
+        {
+            bus.Register<StartEventProcessor>(this);
+            bus.Register<StopEventProcessor>(this);
+            bus.Register<NewIncomingEvents>(this);
+        }
     }
 }

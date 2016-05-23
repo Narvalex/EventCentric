@@ -194,6 +194,13 @@ namespace EventCentric.Querying
             internal void MarkAsCompleted() => this.PollCompleted = true;
         }
 
+        protected override void RegisterHandlersInBus(IBusRegistry bus)
+        {
+            bus.Register<NewIncomingEvents>(this);
+            bus.Register<PollResponseWasReceived>(this);
+            bus.Register<IncomingEventHasBeenProcessed>(this);
+        }
+
         #region IDisposable Support
         protected virtual void Dispose(bool disposing)
         {

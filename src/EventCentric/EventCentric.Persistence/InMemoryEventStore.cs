@@ -9,7 +9,6 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Caching;
-using System.Threading;
 
 namespace EventCentric.Persistence
 {
@@ -92,7 +91,9 @@ namespace EventCentric.Persistence
         public SerializedEvent[] FindEvents(long fromEventCollectionVersion, int quantity)
         {
             return this.Events
-                        .Where(e => e.StreamType == this.streamType && e.EventCollectionVersion > fromEventCollectionVersion)
+                        .Where(e => e.StreamType == this.streamType
+                                    && e.EventCollectionVersion > fromEventCollectionVersion
+                                    && e.EventCollectionVersion <= this.CurrentEventCollectionVersion)
                         .OrderBy(e => e.EventCollectionVersion)
                         .Take(quantity)
                         .Select(e => new SerializedEvent(e.EventCollectionVersion, e.Payload))
@@ -293,8 +294,8 @@ namespace EventCentric.Persistence
                             this.Events.Add(entity);
                         }
 
-                        var random = new Random();
-                        Thread.Sleep(random.Next(1, 100));
+                        //var random = new Random();
+                        //Thread.Sleep(random.Next(0, 1000));
                         this.CurrentEventCollectionVersion = this.eventCollectionVersion;
                     }
                     catch (Exception ex)

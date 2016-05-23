@@ -126,5 +126,11 @@ namespace EventCentric.Publishing
             this.log.Log($"{this.serverName} publisher stopped");
             this.bus.Publish(new EventPublisherStopped());
         }
+
+        protected override void RegisterHandlersInBus(IBusRegistry bus)
+        {
+            bus.Register<StartEventPublisher>(this);
+            bus.Register<StopEventPublisher>(this);
+        }
     }
 }

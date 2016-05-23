@@ -1,10 +1,14 @@
 ﻿using EventCentric.EventSourcing;
 using System.Collections.Generic;
+using System.Threading;
 
 namespace EventCentric.Messaging.Events
 {
-    public struct NewIncomingEvents : IMessage
+    public class NewIncomingEvents : SystemMessage
     {
+        private static readonly int TypeId = Interlocked.Increment(ref NextMessageId);
+        public override int MessageTypeId { get { return TypeId; } }
+
         public NewIncomingEvents(IEnumerable<IEvent> incomingEvents)
         {
             this.IncomingEvents = incomingEvents;

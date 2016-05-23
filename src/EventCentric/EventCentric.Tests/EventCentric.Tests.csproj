@@ -81,7 +81,6 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Serialization\MessageSerializationFixture.cs" />
     <Compile Include="Serialization\SerializationSpeed.cs" />
-    <Compile Include="Specifications\SpecificationFixture.cs" />
     <Compile Include="TestConfig.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -6,8 +6,10 @@ using System.Linq;
 
 namespace EventCentric.Microservice
 {
-    public class MultiMicroserviceContainer : MicroserviceWorker,
-        IMessageHandler<FatalErrorOcurred>
+    /// <summary>
+    /// This container listens for Fatal error ocurred messages in order to request a system halt.
+    /// </summary>
+    public class MultiMicroserviceContainer : MicroserviceWorker
     {
         private List<IMicroservice> services;
 
@@ -15,7 +17,9 @@ namespace EventCentric.Microservice
             : base(bus, log)
         {
             this.services = services.ToList();
-            this.services.ForEach(s => ((ICanRegisterExternalListeners)s).Register(this));
+            this.services
+                .ForEach(s => ((ICanRegisterExternalListeners)s)
+                    .Register(b => ((IBusRegistry)b).Register<FatalErrorOcurred>(this)));
         }
 
         protected override void OnStarting() => this.services.ForEach(s => s.Start());
@@ -23,5 +27,10 @@ namespace EventCentric.Microservice
         protected override void OnStopping() => this.services.ForEach(s => s.Stop());
 
         public new void Start() => base.Start();
+
+        protected override void RegisterHandlersInBus(IBusRegistry bus)
+        {
+            // no handlers...
+        }
     }
 }

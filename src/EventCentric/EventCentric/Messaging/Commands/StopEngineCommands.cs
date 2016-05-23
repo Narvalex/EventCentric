@@ -1,7 +1,12 @@
-﻿namespace EventCentric.Messaging.Commands
+﻿using System.Threading;
+
+namespace EventCentric.Messaging.Commands
 {
-    public struct StopEventPoller : IMessage
+    public class StopEventPoller : SystemMessage
     {
+        private static readonly int TypeId = Interlocked.Increment(ref NextMessageId);
+        public override int MessageTypeId { get { return TypeId; } }
+
         public StopEventPoller(bool stopSilently = false)
         {
             this.StopSilently = stopSilently;
@@ -10,7 +15,15 @@
         public bool StopSilently { get; }
     }
 
-    public struct StopEventProcessor : IMessage { }
+    public class StopEventProcessor : SystemMessage
+    {
+        private static readonly int TypeId = Interlocked.Increment(ref NextMessageId);
+        public override int MessageTypeId { get { return TypeId; } }
+    }
 
-    public struct StopEventPublisher : IMessage { }
+    public class StopEventPublisher : SystemMessage
+    {
+        private static readonly int TypeId = Interlocked.Increment(ref NextMessageId);
+        public override int MessageTypeId { get { return TypeId; } }
+    }
 }

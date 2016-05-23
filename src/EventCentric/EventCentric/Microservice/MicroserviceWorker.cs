@@ -21,6 +21,10 @@ namespace EventCentric
 
             this.log = log;
             Log = this.log;
+
+            var b = this.bus as IBusRegistry;
+            b.Register<FatalErrorOcurred>(this);
+            this.RegisterHandlersInBus(b);
         }
 
         public static ILogger Log { get; private set; }
@@ -47,5 +51,7 @@ namespace EventCentric
             this.systemHaltRequested = true;
             this.Stop();
         }
+
+        protected abstract void RegisterHandlersInBus(IBusRegistry bus);
     }
 }

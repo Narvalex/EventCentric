@@ -3,12 +3,14 @@ using EventCentric.Messaging;
 using EventCentric.Messaging.Commands;
 using EventCentric.Messaging.Events;
 using EventCentric.Microservice;
+using EventCentric.Utils;
+using System;
 using System.Collections.Generic;
 using System.Threading;
 
 namespace EventCentric
 {
-    public class MicroserviceHost : MicroserviceBase, IMicroservice, ICanRegisterExternalListeners,
+    public class MicroserviceHost : MicroserviceWorker, IMicroservice, ICanRegisterExternalListeners,
         IMessageHandler<EventPublisherStarted>,
         IMessageHandler<EventHandlerStarted>,
         IMessageHandler<EventPollerStarted>,
@@ -19,11 +21,17 @@ namespace EventCentric
         private bool hasPoller;
 
         public MicroserviceHost(string eventSourceName, IBus bus, ILogger log, bool hasPoller)
-            : base(eventSourceName, bus, log)
+            : base(bus, log)
         {
             this.Status = WorkerStatus.Down;
             this.hasPoller = hasPoller;
+
+            Ensure.NotNullNeitherEmtpyNorWhiteSpace(eventSourceName, "name");
+
+            this.Name = eventSourceName;
         }
+
+        public string Name { get; private set; }
 
         public WorkerStatus Status { get; private set; }
 
@@ -65,7 +73,32 @@ namespace EventCentric
 
         protected override void OnStarting()
         {
-            base.OnStarting();
+            var isRelease = true;
+#if DEBUG
+            isRelease = false;
+#endif
+            var logLines = new string[6];
+            if (isRelease)
+                logLines[1] = $"| RELEASE build detected";
+            else
+                logLines[1] = $"| DEBUG build detected";
+
+            int workerThreads;
+            int completionPortThreads;
+            ThreadPool.GetAvailableThreads(out workerThreads, out completionPortThreads);
+            var processorCount = Environment.ProcessorCount;
+
+            var mo = new System.Management.ManagementObject("Win32_Processor.DeviceID='CPU0'");
+            var cpuSpeed = (uint)(mo["CurrentClockSpeed"]);
+            mo.Dispose();
+
+            logLines[0] = $"| Starting {this.Name} microservice...";
+            logLines[2] = string.Format("| Worker threads: {0}", workerThreads);
+            logLines[3] = string.Format("| OSVersion:      {0}", Environment.OSVersion);
+            logLines[4] = string.Format("| ProcessorCount: {0}", processorCount);
+            logLines[5] = string.Format("| ClockSpeed:     {0} MHZ", cpuSpeed);
+
+            this.log.Log($"", logLines);
 
             if (!this.hasPoller)
                 this.log.Log("No poller detected");
@@ -99,8 +132,10 @@ namespace EventCentric
             }
         }
 
-        public void Register(ISystemHandler externalListener) =>
-           ((IBusRegistry)base.bus).Register(externalListener);
+        public void Register(Action<IBus> externalRegistrationInLocalBus)
+        {
+            externalRegistrationInLocalBus.Invoke(this.bus);
+        }
 
         public void Handle(EventPollerStarted message)
         {
@@ -154,6 +189,16 @@ namespace EventCentric
                 else
                     Thread.Sleep(100);
             }
+        }
+
+        protected override void RegisterHandlersInBus(IBusRegistry bus)
+        {
+            bus.Register<EventPublisherStarted>(this);
+            bus.Register<EventHandlerStarted>(this);
+            bus.Register<EventPollerStarted>(this);
+            bus.Register<EventPollerStopped>(this);
+            bus.Register<EventProcessorStopped>(this);
+            bus.Register<EventPublisherStopped>(this);
         }
     }
 }

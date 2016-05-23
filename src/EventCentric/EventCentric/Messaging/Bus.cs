@@ -1,41 +1,38 @@
-﻿using System;
+﻿using EventCentric.Utils;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace EventCentric.Messaging
 {
-    // A synchronous bus. Sync is more faster!
+    /// <summary>
+    ///  A synchronous bus. Sync is more faster!
+    /// </summary>
     public class Bus : IBus, IBusRegistry
     {
-        private Dictionary<Type, List<ISystemHandler>> handlersByMessageType = new Dictionary<Type, List<ISystemHandler>>();
+        private readonly List<IMessageHandler>[] handlers;
 
-        public void Publish(IMessage message)
+        public Bus()
         {
-            List<ISystemHandler> handlers;
-            if (this.handlersByMessageType.TryGetValue(message.GetType(), out handlers))
-                handlers.ForEach(handler => ((dynamic)handler).Handle((dynamic)message));
-            else
-                throw new InvalidOperationException($"There are any handler registered for system message of type {message.GetType().FullName}");
+            this.handlers = new List<IMessageHandler>[SystemMessageIdGuardian.MaxMessageTypeId + 1];
+            for (int i = 0; i < this.handlers.Length; i++)
+                handlers[i] = new List<IMessageHandler>();
         }
 
-        public void Register(ISystemHandler handler)
+        public void Publish(SystemMessage message)
         {
-            var genericHandler = typeof(IMessageHandler<>);
-            handler
-            .GetType()
-            .GetInterfaces()
-            .Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == genericHandler)
-            .Select(i => i.GetGenericArguments()[0])
-            .ForEach(messageType =>
+            var handlers = this.handlers[message.MessageTypeId];
+            for (int i = 0; i < handlers.Count; i++)
             {
-                List<ISystemHandler> handlers;
-                if (!this.handlersByMessageType.TryGetValue(messageType, out handlers))
-                {
-                    handlers = new List<ISystemHandler>();
-                    this.handlersByMessageType[messageType] = handlers;
-                }
-                handlers.Add(handler);
-            });
+                var handler = handlers[i];
+                handler.TryHandle(message);
+            }
+        }
+
+        public void Register<T>(IMessageHandler<T> handler) where T : SystemMessage
+        {
+            Ensure.NotNull(handler, nameof(handler));
+
+            this.handlers[SystemMessageIdGuardian.MessageTypeIdByType[typeof(T)]]
+                .Add(new MessageHandler<T>(handler));
         }
     }
 }

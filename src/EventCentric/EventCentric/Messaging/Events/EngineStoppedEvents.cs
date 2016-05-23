@@ -1,8 +1,22 @@
-﻿namespace EventCentric.Messaging.Events
+﻿using System.Threading;
+
+namespace EventCentric.Messaging.Events
 {
-    public struct EventPollerStopped : IMessage { }
+    public class EventPollerStopped : SystemMessage
+    {
+        private static readonly int TypeId = Interlocked.Increment(ref NextMessageId);
+        public override int MessageTypeId { get { return TypeId; } }
+    }
 
-    public struct EventProcessorStopped : IMessage { }
+    public class EventProcessorStopped : SystemMessage
+    {
+        private static readonly int TypeId = Interlocked.Increment(ref NextMessageId);
+        public override int MessageTypeId { get { return TypeId; } }
+    }
 
-    public struct EventPublisherStopped : IMessage { }
+    public class EventPublisherStopped : SystemMessage
+    {
+        private static readonly int TypeId = Interlocked.Increment(ref NextMessageId);
+        public override int MessageTypeId { get { return TypeId; } }
+    }
 }
