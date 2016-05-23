@@ -2,11 +2,11 @@
 
 namespace EventCentric.Handling
 {
-    public interface IHandles<T> where T : IEvent
+    public interface IHandle<T> where T : IEvent
     {
         IMessageHandling Handle(T message);
     }
 
-    public interface IExceptionHandler : IHandles<AnInvalidOperationExceptionOccurred>
+    public interface IExceptionHandler : IHandle<AnInvalidOperationExceptionOccurred>
     { }
 }

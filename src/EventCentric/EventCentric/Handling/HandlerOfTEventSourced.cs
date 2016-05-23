@@ -13,25 +13,33 @@ using System.Threading;
 
 namespace EventCentric.Handling
 {
-    public abstract class HandlerOf<TEventSourced> : MicroserviceWorker,
+    public abstract class HandlerOf<TEventSourced> : MicroserviceWorker, IProcessor,
         IMessageHandler<StartEventProcessor>,
         IMessageHandler<StopEventProcessor>,
         IMessageHandler<NewIncomingEvents>,
-        IHandles<IEvent>
+        IHandle<IEvent>
             where TEventSourced : class, IEventSourced
     {
-        private static readonly string name = typeof(TEventSourced).Name;
+        private readonly string name;
+        private readonly string appStreamName;
         private readonly IEventStore<TEventSourced> store;
         private readonly Func<Guid, TEventSourced> newAggregateFactory;
         private readonly ConcurrentDictionary<string, object> streamLocksById;
         private readonly ConcurrentBag<Guid> poisonedStreams;
 
+        protected readonly IGuidProvider guid;
+        private long appStreamVersion = 0;
+
         public HandlerOf(IBus bus, ILogger log, IEventStore<TEventSourced> store)
             : base(bus, log)
         {
-            Ensure.NotNull(store, "store");
+            Ensure.NotNull(store, nameof(store));
 
             this.store = store;
+            this.guid = new SequentialGuid(); // very important that transactions are sequential, for polling results.
+
+            this.name = this.store.StreamName;
+            this.appStreamName = $"{this.name}_App";
 
             this.streamLocksById = new ConcurrentDictionary<string, object>();
             this.poisonedStreams = new ConcurrentBag<Guid>();
@@ -49,6 +57,25 @@ namespace EventCentric.Handling
                 this.log.Trace($"{name} is handling a message of type {@event.GetType().Name} from {@event.StreamType}");
 
             this.HandleGracefully(@event);
+        }
+
+        public Guid Send(Guid streamId, Message message)
+        {
+            var version = Interlocked.Increment(ref this.appStreamVersion);
+            var utcNow = DateTime.UtcNow;
+
+            message.TransactionId = this.guid.NewGuid();
+            message.StreamId = streamId;
+            message.StreamType = this.appStreamName;
+            message.Version = version;
+            message.EventId = Guid.NewGuid();
+            message.EventCollectionVersion = version;
+            message.LocalTime = utcNow.ToLocalTime();
+            message.UtcTime = utcNow;
+
+            this.HandleGracefully(message);
+
+            return message.TransactionId;
         }
 
         public void Handle(NewIncomingEvents message)

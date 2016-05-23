@@ -37,81 +37,12 @@ namespace EventCentric
             bool persistIncomingPayloads = true,
             Func<InMemoryEventStore<TStream>, InMemoryEventStore<TStream>> setupInMemoryPersistence = null,
             bool isSubscriptor = true,
-            Func<IBus, ILogger, IEventStore<TStream>, THandler> processorFactory = null)
-        {
-            var inMemoryPublisher = container.Resolve<IInMemoryEventPublisher>();
-
-            var streamFullName = EnsureStreamCategoryNameIsValid(uniqueName);
-
-            eventStoreConfig = ConfigResolver.ResolveConfig(eventStoreConfig);
-
-            var connectionString = eventStoreConfig.ConnectionString;
-
-            AuthorizationFactory.SetToken(eventStoreConfig);
-
-            PersistencePluginResolver<TStream>.ResolvePersistence(
-                container, selectedPlugin, streamFullName, connectionString, persistIncomingPayloads, setupInMemoryPersistence);
-
-            var log = container.Resolve<ILogger>();
-
-            var eventStore = container.Resolve<IEventStore<TStream>>();
-
-            var bus = new Bus();
-            container.RegisterInstance<IBus>(bus);
-
-            var publisher = new Publisher(streamFullName, eventStore, bus, log, eventStoreConfig.PushMaxCount, TimeSpan.FromMilliseconds(eventStoreConfig.LongPollingTimeout));
-            container.RegisterInstance<IPollableEventSource>(publisher);
-
-            var fsm = new MicroserviceHost(streamFullName, bus, log, isSubscriptor);
-            container.RegisterInstance<IMicroservice>(fsm);
-
-            // Processor factory
-            if (processorFactory == null)
-            {
-                var constructor = typeof(THandler).GetConstructor(new[] { typeof(IBus), typeof(ILogger), typeof(IEventStore<TStream>) });
-                Ensure.CastIsValid(constructor, "Type TProcessor must have a valid constructor with the following signature: .ctor(IBus, ILogger, IEventStore<T>)");
-                var processor = (THandler)constructor.Invoke(new object[] { bus, log, eventStore });
-            }
-            else
-            {
-                var processor = processorFactory.Invoke(bus, log, eventStore);
-            }
-
-            // For nodes that polls events from subscribed sources
-            if (isSubscriptor)
-            {
-                pollerConfig = ConfigResolver.ResolveConfig(pollerConfig);
-                var receiver = new LongPoller(bus, log, TimeSpan.FromMilliseconds(pollerConfig.Timeout), streamFullName, inMemoryPublisher);
-                var poller = new Poller(bus, log, container.Resolve<ISubscriptionRepository>(), receiver, container.Resolve<ITextSerializer>(), pollerConfig.BufferQueueMaxCount, pollerConfig.EventsToFlushMaxCount);
-                container.RegisterInstance<IMonitoredSubscriber>(poller);
-
-                var heartbeatEmitter = new HeartbeatEmitter(fsm, log, poller);
-                container.RegisterInstance<HeartbeatEmitter>(heartbeatEmitter);
-            }
-
-            inMemoryPublisher.Register(publisher);
-            return fsm;
-        }
-
-        public static IMicroservice CreateEventProcessorWithApp<TApp>(
-            string uniqueName,
-            string appUniqueName,
-            IUnityContainer container,
-            IEventStoreConfig eventStoreConfig = null,
-            IPollerConfig pollerConfig = null,
-            PersistencePlugin selectedPlugin = PersistencePlugin.SqlServer,
-            bool persistIncomingPayloads = true,
-            Func<InMemoryEventStore<TStream>, InMemoryEventStore<TStream>> setupInMemoryPersistence = null,
-            bool isSubscriptor = true,
-            Func<IGuidProvider, ILogger, string, int, TApp> appFactory = null,
             Func<IBus, ILogger, IEventStore<TStream>, THandler> processorFactory = null,
             Func<string, IEventStore, IBus, ILogger, int, TimeSpan, IPollableEventSource> publisherFactory = null)
-                where TApp : ApplicationService
         {
             var inMemoryPublisher = container.Resolve<IInMemoryEventPublisher>();
 
             var streamFullName = EnsureStreamCategoryNameIsValid(uniqueName);
-            var appFullName = EnsureStreamCategoryNameIsValid(appUniqueName);
 
             eventStoreConfig = ConfigResolver.ResolveConfig(eventStoreConfig);
 
@@ -143,44 +74,33 @@ namespace EventCentric
             var fsm = new MicroserviceHost(streamFullName, bus, log, isSubscriptor);
             container.RegisterInstance<IMicroservice>(fsm);
 
+            // Processor factory
+            THandler processor;
             if (processorFactory == null)
             {
                 var constructor = typeof(THandler).GetConstructor(new[] { typeof(IBus), typeof(ILogger), typeof(IEventStore<TStream>) });
                 Ensure.CastIsValid(constructor, "Type TProcessor must have a valid constructor with the following signature: .ctor(IBus, ILogger, IEventStore<T>)");
-                var processor = (THandler)constructor.Invoke(new object[] { bus, log, eventStore });
+                processor = (THandler)constructor.Invoke(new object[] { bus, log, eventStore });
             }
             else
             {
-                var processor = processorFactory.Invoke(bus, log, eventStore);
+                processor = processorFactory.Invoke(bus, log, eventStore);
             }
+            container.RegisterInstance<IProcessor>(processor);
 
             // For nodes that polls events from subscribed sources
-
             if (isSubscriptor)
             {
                 pollerConfig = ConfigResolver.ResolveConfig(pollerConfig);
-                var pollerPool = new LongPoller(bus, log, TimeSpan.FromMilliseconds(pollerConfig.Timeout), streamFullName, inMemoryPublisher);
-                var poller = new Poller(bus, log, container.Resolve<ISubscriptionRepository>(), pollerPool, container.Resolve<ITextSerializer>(), pollerConfig.BufferQueueMaxCount, pollerConfig.EventsToFlushMaxCount);
+                var receiver = new LongPoller(bus, log, TimeSpan.FromMilliseconds(pollerConfig.Timeout), streamFullName, inMemoryPublisher);
+                var poller = new Poller(bus, log, container.Resolve<ISubscriptionRepository>(), receiver, container.Resolve<ITextSerializer>(), pollerConfig.BufferQueueMaxCount, pollerConfig.EventsToFlushMaxCount);
                 container.RegisterInstance<IMonitoredSubscriber>(poller);
 
                 var heartbeatEmitter = new HeartbeatEmitter(fsm, log, poller);
                 container.RegisterInstance<HeartbeatEmitter>(heartbeatEmitter);
             }
 
-            var guid = container.Resolve<IGuidProvider>();
-            if (appFactory == null)
-            {
-                var constructor = typeof(TApp).GetConstructor(new[] { typeof(IGuidProvider), typeof(ILogger), typeof(string), typeof(int) });
-                Ensure.CastIsValid(constructor, "Type TApp must have a valid constructor with the following signature: .ctor(IGuidProvider, ILogger, string, int)");
-                container.RegisterInstance<TApp>((TApp)constructor.Invoke(new object[] { guid, log, appFullName, eventStoreConfig.PushMaxCount }));
-            }
-            else
-            {
-                container.RegisterInstance<TApp>(appFactory.Invoke(guid, log, appFullName, eventStoreConfig.PushMaxCount));
-            }
-
             inMemoryPublisher.Register(publisher);
-            inMemoryPublisher.Register(container.Resolve<TApp>());
             return fsm;
         }
 

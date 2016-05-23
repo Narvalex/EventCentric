@@ -75,7 +75,6 @@
     <Compile Include="StatsMonitor.cs" />
     <Compile Include="UnityConfig.cs" />
     <Compile Include="User\Messages.cs" />
-    <Compile Include="User\UserAppService.cs" />
     <Compile Include="User\UserManagement.cs" />
     <Compile Include="User\UserManagementHandler.cs" />
     <Compile Include="User\UserManagementSnapshot.cs" />

@@ -148,18 +148,6 @@ namespace PersistenceBenchmark
             subs.Add(new SubscriptionEntity
             {
                 SubscriberStreamType = "user1",
-                StreamType = "user1_app",
-                Url = "none",
-                Token = "#token",
-                ProcessorBufferVersion = 0,
-                IsPoisoned = false,
-                WasCanceled = false,
-                CreationLocalTime = DateTime.Now,
-                UpdateLocalTime = DateTime.Now
-            });
-            subs.Add(new SubscriptionEntity
-            {
-                SubscriberStreamType = "user1",
                 StreamType = "user1",
                 Url = "none",
                 Token = "#token",
@@ -195,18 +183,6 @@ namespace PersistenceBenchmark
             });
 
             // user2
-            subs.Add(new SubscriptionEntity
-            {
-                SubscriberStreamType = "user2",
-                StreamType = "user2_app",
-                Url = "none",
-                Token = "#token",
-                ProcessorBufferVersion = 0,
-                IsPoisoned = false,
-                WasCanceled = false,
-                CreationLocalTime = DateTime.Now,
-                UpdateLocalTime = DateTime.Now
-            });
             subs.Add(new SubscriptionEntity
             {
                 SubscriberStreamType = "user2",

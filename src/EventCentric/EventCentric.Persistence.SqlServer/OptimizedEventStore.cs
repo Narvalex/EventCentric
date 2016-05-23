@@ -16,7 +16,7 @@ namespace EventCentric.Persistence
     public class OptimizedEventStore<T> : IEventStore<T> where T : class, IEventSourced
     {
         private long eventCollectionVersion;
-        private readonly string streamType;
+        private readonly string streamName;
         private readonly ILogger log;
         private readonly ITextSerializer serializer;
         private readonly IUtcTimeProvider time;
@@ -31,22 +31,22 @@ namespace EventCentric.Persistence
         private readonly SqlClientLite sql;
         private readonly object dbLock = new object();
 
-        public OptimizedEventStore(string streamType, ITextSerializer serializer, string connectionString, IUtcTimeProvider time, IGuidProvider guid, ILogger log, bool persistIncomingPayloads)
+        public OptimizedEventStore(string streamName, ITextSerializer serializer, string connectionString, IUtcTimeProvider time, IGuidProvider guid, ILogger log, bool persistIncomingPayloads)
         {
-            Ensure.NotNullNeitherEmtpyNorWhiteSpace(streamType, nameof(streamType));
+            Ensure.NotNullNeitherEmtpyNorWhiteSpace(streamName, nameof(streamName));
             Ensure.NotNull(serializer, nameof(serializer));
             Ensure.NotNullNeitherEmtpyNorWhiteSpace(connectionString, nameof(connectionString));
             Ensure.NotNull(time, nameof(time));
             Ensure.NotNull(guid, nameof(guid));
             Ensure.NotNull(log, nameof(log));
 
-            this.streamType = streamType;
+            this.streamName = streamName;
             this.serializer = serializer;
             this.connectionString = connectionString;
             this.time = time;
             this.guid = guid;
             this.log = log;
-            this.cache = new MemoryCache(streamType);
+            this.cache = new MemoryCache(streamName);
 
             this.sql = new SqlClientLite(this.connectionString, timeoutInSeconds: 120);
 
@@ -66,6 +66,21 @@ namespace EventCentric.Persistence
                 this.addToInboxFactory = this.AddToInboxWithPayload;
             else
                 this.addToInboxFactory = this.AddToInboxWithoutPayload;
+
+            // adding app subscription if missing
+            var appSubCount = this.sql.ExecuteReaderFirstOrDefault(this.tryFindAppSubscription, r => r.GetInt32(0),
+                                new SqlParameter("@SubscriberStreamType", this.streamName),
+                                new SqlParameter("@StreamType", this.streamName + "_App"));
+
+            if (appSubCount == 0)
+            {
+                var now = DateTime.Now;
+                this.sql.ExecuteNonQuery(this.createAppSubscription,
+                    new SqlParameter("@SubscriberStreamType", this.streamName),
+                    new SqlParameter("@StreamType", this.streamName + "_App"),
+                    new SqlParameter("@CreationLocalTime", now),
+                    new SqlParameter("@UpdateLocalTime", now));
+            }
         }
 
         private long GetLatestEventCollectionVersionFromDb()
@@ -82,7 +97,7 @@ namespace EventCentric.Persistence
                                             where StreamType = @StreamType
                                             order by EventCollectionVersion desc";
 
-                    command.Parameters.Add(new SqlParameter("@StreamType", this.streamType));
+                    command.Parameters.Add(new SqlParameter("@StreamType", this.streamName));
 
                     using (var reader = command.ExecuteReader())
                     {
@@ -108,7 +123,7 @@ namespace EventCentric.Persistence
                                          {
                                              Payload = r.GetString("Payload"),
                                          },
-                                         new SqlParameter("@StreamType", this.streamType),
+                                         new SqlParameter("@StreamType", this.streamName),
                                          new SqlParameter("@StreamId", id));
 
                 if (snapshotEntity != null)
@@ -133,7 +148,7 @@ namespace EventCentric.Persistence
             var streamOfEvents =
                 this.sql.ExecuteReader(this.getEventsQuery, r =>
                 this.serializer.Deserialize<IEvent>(r.GetString("Payload")),
-                new SqlParameter("@StreamType", this.streamType),
+                new SqlParameter("@StreamType", this.streamName),
                 new SqlParameter("@StreamId", id))
                 .ToArray();
 
@@ -148,8 +163,8 @@ namespace EventCentric.Persistence
             var aggregate = this.Find(id);
             if (aggregate == null)
             {
-                var ex = new StreamNotFoundException(id, streamType);
-                this.log.Error(ex, string.Format("Stream not found exception for stream {0} with id of {1}", streamType, id));
+                var ex = new StreamNotFoundException(id, streamName);
+                this.log.Error(ex, string.Format("Stream not found exception for stream {0} with id of {1}", streamName, id));
                 throw ex;
             }
 
@@ -192,7 +207,7 @@ namespace EventCentric.Persistence
                     {
                         command.CommandType = CommandType.Text;
                         command.CommandText = this.getStreamVersion;
-                        command.Parameters.Add(new SqlParameter("@StreamType", this.streamType));
+                        command.Parameters.Add(new SqlParameter("@StreamType", this.streamName));
                         command.Parameters.Add(new SqlParameter("@StreamId", eventSourced.Id));
 
                         using (var reader = command.ExecuteReader())
@@ -239,7 +254,7 @@ namespace EventCentric.Persistence
                                 command.Parameters.Add(new SqlParameter("@ProcessorBufferVersion", incomingEvent.ProcessorBufferVersion));
                                 command.Parameters.Add(new SqlParameter("@UpdateLocalTime", localNow));
                                 command.Parameters.Add(new SqlParameter("@StreamType", incomingEvent.StreamType));
-                                command.Parameters.Add(new SqlParameter("@SubscriberStreamType", this.streamType));
+                                command.Parameters.Add(new SqlParameter("@SubscriberStreamType", this.streamName));
 
                                 command.ExecuteNonQuery();
                             }
@@ -250,7 +265,7 @@ namespace EventCentric.Persistence
                                 command.Transaction = transaction;
                                 command.CommandType = CommandType.Text;
                                 command.CommandText = this.insertOrUpdateSnapshot;
-                                command.Parameters.Add(new SqlParameter("@StreamType", this.streamType));
+                                command.Parameters.Add(new SqlParameter("@StreamType", this.streamName));
                                 command.Parameters.Add(new SqlParameter("@StreamId", eventSourced.Id));
                                 command.Parameters.Add(new SqlParameter("@Version", eventSourced.Version));
                                 command.Parameters.Add(new SqlParameter("@Payload", serializedMemento));
@@ -266,12 +281,12 @@ namespace EventCentric.Persistence
                                 var e = (Message)@event;
                                 e.TransactionId = incomingEvent.TransactionId;
                                 e.EventId = this.guid.NewGuid();
-                                e.StreamType = this.streamType;
+                                e.StreamType = this.streamName;
 
                                 eventEntities.Add(
                                     new EventEntity
                                     {
-                                        StreamType = this.streamType,
+                                        StreamType = this.streamName,
                                         StreamId = @event.StreamId,
                                         Version = @event.Version,
                                         EventId = @event.EventId,
@@ -369,7 +384,7 @@ namespace EventCentric.Persistence
                 command.Transaction = transaction;
                 command.CommandType = CommandType.Text;
                 command.CommandText = this.addToInboxWithPayloadCommand;
-                command.Parameters.Add(new SqlParameter("@InboxStreamType", this.streamType));
+                command.Parameters.Add(new SqlParameter("@InboxStreamType", this.streamName));
                 command.Parameters.Add(new SqlParameter("@EventId", incomingEvent.EventId));
                 command.Parameters.Add(new SqlParameter("@TransactionId", incomingEvent.TransactionId));
                 command.Parameters.Add(new SqlParameter("@StreamType", incomingEvent.StreamType));
@@ -391,7 +406,7 @@ namespace EventCentric.Persistence
                 command.Transaction = transaction;
                 command.CommandType = CommandType.Text;
                 command.CommandText = this.addToInboxWithoutPayloadCommand;
-                command.Parameters.Add(new SqlParameter("@InboxStreamType", this.streamType));
+                command.Parameters.Add(new SqlParameter("@InboxStreamType", this.streamName));
                 command.Parameters.Add(new SqlParameter("@EventId", incomingEvent.EventId));
                 command.Parameters.Add(new SqlParameter("@CreationLocalTime", localNow));
 
@@ -423,10 +438,12 @@ namespace EventCentric.Persistence
         {
             cache.Remove(streamId.ToString());
             this.sql.ExecuteNonQuery(this.removeSnapshotCommand,
-                new SqlParameter("@StreamId", streamId), new SqlParameter(@"StreamType", this.streamType));
+                new SqlParameter("@StreamId", streamId), new SqlParameter(@"StreamType", this.streamName));
         }
 
         public long CurrentEventCollectionVersion { get; private set; }
+
+        public string StreamName => this.streamName;
 
         /// <summary>
         /// FindEvents
@@ -437,7 +454,7 @@ namespace EventCentric.Persistence
             return this.sql.ExecuteReader(this.findEventsQuery,
                 r => new SerializedEvent(r.GetInt64("EventCollectionVersion"), r.GetString("Payload")),
                 new SqlParameter("@Quantity", quantity),
-                new SqlParameter("@StreamType", this.streamType),
+                new SqlParameter("@StreamType", this.streamName),
                 new SqlParameter("@LastReceivedVersion", lastReceivedVersion))
                 .ToArray();
         }
@@ -456,6 +473,11 @@ order by [Version]";
 
         private readonly string isDuplicateQuery =
 "select InboxId from eventstore.inbox where EventId = @EventId";
+
+        private readonly string tryFindAppSubscription =
+@"select count(*) from EventStore.Subscriptions
+where SubscriberStreamType = @SubscriberStreamType
+and StreamType = @StreamType";
 
         private readonly string removeSnapshotCommand =
 @"delete from EventStore.Snapshots
@@ -534,6 +556,34 @@ INSERT INTO [EventStore].[Snapshots]
            ,@CreationLocalTime
            ,@UpdateLocalTime)
 END";
+
+        private readonly string createAppSubscription =
+@"INSERT INTO [EventStore].[Subscriptions]
+    ([SubscriberStreamType]
+    ,[StreamType]
+    ,[Url]
+    ,[Token]
+    ,[ProcessorBufferVersion]
+    ,[IsPoisoned]
+    ,[WasCanceled]
+    ,[PoisonEventCollectionVersion]
+    ,[DeadLetterPayload]
+    ,[ExceptionMessage]
+    ,[CreationLocalTime]
+    ,[UpdateLocalTime])
+VALUES
+    (@SubscriberStreamType
+    ,@StreamType
+    ,'none'
+    ,'#token'
+    ,0
+    ,0
+    ,1
+    ,null
+    ,null
+    ,null
+    ,@CreationLocalTime
+    ,@UpdateLocalTime)";
 
         private readonly string appendEventCommand =
 @"INSERT INTO [EventStore].[Events]

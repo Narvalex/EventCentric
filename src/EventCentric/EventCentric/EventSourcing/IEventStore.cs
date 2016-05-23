@@ -4,6 +4,8 @@ namespace EventCentric.EventSourcing
 {
     public interface IEventStore
     {
+        string StreamName { get; }
+
         long CurrentEventCollectionVersion { get; }
 
         SerializedEvent[] FindEvents(long fromEventCollectionVersion, int quantity);

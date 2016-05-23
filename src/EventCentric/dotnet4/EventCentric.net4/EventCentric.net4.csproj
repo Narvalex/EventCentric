@@ -78,9 +78,6 @@
     <Compile Include="..\..\EventCentric\EventSourcing\Event.cs">
       <Link>EventSourcing\Event.cs</Link>
     </Compile>
-    <Compile Include="..\..\EventCentric\EventSourcing\EventExtensions.cs">
-      <Link>EventSourcing\EventExtensions.cs</Link>
-    </Compile>
     <Compile Include="..\..\EventCentric\EventSourcing\EventSourced.cs">
       <Link>EventSourcing\EventSourced.cs</Link>
     </Compile>
@@ -129,11 +126,14 @@
     <Compile Include="..\..\EventCentric\Handling\HandlerOfTEventSourced.cs">
       <Link>Handling\HandlerOfTEventSourced.cs</Link>
     </Compile>
-    <Compile Include="..\..\EventCentric\Handling\IHandles.cs">
-      <Link>Handling\IHandles.cs</Link>
+    <Compile Include="..\..\EventCentric\Handling\IHandle.cs">
+      <Link>Handling\IHandle.cs</Link>
     </Compile>
     <Compile Include="..\..\EventCentric\Handling\IMessageHandling.cs">
       <Link>Handling\IMessageHandling.cs</Link>
+    </Compile>
+    <Compile Include="..\..\EventCentric\IProcessor.cs">
+      <Link>IProcessor.cs</Link>
     </Compile>
     <Compile Include="..\..\EventCentric\Log\ConsoleLogger.cs">
       <Link>Log\ConsoleLogger.cs</Link>
@@ -186,9 +186,6 @@
     <Compile Include="..\..\EventCentric\Messaging\InMemoryEventPublisher.cs">
       <Link>Messaging\InMemoryEventPublisher.cs</Link>
     </Compile>
-    <Compile Include="..\..\EventCentric\Messaging\InMemoryVersioning.cs">
-      <Link>Messaging\InMemoryVersioning.cs</Link>
-    </Compile>
     <Compile Include="..\..\EventCentric\Messaging\PoisonMessageException.cs">
       <Link>Messaging\PoisonMessageException.cs</Link>
     </Compile>
@@ -197,9 +194,6 @@
     </Compile>
     <Compile Include="..\..\EventCentric\Messaging\Worker.cs">
       <Link>Messaging\Worker.cs</Link>
-    </Compile>
-    <Compile Include="..\..\EventCentric\Microservice\ApplicationService.cs">
-      <Link>Microservice\ApplicationService.cs</Link>
     </Compile>
     <Compile Include="..\..\EventCentric\Microservice\ICanRegisterExternalListeners.cs">
       <Link>Microservice\ICanRegisterExternalListeners.cs</Link>

@@ -6,7 +6,7 @@ using EventCentric.Messaging;
 namespace PersistenceBenchmark.PromotionsStream
 {
     public class PromotionsHandler : HandlerOf<Promotions>,
-        IHandles<UserCreatedOrUpdated>
+        IHandle<UserCreatedOrUpdated>
     {
         public PromotionsHandler(IBus bus, ILogger log, IEventStore<Promotions> store) : base(bus, log, store) { }
 

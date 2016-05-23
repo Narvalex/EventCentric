@@ -1,4 +1,5 @@
-﻿using EventCentric.MicroserviceFactory;
+﻿using EventCentric;
+using EventCentric.MicroserviceFactory;
 using Microsoft.Practices.Unity;
 using System;
 
@@ -17,8 +18,8 @@ namespace PersistenceBenchmark.ConsoleHost
             DbManager.ResetDbs(plugin);
             var mainContainer = UnityConfig.GetConfiguredContainer(plugin);
 
-            var user1App = UnityConfig.UserContainer1.Resolve<UserAppService>();
-            var user2App = UnityConfig.UserContainer2.Resolve<UserAppService>();
+            var user1App = (UserManagementHandler)UnityConfig.UserContainer1.Resolve<IProcessor>();
+            var user2App = (UserManagementHandler)UnityConfig.UserContainer2.Resolve<IProcessor>();
 
             // Holding in memory messages
             // Expected: Events: waves * users * 2;
@@ -36,7 +37,7 @@ namespace PersistenceBenchmark.ConsoleHost
             }
 
             // IN-MEMORY-------------------------------------------------------
-            // 100 througput,   completes in 0:20 s 17.380 messgaes    869 m/s
+            // 100 througput,   completes in 0:20 s 17.922 messgaes    896 m/s
             if (plugin == PersistencePlugin.InMemory)
             {
                 user1App.StressWithWavesOfConcurrentUsers(wavesCount: 5, concurrentUsers: 1000);
