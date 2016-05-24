@@ -71,13 +71,13 @@ namespace EventCentric.Persistence
             this.CurrentEventCollectionVersion = this.eventCollectionVersion;
 
             // Add subscription of app, if not exists
-            if (!this.Subscriptions.Any(s => s.SubscriberStreamType == this.streamName && s.StreamType == this.streamName + "_App"))
+            if (!this.Subscriptions.Any(s => s.SubscriberStreamType == this.streamName && s.StreamType == this.streamName + Constants.AppEventStreamNameSufix))
             {
                 // We should add the new subscription
                 this.Subscriptions.Add(new SubscriptionEntity
                 {
                     SubscriberStreamType = this.streamName,
-                    StreamType = this.streamName + "_App",
+                    StreamType = this.streamName + Constants.AppEventStreamNameSufix,
                     Url = "none",
                     Token = "#token",
                     ProcessorBufferVersion = 0,

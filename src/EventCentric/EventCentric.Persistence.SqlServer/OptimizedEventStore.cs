@@ -70,14 +70,14 @@ namespace EventCentric.Persistence
             // adding app subscription if missing
             var appSubCount = this.sql.ExecuteReaderFirstOrDefault(this.tryFindAppSubscription, r => r.GetInt32(0),
                                 new SqlParameter("@SubscriberStreamType", this.streamName),
-                                new SqlParameter("@StreamType", this.streamName + "_App"));
+                                new SqlParameter("@StreamType", this.streamName + Constants.AppEventStreamNameSufix));
 
             if (appSubCount == 0)
             {
                 var now = DateTime.Now;
                 this.sql.ExecuteNonQuery(this.createAppSubscription,
                     new SqlParameter("@SubscriberStreamType", this.streamName),
-                    new SqlParameter("@StreamType", this.streamName + "_App"),
+                    new SqlParameter("@StreamType", this.streamName + Constants.AppEventStreamNameSufix),
                     new SqlParameter("@CreationLocalTime", now),
                     new SqlParameter("@UpdateLocalTime", now));
             }

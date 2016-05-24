@@ -41,7 +41,7 @@ namespace EventCentric
         {
             var streamFullName = EnsureStreamCategoryNameIsValid(uniqueName);
 
-            var container = EventSystem.ResolveNewChildContainer(uniqueName);
+            var container = EventSystem.ResolveNewChildContainerAndRegisterInMemorySubscriptions(uniqueName);
             var inMemoryPublisher = container.Resolve<IInMemoryEventPublisher>();
 
             eventStoreConfig = ConfigResolver.ResolveConfig(eventStoreConfig);
@@ -114,7 +114,7 @@ namespace EventCentric
         {
             var streamFullName = EnsureStreamCategoryNameIsValid(uniqueName);
 
-            var container = EventSystem.ResolveNewChildContainer(streamFullName);
+            var container = EventSystem.ResolveNewChildContainerAndRegisterInMemorySubscriptions(streamFullName);
 
             System.Data.Entity.Database.SetInitializer<TDbContext>(null);
 

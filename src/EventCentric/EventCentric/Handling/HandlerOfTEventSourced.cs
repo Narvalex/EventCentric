@@ -41,7 +41,7 @@ namespace EventCentric.Handling
             this.guid = new SequentialGuid(); // very important that transactions are sequential, for polling results.
 
             this.name = this.store.StreamName;
-            this.appStreamName = $"{this.name}_App";
+            this.appStreamName = this.name + Constants.AppEventStreamNameSufix;
 
             this.streamLocksById = new ConcurrentDictionary<string, object>();
             this.poisonedStreams = new ConcurrentBag<Guid>();

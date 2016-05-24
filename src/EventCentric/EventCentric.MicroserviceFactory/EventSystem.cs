@@ -20,7 +20,6 @@ namespace EventCentric.MicroserviceFactory
         private static readonly object _lockObject = new object();
         private static MultiMicroserviceContainer multiContainer = null;
         private static bool isRunning = false;
-        private static Action resolveCoreObjects;
 
 
         private static IUnityContainer mainContainer;
@@ -45,50 +44,22 @@ namespace EventCentric.MicroserviceFactory
                 System.Data.Entity.Database.SetInitializer<EventStoreDbContext>(null);
                 System.Data.Entity.Database.SetInitializer<EventQueueDbContext>(null);
 
-                resolveCoreObjects = () =>
+
+                mainContainer = ResolveCommonDependenciesForMainContainer(useSignalRLog, verbose);
+
+                multiContainer = new MultiMicroserviceContainer(
+                    mainContainer.Resolve<IBus>(),
+                    mainContainer.Resolve<ILogger>(),
+                    microservicesFactories.Select(f => f.Invoke()));
+
+                if (ocassionallyConnectedSources != null)
                 {
-                    mainContainer = ResolveCommonDependenciesForMainContainer(useSignalRLog, verbose);
-
-                    multiContainer = new MultiMicroserviceContainer(
-                        mainContainer.Resolve<IBus>(),
-                        mainContainer.Resolve<ILogger>(),
-                        microservicesFactories.Select(f => f.Invoke()));
-
-                    if (ocassionallyConnectedSources != null)
-                    {
-                        var inMemoryEventPublisher = mainContainer.Resolve<IInMemoryEventPublisher>();
-                        ocassionallyConnectedSources.ForEach(x => inMemoryEventPublisher.Register(x));
-                    }
-                };
-
-                resolveCoreObjects.Invoke();
+                    var inMemoryEventPublisher = mainContainer.Resolve<IInMemoryEventPublisher>();
+                    ocassionallyConnectedSources.ForEach(x => inMemoryEventPublisher.Register(x));
+                }
 
                 multiContainer.Start();
                 isRunning = true;
-            }
-        }
-
-        public static void Restart()
-        {
-            var log = mainContainer.Resolve<ILogger>();
-            log.Log($"A restart has been requested");
-
-            lock (_lockObject)
-            {
-
-                log.Log($"Stopping all processors...");
-                // Full stop
-                multiContainer.Stop();
-                childContainers.Values.ForEach(c => c.Dispose());
-                childContainers.Clear();
-                multiContainer = null;
-                mainContainer = null;
-                log.Log($"All processors has been stopped.");
-
-                // Restarting;
-                log.Log($"Restarting the event system...");
-                resolveCoreObjects.Invoke();
-                multiContainer.Start();
             }
         }
 
@@ -125,7 +96,7 @@ namespace EventCentric.MicroserviceFactory
             return mainContainer;
         }
 
-        internal static IUnityContainer ResolveNewChildContainer(string microserviceName)
+        internal static IUnityContainer ResolveNewChildContainerAndRegisterInMemorySubscriptions(string microserviceName)
         {
             var newContainer = new UnityContainer();
             newContainer.RegisterInstance<ILogger>(mainContainer.Resolve<ILogger>());

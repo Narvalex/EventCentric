@@ -83,6 +83,7 @@
     <Compile Include="IProcessor.cs" />
     <Compile Include="Log\ConsoleLogger.cs" />
     <Compile Include="Log\LogMessageBuilder.cs" />
+    <Compile Include="Messaging\Commands\AddNewSubscriptionOnTheFly.cs" />
     <Compile Include="Messaging\Events\IncomingEventHasBeenProcessed.cs" />
     <Compile Include="Messaging\IInMemoryEventPublisher.cs" />
     <Compile Include="EventSourcing\Snapshot.cs" />
@@ -149,6 +150,7 @@
     <Compile Include="Publishing\Publisher.cs" />
     <Compile Include="Polling\PollResponse.cs" />
     <Compile Include="Utils\CacheAnyEnumerableExtensions.cs" />
+    <Compile Include="Utils\Constants.cs" />
     <Compile Include="Utils\DisposableExtensions.cs" />
     <Compile Include="Utils\FunctionalExtensions\DictionaryExtensions.cs" />
     <Compile Include="Utils\Ensure.cs" />

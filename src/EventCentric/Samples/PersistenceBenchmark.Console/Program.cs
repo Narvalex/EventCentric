@@ -65,12 +65,8 @@ namespace PersistenceBenchmark.ConsoleHost
                 UnityConfig.StatsMonitor.PrintStats();
             }
 
-            Console.WriteLine("Press [r] to restart or another key to exit...");
-            if (Console.ReadLine() == "r")
-            {
-                EventSystem.Restart();
-                RunBenchmark(plugin);
-            }
+            Console.WriteLine("Press any key to exit...");
+            Console.ReadKey();
         }
 
         private static void PrintWelcomeMessage(PersistencePlugin plugin)

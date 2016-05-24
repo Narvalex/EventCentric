@@ -66,13 +66,13 @@ namespace EventCentric.Persistence
                     this.eventCollectionVersion = context.Events.Where(e => e.StreamType == this.streamName).Max(e => e.EventCollectionVersion);
 
                 // adding subscription if missing
-                if (!context.Subscriptions.Any(s => s.SubscriberStreamType == this.streamName && s.StreamType == this.streamName + "_App"))
+                if (!context.Subscriptions.Any(s => s.SubscriberStreamType == this.streamName && s.StreamType == this.streamName + Constants.AppEventStreamNameSufix))
                 {
                     // We should add the new subscription
                     context.Subscriptions.Add(new SubscriptionEntity
                     {
                         SubscriberStreamType = this.streamName,
-                        StreamType = this.streamName + "_App",
+                        StreamType = this.streamName + Constants.AppEventStreamNameSufix,
                         Url = "none",
                         Token = "#token",
                         ProcessorBufferVersion = 0,

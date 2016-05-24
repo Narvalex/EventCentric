@@ -12,7 +12,6 @@ namespace EventCentric.Transport
 {
     public class LongPoller : Worker, ILongPoller
     {
-        private const string inMemoryTransportUrl = "none";
         private readonly TimeSpan timeout;
         private readonly ILogger log;
         private readonly string pollerName;
@@ -37,7 +36,7 @@ namespace EventCentric.Transport
 
         public void PollSubscription(string streamType, string url, string token, long fromVersion)
         {
-            if (url == inMemoryTransportUrl)
+            if (url == Constants.InMemorySusbscriptionUrl)
                 this.PollInMemory(streamType, fromVersion);
             else
                 this.PollFromHttp(streamType, url, token, fromVersion);

@@ -282,6 +282,9 @@
     <Compile Include="..\..\EventCentric\Utils\CacheAnyEnumerableExtensions.cs">
       <Link>Utils\CacheAnyEnumerableExtensions.cs</Link>
     </Compile>
+    <Compile Include="..\..\EventCentric\Utils\Constants.cs">
+      <Link>Utils\Constants.cs</Link>
+    </Compile>
     <Compile Include="..\..\EventCentric\Utils\DisposableExtensions.cs">
       <Link>Utils\DisposableExtensions.cs</Link>
     </Compile>
