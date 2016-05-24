@@ -11,12 +11,12 @@ namespace EventCentric.Microservice
     /// </summary>
     public class MultiMicroserviceContainer : MicroserviceWorker
     {
-        private List<IMicroservice> services;
+        private readonly IMicroservice[] services;
 
         public MultiMicroserviceContainer(IBus bus, ILogger log, IEnumerable<IMicroservice> services)
             : base(bus, log)
         {
-            this.services = services.ToList();
+            this.services = services.ToArray();
             this.services
                 .ForEach(s => ((ICanRegisterExternalListeners)s)
                     .Register(b => ((IBusRegistry)b).Register<FatalErrorOcurred>(this)));
@@ -27,6 +27,8 @@ namespace EventCentric.Microservice
         protected override void OnStopping() => this.services.ForEach(s => s.Stop());
 
         public new void Start() => base.Start();
+
+        public new void Stop() => base.Stop();
 
         protected override void RegisterHandlersInBus(IBusRegistry bus)
         {

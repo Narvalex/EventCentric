@@ -30,7 +30,6 @@ namespace EventCentric
 
         public static IMicroservice CreateEventProcessor(
             string uniqueName,
-            IUnityContainer container,
             IEventStoreConfig eventStoreConfig = null,
             IPollerConfig pollerConfig = null,
             PersistencePlugin selectedPlugin = PersistencePlugin.SqlServer,
@@ -40,9 +39,10 @@ namespace EventCentric
             Func<IBus, ILogger, IEventStore<TStream>, THandler> processorFactory = null,
             Func<string, IEventStore, IBus, ILogger, int, TimeSpan, IPollableEventSource> publisherFactory = null)
         {
-            var inMemoryPublisher = container.Resolve<IInMemoryEventPublisher>();
-
             var streamFullName = EnsureStreamCategoryNameIsValid(uniqueName);
+
+            var container = EventSystem.ResolveNewChildContainer(uniqueName);
+            var inMemoryPublisher = container.Resolve<IInMemoryEventPublisher>();
 
             eventStoreConfig = ConfigResolver.ResolveConfig(eventStoreConfig);
 
@@ -106,7 +106,6 @@ namespace EventCentric
 
         public static IMicroservice CreateDenormalizer<TDbContext>(
             string uniqueName,
-            IUnityContainer container,
             IEventStoreConfig eventStoreConfig = null,
             IPollerConfig pollerConfig = null,
             bool persistIncomingPayloads = true,
@@ -114,6 +113,8 @@ namespace EventCentric
                 where TDbContext : DbContext, IEventStoreDbContext
         {
             var streamFullName = EnsureStreamCategoryNameIsValid(uniqueName);
+
+            var container = EventSystem.ResolveNewChildContainer(streamFullName);
 
             System.Data.Entity.Database.SetInitializer<TDbContext>(null);
 

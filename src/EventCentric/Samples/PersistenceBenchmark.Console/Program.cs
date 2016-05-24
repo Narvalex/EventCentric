@@ -1,6 +1,4 @@
-﻿using EventCentric;
-using EventCentric.MicroserviceFactory;
-using Microsoft.Practices.Unity;
+﻿using EventCentric.MicroserviceFactory;
 using System;
 
 namespace PersistenceBenchmark.ConsoleHost
@@ -11,15 +9,12 @@ namespace PersistenceBenchmark.ConsoleHost
 
         static void Main(string[] args)
         {
-            var plugin = DbManager.SetPlugin(PersistencePlugin.SqlServer);
+            var plugin = DbManager.SetPlugin(PersistencePlugin.InMemory);
 
             PrintWelcomeMessage(plugin);
 
             DbManager.ResetDbs(plugin);
-            var mainContainer = UnityConfig.GetConfiguredContainer(plugin);
-
-            var user1App = (UserManagementHandler)UnityConfig.UserContainer1.Resolve<IProcessor>();
-            var user2App = (UserManagementHandler)UnityConfig.UserContainer2.Resolve<IProcessor>();
+            UnityConfig.InitializeMainContainer(plugin);
 
             // Holding in memory messages
             // Expected: Events: waves * users * 2;
@@ -27,9 +22,18 @@ namespace PersistenceBenchmark.ConsoleHost
             Console.WriteLine("Press enter to start....");
             Console.ReadLine();
 
+            RunBenchmark(plugin);
+
+            DbManager.DropDb(plugin);
+        }
+
+        private static void RunBenchmark(PersistencePlugin plugin)
+        {
+            var user1App = EventSystem.ResolveProcessor("user1") as UserManagementHandler;
+            var user2App = EventSystem.ResolveProcessor("user2") as UserManagementHandler;
 
             // SQL SERVER ADO.NET --------------------------------------------
-            // 100 througput,   completes in 20 s 7.633 messages    381 m/s
+            // 100 througput,   completes in 20 s 8.763 messages    438 m/s
             if (plugin == PersistencePlugin.SqlServer)
             {
                 user1App.StressWithWavesOfConcurrentUsers(wavesCount: 5, concurrentUsers: 1000);
@@ -37,7 +41,7 @@ namespace PersistenceBenchmark.ConsoleHost
             }
 
             // IN-MEMORY-------------------------------------------------------
-            // 100 througput,   completes in 0:20 s 17.922 messgaes    896 m/s
+            // 100 througput,   completes in 0:20 s 17.643 messgaes    882 m/s
             if (plugin == PersistencePlugin.InMemory)
             {
                 user1App.StressWithWavesOfConcurrentUsers(wavesCount: 5, concurrentUsers: 1000);
@@ -53,14 +57,20 @@ namespace PersistenceBenchmark.ConsoleHost
             //user1App.StressWithWavesOfConcurrentUsers(wavesCount: 1, concurrentUsers: 1);
             //user2App.StressWithWavesOfConcurrentUsers(wavesCount: 1, concurrentUsers: 1);
 
-            Console.WriteLine("Press enter to stop and clean...");
-            Console.ReadLine();
             if (plugin == PersistencePlugin.InMemory)
+            {
+                Console.WriteLine("");
+                Console.WriteLine("Press enter to see results...");
+                Console.ReadLine();
                 UnityConfig.StatsMonitor.PrintStats();
+            }
 
-            DbManager.DropDb(plugin);
-            Console.WriteLine("Press enter to exit...");
-            Console.ReadLine();
+            Console.WriteLine("Press [r] to restart or another key to exit...");
+            if (Console.ReadLine() == "r")
+            {
+                EventSystem.Restart();
+                RunBenchmark(plugin);
+            }
         }
 
         private static void PrintWelcomeMessage(PersistencePlugin plugin)

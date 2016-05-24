@@ -99,15 +99,13 @@
   <ItemGroup>
     <Compile Include="AuthorizationFactory.cs" />
     <Compile Include="ConfigResolver.cs" />
-    <Compile Include="ContainerFactory.cs" />
     <Compile Include="Log\SignalRLogger.cs" />
     <Compile Include="Log\LogHub.cs" />
     <Compile Include="Log\SignalRBase.cs" />
     <Compile Include="MicroserviceFactory.cs" />
-    <Compile Include="MultiMicroserviceInitializer.cs" />
+    <Compile Include="EventSystem.cs" />
     <Compile Include="PersistencePlugin.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="SingleMicroserviceInitializer.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\EventCentric.Authorization\EventCentric.Authorization.csproj">

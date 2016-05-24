@@ -8,7 +8,7 @@ namespace EventCentric.Messaging.Commands
         public override int MessageTypeId { get { return TypeId; } }
     }
 
-    public class StartEventProcessor : SystemMessage
+    public class StartEventHandler : SystemMessage
     {
         private static readonly int TypeId = Interlocked.Increment(ref NextMessageId);
         public override int MessageTypeId { get { return TypeId; } }

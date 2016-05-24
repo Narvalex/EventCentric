@@ -10,12 +10,13 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace EventCentric.Handling
 {
     public abstract class HandlerOf<TEventSourced> : MicroserviceWorker, IProcessor,
-        IMessageHandler<StartEventProcessor>,
-        IMessageHandler<StopEventProcessor>,
+        IMessageHandler<StartEventHandler>,
+        IMessageHandler<StopEventHandler>,
         IMessageHandler<NewIncomingEvents>,
         IHandle<IEvent>
             where TEventSourced : class, IEventSourced
@@ -26,6 +27,7 @@ namespace EventCentric.Handling
         private readonly Func<Guid, TEventSourced> newAggregateFactory;
         private readonly ConcurrentDictionary<string, object> streamLocksById;
         private readonly ConcurrentBag<Guid> poisonedStreams;
+        private readonly ConcurrentQueue<IEvent> eventQueue = new ConcurrentQueue<IEvent>();
 
         protected readonly IGuidProvider guid;
         private long appStreamVersion = 0;
@@ -73,8 +75,7 @@ namespace EventCentric.Handling
             message.LocalTime = utcNow.ToLocalTime();
             message.UtcTime = utcNow;
 
-            this.HandleGracefully(message);
-
+            this.eventQueue.Enqueue(message);
             return message.TransactionId;
         }
 
@@ -83,19 +84,8 @@ namespace EventCentric.Handling
             if (this.log.Verbose)
                 this.log.Trace($"{name} is now handling {message.IncomingEvents.Count()} message/s");
 
-            var streams = message.IncomingEvents.GroupBy(e => e.StreamId);
-            foreach (var stream in streams)
-            {
-                ThreadPool.UnsafeQueueUserWorkItem(new WaitCallback(_ =>
-                {
-                    foreach (var e in stream)
-                    {
-                        this.HandleGracefully(e);
-                        this.bus.Publish(new IncomingEventHasBeenProcessed(e));
-                    }
-                }),
-                null);
-            }
+            foreach (var e in message.IncomingEvents)
+                this.eventQueue.Enqueue(e);
         }
 
         private void HandleGracefully(IEvent incomingEvent)
@@ -193,18 +183,52 @@ namespace EventCentric.Handling
             this.store.Save(eventSourced as TEventSourced, incomingEvent);
         }
 
-        public void Handle(StartEventProcessor message)
+        public void Handle(StartEventHandler message)
         {
             base.Start();
         }
 
-        public void Handle(StopEventProcessor message)
+        public void Handle(StopEventHandler message)
         {
             base.Stop();
         }
 
         protected override void OnStarting()
         {
+            Task.Factory.StartNewLongRunning(() =>
+            {
+                while (!this.stopping)
+                {
+                    if (this.eventQueue.IsEmpty)
+                        Thread.Sleep(1);
+                    else
+                    {
+                        IEvent @event;
+                        var events = new IEvent[this.eventQueue.Count];
+                        for (int i = 0; i < events.Length; i++)
+                        {
+                            this.eventQueue.TryDequeue(out @event);
+                            events[i] = @event;
+                        }
+
+                        // TODO: move this.
+                        var streams = events.GroupBy(e => e.StreamId);
+                        foreach (var stream in streams)
+                        {
+                            ThreadPool.UnsafeQueueUserWorkItem(new WaitCallback(_ =>
+                            {
+                                foreach (var e in stream)
+                                {
+                                    this.HandleGracefully(e);
+                                    this.bus.Publish(new IncomingEventHasBeenProcessed(e));
+                                }
+                            }),
+                            null);
+                        }
+                    }
+                }
+            });
+
             base.log.Log($"{typeof(TEventSourced).Name} handler started");
             base.bus.Publish(new EventHandlerStarted());
 
@@ -241,8 +265,8 @@ namespace EventCentric.Handling
 
         protected override void RegisterHandlersInBus(IBusRegistry bus)
         {
-            bus.Register<StartEventProcessor>(this);
-            bus.Register<StopEventProcessor>(this);
+            bus.Register<StartEventHandler>(this);
+            bus.Register<StopEventHandler>(this);
             bus.Register<NewIncomingEvents>(this);
         }
     }

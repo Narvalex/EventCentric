@@ -7,7 +7,6 @@ using Microsoft.Practices.Unity;
 using PersistenceBenchmark.ConsoleHost;
 using PersistenceBenchmark.PromotionsStream;
 using System;
-using System.Collections.Generic;
 
 namespace PersistenceBenchmark
 {
@@ -18,7 +17,7 @@ namespace PersistenceBenchmark
     {
         private static bool persistIncomingEvents = false;
 
-        public static StatsMonitor StatsMonitor = new StatsMonitor();
+        public static StatsMonitor StatsMonitor;
         private static PersistencePlugin plugin;
 
         #region Unity Container
@@ -32,7 +31,7 @@ namespace PersistenceBenchmark
         /// <summary>
         /// Gets the configured Unity container.
         /// </summary>
-        public static IUnityContainer GetConfiguredContainer(PersistencePlugin plugin)
+        public static IUnityContainer InitializeMainContainer(PersistencePlugin plugin)
         {
             UnityConfig.plugin = plugin;
             return container.Value;
@@ -51,32 +50,22 @@ namespace PersistenceBenchmark
             var user1Config = new DummyEventStoreConfig(DbManager.FixedConnectionstring, baseConfig);
             var user2Config = new DummyEventStoreConfig(DbManager.FixedConnectionstring, baseConfig);
 
-            //SingleMicroserviceInitializer.Run(
-            //    container, () => MicroserviceFactory<UserManagement, UserManagementHandler>
-            //        .CreateEventProcessorWithApp<UserAppService>(container, userConfig),
-            //    !_isConsoleApp);
+            EventSystem.Create(false, Program.VerboseIsEnabled, null,
+               () =>
+               {
+                   StatsMonitor = new StatsMonitor();
+                   return MicroserviceFactory<UserManagement, UserManagementHandler>
+                        .CreateEventProcessor("user1", user1Config, null, plugin, persistIncomingEvents,
+                            SetupInMemoryPersistence<UserManagement>);
+               },
 
-            MultiMicroserviceInitializer.Run(container, () =>
-            {
-                var services = new List<IMicroservice>();
+               () => MicroserviceFactory<UserManagement, UserManagementHandler>
+                    .CreateEventProcessor("user2", user2Config, null, plugin, persistIncomingEvents,
+                        SetupInMemoryPersistence<UserManagement>),
 
-                UserContainer1 = ContainerFactory.ResolveDependenciesForNewChildContainer(container);
-                services.Add(MicroserviceFactory<UserManagement, UserManagementHandler>
-                    .CreateEventProcessor("user1", UserContainer1, user1Config, null, plugin, persistIncomingEvents,
-                        SetupInMemoryPersistence<UserManagement>));
-
-                UserContainer2 = ContainerFactory.ResolveDependenciesForNewChildContainer(container);
-                services.Add(MicroserviceFactory<UserManagement, UserManagementHandler>
-                    .CreateEventProcessor("user2", UserContainer2, user2Config, null, plugin, persistIncomingEvents,
-                        SetupInMemoryPersistence<UserManagement>));
-
-                PromotionsContainer = ContainerFactory.ResolveDependenciesForNewChildContainer(container);
-                services.Add(MicroserviceFactory<Promotions, PromotionsHandler>.
-                    CreateEventProcessor("promo", PromotionsContainer, promotionsConfig, null, plugin, persistIncomingEvents,
+               () => MicroserviceFactory<Promotions, PromotionsHandler>.
+                    CreateEventProcessor("promo", promotionsConfig, null, plugin, persistIncomingEvents,
                         SetupInMemoryPersistence<Promotions>));
-
-                return services;
-            }, false, Program.VerboseIsEnabled);
         }
 
         private static InMemoryEventStore<T> SetupInMemoryPersistence<T>(InMemoryEventStore<T> store) where T : class, IEventSourced
@@ -85,10 +74,6 @@ namespace PersistenceBenchmark
             StatsMonitor.Add(store);
             return store;
         }
-
-        public static IUnityContainer UserContainer1 { get; private set; }
-        public static IUnityContainer UserContainer2 { get; private set; }
-        public static IUnityContainer PromotionsContainer { get; private set; }
 
         public class DummyEventStoreConfig : IEventStoreConfig
         {
@@ -113,6 +98,7 @@ namespace PersistenceBenchmark
             public double LongPollingTimeout { get; }
 
             public int PushMaxCount { get; }
+
             public string Token { get; }
         }
     }

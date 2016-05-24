@@ -86,15 +86,16 @@ namespace EventCentric.Polling
 
         private bool TryFlush(SubscriptionBuffer buffer)
         {
-            long processorBufferVersion;
-            var eventsInQueueCount = buffer.NewEventsQueue.Count();
+
+            //var eventsInQueueCount = buffer.NewEventsQueue.Count();
             //if (eventsInQueueCount < 1 || buffer.EventsInProcessorByEcv.Any(e => !e.Value.WasProcessed))
             //The buffer is empty or there are still events in the processor
             //return false;
 
-            if (eventsInQueueCount < 1)
+            if (buffer.NewEventsQueue.IsEmpty)
                 return false;
 
+            long processorBufferVersion;
             var eventsToProcess = new List<IEvent>();
             if (buffer.EventsInProcessorByEcv.Any(e => !e.Value.WasProcessed))
             {
@@ -176,10 +177,6 @@ namespace EventCentric.Polling
             });
 
             this.bus.Publish(new NewIncomingEvents(streams));
-
-            if (log.Verbose)
-                this.log.Trace($"{this.microserviceName} is handling {eventsToProcess.Count} event/s of {buffer.StreamType} queue with {eventsInQueueCount} event/s pulled from {buffer.Url}");
-
             return true;
         }
 
@@ -290,9 +287,8 @@ namespace EventCentric.Polling
         {
             var e = message.Event;
             this.bufferPool
-            .Where(s => s.StreamType == e.StreamType)
-            .Single()
-            .EventsInProcessorByEcv[e.EventCollectionVersion]
+            .SingleOrDefault(s => s.StreamType == e.StreamType)
+            ?.EventsInProcessorByEcv[e.EventCollectionVersion]
             .MarkEventAsProcessed();
         }
 

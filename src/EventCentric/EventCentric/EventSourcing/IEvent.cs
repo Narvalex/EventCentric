@@ -32,7 +32,7 @@ namespace EventCentric.EventSourcing
         long ProcessorBufferVersion { get; }
 
         /// <summary>
-        /// A hint that lets the system knows that the message is a command.
+        /// A hint that let the system knows that the message is a command.
         /// </summary>
         bool IsACommand { get; }
 

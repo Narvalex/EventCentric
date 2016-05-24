@@ -84,8 +84,8 @@
     <Compile Include="..\..\EventCentric.MicroserviceFactory\ConfigResolver.cs">
       <Link>ConfigResolver.cs</Link>
     </Compile>
-    <Compile Include="..\..\EventCentric.MicroserviceFactory\ContainerFactory.cs">
-      <Link>ContainerFactory.cs</Link>
+    <Compile Include="..\..\EventCentric.MicroserviceFactory\EventSystem.cs">
+      <Link>EventSystem.cs</Link>
     </Compile>
     <Compile Include="..\..\EventCentric.MicroserviceFactory\Log\LogHub.cs">
       <Link>Log\LogHub.cs</Link>
@@ -99,14 +99,8 @@
     <Compile Include="..\..\EventCentric.MicroserviceFactory\MicroserviceFactory.cs">
       <Link>MicroserviceFactory.cs</Link>
     </Compile>
-    <Compile Include="..\..\EventCentric.MicroserviceFactory\MultiMicroserviceInitializer.cs">
-      <Link>MultiMicroserviceInitializer.cs</Link>
-    </Compile>
     <Compile Include="..\..\EventCentric.MicroserviceFactory\PersistencePlugin.cs">
       <Link>PersistencePlugin.cs</Link>
-    </Compile>
-    <Compile Include="..\..\EventCentric.MicroserviceFactory\SingleMicroserviceInitializer.cs">
-      <Link>SingleMicroserviceInitializer.cs</Link>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

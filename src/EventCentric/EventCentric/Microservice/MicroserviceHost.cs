@@ -124,7 +124,7 @@ namespace EventCentric
             {
                 this.Status = WorkerStatus.ShuttingDown;
 
-                this.bus.Publish(new StopEventProcessor());
+                this.bus.Publish(new StopEventHandler());
                 this.bus.Publish(new StopEventPublisher());
                 this.bus.Publish(new StopEventPoller());
                 this.Status = WorkerStatus.Down;
@@ -151,7 +151,7 @@ namespace EventCentric
 
         public void Handle(EventPublisherStarted message)
         {
-            this.bus.Publish(new StartEventProcessor());
+            this.bus.Publish(new StartEventHandler());
         }
 
         public void Handle(EventHandlerStarted message)

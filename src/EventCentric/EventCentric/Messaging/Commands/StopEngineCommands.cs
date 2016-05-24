@@ -15,7 +15,7 @@ namespace EventCentric.Messaging.Commands
         public bool StopSilently { get; }
     }
 
-    public class StopEventProcessor : SystemMessage
+    public class StopEventHandler : SystemMessage
     {
         private static readonly int TypeId = Interlocked.Increment(ref NextMessageId);
         public override int MessageTypeId { get { return TypeId; } }

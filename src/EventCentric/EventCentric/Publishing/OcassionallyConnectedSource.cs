@@ -9,6 +9,10 @@ using System.Threading;
 
 namespace EventCentric.Publishing
 {
+    /// <summary>
+    /// This is the endpoints where the clients can connect to in orther to push events (sync).
+    /// This is hosted by the server.
+    /// </summary>
     public class OcassionallyConnectedSource : IPollableEventSource
     {
         private readonly ConcurrentBag<PollResponse> clientResponse = new ConcurrentBag<PollResponse>();
