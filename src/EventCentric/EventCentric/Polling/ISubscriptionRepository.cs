@@ -8,5 +8,7 @@ namespace EventCentric.Polling
         SubscriptionBuffer[] GetSubscriptions();
 
         void FlagSubscriptionAsPoisoned(IEvent poisonedEvent, PoisonMessageException exception);
+
+        bool TryAddNewSubscriptionOnTheFly(string streamType, string url, string token);
     }
 }

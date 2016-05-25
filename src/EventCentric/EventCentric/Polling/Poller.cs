@@ -7,6 +7,7 @@ using EventCentric.Serialization;
 using EventCentric.Transport;
 using EventCentric.Utils;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
@@ -19,7 +20,8 @@ namespace EventCentric.Polling
         ISystemHandler<StopEventPoller>,
         ISystemHandler<PollResponseWasReceived>,
         ISystemHandler<IncomingEventHasBeenProcessed>,
-        ISystemHandler<IncomingEventIsPoisoned>
+        ISystemHandler<IncomingEventIsPoisoned>,
+        ISystemHandler<AddNewSubscriptionOnTheFly>
     {
         private bool stopSilently = false;
         private string microserviceName;
@@ -38,10 +40,14 @@ namespace EventCentric.Polling
         private readonly int eventsToFlushMaxCount;
 
         private SubscriptionBuffer[] bufferPool;
-
         private Thread thread;
 
-        private readonly object lockObject = new object();
+        private ConcurrentBag<SubscriptionBuffer> onTheFlyBufferPool;
+        private Thread onTheFlyThread;
+        private bool onTheFlySubscriptionsDetected = false;
+
+        private readonly object lockObjectForOnTheFlySub = new object();
+        private readonly object lockObjectForPoisonedSubs = new object();
 
         public Poller(IBus bus, ILogger log, ISubscriptionRepository repository, ILongPoller poller, ITextSerializer serializer,
             int queueMaxCount, int eventsToFlushMaxCount)
@@ -176,7 +182,7 @@ namespace EventCentric.Polling
         private void PollAndDispatch()
         {
             var bufferPoolLength = this.bufferPool.Length;
-            var working = false;
+            bool working;
             while (!this.stopping)
             {
                 working = false;
@@ -213,7 +219,14 @@ namespace EventCentric.Polling
             SubscriptionBuffer subscription;
             try
             {
-                subscription = this.bufferPool.Where(s => s.StreamType == response.StreamType).Single();
+                if (!this.onTheFlySubscriptionsDetected)
+                    subscription = this.bufferPool.Where(s => s.StreamType == response.StreamType).Single();
+                else
+                {
+                    subscription = this.bufferPool.Where(s => s.StreamType == response.StreamType).SingleOrDefault();
+                    if (subscription == null)
+                        subscription = this.onTheFlyBufferPool.Where(s => s.StreamType == response.StreamType).Single();
+                }
             }
             catch (Exception ex)
             {
@@ -309,19 +322,36 @@ namespace EventCentric.Polling
         public void Handle(IncomingEventHasBeenProcessed message)
         {
             var e = message.Event;
-            this.bufferPool
-            .SingleOrDefault(s => s.StreamType == e.StreamType)
-            ?.EventsInProcessorByEcv[e.EventCollectionVersion]
-            .MarkEventAsProcessed();
+            if (!this.onTheFlySubscriptionsDetected)
+                this.bufferPool
+                .SingleOrDefault(s => s.StreamType == e.StreamType)
+                ?.EventsInProcessorByEcv[e.EventCollectionVersion]
+                .MarkEventAsProcessed();
+            else
+            {
+                var sub = this.bufferPool.SingleOrDefault(s => s.StreamType == e.StreamType);
+                if (sub == null)
+                    sub = this.onTheFlyBufferPool.Single(s => s.StreamType == e.StreamType);
+                sub.EventsInProcessorByEcv[e.EventCollectionVersion].MarkEventAsProcessed();
+            }
         }
 
         public void Handle(IncomingEventIsPoisoned message)
         {
-            lock (this.lockObject)
+            lock (this.lockObjectForPoisonedSubs)
             {
                 try
                 {
-                    var poisonedSubscription = this.bufferPool.Where(s => s.StreamType == message.PoisonedEvent.StreamType).Single();
+                    SubscriptionBuffer poisonedSubscription;
+                    if (!this.onTheFlySubscriptionsDetected)
+                        poisonedSubscription = this.bufferPool.Where(s => s.StreamType == message.PoisonedEvent.StreamType).SingleOrDefault();
+                    else
+                    {
+                        poisonedSubscription = this.bufferPool.Where(s => s.StreamType == message.PoisonedEvent.StreamType).SingleOrDefault();
+                        if (poisonedSubscription == null)
+                            poisonedSubscription = this.onTheFlyBufferPool.Where(s => s.StreamType == message.PoisonedEvent.StreamType).Single();
+                    }
+
                     if (poisonedSubscription.IsPoisoned == true)
                         return;
 
@@ -384,6 +414,66 @@ namespace EventCentric.Polling
             this.bus.Publish(new EventPollerStarted());
         }
 
+        public void Handle(AddNewSubscriptionOnTheFly message)
+        {
+            if (this.repository.TryAddNewSubscriptionOnTheFly(message.StreamType, message.Url, message.Token))
+            {
+                lock (this.lockObjectForOnTheFlySub)
+                {
+                    if (this.onTheFlyBufferPool == null)
+                        this.onTheFlyBufferPool = new ConcurrentBag<SubscriptionBuffer>();
+                    else
+                        if (this.onTheFlyBufferPool.Any(x => x.StreamType == message.StreamType))
+                        return;
+
+                    var sub = new SubscriptionBuffer(message.StreamType, message.Url, message.Token, 0, false);
+                    this.onTheFlyBufferPool.Add(sub);
+
+                    if (this.onTheFlySubscriptionsDetected)
+                        return;
+
+                    this.onTheFlySubscriptionsDetected = true;
+                    if (this.onTheFlyThread != null)
+                        throw new InvalidOperationException($"Already a thread of on the fly subscription running in poller of {this.microserviceName}.");
+
+                    this.onTheFlyThread = new Thread(() =>
+                    {
+                        bool working;
+                        while (!this.stopping)
+                        {
+                            working = false;
+                            foreach (var buffer in this.onTheFlyBufferPool)
+                            {
+                                if (working)
+                                {
+                                    this.TryFlush(buffer);
+                                    this.TryFill(buffer);
+                                    this.TryFlush(buffer);
+                                }
+                                else
+                                {
+                                    if (this.TryFlush(buffer) || this.TryFill(buffer))
+                                    {
+                                        this.TryFlush(buffer);
+                                        working = true;
+                                    }
+                                }
+                            }
+                            if (!working)
+                                Thread.Sleep(1);
+                        }
+                    })
+                    {
+                        IsBackground = true,
+                        Name = this.microserviceName + "_POLLER_ON-THE-FLY-SUBSCRIPTION"
+                    };
+                    this.onTheFlyThread.Start();
+                }
+            }
+            else
+                return;
+        }
+
         protected override void OnStopping()
         {
             // Ensure to stop everything;
@@ -408,6 +498,7 @@ namespace EventCentric.Polling
             bus.Register<PollResponseWasReceived>(this);
             bus.Register<IncomingEventHasBeenProcessed>(this);
             bus.Register<IncomingEventIsPoisoned>(this);
+            bus.Register<AddNewSubscriptionOnTheFly>(this);
         }
     }
 }

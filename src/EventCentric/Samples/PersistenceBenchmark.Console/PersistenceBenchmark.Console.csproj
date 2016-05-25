@@ -7,7 +7,7 @@
     <ProjectGuid>{0BEC8B22-1C08-4085-969C-510F4D2310CF}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>PersistenceBenchmark.Console</RootNamespace>
+    <RootNamespace>PersistenceBenchmark</RootNamespace>
     <AssemblyName>PersistenceBenchmark.Console</AssemblyName>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
@@ -65,6 +65,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="SharedMessages.cs" />
     <Compile Include="DbManager.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Promotions\Messages.cs" />

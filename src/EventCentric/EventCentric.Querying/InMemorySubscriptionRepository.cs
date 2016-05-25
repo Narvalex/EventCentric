@@ -25,5 +25,10 @@ namespace EventCentric.Querying
         {
             return this.subscriptions.ToArray();
         }
+
+        public bool TryAddNewSubscriptionOnTheFly(string streamType, string url, string token)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

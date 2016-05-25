@@ -131,18 +131,21 @@ namespace PersistenceBenchmark
                 CreationLocalTime = DateTime.Now,
                 UpdateLocalTime = DateTime.Now
             });
-            subs.Add(new SubscriptionEntity
-            {
-                SubscriberStreamType = "promo",
-                StreamType = "user2",
-                Url = "none",
-                Token = "#token",
-                ProcessorBufferVersion = 0,
-                IsPoisoned = false,
-                WasCanceled = false,
-                CreationLocalTime = DateTime.Now,
-                UpdateLocalTime = DateTime.Now
-            });
+
+            // USER1 will add a on the fly subscription
+
+            //subs.Add(new SubscriptionEntity
+            //{
+            //    SubscriberStreamType = "promo",
+            //    StreamType = "user2",
+            //    Url = "none",
+            //    Token = "#token",
+            //    ProcessorBufferVersion = 0,
+            //    IsPoisoned = false,
+            //    WasCanceled = false,
+            //    CreationLocalTime = DateTime.Now,
+            //    UpdateLocalTime = DateTime.Now
+            //});
 
             // user1
             subs.Add(new SubscriptionEntity

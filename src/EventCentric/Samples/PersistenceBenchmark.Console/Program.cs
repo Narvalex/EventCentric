@@ -9,7 +9,7 @@ namespace PersistenceBenchmark.ConsoleHost
 
         static void Main(string[] args)
         {
-            var plugin = DbManager.SetPlugin(PersistencePlugin.SqlServer);
+            var plugin = DbManager.SetPlugin(PersistencePlugin.InMemory);
 
             PrintWelcomeMessage(plugin);
 
@@ -44,8 +44,10 @@ namespace PersistenceBenchmark.ConsoleHost
             // 100 througput,   completes in 0:20 s 18.159 messgaes    907 m/s
             if (plugin == PersistencePlugin.InMemory)
             {
-                user1App.StressWithWavesOfConcurrentUsers(wavesCount: 5, concurrentUsers: 1000);
-                user2App.StressWithWavesOfConcurrentUsers(wavesCount: 5, concurrentUsers: 1000);
+                //user1App.StressWithWavesOfConcurrentUsers(wavesCount: 5, concurrentUsers: 1000);
+                //user2App.StressWithWavesOfConcurrentUsers(wavesCount: 5, concurrentUsers: 1000);
+                user1App.StressWithWavesOfConcurrentUsers(wavesCount: 5, concurrentUsers: 1, sendNewSub: true);
+                user2App.StressWithWavesOfConcurrentUsers(wavesCount: 5, concurrentUsers: 1);
             }
 
             // SUPER TEST

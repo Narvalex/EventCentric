@@ -74,5 +74,25 @@ namespace EventCentric.Polling
                 context.SaveChanges();
             }
         }
+
+        public bool TryAddNewSubscriptionOnTheFly(string streamType, string url, string token)
+        {
+            using (var context = this.contextFactory.Invoke(false))
+            {
+                if (context.Subscriptions.Any(s => s.SubscriberStreamType == this.streamType && s.StreamType == streamType))
+                    return false;
+
+                context.Subscriptions.Add(new SubscriptionEntity
+                {
+                    SubscriberStreamType = this.streamType,
+                    StreamType = streamType,
+                    Url = url,
+                    Token = token
+                });
+
+                context.SaveChanges();
+                return true;
+            }
+        }
     }
 }

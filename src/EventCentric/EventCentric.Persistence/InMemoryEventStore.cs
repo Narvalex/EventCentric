@@ -361,6 +361,21 @@ namespace EventCentric.Persistence
             return this.Inbox.Any(e => e.EventId == eventId);
         }
 
+        public bool TryAddNewSubscriptionOnTheFly(string streamType, string url, string token)
+        {
+            if (this.Subscriptions.Any(s => s.SubscriberStreamType == this.streamName && s.StreamType == streamType))
+                return false;
+
+            this.Subscriptions.Add(new SubscriptionEntity
+            {
+                SubscriberStreamType = this.streamName,
+                StreamType = streamType,
+                Url = url,
+                Token = token
+            });
+            return true;
+        }
+
         public long CurrentEventCollectionVersion { get; private set; }
 
         public string StreamName => this.streamName;

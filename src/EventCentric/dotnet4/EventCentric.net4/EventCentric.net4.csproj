@@ -147,6 +147,9 @@
     <Compile Include="..\..\EventCentric\Messaging\Bus.cs">
       <Link>Messaging\Bus.cs</Link>
     </Compile>
+    <Compile Include="..\..\EventCentric\Messaging\Commands\AddNewSubscriptionOnTheFly.cs">
+      <Link>Messaging\Commands\AddNewSubscriptionOnTheFly.cs</Link>
+    </Compile>
     <Compile Include="..\..\EventCentric\Messaging\Commands\StartEngineCommands.cs">
       <Link>Messaging\Commands\StartEngineCommands.cs</Link>
     </Compile>
