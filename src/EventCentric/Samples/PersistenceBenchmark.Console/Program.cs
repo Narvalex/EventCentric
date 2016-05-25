@@ -41,7 +41,7 @@ namespace PersistenceBenchmark.ConsoleHost
             }
 
             // IN-MEMORY-------------------------------------------------------
-            // 100 througput,   completes in 0:20 s 17.643 messgaes    882 m/s
+            // 100 througput,   completes in 0:20 s 17.890 messgaes    894 m/s
             if (plugin == PersistencePlugin.InMemory)
             {
                 user1App.StressWithWavesOfConcurrentUsers(wavesCount: 5, concurrentUsers: 1000);

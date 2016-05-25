@@ -29,7 +29,7 @@ namespace EventCentric.MicroserviceFactory
             switch (selectedPlugin)
             {
                 case PersistencePlugin.InMemory:
-                    var persitence = new InMemoryEventStore<TStream>(
+                    var persistence = new InMemoryEventStore<TStream>(
                         microserviceName,
                         container.Resolve<IUtcTimeProvider>(),
                         container.Resolve<ITextSerializer>(),
@@ -38,10 +38,10 @@ namespace EventCentric.MicroserviceFactory
                         persistIncomingPayloads);
 
                     if (setupInMemoryPersistence != null)
-                        setupInMemoryPersistence.Invoke(persitence);
+                        setupInMemoryPersistence.Invoke(persistence);
 
-                    container.RegisterInstance<ISubscriptionRepository>(persitence);
-                    container.RegisterInstance<IEventStore<TStream>>(persitence);
+                    container.RegisterInstance<ISubscriptionRepository>(persistence);
+                    container.RegisterInstance<IEventStore<TStream>>(persistence);
                     break;
 
                 case PersistencePlugin.SqlServer:

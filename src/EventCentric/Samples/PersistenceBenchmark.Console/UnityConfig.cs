@@ -49,21 +49,18 @@ namespace PersistenceBenchmark
             var promotionsConfig = new DummyEventStoreConfig(DbManager.FixedConnectionstring, baseConfig);
             var user1Config = new DummyEventStoreConfig(DbManager.FixedConnectionstring, baseConfig);
             var user2Config = new DummyEventStoreConfig(DbManager.FixedConnectionstring, baseConfig);
+            StatsMonitor = new StatsMonitor();
 
-            EventSystem.Create(false, Program.VerboseIsEnabled, null,
-               () =>
-               {
-                   StatsMonitor = new StatsMonitor();
-                   return MicroserviceFactory<UserManagement, UserManagementHandler>
+            EventSystem.Create(
+               MicroserviceFactory<UserManagement, UserManagementHandler>
                         .CreateEventProcessor("user1", user1Config, null, plugin, persistIncomingEvents,
-                            SetupInMemoryPersistence<UserManagement>);
-               },
+                            SetupInMemoryPersistence<UserManagement>),
 
-               () => MicroserviceFactory<UserManagement, UserManagementHandler>
+               MicroserviceFactory<UserManagement, UserManagementHandler>
                     .CreateEventProcessor("user2", user2Config, null, plugin, persistIncomingEvents,
                         SetupInMemoryPersistence<UserManagement>),
 
-               () => MicroserviceFactory<Promotions, PromotionsHandler>.
+               MicroserviceFactory<Promotions, PromotionsHandler>.
                     CreateEventProcessor("promo", promotionsConfig, null, plugin, persistIncomingEvents,
                         SetupInMemoryPersistence<Promotions>));
         }

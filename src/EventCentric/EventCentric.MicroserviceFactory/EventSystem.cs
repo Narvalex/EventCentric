@@ -15,28 +15,64 @@ using System.Linq;
 
 namespace EventCentric.MicroserviceFactory
 {
-    public static class EventSystem
+    public class EventSystemSetup
+    {
+        internal EventSystemSetup() { }
+
+        public EventSystemSetup UseSignalRLog(bool enable = true)
+        {
+            EventSystem.UseSignalRLog = enable;
+            return this;
+        }
+
+        public EventSystemSetup EnableVerboseLogging(bool enable = true)
+        {
+            EventSystem.Verbose = enable;
+            return this;
+        }
+
+        public EventSystemSetup RegisterOcassionallyConnectedSources(params IPollableEventSource[] sources)
+        {
+            EventSystem.OcassionallyConnectedSources = sources;
+            return this;
+        }
+
+        public void Create(params Func<IMicroservice>[] microservicesFactories)
+        {
+            EventSystem.Create(microservicesFactories);
+        }
+    }
+
+    public class EventSystem
     {
         private static readonly object _lockObject = new object();
         private static MultiMicroserviceContainer multiContainer = null;
         private static bool isRunning = false;
 
+        internal static bool UseSignalRLog = false;
+        internal static bool Verbose = false;
+        internal static IPollableEventSource[] OcassionallyConnectedSources = null;
+
 
         private static IUnityContainer mainContainer;
         private static readonly Dictionary<string, IUnityContainer> childContainers = new Dictionary<string, IUnityContainer>();
+
+        private EventSystem() { }
+
+        public static EventSystemSetup Setup() => new EventSystemSetup();
 
         /// <summary>
         /// Creates a new event system (a container for your microservices)
         /// </summary>
         public static void Create(
-            bool useSignalRLog,
-            bool verbose,
-            IEnumerable<IPollableEventSource> ocassionallyConnectedSources = null,
             params Func<IMicroservice>[] microservicesFactories)
         {
+            if (microservicesFactories.Length == 0)
+                throw new ArgumentOutOfRangeException("The user should provide at least one microservice factory");
+
             lock (_lockObject)
             {
-                // Double checkingif
+                // Double checking if
                 if (multiContainer != null || isRunning)
                     return;
 
@@ -45,17 +81,17 @@ namespace EventCentric.MicroserviceFactory
                 System.Data.Entity.Database.SetInitializer<EventQueueDbContext>(null);
 
 
-                mainContainer = ResolveCommonDependenciesForMainContainer(useSignalRLog, verbose);
+                mainContainer = ResolveCommonDependenciesForMainContainer(UseSignalRLog, Verbose);
 
                 multiContainer = new MultiMicroserviceContainer(
                     mainContainer.Resolve<IBus>(),
                     mainContainer.Resolve<ILogger>(),
                     microservicesFactories.Select(f => f.Invoke()));
 
-                if (ocassionallyConnectedSources != null)
+                if (OcassionallyConnectedSources != null)
                 {
                     var inMemoryEventPublisher = mainContainer.Resolve<IInMemoryEventPublisher>();
-                    ocassionallyConnectedSources.ForEach(x => inMemoryEventPublisher.Register(x));
+                    OcassionallyConnectedSources.ForEach(x => inMemoryEventPublisher.Register(x));
                 }
 
                 multiContainer.Start();
