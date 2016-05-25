@@ -27,7 +27,7 @@ namespace EventCentric.Messaging
             }
         }
 
-        public void Register<T>(IMessageHandler<T> handler) where T : SystemMessage
+        public void Register<T>(ISystemHandler<T> handler) where T : SystemMessage
         {
             Ensure.NotNull(handler, nameof(handler));
 

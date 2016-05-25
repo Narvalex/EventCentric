@@ -17,9 +17,9 @@ namespace EventCentric.Querying
 {
     public class StreamQuery<TState> : MicroserviceWorker, IGiven<TState>, IWhen<TState>, IRun<TState>,
         IDisposable,
-        IMessageHandler<NewIncomingEvents>,
-        IMessageHandler<PollResponseWasReceived>,
-        IMessageHandler<IncomingEventHasBeenProcessed>
+        ISystemHandler<NewIncomingEvents>,
+        ISystemHandler<PollResponseWasReceived>,
+        ISystemHandler<IncomingEventHasBeenProcessed>
     {
         private readonly string queryName;
         private readonly InMemorySubscriptionRepository subRepo;

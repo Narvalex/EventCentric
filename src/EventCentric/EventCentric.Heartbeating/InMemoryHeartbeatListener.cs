@@ -42,10 +42,8 @@ namespace EventCentric.Heartbeating
             }
 
             foreach (var sub in this.subscribersNamesAndUrls)
-                Task.Factory.StartNewLongRunning(() =>
-                {
-                    this.RequestHeartbeat(sub.Item1, sub.Item2);
-                });
+                Task.Factory.StartNew(() => this.RequestHeartbeat(sub.Item1, sub.Item2),
+                    TaskCreationOptions.LongRunning);
         }
 
         private void RequestHeartbeat(string name, string url)

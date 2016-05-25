@@ -11,12 +11,12 @@ using System.Threading;
 namespace EventCentric
 {
     public class MicroserviceHost : MicroserviceWorker, IMicroservice, ICanRegisterExternalListeners,
-        IMessageHandler<EventPublisherStarted>,
-        IMessageHandler<EventHandlerStarted>,
-        IMessageHandler<EventPollerStarted>,
-        IMessageHandler<EventPollerStopped>,
-        IMessageHandler<EventProcessorStopped>,
-        IMessageHandler<EventPublisherStopped>
+        ISystemHandler<EventPublisherStarted>,
+        ISystemHandler<EventHandlerStarted>,
+        ISystemHandler<EventPollerStarted>,
+        ISystemHandler<EventPollerStopped>,
+        ISystemHandler<EventProcessorStopped>,
+        ISystemHandler<EventPublisherStopped>
     {
         private bool hasPoller;
 

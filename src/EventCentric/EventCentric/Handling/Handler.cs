@@ -10,14 +10,13 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace EventCentric.Handling
 {
     public abstract class HandlerOf<TEventSourced> : MicroserviceWorker, IProcessor,
-        IMessageHandler<StartEventHandler>,
-        IMessageHandler<StopEventHandler>,
-        IMessageHandler<NewIncomingEvents>,
+        ISystemHandler<StartEventHandler>,
+        ISystemHandler<StopEventHandler>,
+        ISystemHandler<NewIncomingEvents>,
         IHandle<IEvent>
             where TEventSourced : class, IEventSourced
     {
@@ -31,6 +30,8 @@ namespace EventCentric.Handling
 
         protected readonly IGuidProvider guid;
         private long appStreamVersion = 0;
+
+        private Thread eventQueueThread;
 
         public HandlerOf(IBus bus, ILogger log, IEventStore<TEventSourced> store)
             : base(bus, log)
@@ -195,43 +196,49 @@ namespace EventCentric.Handling
 
         protected override void OnStarting()
         {
-            Task.Factory.StartNewLongRunning(() =>
-            {
-                while (!this.stopping)
-                {
-                    if (this.eventQueue.IsEmpty)
-                        Thread.Sleep(1);
-                    else
-                    {
-                        IEvent @event;
-                        var events = new IEvent[this.eventQueue.Count];
-                        for (int i = 0; i < events.Length; i++)
-                        {
-                            this.eventQueue.TryDequeue(out @event);
-                            events[i] = @event;
-                        }
+            if (this.eventQueueThread != null)
+                throw new InvalidOperationException($"Already a thread running in {this.name}.");
 
-                        // TODO: move this.
-                        var streams = events.GroupBy(e => e.StreamId);
-                        foreach (var stream in streams)
-                        {
-                            ThreadPool.UnsafeQueueUserWorkItem(new WaitCallback(_ =>
-                            {
-                                foreach (var e in stream)
-                                {
-                                    this.HandleGracefully(e);
-                                    this.bus.Publish(new IncomingEventHasBeenProcessed(e));
-                                }
-                            }),
-                            null);
-                        }
-                    }
-                }
-            });
+            this.eventQueueThread = new Thread(this.ReadFromQueue) { IsBackground = true, Name = this.name + "_HANDLER" };
+            this.eventQueueThread.Start();
 
             base.log.Log($"{typeof(TEventSourced).Name} handler started");
             base.bus.Publish(new EventHandlerStarted());
 
+        }
+
+        private void ReadFromQueue()
+        {
+            while (!this.stopping)
+            {
+                if (this.eventQueue.IsEmpty)
+                    Thread.Sleep(1);
+                else
+                {
+                    IEvent @event;
+                    var events = new IEvent[this.eventQueue.Count];
+                    for (int i = 0; i < events.Length; i++)
+                    {
+                        this.eventQueue.TryDequeue(out @event);
+                        events[i] = @event;
+                    }
+
+                    // TODO: move this.
+                    var streams = events.GroupBy(e => e.StreamId);
+                    foreach (var stream in streams)
+                    {
+                        ThreadPool.UnsafeQueueUserWorkItem(new WaitCallback(_ =>
+                        {
+                            foreach (var e in stream)
+                            {
+                                this.HandleGracefully(e);
+                                this.bus.Publish(new IncomingEventHasBeenProcessed(e));
+                            }
+                        }),
+                        null);
+                    }
+                }
+            }
         }
 
         protected override void OnStopping()

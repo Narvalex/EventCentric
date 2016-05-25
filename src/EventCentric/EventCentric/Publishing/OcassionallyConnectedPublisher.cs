@@ -10,20 +10,21 @@ using System;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace EventCentric.Publishing
 {
     // This is an ocassionally connected client publisher. The publisher of the client.
     public class OcassionallyConnectedPublisher : PublisherBase, IPollableEventSource,
-        IMessageHandler<StartEventPublisher>,
-        IMessageHandler<StopEventPublisher>
+        ISystemHandler<StartEventPublisher>,
+        ISystemHandler<StopEventPublisher>
     {
         private readonly string clientVersion;
         private readonly string serverUrl;
         private readonly string serverToken;
         private readonly string serverName;
         private long serverEventCollectionVersion = 0;
+
+        private Thread thread;
 
         public OcassionallyConnectedPublisher(string streamType, IEventStore store, IBus bus, ILogger log, int eventsToPushMaxCount, TimeSpan pollTimeout,
             string clientVersion, string serverUrl, string serverToken, string serverName)
@@ -107,7 +108,12 @@ namespace EventCentric.Publishing
             {
                 // We handle exceptions on dao.
                 var currentVersion = this.store.CurrentEventCollectionVersion;
-                Task.Factory.StartNewLongRunning(() => this.SyncWithServer());
+
+                if (this.thread != null)
+                    throw new InvalidOperationException($"Already a thread running in ocassionally connected publisher of {this.SourceName}.");
+
+                this.thread = new Thread(this.SyncWithServer) { IsBackground = true, Name = this.SourceName + "_OCASSIONALLY-CONNECTED-PUBLISHER" };
+                this.thread.Start();
 
                 this.log.Log($"{this.SourceName} publisher started. Current event collection version is: {currentVersion}");
 

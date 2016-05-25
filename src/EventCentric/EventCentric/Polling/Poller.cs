@@ -11,16 +11,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace EventCentric.Polling
 {
     public class Poller : MicroserviceWorker, IMonitoredSubscriber,
-        IMessageHandler<StartEventPoller>,
-        IMessageHandler<StopEventPoller>,
-        IMessageHandler<PollResponseWasReceived>,
-        IMessageHandler<IncomingEventHasBeenProcessed>,
-        IMessageHandler<IncomingEventIsPoisoned>
+        ISystemHandler<StartEventPoller>,
+        ISystemHandler<StopEventPoller>,
+        ISystemHandler<PollResponseWasReceived>,
+        ISystemHandler<IncomingEventHasBeenProcessed>,
+        ISystemHandler<IncomingEventIsPoisoned>
     {
         private bool stopSilently = false;
         private string microserviceName;
@@ -39,6 +38,8 @@ namespace EventCentric.Polling
         private readonly int eventsToFlushMaxCount;
 
         private SubscriptionBuffer[] bufferPool;
+
+        private Thread thread;
 
         private readonly object lockObject = new object();
 
@@ -63,25 +64,17 @@ namespace EventCentric.Polling
             this.eventsToFlushMaxCount = eventsToFlushMaxCount;
         }
 
-        private bool TryFill()
+        private bool TryFill(SubscriptionBuffer buffer)
         {
-            var subscriptionsReadyForPolling = this.bufferPool
-                                                  .Where(s => !s.IsPolling && !s.IsPoisoned && s.NewEventsQueue.Count < queueMaxCount)
-                                                  .ToArray();
-
-            if (!subscriptionsReadyForPolling.Any())
-                // all subscriptions are being polled
-                return false;
-
-            foreach (var subscription in subscriptionsReadyForPolling)
+            if (!buffer.IsPolling && !buffer.IsPoisoned && buffer.NewEventsQueue.Count < queueMaxCount)
             {
-                subscription.IsPolling = true;
+                buffer.IsPolling = true;
                 ThreadPool.UnsafeQueueUserWorkItem(new WaitCallback(_ =>
-                    poller.PollSubscription(subscription.StreamType, subscription.Url, subscription.Token, subscription.CurrentBufferVersion)), null);
+                    poller.PollSubscription(buffer.StreamType, buffer.Url, buffer.Token, buffer.CurrentBufferVersion)), null);
+                return true;
             }
 
-            // there are subscriptions that are being polled
-            return true;
+            return false;
         }
 
         private bool TryFlush(SubscriptionBuffer buffer)
@@ -178,6 +171,36 @@ namespace EventCentric.Polling
 
             this.bus.Publish(new NewIncomingEvents(streams));
             return true;
+        }
+
+        private void PollAndDispatch()
+        {
+            var bufferPoolLength = this.bufferPool.Length;
+            var working = false;
+            while (!this.stopping)
+            {
+                working = false;
+                for (int i = 0; i < bufferPoolLength; i++)
+                {
+                    var buffer = this.bufferPool[i];
+                    if (working)
+                    {
+                        this.TryFlush(buffer);
+                        this.TryFill(buffer);
+                        this.TryFlush(buffer);
+                    }
+                    else
+                    {
+                        if (this.TryFlush(buffer) || this.TryFill(buffer))
+                        {
+                            this.TryFlush(buffer);
+                            working = true;
+                        }
+                    }
+                }
+                if (!working)
+                    Thread.Sleep(1);
+            }
         }
 
         public void Handle(PollResponseWasReceived message)
@@ -341,14 +364,18 @@ namespace EventCentric.Polling
             lines.Add(string.Format("| Found {0} subscription/s", bufferPool.Count()));
 
             var subscriptionCount = 0;
-            foreach (var subscription in this.bufferPool)
+            for (int i = 0; i < this.bufferPool.Length; i++)
             {
+                var subscription = this.bufferPool[i];
                 subscriptionCount += 1;
                 lines.Add($"| --> Subscription {subscriptionCount} | Name: {subscription.StreamType} | {subscription.Url} | Buffer version: {subscription.CurrentBufferVersion}");
             }
 
-            Task.Factory.StartNewLongRunning(this.KeepTheBufferFull);
-            this.DispatchEventsFromBufferPool();
+            if (this.thread != null)
+                throw new InvalidOperationException($"Already a thread running in poller of {this.microserviceName}.");
+
+            this.thread = new Thread(this.PollAndDispatch) { IsBackground = true, Name = this.microserviceName + "_POLLER" };
+            this.thread.Start();
 
             // Ensure to start everything;
             lines.Add($"| {this.microserviceName} poller started");
@@ -363,26 +390,6 @@ namespace EventCentric.Polling
             if (!this.stopSilently)
                 this.log.Log($"{this.microserviceName} poller stopped");
             this.bus.Publish(new EventPollerStopped());
-        }
-
-        private void DispatchEventsFromBufferPool()
-        {
-            foreach (var buffer in this.bufferPool)
-            {
-                Task.Factory.StartNewLongRunning(() =>
-                {
-                    while (!base.stopping)
-                        if (!this.TryFlush(buffer))
-                            Thread.Sleep(1);
-                });
-            }
-        }
-
-        private void KeepTheBufferFull()
-        {
-            while (!base.stopping)
-                if (!this.TryFill())
-                    Thread.Sleep(1);
         }
 
         public IMonitoredSubscription[] GetSubscriptionsMetrics() => this.bufferPool;

@@ -8,14 +8,14 @@ namespace EventCentric.Messaging
         void Publish(SystemMessage message);
     }
 
-    public interface IMessageHandler<T> where T : SystemMessage
+    public interface ISystemHandler<T> where T : SystemMessage
     {
         void Handle(T message);
     }
 
     public interface IBusRegistry
     {
-        void Register<T>(IMessageHandler<T> handler) where T : SystemMessage;
+        void Register<T>(ISystemHandler<T> handler) where T : SystemMessage;
     }
 
     internal interface IMessageHandler
@@ -25,9 +25,9 @@ namespace EventCentric.Messaging
 
     internal class MessageHandler<T> : IMessageHandler where T : SystemMessage
     {
-        private readonly IMessageHandler<T> handler;
+        private readonly ISystemHandler<T> handler;
 
-        public MessageHandler(IMessageHandler<T> handler)
+        public MessageHandler(ISystemHandler<T> handler)
         {
             Ensure.NotNull(handler, nameof(handler));
 

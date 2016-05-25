@@ -123,8 +123,8 @@
     <Compile Include="..\..\EventCentric\Handling\EventHandling.cs">
       <Link>Handling\EventHandling.cs</Link>
     </Compile>
-    <Compile Include="..\..\EventCentric\Handling\HandlerOfTEventSourced.cs">
-      <Link>Handling\HandlerOfTEventSourced.cs</Link>
+    <Compile Include="..\..\EventCentric\Handling\Handler.cs">
+      <Link>Handling\Handler.cs</Link>
     </Compile>
     <Compile Include="..\..\EventCentric\Handling\IHandle.cs">
       <Link>Handling\IHandle.cs</Link>
@@ -302,9 +302,6 @@
     </Compile>
     <Compile Include="..\..\EventCentric\Utils\GuidProvider.cs">
       <Link>Utils\GuidProvider.cs</Link>
-    </Compile>
-    <Compile Include="..\..\EventCentric\Utils\TaskExtensions.cs">
-      <Link>Utils\TaskExtensions.cs</Link>
     </Compile>
     <Compile Include="..\..\EventCentric\Utils\Testing\ApplicationServiceTestHelper.cs">
       <Link>Utils\Testing\ApplicationServiceTestHelper.cs</Link>

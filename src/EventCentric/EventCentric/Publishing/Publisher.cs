@@ -8,8 +8,8 @@ using System;
 namespace EventCentric.Publishing
 {
     public class Publisher : PublisherBase, IPollableEventSource,
-        IMessageHandler<StartEventPublisher>,
-        IMessageHandler<StopEventPublisher>
+        ISystemHandler<StartEventPublisher>,
+        ISystemHandler<StopEventPublisher>
     {
         public Publisher(string streamType, IEventStore store, IBus bus, ILogger log, int eventsToPushMaxCount, TimeSpan pollTimeout)
             : base(streamType, store, bus, log, pollTimeout, eventsToPushMaxCount)

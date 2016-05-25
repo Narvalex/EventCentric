@@ -6,7 +6,7 @@ using EventCentric.Utils;
 namespace EventCentric
 {
     public abstract class MicroserviceWorker : Worker,
-        IMessageHandler<FatalErrorOcurred>
+        ISystemHandler<FatalErrorOcurred>
     {
         protected volatile bool stopping;
 

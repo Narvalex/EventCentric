@@ -93,7 +93,7 @@
     <Compile Include="Microservice\MultiMicroserviceContainer.cs" />
     <Compile Include="Polling\IMonitoredSubscriber.cs" />
     <Compile Include="Polling\IMonitoredSubscription.cs" />
-    <Compile Include="Handling\HandlerOfTEventSourced.cs" />
+    <Compile Include="Handling\Handler.cs" />
     <Compile Include="Handling\IHandle.cs" />
     <Compile Include="EventSourcing\SerializedEvent.cs" />
     <Compile Include="Publishing\PublisherBase.cs" />
@@ -164,7 +164,6 @@
     <Compile Include="Utils\Testing\EventProcessorTestHelper.cs" />
     <Compile Include="Utils\Testing\EventSourcedAggregateExtensions.cs" />
     <Compile Include="Utils\UtcTimeProvider.cs" />
-    <Compile Include="Utils\TaskExtensions.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Config\ConfigTemplate.xml">
