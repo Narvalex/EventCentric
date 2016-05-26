@@ -28,8 +28,6 @@ namespace EventCentric.Handling
         private readonly ConcurrentBag<Guid> poisonedStreams;
         private readonly ConcurrentQueue<IEvent> eventQueue = new ConcurrentQueue<IEvent>();
 
-        private Guid everChangingAppStreamId;
-
         protected readonly IGuidProvider guid;
 
         private Thread eventQueueThread;
@@ -53,8 +51,6 @@ namespace EventCentric.Handling
             Ensure.CastIsValid(constructor, "Type T must have a constructor with the following signature: .ctor(Guid)");
 
             this.newAggregateFactory = (id) => (TEventSourced)constructor.Invoke(new object[] { id });
-
-            this.everChangingAppStreamId = this.guid.NewGuid();
         }
 
         public void AdHocHandle(IEvent @event)
@@ -70,7 +66,7 @@ namespace EventCentric.Handling
             var utcNow = DateTime.UtcNow;
 
             message.TransactionId = this.guid.NewGuid();
-            message.StreamId = this.everChangingAppStreamId;
+            message.StreamId = this.guid.NewGuid(); // the app messafes do not belong to any stream id.
             message.StreamType = this.appStreamName;
             message.EventId = this.guid.NewGuid();
             message.LocalTime = utcNow.ToLocalTime();
@@ -215,9 +211,6 @@ namespace EventCentric.Handling
                     Thread.Sleep(1);
                 else
                 {
-                    // We change the app streamId here, for some fairyness.
-                    this.everChangingAppStreamId = this.guid.NewGuid();
-
                     IEvent @event;
                     var events = new IEvent[this.eventQueue.Count];
                     for (int i = 0; i < events.Length; i++)
