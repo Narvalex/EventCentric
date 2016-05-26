@@ -29,7 +29,6 @@ namespace EventCentric.Handling
         private readonly ConcurrentQueue<IEvent> eventQueue = new ConcurrentQueue<IEvent>();
 
         protected readonly IGuidProvider guid;
-        private long appStreamVersion = 0;
 
         private Thread eventQueueThread;
 
@@ -62,17 +61,14 @@ namespace EventCentric.Handling
             this.HandleGracefully(@event);
         }
 
-        public Guid Send(Guid streamId, Message message)
+        public Guid Process(Message message)
         {
-            var version = Interlocked.Increment(ref this.appStreamVersion);
             var utcNow = DateTime.UtcNow;
 
             message.TransactionId = this.guid.NewGuid();
-            message.StreamId = streamId;
+            message.StreamId = this.guid.NewGuid();
             message.StreamType = this.appStreamName;
-            message.Version = version;
-            message.EventId = Guid.NewGuid();
-            message.EventCollectionVersion = version;
+            message.EventId = this.guid.NewGuid();
             message.LocalTime = utcNow.ToLocalTime();
             message.UtcTime = utcNow;
 

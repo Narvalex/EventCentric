@@ -5,7 +5,6 @@ using EventCentric.Messaging;
 using EventCentric.Utils;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace PersistenceBenchmark
 {
@@ -29,7 +28,7 @@ namespace PersistenceBenchmark
 
         public IMessageHandling Handle(AddNewSubscription message)
         {
-            return base.FromNewStream(message.StreamId, state =>
+            return base.FromNewStream(Guid.NewGuid(), state =>
             state.UpdateAfterSending(new TryAddNewSubscription(message.SubscriberStreamType, message.StreamTypeOfProducer, message.Url, message.Token)));
         }
 
@@ -57,11 +56,11 @@ namespace PersistenceBenchmark
 
             wavesOfCommands.ForEach(w =>
             {
-                System.Threading.ThreadPool.UnsafeQueueUserWorkItem(_ => w.ForEach(c => this.Send(c.UserId, c)), null);
+                System.Threading.ThreadPool.UnsafeQueueUserWorkItem(_ => w.ForEach(c => this.Process(c)), null);
             });
             if (sendNewSub)
             {
-                this.Send(wavesOfCommands.First().First().UserId, new AddNewSubscription("promo", "user2", Constants.InMemorySusbscriptionUrl, ""));
+                this.Process(new AddNewSubscription("promo", "user2", Constants.InMemorySusbscriptionUrl, ""));
             }
             Console.WriteLine($"System is now handling {wavesCount * concurrentUsers} messages.");
         }

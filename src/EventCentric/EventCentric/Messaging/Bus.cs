@@ -1,4 +1,5 @@
 ﻿using EventCentric.Utils;
+using System;
 using System.Collections.Generic;
 
 namespace EventCentric.Messaging
