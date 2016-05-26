@@ -4,7 +4,7 @@ using EventCentric.Messaging.Events;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace EventCentric.Microservice
+namespace EventCentric
 {
     /// <summary>
     /// This container listens for Fatal error ocurred messages in order to request a system halt.

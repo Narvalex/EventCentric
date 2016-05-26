@@ -1,5 +1,4 @@
-﻿using EventCentric.Microservice;
-using System;
+﻿using System;
 using System.Collections.Generic;
 
 namespace EventCentric.EventSourcing

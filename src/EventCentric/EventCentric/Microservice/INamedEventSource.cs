@@ -1,4 +1,4 @@
-﻿namespace EventCentric.Microservice
+﻿namespace EventCentric
 {
     /// <summary>
     /// Marker interface that represents that a class is an event source, 

@@ -45,9 +45,8 @@ namespace PersistenceBenchmark.ConsoleHost
             if (plugin == PersistencePlugin.InMemory)
             {
                 //user1App.StressWithWavesOfConcurrentUsers(wavesCount: 5, concurrentUsers: 1000);
-                //user2App.StressWithWavesOfConcurrentUsers(wavesCount: 5, concurrentUsers: 1000);
-                user1App.StressWithWavesOfConcurrentUsers(wavesCount: 5, concurrentUsers: 1, sendNewSub: true);
-                user2App.StressWithWavesOfConcurrentUsers(wavesCount: 5, concurrentUsers: 1);
+                user1App.StressWithWavesOfConcurrentUsers(wavesCount: 5, concurrentUsers: 1000, sendNewSub: true);
+                user2App.StressWithWavesOfConcurrentUsers(wavesCount: 5, concurrentUsers: 1000);
             }
 
             // SUPER TEST

@@ -1,7 +1,7 @@
 ﻿using EventCentric.Messaging;
 using System;
 
-namespace EventCentric.Microservice
+namespace EventCentric
 {
     public interface ICanRegisterExternalListeners
     {

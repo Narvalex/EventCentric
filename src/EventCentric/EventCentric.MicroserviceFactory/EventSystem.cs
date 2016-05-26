@@ -2,7 +2,6 @@
 using EventCentric.Factory;
 using EventCentric.Log;
 using EventCentric.Messaging;
-using EventCentric.Microservice;
 using EventCentric.Persistence.SqlServer;
 using EventCentric.Publishing;
 using EventCentric.Serialization;
@@ -12,6 +11,7 @@ using System;
 using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
+using System.Threading;
 
 namespace EventCentric.MicroserviceFactory
 {
@@ -83,6 +83,9 @@ namespace EventCentric.MicroserviceFactory
 
                 mainContainer = ResolveCommonDependenciesForMainContainer(UseSignalRLog, Verbose);
 
+                var log = mainContainer.Resolve<ILogger>();
+                PrintSystemInfo(log, microservicesFactories.Length);
+
                 multiContainer = new MultiMicroserviceContainer(
                     mainContainer.Resolve<IBus>(),
                     mainContainer.Resolve<ILogger>(),
@@ -95,8 +98,40 @@ namespace EventCentric.MicroserviceFactory
                 }
 
                 multiContainer.Start();
+
                 isRunning = true;
+                log.Log($"The Event Centric System is now up and running!");
             }
+        }
+
+        private static void PrintSystemInfo(ILogger log, int processorsCount)
+        {
+            var isRelease = true;
+#if DEBUG
+            isRelease = false;
+#endif
+            var logLines = new string[7];
+            if (isRelease)
+                logLines[1] = $"| RELEASE build detected";
+            else
+                logLines[1] = $"| DEBUG build detected";
+
+            int workerThreads;
+            int completionPortThreads;
+            ThreadPool.GetAvailableThreads(out workerThreads, out completionPortThreads);
+            var processorCount = Environment.ProcessorCount;
+
+            var mo = new System.Management.ManagementObject("Win32_Processor.DeviceID='CPU0'");
+            var cpuSpeed = (uint)(mo["CurrentClockSpeed"]);
+            mo.Dispose();
+            logLines[0] = $"| Starting Event Centric System...";
+            logLines[2] = string.Format("| Worker threads: {0}", workerThreads);
+            logLines[3] = string.Format("| OSVersion:      {0}", Environment.OSVersion);
+            logLines[4] = string.Format("| ProcessorCount: {0}", processorCount);
+            logLines[5] = string.Format("| ClockSpeed:     {0} MHZ", cpuSpeed);
+            logLines[5] = $"| Starting {processorCount} event processors...";
+
+            log.Log($"", logLines);
         }
 
         public static IProcessor ResolveProcessor(string name)

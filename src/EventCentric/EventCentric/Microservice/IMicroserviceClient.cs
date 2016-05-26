@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace EventCentric.Transport
+namespace EventCentric
 {
     public interface IMicroserviceClient
     {
