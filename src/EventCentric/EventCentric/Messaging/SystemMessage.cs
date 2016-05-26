@@ -27,18 +27,24 @@ namespace EventCentric.Messaging
             AppDomain.CurrentDomain
             .GetAssemblies()
             .ForEach(a =>
-                a.GetTypes()
-                .Where(t => rootMessageType.IsAssignableFrom(t))
-                .ForEach(messageType =>
+            {
+                try
                 {
-                    messageTypeCount += 1;
+                    a.GetTypes()
+                            .Where(t => rootMessageType.IsAssignableFrom(t))
+                            .ForEach(messageType =>
+                            {
+                                messageTypeCount += 1;
 
-                    var messageTypeId = GetMessageTypeId(messageType);
-                    MessageTypeIdByType.Add(messageType, messageTypeId);
+                                var messageTypeId = GetMessageTypeId(messageType);
+                                MessageTypeIdByType.Add(messageType, messageTypeId);
 
-                    MaxMessageTypeId = Math.Max(messageTypeId, MaxMessageTypeId);
+                                MaxMessageTypeId = Math.Max(messageTypeId, MaxMessageTypeId);
 
-                }));
+                            });
+                }
+                catch (Exception) { }
+            });
 
             if (messageTypeCount - 1 != MaxMessageTypeId)
                 throw new Exception("Incorrect Message Type IDs setup.");
