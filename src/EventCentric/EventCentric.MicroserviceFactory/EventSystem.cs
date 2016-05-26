@@ -106,16 +106,6 @@ namespace EventCentric.MicroserviceFactory
 
         private static void PrintSystemInfo(ILogger log, int processorsCount)
         {
-            var isRelease = true;
-#if DEBUG
-            isRelease = false;
-#endif
-            var logLines = new string[7];
-            if (isRelease)
-                logLines[1] = $"| RELEASE build detected";
-            else
-                logLines[1] = $"| DEBUG build detected";
-
             int workerThreads;
             int completionPortThreads;
             ThreadPool.GetAvailableThreads(out workerThreads, out completionPortThreads);
@@ -124,14 +114,21 @@ namespace EventCentric.MicroserviceFactory
             var mo = new System.Management.ManagementObject("Win32_Processor.DeviceID='CPU0'");
             var cpuSpeed = (uint)(mo["CurrentClockSpeed"]);
             mo.Dispose();
-            logLines[0] = $"| Starting Event Centric System...";
-            logLines[2] = string.Format("| Worker threads: {0}", workerThreads);
-            logLines[3] = string.Format("| OSVersion:      {0}", Environment.OSVersion);
-            logLines[4] = string.Format("| ProcessorCount: {0}", processorCount);
-            logLines[5] = string.Format("| ClockSpeed:     {0} MHZ", cpuSpeed);
-            logLines[5] = $"| Starting {processorCount} event processors...";
 
-            log.Log($"", logLines);
+            var logLines = new string[6];
+#if !DEBUG
+            logLines[0] = $"| RELEASE build detected";
+#endif
+#if DEBUG
+            logLines[0] = $"| DEBUG build detected";
+#endif
+            logLines[1] = string.Format("| Worker threads:     {0}", workerThreads);
+            logLines[2] = string.Format("| OSVersion:          {0}", Environment.OSVersion);
+            logLines[3] = string.Format("| ProcessorCount:     {0}", processorCount);
+            logLines[4] = string.Format("| ClockSpeed:         {0} MHZ", cpuSpeed);
+            logLines[5] = $"| MicroserviceCount: {processorCount}";
+
+            log.Log($"Starting Event Centric System...", logLines);
         }
 
         public static IProcessor ResolveProcessor(string name)

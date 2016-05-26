@@ -388,7 +388,6 @@ namespace EventCentric.Polling
         protected override void OnStarting()
         {
             var lines = new List<string>();
-            lines.Add($"| Starting {this.microserviceName} poller...");
             this.bufferPool = this.repository.GetSubscriptions();
 
             lines.Add(string.Format("| Found {0} subscription/s", bufferPool.Count()));
@@ -409,7 +408,7 @@ namespace EventCentric.Polling
 
             // Ensure to start everything;
             lines.Add($"| {this.microserviceName} poller started");
-            this.log.Log("", lines.ToArray());
+            this.log.Log($"Starting {this.microserviceName} poller...", lines.ToArray());
 
             this.bus.Publish(new EventPollerStarted());
         }

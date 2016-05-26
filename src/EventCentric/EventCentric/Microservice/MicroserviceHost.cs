@@ -72,7 +72,7 @@ namespace EventCentric
 
         protected override void OnStarting()
         {
-            this.log.Log($"| Starting {this.Name} microservice...");
+            this.log.Log($"Starting {this.Name} microservice...");
 
             if (!this.hasPoller)
                 this.log.Log("No poller detected");
