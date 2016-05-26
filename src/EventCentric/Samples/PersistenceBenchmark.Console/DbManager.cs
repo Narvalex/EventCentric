@@ -133,7 +133,6 @@ namespace PersistenceBenchmark
             });
 
             // USER1 will add a on the fly subscription
-
             subs.Add(new SubscriptionEntity
             {
                 SubscriberStreamType = "promo",
