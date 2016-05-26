@@ -275,27 +275,27 @@ namespace EventCentric.Persistence
                                 command.ExecuteNonQuery();
                             }
 
-                            List<EventEntity> eventEntities = new List<EventEntity>();
-                            foreach (var @event in pendingEvents)
+                            var eventEntities = new EventEntity[pendingEvents.Count];
+                            for (int i = 0; i < pendingEvents.Count; i++)
                             {
+                                var @event = pendingEvents[i];
                                 var e = (Message)@event;
                                 e.TransactionId = incomingEvent.TransactionId;
                                 e.EventId = this.guid.NewGuid();
                                 e.StreamType = this.streamName;
 
-                                eventEntities.Add(
-                                    new EventEntity
-                                    {
-                                        StreamType = this.streamName,
-                                        StreamId = @event.StreamId,
-                                        Version = @event.Version,
-                                        EventId = @event.EventId,
-                                        TransactionId = @event.TransactionId,
-                                        EventType = @event.GetType().Name,
-                                        CorrelationId = incomingEvent.EventId,
-                                        LocalTime = localNow,
-                                        UtcTime = now
-                                    });
+                                eventEntities[i] = new EventEntity
+                                {
+                                    StreamType = this.streamName,
+                                    StreamId = @event.StreamId,
+                                    Version = @event.Version,
+                                    EventId = @event.EventId,
+                                    TransactionId = @event.TransactionId,
+                                    EventType = @event.GetType().Name,
+                                    CorrelationId = incomingEvent.EventId,
+                                    LocalTime = localNow,
+                                    UtcTime = now
+                                };
                             }
 
                             lock (this.dbLock)
@@ -461,37 +461,37 @@ namespace EventCentric.Persistence
 
         #region Scripts
         private readonly string findSnapshotQuery =
-@"select Payload from EventStore.Snapshots
+        @"select Payload from EventStore.Snapshots
 where StreamType = @StreamType 
 and StreamId = @StreamId";
 
         private readonly string getEventsQuery =
-@"select Payload from EventStore.Events 
+        @"select Payload from EventStore.Events 
 where StreamType = @StreamType
 and StreamId = @StreamId
 order by [Version]";
 
         private readonly string isDuplicateQuery =
-"select InboxId from eventstore.inbox where EventId = @EventId";
+        "select InboxId from eventstore.inbox where EventId = @EventId";
 
         private readonly string tryFindAppSubscription =
-@"select count(*) from EventStore.Subscriptions
+        @"select count(*) from EventStore.Subscriptions
 where SubscriberStreamType = @SubscriberStreamType
 and StreamType = @StreamType";
 
         private readonly string removeSnapshotCommand =
-@"delete from EventStore.Snapshots
+        @"delete from EventStore.Snapshots
 where StreamType = @StreamType 
 and StreamId = @StreamId";
 
         private readonly string getStreamVersion =
-@"select top 1 [Version] from EventStore.Events 
+        @"select top 1 [Version] from EventStore.Events 
 where StreamType = @StreamType
 and StreamId = @StreamId
 order by [Version] desc";
 
         private readonly string addToInboxWithPayloadCommand =
-@"INSERT INTO [EventStore].[Inbox]
+        @"INSERT INTO [EventStore].[Inbox]
     ([InboxStreamType]
     ,[EventId]
     ,[TransactionId]
@@ -515,7 +515,7 @@ VALUES
     @Payload)";
 
         private readonly string addToInboxWithoutPayloadCommand =
-@"INSERT INTO [EventStore].[Inbox]
+        @"INSERT INTO [EventStore].[Inbox]
     ([InboxStreamType]
     ,[EventId]
     ,[CreationLocalTime])
@@ -525,13 +525,13 @@ VALUES
     @CreationLocalTime)";
 
         private readonly string updateSubscriptionCommand =
-@"UPDATE [EventStore].[Subscriptions]
+        @"UPDATE [EventStore].[Subscriptions]
 SET [ProcessorBufferVersion] = @ProcessorBufferVersion,
     [UpdateLocalTime] = @UpdateLocalTime
 WHERE [StreamType] = @StreamType AND [SubscriberStreamType] = @SubscriberStreamType";
 
         private readonly string insertOrUpdateSnapshot =
-@"if exists (select StreamType from EventStore.Snapshots where StreamId = @StreamId AND StreamType = @StreamType)
+        @"if exists (select StreamType from EventStore.Snapshots where StreamId = @StreamId AND StreamType = @StreamType)
 BEGIN
 UPDATE [EventStore].[Snapshots]
    SET [Version] = @Version
@@ -558,7 +558,7 @@ INSERT INTO [EventStore].[Snapshots]
 END";
 
         private readonly string createAppSubscription =
-@"INSERT INTO [EventStore].[Subscriptions]
+        @"INSERT INTO [EventStore].[Subscriptions]
     ([SubscriberStreamType]
     ,[StreamType]
     ,[Url]
@@ -586,7 +586,7 @@ VALUES
     ,@UpdateLocalTime)";
 
         private readonly string appendEventCommand =
-@"INSERT INTO [EventStore].[Events]
+        @"INSERT INTO [EventStore].[Events]
     ([StreamType]
     ,[StreamId]
     ,[Version]
@@ -612,7 +612,7 @@ VALUES
     ,@Payload)";
 
         private readonly string findEventsQuery =
-@"select top (@Quantity)
+        @"select top (@Quantity)
 EventCollectionVersion,
 Payload
 from EventStore.Events

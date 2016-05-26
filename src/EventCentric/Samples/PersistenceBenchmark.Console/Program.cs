@@ -33,7 +33,7 @@ namespace PersistenceBenchmark.ConsoleHost
             var user2App = EventSystem.ResolveProcessor("user2") as UserManagementHandler;
 
             // SQL SERVER ADO.NET --------------------------------------------
-            // 100 througput,   completes in 20 s 9.344 messages    467 m/s
+            // 100 througput,   completes in 20 s 9.616 messages    480 m/s
             if (plugin == PersistencePlugin.SqlServer)
             {
                 user1App.StressWithWavesOfConcurrentUsers(wavesCount: 5, concurrentUsers: 1000);
