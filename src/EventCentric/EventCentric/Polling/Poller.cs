@@ -415,10 +415,11 @@ namespace EventCentric.Polling
 
         public void Handle(AddNewSubscriptionOnTheFly message)
         {
-            if (this.repository.TryAddNewSubscriptionOnTheFly(message.StreamType, message.Url, message.Token))
+            lock (this.lockObjectForOnTheFlySub)
             {
-                lock (this.lockObjectForOnTheFlySub)
+                if (this.repository.TryAddNewSubscriptionOnTheFly(message.StreamType, message.Url, message.Token))
                 {
+
                     if (this.onTheFlyBufferPool == null)
                         this.onTheFlyBufferPool = new ConcurrentBag<SubscriptionBuffer>();
                     else
@@ -468,9 +469,10 @@ namespace EventCentric.Polling
                     };
                     this.onTheFlyThread.Start();
                 }
+
+                else
+                    return;
             }
-            else
-                return;
         }
 
         protected override void OnStopping()

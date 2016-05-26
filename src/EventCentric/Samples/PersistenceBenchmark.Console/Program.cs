@@ -9,7 +9,7 @@ namespace PersistenceBenchmark.ConsoleHost
 
         static void Main(string[] args)
         {
-            var plugin = DbManager.SetPlugin(PersistencePlugin.InMemory);
+            var plugin = DbManager.SetPlugin(PersistencePlugin.SqlServer);
 
             PrintWelcomeMessage(plugin);
 
@@ -33,7 +33,7 @@ namespace PersistenceBenchmark.ConsoleHost
             var user2App = EventSystem.ResolveProcessor("user2") as UserManagementHandler;
 
             // SQL SERVER ADO.NET --------------------------------------------
-            // 100 througput,   completes in 20 s 9.085 messages    452 m/s
+            // 100 througput,   completes in 20 s 9.344 messages    467 m/s
             if (plugin == PersistencePlugin.SqlServer)
             {
                 user1App.StressWithWavesOfConcurrentUsers(wavesCount: 5, concurrentUsers: 1000);
@@ -44,8 +44,7 @@ namespace PersistenceBenchmark.ConsoleHost
             // 100 througput,   completes in 0:20 s 18.225 messgaes    911 m/s
             if (plugin == PersistencePlugin.InMemory)
             {
-                //user1App.StressWithWavesOfConcurrentUsers(wavesCount: 5, concurrentUsers: 1000);
-                user1App.StressWithWavesOfConcurrentUsers(wavesCount: 5, concurrentUsers: 1000, sendNewSub: true);
+                user1App.StressWithWavesOfConcurrentUsers(wavesCount: 5, concurrentUsers: 1000);
                 user2App.StressWithWavesOfConcurrentUsers(wavesCount: 5, concurrentUsers: 1000);
             }
 

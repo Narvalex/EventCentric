@@ -82,12 +82,15 @@ namespace EventCentric.Polling
                 if (context.Subscriptions.Any(s => s.SubscriberStreamType == this.streamType && s.StreamType == streamType))
                     return false;
 
+                var now = DateTime.Now;
                 context.Subscriptions.Add(new SubscriptionEntity
                 {
                     SubscriberStreamType = this.streamType,
                     StreamType = streamType,
                     Url = url,
-                    Token = token
+                    Token = token,
+                    CreationLocalTime = now,
+                    UpdateLocalTime = now
                 });
 
                 context.SaveChanges();

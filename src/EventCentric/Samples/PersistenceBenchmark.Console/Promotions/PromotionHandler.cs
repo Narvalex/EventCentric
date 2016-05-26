@@ -17,7 +17,10 @@ namespace PersistenceBenchmark.PromotionsStream
         {
             return base.FromNewStreamIfNotExists(message.StreamId, s =>
             s.Tee(x =>
-                this.bus.Publish(new AddNewSubscriptionOnTheFly(message.StreamTypeOfProducer, message.Url, message.Token)))
+            {
+                this.bus.Publish(new AddNewSubscriptionOnTheFly(message.StreamTypeOfProducer, message.Url, message.Token));
+                //this.bus.Publish(new AddNewSubscriptionOnTheFly(message.StreamTypeOfProducer, message.Url, message.Token));
+            })
             .Update(new NewSubscriptionAdded()));
         }
 
