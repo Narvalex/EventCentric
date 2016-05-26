@@ -98,13 +98,15 @@ namespace EventCentric.Handling
                     return;
                 }
 
-                /***************************************************** 
-                    This was the old way to get a lock.
-              
-                    this.streamLocksById.TryAdd(id, new object());
-                    lock (this.streamLocksById.TryGetValue(id))
+                /************************************************ 
+                IMPORTANT: This is what enables the pesimistic 
+                locking. It is secure.
+                This was the old way to get a lock.
+                
+                this.streamLocksById.TryAdd(id, new object());
+                lock (this.streamLocksById.TryGetValue(id))
     
-                ******************************************************/
+                *************************************************/
                 lock (this.streamLocksById.GetOrAdd(handling.StreamId.ToString(), new object()))
                 {
                     try
