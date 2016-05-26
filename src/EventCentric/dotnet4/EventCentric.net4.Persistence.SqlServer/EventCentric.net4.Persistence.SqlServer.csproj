@@ -8,7 +8,7 @@
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>EventCentric.Persistence.SqlServer</RootNamespace>
-    <AssemblyName>EventCentric.net4.Persistence.SqlServer</AssemblyName>
+    <AssemblyName>EventCentric.Persistence.SqlServer</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>

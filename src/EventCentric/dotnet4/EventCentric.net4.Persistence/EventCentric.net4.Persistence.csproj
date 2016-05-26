@@ -8,7 +8,7 @@
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>EventCentric.Persistence</RootNamespace>
-    <AssemblyName>EventCentric.net4.Persistence</AssemblyName>
+    <AssemblyName>EventCentric.Persistence</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>

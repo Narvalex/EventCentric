@@ -8,7 +8,7 @@
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>EventCentric.Authorization</RootNamespace>
-    <AssemblyName>EventCentric.net4.Authorization</AssemblyName>
+    <AssemblyName>EventCentric.Authorization</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>

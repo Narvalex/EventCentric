@@ -8,7 +8,7 @@
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>EventCentric.MicroserviceFactory</RootNamespace>
-    <AssemblyName>EventCentric.net4.MicroserviceFactory</AssemblyName>
+    <AssemblyName>EventCentric.MicroserviceFactory</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
