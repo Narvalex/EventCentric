@@ -197,7 +197,7 @@ namespace EventCentric.Polling
                     }
                     else
                     {
-                        if (this.TryFlush(buffer) || this.TryFill(buffer))
+                        if (this.TryFlush(buffer) | this.TryFill(buffer))
                         {
                             this.TryFlush(buffer);
                             working = true;
@@ -452,7 +452,7 @@ namespace EventCentric.Polling
                                 }
                                 else
                                 {
-                                    if (this.TryFlush(buffer) || this.TryFill(buffer))
+                                    if (this.TryFlush(buffer) | this.TryFill(buffer))
                                     {
                                         this.TryFlush(buffer);
                                         working = true;
