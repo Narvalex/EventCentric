@@ -181,6 +181,7 @@ namespace EventCentric.Polling
 
         private void PollAndDispatch()
         {
+            // This algorithm performs very well!
             var bufferPoolLength = this.bufferPool.Length;
             bool working;
             while (!this.stopping)
@@ -191,15 +192,13 @@ namespace EventCentric.Polling
                     var buffer = this.bufferPool[i];
                     if (working)
                     {
-                        this.TryFlush(buffer);
                         this.TryFill(buffer);
                         this.TryFlush(buffer);
                     }
                     else
                     {
-                        if (this.TryFlush(buffer) | this.TryFill(buffer))
+                        if (this.TryFill(buffer) | this.TryFlush(buffer))
                         {
-                            this.TryFlush(buffer);
                             working = true;
                         }
                     }
@@ -438,6 +437,7 @@ namespace EventCentric.Polling
 
                     this.onTheFlyThread = new Thread(() =>
                     {
+                        // This algorithm performs very well!
                         bool working;
                         while (!this.stopping)
                         {
@@ -446,7 +446,6 @@ namespace EventCentric.Polling
                             {
                                 if (working)
                                 {
-                                    this.TryFlush(buffer);
                                     this.TryFill(buffer);
                                     this.TryFlush(buffer);
                                 }
@@ -454,7 +453,6 @@ namespace EventCentric.Polling
                                 {
                                     if (this.TryFlush(buffer) | this.TryFill(buffer))
                                     {
-                                        this.TryFlush(buffer);
                                         working = true;
                                     }
                                 }
