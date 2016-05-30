@@ -312,6 +312,9 @@
     <Compile Include="..\..\EventCentric\Utils\GuidProvider.cs">
       <Link>Utils\GuidProvider.cs</Link>
     </Compile>
+    <Compile Include="..\..\EventCentric\Utils\IEchoable.cs">
+      <Link>Utils\IEchoable.cs</Link>
+    </Compile>
     <Compile Include="..\..\EventCentric\Utils\Testing\ApplicationServiceTestHelper.cs">
       <Link>Utils\Testing\ApplicationServiceTestHelper.cs</Link>
     </Compile>

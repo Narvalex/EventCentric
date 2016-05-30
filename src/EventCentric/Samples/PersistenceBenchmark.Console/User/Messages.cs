@@ -1,4 +1,5 @@
-﻿using EventCentric.EventSourcing;
+﻿using EventCentric;
+using EventCentric.EventSourcing;
 using System;
 
 namespace PersistenceBenchmark
@@ -15,7 +16,7 @@ namespace PersistenceBenchmark
         public string Name { get; }
     }
 
-    public class UserCreatedOrUpdated : Event
+    public class UserCreatedOrUpdated : Event, IEchoable<UserCreatedOrUpdated>
     {
         public UserCreatedOrUpdated(Guid userId, string name)
         {
@@ -25,6 +26,11 @@ namespace PersistenceBenchmark
 
         public Guid UserId { get; }
         public string Name { get; }
+
+        public IEchoable<UserCreatedOrUpdated> Echo()
+        {
+            return new UserCreatedOrUpdated(this.UserId, this.Name);
+        }
     }
 
     public class UserReceivedPoints : Event

@@ -158,6 +158,7 @@
     <Compile Include="Utils\FunctionalExtensions\CollectionExtensions.cs" />
     <Compile Include="Utils\FunctionalExtensions\GeneralExtensions.cs" />
     <Compile Include="Utils\GuidProvider.cs" />
+    <Compile Include="Utils\IEchoable.cs" />
     <Compile Include="Utils\Testing\ApplicationServiceTestHelper.cs" />
     <Compile Include="Utils\Testing\BusStub.cs" />
     <Compile Include="Utils\Testing\EventDenormalizerTestHelper.cs" />
