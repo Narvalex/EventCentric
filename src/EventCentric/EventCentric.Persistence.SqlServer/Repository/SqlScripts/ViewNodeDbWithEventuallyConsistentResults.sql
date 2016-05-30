@@ -106,7 +106,7 @@ CREATE TABLE[EventStore].[Inbox](
 	[InboxStreamType] [nvarchar](128) NOT NULL,
     [EventId] [uniqueidentifier] NOT NULL,
 	CONSTRAINT EventStore_Inbox_EventId UNIQUE(EventId),
-    [TransactionId] [uniqueidentifier] NULL,
+    [TransactionId] [uniqueidentifier] NOT NULL,
 	[StreamType] [nvarchar] (255) NULL,
     [StreamId] [uniqueidentifier] NULL,
     [Version] [bigint] NULL,

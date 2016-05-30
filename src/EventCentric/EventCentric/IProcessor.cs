@@ -13,7 +13,7 @@ namespace EventCentric
         /// </summary>
         /// <param name="streamId">The stream id that the message belongs to.</param>
         /// <param name="message">The message to be processed. It could be an event or a command.</param>
-        /// <returns></returns>
+        /// <returns>The transaction identifier, useful to poll the read side.</returns>
         Guid Process(Message message);
     }
 }

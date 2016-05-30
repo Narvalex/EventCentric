@@ -13,7 +13,10 @@ namespace PersistenceBenchmark
         IHandle<AddNewSubscription>
     //IHandles<FreePointsRewardedToUser>
     {
-        public UserManagementHandler(IBus bus, ILogger log, IEventStore<UserManagement> store) : base(bus, log, store) { }
+        public UserManagementHandler(IBus bus, ILogger log, IEventStore<UserManagement> store) : base(bus, log, store)
+        {
+            this.EnableDeduplicationBeforeHandling = false;
+        }
 
         //public IMessageHandling Handle(FreePointsRewardedToUser e)
         //{

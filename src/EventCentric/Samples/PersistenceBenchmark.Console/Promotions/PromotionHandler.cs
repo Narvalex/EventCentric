@@ -11,7 +11,10 @@ namespace PersistenceBenchmark.PromotionsStream
         IHandle<UserCreatedOrUpdated>,
         IHandle<TryAddNewSubscription>
     {
-        public PromotionsHandler(IBus bus, ILogger log, IEventStore<Promotions> store) : base(bus, log, store) { }
+        public PromotionsHandler(IBus bus, ILogger log, IEventStore<Promotions> store) : base(bus, log, store)
+        {
+            this.EnableDeduplicationBeforeHandling = false;
+        }
 
         public IMessageHandling Handle(TryAddNewSubscription message)
         {

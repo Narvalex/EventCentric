@@ -11,5 +11,6 @@ namespace EventCentric.Handling
         Guid StreamId { get; }
         bool ShouldBeIgnored { get; }
         Func<IEventSourced> Handle { get; }
+        bool DeduplicateBeforeHandling { get; }
     }
 }

@@ -77,7 +77,7 @@
     <Compile Include="EventSourcing\Event.cs" />
     <Compile Include="EventSourcing\State.cs" />
     <Compile Include="EventSourcing\ValueObject.cs" />
-    <Compile Include="Handling\EventHandling.cs" />
+    <Compile Include="Handling\MessageHandling.cs" />
     <Compile Include="Handling\IMessageHandling.cs" />
     <Compile Include="IProcessor.cs" />
     <Compile Include="Log\ConsoleLogger.cs" />

@@ -27,7 +27,6 @@ namespace EventCentric.Handling
         private readonly ConcurrentDictionary<string, object> streamLocksById;
         private readonly ConcurrentBag<Guid> poisonedStreams;
         private readonly ConcurrentQueue<IEvent> eventQueue = new ConcurrentQueue<IEvent>();
-
         protected readonly IGuidProvider guid;
 
         private Thread eventQueueThread;
@@ -53,22 +52,33 @@ namespace EventCentric.Handling
             this.newAggregateFactory = (id) => (TEventSourced)constructor.Invoke(new object[] { id });
         }
 
-        public void AdHocHandle(IEvent @event)
-        {
-            if (this.log.Verbose)
-                this.log.Trace($"{name} is handling a message of type {@event.GetType().Name} from {@event.StreamType}");
+        public bool EnableDeduplicationBeforeHandling { get; set; } = true;
 
-            this.HandleGracefully(@event);
-        }
-
+        /// <summary>
+        /// Enqueue a message to be processed. If the message has an eventId, it will be used for idempotency 
+        /// guarantee.
+        /// </summary>
+        /// <param name="message">The message to be processed.</param>
+        /// <returns>A transaction Id to poll in the query side for a return value.</returns>
         public Guid Process(Message message)
         {
+            if (message.EventId == default(Guid))
+                message.EventId = this.guid.NewGuid();
+            else
+            {
+                if (EnableDeduplicationBeforeHandling)
+                {
+                    Guid transactionId;
+                    if (this.store.IsDuplicate(message.EventId, out transactionId))
+                        return transactionId;
+                }
+            }
+
             var utcNow = DateTime.UtcNow;
 
             message.TransactionId = this.guid.NewGuid();
-            message.StreamId = this.guid.NewGuid(); // the app messafes do not belong to any stream id.
+            message.StreamId = this.guid.NewGuid(); // the app messages does not belong to any stream id.
             message.StreamType = this.appStreamName;
-            message.EventId = this.guid.NewGuid();
             message.LocalTime = utcNow.ToLocalTime();
             message.UtcTime = utcNow;
 
@@ -96,6 +106,13 @@ namespace EventCentric.Handling
                 {
                     // happily ignore! :)
                     return;
+                }
+
+                if (handling.DeduplicateBeforeHandling)
+                {
+                    Guid tranId;
+                    if (this.store.IsDuplicate(incomingEvent.EventId, out tranId))
+                        return;
                 }
 
                 /************************************************ 
@@ -134,21 +151,7 @@ namespace EventCentric.Handling
                     }
                     catch (Exception ex)
                     {
-                        this.log.Error(ex, $"An error was detected while processing a message. Now we will try to check if it is duplicate or the snapshot is currupted");
-
-                        // Maybe is duplicate
-                        try
-                        {
-                            if (this.store.IsDuplicate(incomingEvent.EventId))
-                            {
-                                // Happily ignore :)
-                                return;
-                            }
-                        }
-                        catch (Exception duplicateEx)
-                        {
-                            this.log.Error(duplicateEx, "An error ocurred while checking if incoming message is duplicate.");
-                        }
+                        this.log.Error(ex, $"An error was detected while processing a message. Now we will try to check if the snapshot is currupted");
 
                         // Or maybe the snapshot is corrupted
                         try
@@ -246,7 +249,7 @@ namespace EventCentric.Handling
         }
 
         private IMessageHandling BuildHandlingInvocation(Guid streamId, Func<TEventSourced, TEventSourced> handle, Func<TEventSourced> aggregateFactory)
-            => new MessageHandling(false, streamId, () => handle.Invoke(aggregateFactory.Invoke()));
+            => new MessageHandling(false, streamId, () => handle.Invoke(aggregateFactory.Invoke()), this.EnableDeduplicationBeforeHandling);
 
         protected IMessageHandling FromNewStreamIfNotExists(Guid id, Func<TEventSourced, TEventSourced> handle)
             => this.BuildHandlingInvocation(id, handle, () =>
@@ -265,7 +268,7 @@ namespace EventCentric.Handling
         {
             if (this.log.Verbose)
                 this.log.Trace($"{name} is automatically ignoring message of type {message.GetType().Name} because no handling method where found");
-            return new MessageHandling(true, default(Guid), () => null);
+            return new MessageHandling(true, default(Guid), null, false);
         }
 
         protected override void RegisterHandlersInBus(IBusRegistry bus)

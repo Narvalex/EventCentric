@@ -210,7 +210,7 @@ namespace EventCentric.Persistence
                                           : 0;
 
                 // Check if incoming event is duplicate
-                if (this.IsDuplicate(incomingEvent.EventId))
+                if (this.Inbox.Any(e => e.EventId == incomingEvent.EventId))
                     // Incoming event is duplicate
                     return;
 
@@ -356,9 +356,15 @@ namespace EventCentric.Persistence
             }
         }
 
-        public bool IsDuplicate(Guid eventId)
+        public bool IsDuplicate(Guid eventId, out Guid transactionId)
         {
-            return this.Inbox.Any(e => e.EventId == eventId);
+            transactionId = default(Guid);
+            var duplicate = this.Inbox.SingleOrDefault(e => e.EventId == eventId);
+            if (duplicate == null)
+                return false;
+
+            transactionId = duplicate.TransactionId;
+            return true;
         }
 
         public bool TryAddNewSubscriptionOnTheFly(string streamType, string url, string token)

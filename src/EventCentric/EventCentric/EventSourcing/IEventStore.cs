@@ -36,7 +36,7 @@ namespace EventCentric.EventSourcing
         /// <returns>The event collection version.</returns>
         void Save(T eventSourced, IEvent incomingEvent);
 
-        bool IsDuplicate(Guid eventId);
+        bool IsDuplicate(Guid eventId, out Guid transactionId);
 
         void DeleteSnapshot(Guid streamId);
     }

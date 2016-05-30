@@ -13,12 +13,12 @@ namespace EventCentric.Messaging
         public virtual int MessageTypeId => TypeId;
     }
 
-    public static class SystemMessageIdGuardian
+    public static class SystemMessageIdProvider
     {
         public static readonly Dictionary<Type, int> MessageTypeIdByType;
-        public static int MaxMessageTypeId;
+        public static int MaxMessageTypeId = 0;
 
-        static SystemMessageIdGuardian()
+        static SystemMessageIdProvider()
         {
             MessageTypeIdByType = new Dictionary<Type, int>();
             var rootMessageType = typeof(SystemMessage);

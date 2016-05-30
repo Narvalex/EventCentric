@@ -13,7 +13,7 @@ namespace EventCentric.Messaging
 
         public Bus()
         {
-            this.handlers = new List<IMessageHandler>[SystemMessageIdGuardian.MaxMessageTypeId + 1];
+            this.handlers = new List<IMessageHandler>[SystemMessageIdProvider.MaxMessageTypeId + 1];
             for (int i = 0; i < this.handlers.Length; i++)
                 handlers[i] = new List<IMessageHandler>();
         }
@@ -32,7 +32,7 @@ namespace EventCentric.Messaging
         {
             Ensure.NotNull(handler, nameof(handler));
 
-            this.handlers[SystemMessageIdGuardian.MessageTypeIdByType[typeof(T)]]
+            this.handlers[SystemMessageIdProvider.MessageTypeIdByType[typeof(T)]]
                 .Add(new MessageHandler<T>(handler));
         }
     }

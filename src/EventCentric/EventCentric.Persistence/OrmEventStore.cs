@@ -186,7 +186,7 @@ namespace EventCentric.Persistence
                 using (var context = this.contextFactory.Invoke(false))
                 {
                     // Check if incoming event is duplicate
-                    if (this.IsDuplicate(incomingEvent.EventId, context))
+                    if (context.Inbox.Any(e => e.EventId == incomingEvent.EventId))
                         // Incoming event is duplicate
                         return;
 
@@ -324,16 +324,19 @@ namespace EventCentric.Persistence
             }
         }
 
-        public bool IsDuplicate(Guid eventId)
+        public bool IsDuplicate(Guid eventId, out Guid transactionId)
         {
+            transactionId = default(Guid);
             using (var context = this.contextFactory.Invoke(true))
             {
-                return this.IsDuplicate(eventId, context);
+                var duplicate = context.Inbox.SingleOrDefault(x => x.EventId == eventId);
+                if (duplicate == null)
+                    return false;
+
+                transactionId = duplicate.TransactionId;
+                return true;
             }
         }
-
-        private bool IsDuplicate(Guid eventId, IEventStoreDbContext context)
-            => context.Inbox.Any(e => e.EventId == eventId);
 
         public void DeleteSnapshot(Guid streamId)
         {

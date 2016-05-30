@@ -414,8 +414,9 @@ namespace EventCentric.Persistence
             }
         }
 
-        public bool IsDuplicate(Guid eventId)
+        public bool IsDuplicate(Guid eventId, out Guid transactionId)
         {
+            transactionId = Guid.Empty;
             using (var connection = new SqlConnection(this.connectionString))
             {
                 connection.Open();
@@ -428,7 +429,15 @@ namespace EventCentric.Persistence
 
                     using (var reader = command.ExecuteReader())
                     {
-                        return reader.Read();
+                        if (reader.Read())
+                        {
+                            transactionId = reader.GetGuid("TransactionId");
+                            return true;
+                        }
+                        else
+                        {
+                            return false;
+                        }
                     }
                 }
             }
@@ -472,7 +481,7 @@ and StreamId = @StreamId
 order by [Version]";
 
         private readonly string isDuplicateQuery =
-        "select InboxId from eventstore.inbox where EventId = @EventId";
+        "select InboxId, TransactionId from eventstore.inbox where EventId = @EventId";
 
         private readonly string tryFindAppSubscription =
         @"select count(*) from EventStore.Subscriptions
