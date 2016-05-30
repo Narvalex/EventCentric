@@ -13,7 +13,7 @@ using System.Threading;
 
 namespace EventCentric.Handling
 {
-    public abstract class HandlerOf<TEventSourced> : MicroserviceWorker, IProcessor,
+    public abstract class Handler<TEventSourced> : MicroserviceWorker, IProcessor,
         ISystemHandler<StartEventHandler>,
         ISystemHandler<StopEventHandler>,
         ISystemHandler<NewIncomingEvents>,
@@ -31,7 +31,7 @@ namespace EventCentric.Handling
 
         private Thread eventQueueThread;
 
-        public HandlerOf(IBus bus, ILogger log, IEventStore<TEventSourced> store)
+        public Handler(IBus bus, ILogger log, IEventStore<TEventSourced> store)
             : base(bus, log)
         {
             Ensure.NotNull(store, nameof(store));

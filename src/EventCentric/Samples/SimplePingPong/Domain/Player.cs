@@ -22,7 +22,7 @@ namespace SimplePingPong.Domain
         }
     }
 
-    public class PlayerHandler : HandlerOf<Player>, IHandle<HitBall>
+    public class PlayerHandler : Handler<Player>, IHandle<HitBall>
     {
         public PlayerHandler(IBus bus, ILogger log, IEventStore<Player> store) : base(bus, log, store)
         {

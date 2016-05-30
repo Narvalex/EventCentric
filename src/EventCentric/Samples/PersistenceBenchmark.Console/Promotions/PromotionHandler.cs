@@ -7,7 +7,7 @@ using System;
 
 namespace PersistenceBenchmark.PromotionsStream
 {
-    public class PromotionsHandler : HandlerOf<Promotions>,
+    public class PromotionsHandler : Handler<Promotions>,
         IHandle<UserCreatedOrUpdated>,
         IHandle<TryAddNewSubscription>
     {

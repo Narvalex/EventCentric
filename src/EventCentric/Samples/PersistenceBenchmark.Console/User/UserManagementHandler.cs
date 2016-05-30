@@ -8,7 +8,7 @@ using System.Collections.Generic;
 
 namespace PersistenceBenchmark
 {
-    public class UserManagementHandler : HandlerOf<UserManagement>,
+    public class UserManagementHandler : Handler<UserManagement>,
         IHandle<CreateOrUpdateUser>,
         IHandle<AddNewSubscription>
     //IHandles<FreePointsRewardedToUser>

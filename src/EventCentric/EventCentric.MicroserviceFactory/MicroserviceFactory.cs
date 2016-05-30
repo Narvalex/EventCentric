@@ -20,7 +20,7 @@ namespace EventCentric
 {
     public static class MicroserviceFactory<TStream, THandler>
         where TStream : class, IEventSourced
-        where THandler : HandlerOf<TStream>
+        where THandler : Handler<TStream>
     {
         private static string EnsureStreamCategoryNameIsValid(string name)
         {
