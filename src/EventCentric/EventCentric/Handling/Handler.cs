@@ -17,6 +17,7 @@ namespace EventCentric.Handling
         ISystemHandler<StartEventHandler>,
         ISystemHandler<StopEventHandler>,
         ISystemHandler<NewIncomingEvents>,
+        IHandle<CloakedEvent>,
         IHandle<IEvent>
             where TEventSourced : class, IEventSourced
     {
@@ -276,6 +277,11 @@ namespace EventCentric.Handling
             bus.Register<StartEventHandler>(this);
             bus.Register<StopEventHandler>(this);
             bus.Register<NewIncomingEvents>(this);
+        }
+
+        public IMessageHandling Handle(CloakedEvent message)
+        {
+            return FromNewStream(Guid.Empty, state => state);
         }
     }
 }

@@ -25,10 +25,11 @@ namespace EventCentric.Persistence
         private readonly Func<bool, IEventStoreDbContext> contextFactory;
         private readonly Action<T, IEventStoreDbContext> denormalizeIfApplicable;
         private readonly Func<IEvent, DateTime, InboxEntity> inboxEntityFactory;
+        private readonly Func<string, string, bool> consumerFilter;
 
         private readonly object dbLock = new object();
 
-        public OrmEventStore(string streamName, ITextSerializer serializer, Func<bool, IEventStoreDbContext> contextFactory, IUtcTimeProvider time, IGuidProvider guid, ILogger log, bool persistIncomingPayloads)
+        public OrmEventStore(string streamName, ITextSerializer serializer, Func<bool, IEventStoreDbContext> contextFactory, IUtcTimeProvider time, IGuidProvider guid, ILogger log, bool persistIncomingPayloads, Func<string, string, bool> consumerFilter)
         {
             Ensure.NotNullNeitherEmtpyNorWhiteSpace(streamName, nameof(streamName));
             Ensure.NotNull(serializer, nameof(serializer));
@@ -44,6 +45,7 @@ namespace EventCentric.Persistence
             this.guid = guid;
             this.log = log;
             this.cache = new MemoryCache(streamName);
+            this.consumerFilter = consumerFilter != null ? consumerFilter : EventStore.DefaultFilter;
 
             /// TODO: could be replaced with a compiled lambda to make it more performant.
             var fromMementoConstructor = typeof(T).GetConstructor(new[] { typeof(Guid), typeof(ISnapshot) });
@@ -106,6 +108,7 @@ namespace EventCentric.Persistence
                 {
                     InboxStreamType = this.streamName,
                     EventId = incomingEvent.EventId,
+                    TransactionId = incomingEvent.TransactionId,
                     CreationLocalTime = localNow
                 };
         }
@@ -174,11 +177,6 @@ namespace EventCentric.Persistence
         public void Save(T eventSourced, IEvent incomingEvent)
         {
             var pendingEvents = eventSourced.PendingEvents;
-            if (pendingEvents.Count == 0)
-                return;
-
-            if (eventSourced.Id == default(Guid))
-                throw new ArgumentOutOfRangeException("StreamId", $"The eventsourced of type {typeof(T).FullName} has a default GUID value for its stream id, which is not valid");
 
             var key = eventSourced.Id.ToString();
             try
@@ -189,15 +187,6 @@ namespace EventCentric.Persistence
                     if (context.Inbox.Any(e => e.EventId == incomingEvent.EventId))
                         // Incoming event is duplicate
                         return;
-
-                    var currentVersion = context.Events.Any(e => e.StreamId == eventSourced.Id && e.StreamType == this.streamName)
-                                          ? context.Events
-                                            .Where(e => e.StreamId == eventSourced.Id && e.StreamType == this.streamName)
-                                            .Max(e => e.Version)
-                                          : 0;
-
-                    if (currentVersion + 1 != pendingEvents.First().Version)
-                        throw new EventStoreConcurrencyException();
 
                     var now = this.time.Now;
                     var localNow = this.time.Now.ToLocalTime();
@@ -216,6 +205,24 @@ namespace EventCentric.Persistence
                     {
                         throw new InvalidOperationException($"The incoming event belongs to a an stream type of {incomingEvent.StreamType}, but the event store could not found a subscription for that stream type.", ex);
                     }
+
+                    if (pendingEvents.Count == 0)
+                    {
+                        context.SaveChanges();
+                        return;
+                    }
+
+                    if (eventSourced.Id == default(Guid))
+                        throw new ArgumentOutOfRangeException("StreamId", $"The eventsourced of type {typeof(T).FullName} has a default GUID value for its stream id, which is not valid");
+
+                    var currentVersion = context.Events.Any(e => e.StreamId == eventSourced.Id && e.StreamType == this.streamName)
+                      ? context.Events
+                        .Where(e => e.StreamId == eventSourced.Id && e.StreamType == this.streamName)
+                        .Max(e => e.Version)
+                      : 0;
+
+                    if (currentVersion + 1 != pendingEvents.First().Version)
+                        throw new EventStoreConcurrencyException();
 
 
                     // Cache Memento And Publish Stream
@@ -356,7 +363,7 @@ namespace EventCentric.Persistence
         /// FindEvents
         /// </summary>
         /// <returns>Events if found, otherwise return empty list.</returns>
-        public SerializedEvent[] FindEvents(long lastReceivedVersion, int quantity)
+        public SerializedEvent[] FindEventsForConsumer(long lastReceivedVersion, int quantity, string consumer)
         {
             using (var context = this.contextFactory(true))
             {
@@ -366,7 +373,12 @@ namespace EventCentric.Persistence
                         .OrderBy(e => e.EventCollectionVersion)
                         .Take(quantity)
                         .ToList()
-                        .Select(e => new SerializedEvent(e.EventCollectionVersion, e.Payload))
+                        .Select(e =>
+                            EventStore.ApplyConsumerFilter(
+                                new SerializedEvent(e.EventCollectionVersion, e.Payload),
+                                consumer,
+                                this.serializer,
+                                this.consumerFilter))
                         .ToArray();
             }
         }

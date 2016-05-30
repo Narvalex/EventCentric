@@ -63,7 +63,7 @@ namespace EventCentric.Publishing
                 // A Charly le paso. Sucede que limpio la base de datos y justo queria entregar un evento y no devolvia nada.
                 else if (ecv > consumerVersion)
                 {
-                    newEvents = this.store.FindEvents(consumerVersion, this.eventsToPushMaxCount);
+                    newEvents = this.store.FindEventsForConsumer(consumerVersion, this.eventsToPushMaxCount, consumerName);
 
                     if (newEvents.Length > 0)
                     {

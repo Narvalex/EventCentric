@@ -26,12 +26,13 @@ namespace EventCentric.Persistence
         private readonly Func<Guid, IEnumerable<IEvent>, T> aggregateFactory;
         private readonly Func<Guid, ISnapshot, T> originatorAggregateFactory;
         private readonly Action<SqlConnection, SqlTransaction, DateTime, IEvent> addToInboxFactory;
+        private readonly Func<string, string, bool> consumerFilter;
 
         private readonly string connectionString;
         private readonly SqlClientLite sql;
         private readonly object dbLock = new object();
 
-        public OptimizedEventStore(string streamName, ITextSerializer serializer, string connectionString, IUtcTimeProvider time, IGuidProvider guid, ILogger log, bool persistIncomingPayloads)
+        public OptimizedEventStore(string streamName, ITextSerializer serializer, string connectionString, IUtcTimeProvider time, IGuidProvider guid, ILogger log, bool persistIncomingPayloads, Func<string, string, bool> consumerFilter)
         {
             Ensure.NotNullNeitherEmtpyNorWhiteSpace(streamName, nameof(streamName));
             Ensure.NotNull(serializer, nameof(serializer));
@@ -46,6 +47,7 @@ namespace EventCentric.Persistence
             this.time = time;
             this.guid = guid;
             this.log = log;
+            this.consumerFilter = consumerFilter != null ? consumerFilter : EventStore.DefaultFilter;
             this.cache = new MemoryCache(streamName);
 
             this.sql = new SqlClientLite(this.connectionString, timeoutInSeconds: 120);
@@ -174,11 +176,6 @@ namespace EventCentric.Persistence
         public void Save(T eventSourced, IEvent incomingEvent)
         {
             var pendingEvents = eventSourced.PendingEvents;
-            if (pendingEvents.Count == 0)
-                return;
-
-            if (eventSourced.Id == default(Guid))
-                throw new ArgumentOutOfRangeException("StreamId", $"The eventsourced of type {typeof(T).FullName} has a default GUID value for its stream id, which is not valid");
 
             var key = eventSourced.Id.ToString();
             try
@@ -201,42 +198,8 @@ namespace EventCentric.Persistence
                         }
                     }
 
-                    // get current version
-                    long currentVersion = 0;
-                    using (var command = connection.CreateCommand())
-                    {
-                        command.CommandType = CommandType.Text;
-                        command.CommandText = this.getStreamVersion;
-                        command.Parameters.Add(new SqlParameter("@StreamType", this.streamName));
-                        command.Parameters.Add(new SqlParameter("@StreamId", eventSourced.Id));
-
-                        using (var reader = command.ExecuteReader())
-                        {
-                            if (reader.Read())
-                            {
-                                currentVersion = reader.GetInt64("Version");
-                            }
-                        }
-                    }
-
-                    if (currentVersion + 1 != pendingEvents.First().Version)
-                        throw new EventStoreConcurrencyException();
-
                     var now = this.time.Now;
                     var localNow = this.time.Now.ToLocalTime();
-
-                    // Cache Memento And Publish Stream
-                    var snapshot = ((ISnapshotOriginator)eventSourced).SaveToSnapshot();
-
-                    // Cache in Sql Server
-                    var serializedMemento = this.serializer.Serialize(snapshot);
-
-
-                    // Cache in memory
-                    this.cache.Set(
-                        key: key,
-                        value: new Tuple<ISnapshot, DateTime?>(snapshot, now),
-                        policy: new CacheItemPolicy { AbsoluteExpiration = this.time.OffSetNow.AddMinutes(30) });
 
                     using (var transaction = connection.BeginTransaction(IsolationLevel.ReadUncommitted))
                     {
@@ -258,6 +221,47 @@ namespace EventCentric.Persistence
 
                                 command.ExecuteNonQuery();
                             }
+
+                            if (pendingEvents.Count == 0)
+                            {
+                                transaction.Commit();
+                                return;
+                            }
+
+                            if (eventSourced.Id == default(Guid))
+                                throw new ArgumentOutOfRangeException("StreamId", $"The eventsourced of type {typeof(T).FullName} has a default GUID value for its stream id, which is not valid");
+
+                            // get current version
+                            long currentVersion = 0;
+                            using (var command = connection.CreateCommand())
+                            {
+                                command.CommandType = CommandType.Text;
+                                command.CommandText = this.getStreamVersion;
+                                command.Parameters.Add(new SqlParameter("@StreamType", this.streamName));
+                                command.Parameters.Add(new SqlParameter("@StreamId", eventSourced.Id));
+
+                                using (var reader = command.ExecuteReader())
+                                {
+                                    if (reader.Read())
+                                    {
+                                        currentVersion = reader.GetInt64("Version");
+                                    }
+                                }
+                            }
+
+                            if (currentVersion + 1 != pendingEvents.First().Version)
+                                throw new EventStoreConcurrencyException();
+
+                            // Cache Memento And Publish Stream
+                            var snapshot = ((ISnapshotOriginator)eventSourced).SaveToSnapshot();
+                            var serializedMemento = this.serializer.Serialize(snapshot);
+
+
+                            // Cache in memory
+                            this.cache.Set(
+                                key: key,
+                                value: new Tuple<ISnapshot, DateTime?>(snapshot, now),
+                                policy: new CacheItemPolicy { AbsoluteExpiration = this.time.OffSetNow.AddMinutes(30) });
 
                             // Insert or Update snapshot
                             using (var command = connection.CreateCommand())
@@ -409,6 +413,7 @@ namespace EventCentric.Persistence
                 command.Parameters.Add(new SqlParameter("@InboxStreamType", this.streamName));
                 command.Parameters.Add(new SqlParameter("@EventId", incomingEvent.EventId));
                 command.Parameters.Add(new SqlParameter("@CreationLocalTime", localNow));
+                command.Parameters.Add(new SqlParameter("@TransactionId", incomingEvent.TransactionId));
 
                 command.ExecuteNonQuery();
             }
@@ -458,13 +463,20 @@ namespace EventCentric.Persistence
         /// FindEvents
         /// </summary>
         /// <returns>Events if found, otherwise return empty list.</returns>
-        public SerializedEvent[] FindEvents(long lastReceivedVersion, int quantity)
+        public SerializedEvent[] FindEventsForConsumer(long lastReceivedVersion, int quantity, string consumer)
         {
             return this.sql.ExecuteReader(this.findEventsQuery,
                 r => new SerializedEvent(r.GetInt64("EventCollectionVersion"), r.GetString("Payload")),
                 new SqlParameter("@Quantity", quantity),
                 new SqlParameter("@StreamType", this.streamName),
                 new SqlParameter("@LastReceivedVersion", lastReceivedVersion))
+                .Where(e => this.consumerFilter(consumer, e.Payload))
+                .Select(e =>
+                            EventStore.ApplyConsumerFilter(
+                                new SerializedEvent(e.EventCollectionVersion, e.Payload),
+                                consumer,
+                                this.serializer,
+                                this.consumerFilter))
                 .ToArray();
         }
 
@@ -527,11 +539,13 @@ VALUES
         @"INSERT INTO [EventStore].[Inbox]
     ([InboxStreamType]
     ,[EventId]
-    ,[CreationLocalTime])
+    ,[CreationLocalTime]
+    ,[TransactionId])
 VALUES
     (@InboxStreamType, 
     @EventId,
-    @CreationLocalTime)";
+    @CreationLocalTime,
+    @TransactionId)";
 
         private readonly string updateSubscriptionCommand =
         @"UPDATE [EventStore].[Subscriptions]

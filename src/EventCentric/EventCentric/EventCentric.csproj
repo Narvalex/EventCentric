@@ -75,8 +75,10 @@
     <Compile Include="EventSourcing\AnInvalidOperationExceptionOccurred.cs" />
     <Compile Include="EventSourcing\Command.cs" />
     <Compile Include="EventSourcing\Event.cs" />
+    <Compile Include="EventSourcing\EventStore.cs" />
     <Compile Include="EventSourcing\State.cs" />
     <Compile Include="EventSourcing\ValueObject.cs" />
+    <Compile Include="Handling\CloakedEvent.cs" />
     <Compile Include="Handling\MessageHandling.cs" />
     <Compile Include="Handling\IMessageHandling.cs" />
     <Compile Include="IProcessor.cs" />

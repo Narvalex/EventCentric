@@ -35,6 +35,7 @@ namespace EventCentric
             PersistencePlugin selectedPlugin = PersistencePlugin.SqlServer,
             bool persistIncomingPayloads = true,
             Func<InMemoryEventStore<TStream>, InMemoryEventStore<TStream>> setupInMemoryPersistence = null,
+            Func<string, string, bool> consumerFilter = null,
             bool isSubscriptor = true,
             Func<IBus, ILogger, IEventStore<TStream>, THandler> processorFactory = null,
             Func<string, IEventStore, IBus, ILogger, int, TimeSpan, IPollableEventSource> publisherFactory = null)
@@ -53,7 +54,7 @@ namespace EventCentric
                 AuthorizationFactory.SetToken(eventStoreConfig);
 
                 PersistencePluginResolver<TStream>.ResolvePersistence(
-                    container, selectedPlugin, streamFullName, connectionString, persistIncomingPayloads, setupInMemoryPersistence);
+                    container, selectedPlugin, streamFullName, connectionString, persistIncomingPayloads, setupInMemoryPersistence, consumerFilter);
 
                 var log = container.Resolve<ILogger>();
 
@@ -145,7 +146,7 @@ namespace EventCentric
                 var dbContextConstructor = typeof(TDbContext).GetConstructor(new[] { typeof(bool), typeof(string) });
                 Ensure.CastIsValid(dbContextConstructor, "Type TDbContext must have a constructor with the following signature: ctor(bool, string)");
                 Func<bool, IEventStoreDbContext> dbContextFactory = isReadOnly => (TDbContext)dbContextConstructor.Invoke(new object[] { isReadOnly, connectionString });
-                var eventStore = new OrmEventStore<TStream>(streamFullName, serializer, dbContextFactory, time, guid, log, persistIncomingPayloads);
+                var eventStore = new OrmEventStore<TStream>(streamFullName, serializer, dbContextFactory, time, guid, log, persistIncomingPayloads, null);
                 container.RegisterInstance<IEventStore<TStream>>(eventStore);
 
                 var bus = new Bus();

@@ -24,7 +24,8 @@ namespace EventCentric.MicroserviceFactory
             string connectionString,
             bool persistIncomingPayloads,
             // Sql Based persistence
-            Func<InMemoryEventStore<TStream>, InMemoryEventStore<TStream>> setupInMemoryPersistence)
+            Func<InMemoryEventStore<TStream>, InMemoryEventStore<TStream>> setupInMemoryPersistence,
+            Func<string, string, bool> consumerFilter)
         {
             switch (selectedPlugin)
             {
@@ -35,7 +36,8 @@ namespace EventCentric.MicroserviceFactory
                         container.Resolve<ITextSerializer>(),
                         container.Resolve<IGuidProvider>(),
                         container.Resolve<ILogger>(),
-                        persistIncomingPayloads);
+                        persistIncomingPayloads,
+                        consumerFilter);
 
                     if (setupInMemoryPersistence != null)
                         setupInMemoryPersistence.Invoke(persistence);
@@ -45,11 +47,11 @@ namespace EventCentric.MicroserviceFactory
                     break;
 
                 case PersistencePlugin.SqlServer:
-                    ResolveForSqlServer(container, microserviceName, connectionString, persistIncomingPayloads);
+                    ResolveForSqlServer(container, microserviceName, connectionString, persistIncomingPayloads, consumerFilter);
                     break;
 
                 case PersistencePlugin.SqlServerCe:
-                    ResolveForSqlServerCe(container, microserviceName, connectionString, persistIncomingPayloads);
+                    ResolveForSqlServerCe(container, microserviceName, connectionString, persistIncomingPayloads, consumerFilter);
                     break;
 
                 default:
@@ -59,7 +61,7 @@ namespace EventCentric.MicroserviceFactory
             return container;
         }
 
-        private static void ResolveForSqlServer(IUnityContainer container, string microserviceName, string connectionString, bool persistIncomingPayloads)
+        private static void ResolveForSqlServer(IUnityContainer container, string microserviceName, string connectionString, bool persistIncomingPayloads, Func<string, string, bool> consumerFilter)
         {
             Func<bool, EventStoreDbContext> storeContextFactory = isReadOnly => new EventStoreDbContext(isReadOnly, connectionString);
             Func<bool, EventQueueDbContext> queueContextFactory = isReadOnly => new EventQueueDbContext(isReadOnly, connectionString);
@@ -70,11 +72,11 @@ namespace EventCentric.MicroserviceFactory
             var subscriptionRepository = new SubscriptionRepository(storeContextFactory, microserviceName, serializer, time);
             container.RegisterInstance<ISubscriptionRepository>(subscriptionRepository);
 
-            var eventStore = new OptimizedEventStore<TStream>(microserviceName, serializer, connectionString, time, container.Resolve<IGuidProvider>(), container.Resolve<ILogger>(), persistIncomingPayloads);
+            var eventStore = new OptimizedEventStore<TStream>(microserviceName, serializer, connectionString, time, container.Resolve<IGuidProvider>(), container.Resolve<ILogger>(), persistIncomingPayloads, consumerFilter);
             container.RegisterInstance<IEventStore<TStream>>(eventStore);
         }
 
-        private static void ResolveForSqlServerCe(IUnityContainer container, string microserviceName, string connectionString, bool persistIncomingPayloads)
+        private static void ResolveForSqlServerCe(IUnityContainer container, string microserviceName, string connectionString, bool persistIncomingPayloads, Func<string, string, bool> consumerFilter)
         {
             Func<bool, EventStoreCeDbContext> storeContextFactory = isReadOnly =>
                 new EventStoreCeDbContext(isReadOnly, connectionString);
@@ -88,7 +90,7 @@ namespace EventCentric.MicroserviceFactory
             var subscriptionRepository = new SubscriptionRepository(storeContextFactory, microserviceName, serializer, time);
             container.RegisterInstance<ISubscriptionRepository>(subscriptionRepository);
 
-            var eventStore = new OrmEventStore<TStream>(microserviceName, serializer, storeContextFactory, time, container.Resolve<IGuidProvider>(), container.Resolve<ILogger>(), persistIncomingPayloads);
+            var eventStore = new OrmEventStore<TStream>(microserviceName, serializer, storeContextFactory, time, container.Resolve<IGuidProvider>(), container.Resolve<ILogger>(), persistIncomingPayloads, consumerFilter);
             container.RegisterInstance<IEventStore<TStream>>(eventStore);
         }
     }

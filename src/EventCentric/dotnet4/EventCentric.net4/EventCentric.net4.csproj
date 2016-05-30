@@ -81,6 +81,9 @@
     <Compile Include="..\..\EventCentric\EventSourcing\EventSourced.cs">
       <Link>EventSourcing\EventSourced.cs</Link>
     </Compile>
+    <Compile Include="..\..\EventCentric\EventSourcing\EventStore.cs">
+      <Link>EventSourcing\EventStore.cs</Link>
+    </Compile>
     <Compile Include="..\..\EventCentric\EventSourcing\EventStoreConcurrencyException.cs">
       <Link>EventSourcing\EventStoreConcurrencyException.cs</Link>
     </Compile>
@@ -119,6 +122,9 @@
     </Compile>
     <Compile Include="..\..\EventCentric\EventSourcing\ValueObject.cs">
       <Link>EventSourcing\ValueObject.cs</Link>
+    </Compile>
+    <Compile Include="..\..\EventCentric\Handling\CloakedEvent.cs">
+      <Link>Handling\CloakedEvent.cs</Link>
     </Compile>
     <Compile Include="..\..\EventCentric\Handling\Handler.cs">
       <Link>Handling\Handler.cs</Link>
