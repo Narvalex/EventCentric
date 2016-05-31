@@ -17,7 +17,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Docs", "Docs", "{7B295ED5-3
 		..\Docs\AboutHeartbeatController.txt = ..\Docs\AboutHeartbeatController.txt
 		..\Docs\AboutNamingConventions.txt = ..\Docs\AboutNamingConventions.txt
 		..\Docs\AboutOcassionallyConnectedClients.txt = ..\Docs\AboutOcassionallyConnectedClients.txt
-		..\Docs\AboutRestCallsBetweenNodes.txt = ..\Docs\AboutRestCallsBetweenNodes.txt
 		..\Docs\AboutScheduling.txt = ..\Docs\AboutScheduling.txt
 		..\Docs\AboutStreamTypeResolver.txt = ..\Docs\AboutStreamTypeResolver.txt
 		..\Docs\AboutSubscriptions.txt = ..\Docs\AboutSubscriptions.txt

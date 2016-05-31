@@ -2,6 +2,6 @@
 {
     public interface IEchoable<T>
     {
-        IEchoable<T> Echo();
+        T Echo();
     }
 }

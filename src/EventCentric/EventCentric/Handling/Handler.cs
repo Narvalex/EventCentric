@@ -55,12 +55,6 @@ namespace EventCentric.Handling
 
         public bool EnableDeduplicationBeforeHandling { get; set; } = true;
 
-        /// <summary>
-        /// Enqueue a message to be processed. If the message has an eventId, it will be used for idempotency 
-        /// guarantee.
-        /// </summary>
-        /// <param name="message">The message to be processed.</param>
-        /// <returns>A transaction Id to poll in the query side for a return value.</returns>
         public Guid Process(Message message)
         {
             if (message.EventId == default(Guid))
@@ -86,6 +80,18 @@ namespace EventCentric.Handling
             this.eventQueue.Enqueue(message);
             return message.TransactionId;
         }
+
+        //public TEventSourced ProcessNow(Message message)
+        //{
+        //    var utcNow = DateTime.UtcNow;
+
+        //    message.EventId = this.guid.NewGuid(); // Is a new handling, will create a new Id.
+        //    message.TransactionId = this.guid.NewGuid();
+        //    message.StreamId = this.guid.NewGuid(); // the app messages does not belong to any stream id.
+        //    message.StreamType = this.appStreamName;
+        //    message.LocalTime = utcNow.ToLocalTime();
+        //    message.UtcTime = utcNow;
+        //}
 
         public void Handle(NewIncomingEvents message)
         {

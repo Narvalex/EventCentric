@@ -18,7 +18,6 @@ namespace EventCentric.Publishing
         ISystemHandler<StartEventPublisher>,
         ISystemHandler<StopEventPublisher>
     {
-        private readonly string clientVersion;
         private readonly string serverUrl;
         private readonly string serverToken;
         private readonly string serverName;
@@ -26,17 +25,14 @@ namespace EventCentric.Publishing
 
         private Thread thread;
 
-        public OcassionallyConnectedPublisher(string streamType, IEventStore store, IBus bus, ILogger log, int eventsToPushMaxCount, TimeSpan pollTimeout,
-            string clientVersion, string serverUrl, string serverToken, string serverName)
+        public OcassionallyConnectedPublisher(string streamType, IEventStore store, IBus bus, ILogger log, int eventsToPushMaxCount, TimeSpan pollTimeout, string serverUrl, string serverToken, string serverName)
             : base(streamType, store, bus, log, pollTimeout, eventsToPushMaxCount)
         {
             Ensure.Positive(eventsToPushMaxCount, "eventsToPushMaxCount");
 
-            Ensure.NotNullNeitherEmtpyNorWhiteSpace(clientVersion, nameof(clientVersion));
             Ensure.NotNullNeitherEmtpyNorWhiteSpace(serverUrl, nameof(serverUrl));
             Ensure.NotNullNeitherEmtpyNorWhiteSpace(serverName, nameof(serverName));
 
-            this.clientVersion = clientVersion;
             this.serverUrl = serverUrl;
             this.serverToken = serverToken;
             this.serverName = serverName;

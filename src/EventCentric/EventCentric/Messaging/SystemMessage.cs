@@ -43,7 +43,10 @@ namespace EventCentric.Messaging
 
                             });
                 }
-                catch (Exception) { }
+                catch (Exception)
+                {
+                    Console.WriteLine($"An erroc ocurred while parsing assembley of name: {a.FullName}. System will continue to initialize.");
+                }
             });
 
             if (messageTypeCount - 1 != MaxMessageTypeId)

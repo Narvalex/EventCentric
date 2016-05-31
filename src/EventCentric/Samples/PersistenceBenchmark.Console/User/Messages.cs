@@ -15,7 +15,7 @@ namespace PersistenceBenchmark
         public Guid UserId { get; }
         public string Name { get; }
     }
-
+    
     public class UserCreatedOrUpdated : Event, IEchoable<UserCreatedOrUpdated>
     {
         public UserCreatedOrUpdated(Guid userId, string name)
@@ -27,7 +27,7 @@ namespace PersistenceBenchmark
         public Guid UserId { get; }
         public string Name { get; }
 
-        public IEchoable<UserCreatedOrUpdated> Echo()
+        public UserCreatedOrUpdated Echo()
         {
             return new UserCreatedOrUpdated(this.UserId, this.Name);
         }
