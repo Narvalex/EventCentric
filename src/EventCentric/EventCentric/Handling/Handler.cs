@@ -85,10 +85,14 @@ namespace EventCentric.Handling
 
         public T ProcessNow(Message message)
         {
+            if (message.EventId == default(Guid) || message.TransactionId == default(Guid))
+            {
+                message.EventId = this.guid.NewGuid();
+                message.TransactionId = message.EventId;
+            }
+
             var utcNow = DateTime.UtcNow;
 
-            message.EventId = this.guid.NewGuid(); // Is a new handling, will create a new Id.
-            message.TransactionId = this.guid.NewGuid();
             message.StreamId = this.guid.NewGuid(); // the app messages does not belong to any stream id.
             message.StreamType = this.appStreamName;
             message.LocalTime = utcNow.ToLocalTime();
@@ -123,7 +127,7 @@ namespace EventCentric.Handling
                 {
                     Guid tranId;
                     if (this.store.IsDuplicate(incomingEvent.EventId, out tranId))
-                        return null;
+                        return this.store.Find(handling.StreamId);
                 }
 
                 /************************************************ 

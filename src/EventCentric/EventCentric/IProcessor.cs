@@ -18,7 +18,8 @@ namespace EventCentric
         Guid Process(Message message);
 
         /// <summary>
-        /// Process a message and returns the state of <see cref="T"/>. This call is not idempotent.
+        /// Process a message as soon as possible and returns the state of <see cref="T"/>. If the message has a 
+        /// defined EventId and transaction Id, it will be idempotent.
         /// </summary>
         /// <param name="message">The message.</param>
         /// <returns>The upadted state of <see cref="T"/></returns>
