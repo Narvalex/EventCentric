@@ -7,7 +7,7 @@ using System.Collections.Generic;
 
 namespace SimplePingPong.Domain
 {
-    public class Player : StateOf<Player>
+    public class Player : State<Player>
     {
         public Player(Guid id) : base(id)
         {

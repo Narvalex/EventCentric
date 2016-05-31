@@ -1,4 +1,5 @@
 ﻿using EventCentric.Database;
+using EventCentric.EventSourcing;
 using EventCentric.Factory;
 using EventCentric.Log;
 using EventCentric.Messaging;
@@ -131,11 +132,11 @@ namespace EventCentric.MicroserviceFactory
             log.Log($"Starting Event Centric System...", logLines);
         }
 
-        public static IProcessor ResolveProcessor(string name)
+        public static IProcessor<T> ResolveProcessor<T>(string name) where T : class, IEventSourced
         {
             IUnityContainer container;
             if (childContainers.TryGetValue(name, out container))
-                return container.Resolve<IProcessor>();
+                return container.Resolve<IProcessor<T>>();
 
             throw new ArgumentException($"The event processor {name} is not in the event system");
         }

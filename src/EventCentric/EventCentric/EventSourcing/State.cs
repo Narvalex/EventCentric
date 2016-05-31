@@ -4,17 +4,17 @@ using System.Linq;
 
 namespace EventCentric.EventSourcing
 {
-    public class StateOf<T> : EventSourced<T>,
+    public class State<T> : EventSourced<T>,
         IUpdatesWhen<AnInvalidOperationExceptionOccurred>,
         IUpdatesWhen<Event>,
         IUpdatesAfterSending<Command>
         where T : class, IEventSourced
     {
-        public StateOf(Guid id) : base(id) { }
+        public State(Guid id) : base(id) { }
 
-        public StateOf(Guid id, ISnapshot snapshot) : base(id, snapshot) { }
+        public State(Guid id, ISnapshot snapshot) : base(id, snapshot) { }
 
-        public StateOf(Guid id, IEnumerable<IEvent> streamOfEvents) : base(id, streamOfEvents) { }
+        public State(Guid id, IEnumerable<IEvent> streamOfEvents) : base(id, streamOfEvents) { }
 
         public T Update(Event @event) => base.UpdateFromMessage(@event);
 

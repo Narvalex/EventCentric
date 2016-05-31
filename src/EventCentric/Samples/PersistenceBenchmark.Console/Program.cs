@@ -29,8 +29,8 @@ namespace PersistenceBenchmark.ConsoleHost
 
         private static void RunBenchmark(PersistencePlugin plugin)
         {
-            var user1App = EventSystem.ResolveProcessor("user1") as UserManagementHandler;
-            var user2App = EventSystem.ResolveProcessor("user2") as UserManagementHandler;
+            var user1App = EventSystem.ResolveProcessor<UserManagement>("user1") as UserManagementHandler;
+            var user2App = EventSystem.ResolveProcessor<UserManagement>("user2") as UserManagementHandler;
 
             // SQL SERVER ADO.NET --------------------------------------------
             // 100 througput,   completes in 20 s 9.616 messages    480 m/s

@@ -13,18 +13,18 @@ using System.Threading;
 
 namespace EventCentric.Handling
 {
-    public abstract class Handler<TEventSourced> : MicroserviceWorker, IProcessor,
+    public abstract class Handler<T> : MicroserviceWorker, IProcessor<T>,
         ISystemHandler<StartEventHandler>,
         ISystemHandler<StopEventHandler>,
         ISystemHandler<NewIncomingEvents>,
         IHandle<CloakedEvent>,
         IHandle<IEvent>
-            where TEventSourced : class, IEventSourced
+            where T : class, IEventSourced
     {
         private readonly string name;
         private readonly string appStreamName;
-        private readonly IEventStore<TEventSourced> store;
-        private readonly Func<Guid, TEventSourced> newAggregateFactory;
+        private readonly IEventStore<T> store;
+        private readonly Func<Guid, T> newAggregateFactory;
         private readonly ConcurrentDictionary<string, object> streamLocksById;
         private readonly ConcurrentBag<Guid> poisonedStreams;
         private readonly ConcurrentQueue<IEvent> eventQueue = new ConcurrentQueue<IEvent>();
@@ -32,7 +32,7 @@ namespace EventCentric.Handling
 
         private Thread eventQueueThread;
 
-        public Handler(IBus bus, ILogger log, IEventStore<TEventSourced> store)
+        public Handler(IBus bus, ILogger log, IEventStore<T> store)
             : base(bus, log)
         {
             Ensure.NotNull(store, nameof(store));
@@ -47,18 +47,21 @@ namespace EventCentric.Handling
             this.poisonedStreams = new ConcurrentBag<Guid>();
 
             // New aggregate
-            var constructor = typeof(TEventSourced).GetConstructor(new[] { typeof(Guid) });
+            var constructor = typeof(T).GetConstructor(new[] { typeof(Guid) });
             Ensure.CastIsValid(constructor, "Type T must have a constructor with the following signature: .ctor(Guid)");
 
-            this.newAggregateFactory = (id) => (TEventSourced)constructor.Invoke(new object[] { id });
+            this.newAggregateFactory = (id) => (T)constructor.Invoke(new object[] { id });
         }
 
         public bool EnableDeduplicationBeforeHandling { get; set; } = true;
 
         public Guid Process(Message message)
         {
-            if (message.EventId == default(Guid))
+            if (message.EventId == default(Guid) || message.TransactionId == default(Guid))
+            {
                 message.EventId = this.guid.NewGuid();
+                message.TransactionId = message.EventId;
+            }
             else
             {
                 if (EnableDeduplicationBeforeHandling)
@@ -71,7 +74,6 @@ namespace EventCentric.Handling
 
             var utcNow = DateTime.UtcNow;
 
-            message.TransactionId = this.guid.NewGuid();
             message.StreamId = this.guid.NewGuid(); // the app messages does not belong to any stream id.
             message.StreamType = this.appStreamName;
             message.LocalTime = utcNow.ToLocalTime();
@@ -81,17 +83,19 @@ namespace EventCentric.Handling
             return message.TransactionId;
         }
 
-        //public TEventSourced ProcessNow(Message message)
-        //{
-        //    var utcNow = DateTime.UtcNow;
+        public T ProcessNow(Message message)
+        {
+            var utcNow = DateTime.UtcNow;
 
-        //    message.EventId = this.guid.NewGuid(); // Is a new handling, will create a new Id.
-        //    message.TransactionId = this.guid.NewGuid();
-        //    message.StreamId = this.guid.NewGuid(); // the app messages does not belong to any stream id.
-        //    message.StreamType = this.appStreamName;
-        //    message.LocalTime = utcNow.ToLocalTime();
-        //    message.UtcTime = utcNow;
-        //}
+            message.EventId = this.guid.NewGuid(); // Is a new handling, will create a new Id.
+            message.TransactionId = this.guid.NewGuid();
+            message.StreamId = this.guid.NewGuid(); // the app messages does not belong to any stream id.
+            message.StreamType = this.appStreamName;
+            message.LocalTime = utcNow.ToLocalTime();
+            message.UtcTime = utcNow;
+
+            return this.HandleGracefully(message);
+        }
 
         public void Handle(NewIncomingEvents message)
         {
@@ -102,7 +106,7 @@ namespace EventCentric.Handling
                 this.eventQueue.Enqueue(e);
         }
 
-        private void HandleGracefully(IEvent incomingEvent)
+        private T HandleGracefully(IEvent incomingEvent)
         {
             try
             {
@@ -112,14 +116,14 @@ namespace EventCentric.Handling
                 if (handling.ShouldBeIgnored)
                 {
                     // happily ignore! :)
-                    return;
+                    return null;
                 }
 
                 if (handling.DeduplicateBeforeHandling)
                 {
                     Guid tranId;
                     if (this.store.IsDuplicate(incomingEvent.EventId, out tranId))
-                        return;
+                        return null;
                 }
 
                 /************************************************ 
@@ -136,16 +140,20 @@ namespace EventCentric.Handling
                     try
                     {
                         if (!this.poisonedStreams.Where(p => p == handling.StreamId).Any())
-                            this.HandleAndSaveChanges(incomingEvent, handling);
+                        {
+                            if (this.log.Verbose)
+                                this.log.Trace($"{name} successfully handled message of type {incomingEvent.GetType().Name}");
 
-                        if (this.log.Verbose)
-                            this.log.Trace($"{name} successfully handled message of type {incomingEvent.GetType().Name}");
+                            return this.HandleAndSaveChanges(incomingEvent, handling);
+                        }
+
+                        return null;
                     }
                     catch (StreamNotFoundException ex)
                     {
                         // we igonore it, just to protect our servers to get down.
                         this.log.Error(ex, $"The stream {handling.StreamId} was not found. Ignoring message. You can retry by reseting the subscription table.");
-                        return;
+                        return null;
                     }
                     catch (RuntimeBinderException ex)
                     {
@@ -154,7 +162,7 @@ namespace EventCentric.Handling
                         list.Add("-----------------------------------------------------------------------------------");
                         this.log.Error(ex, "", list.ToArray());
                         this.poisonedStreams.Add(handling.StreamId);
-                        throw ex;
+                        throw;
                     }
                     catch (Exception ex)
                     {
@@ -164,7 +172,7 @@ namespace EventCentric.Handling
                         try
                         {
                             this.store.DeleteSnapshot(handling.StreamId);
-                            this.HandleAndSaveChanges(incomingEvent, handling);
+                            return this.HandleAndSaveChanges(incomingEvent, handling);
                         }
                         catch (Exception deleteSnapshotEx)
                         {
@@ -172,7 +180,7 @@ namespace EventCentric.Handling
                         }
 
                         this.poisonedStreams.Add(handling.StreamId);
-                        throw ex;
+                        throw;
                     }
                 }
             }
@@ -183,13 +191,15 @@ namespace EventCentric.Handling
                 this.bus.Publish(new IncomingEventIsPoisoned(incomingEvent, exception));
 
                 this.log.Error(exception, $"Poison message of type {incomingEvent.GetType().Name} detected in Event Processor");
+                throw;
             }
         }
 
-        private void HandleAndSaveChanges(IEvent incomingEvent, IMessageHandling handling)
+        private T HandleAndSaveChanges(IEvent incomingEvent, IMessageHandling handling)
         {
-            var eventSourced = handling.Handle.Invoke();
-            this.store.Save(eventSourced as TEventSourced, incomingEvent);
+            T eventSourced = handling.Handle.Invoke() as T;
+            this.store.Save(eventSourced, incomingEvent);
+            return eventSourced;
         }
 
         public void Handle(StartEventHandler message)
@@ -210,7 +220,7 @@ namespace EventCentric.Handling
             this.eventQueueThread = new Thread(this.ReadFromQueue) { IsBackground = true, Name = this.name + "_HANDLER" };
             this.eventQueueThread.Start();
 
-            base.log.Log($"{typeof(TEventSourced).Name} handler started");
+            base.log.Log($"{typeof(T).Name} handler started");
             base.bus.Publish(new EventHandlerStarted());
 
         }
@@ -255,20 +265,20 @@ namespace EventCentric.Handling
             this.bus.Publish(new EventProcessorStopped());
         }
 
-        private IMessageHandling BuildHandlingInvocation(Guid streamId, Func<TEventSourced, TEventSourced> handle, Func<TEventSourced> aggregateFactory)
+        private IMessageHandling BuildHandlingInvocation(Guid streamId, Func<T, T> handle, Func<T> aggregateFactory)
             => new MessageHandling(false, streamId, () => handle.Invoke(aggregateFactory.Invoke()), this.EnableDeduplicationBeforeHandling);
 
-        protected IMessageHandling FromNewStreamIfNotExists(Guid id, Func<TEventSourced, TEventSourced> handle)
+        protected IMessageHandling FromNewStreamIfNotExists(Guid id, Func<T, T> handle)
             => this.BuildHandlingInvocation(id, handle, () =>
             {
                 var aggregate = this.store.Find(id);
                 return aggregate != null ? aggregate : this.newAggregateFactory(id);
             });
 
-        protected IMessageHandling FromNewStream(Guid id, Func<TEventSourced, TEventSourced> handle)
+        protected IMessageHandling FromNewStream(Guid id, Func<T, T> handle)
             => this.BuildHandlingInvocation(id, handle, () => this.newAggregateFactory(id));
 
-        protected IMessageHandling FromStream(Guid streamId, Func<TEventSourced, TEventSourced> handle)
+        protected IMessageHandling FromStream(Guid streamId, Func<T, T> handle)
            => this.BuildHandlingInvocation(streamId, handle, () => this.store.Get(streamId));
 
         public IMessageHandling Handle(IEvent message)

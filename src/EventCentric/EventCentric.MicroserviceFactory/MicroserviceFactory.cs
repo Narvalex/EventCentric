@@ -89,7 +89,7 @@ namespace EventCentric
                 {
                     processor = processorFactory.Invoke(bus, log, eventStore);
                 }
-                container.RegisterInstance<IProcessor>(processor);
+                container.RegisterInstance<IProcessor<TStream>>(processor);
 
                 // For nodes that polls events from subscribed sources
                 if (isSubscriptor)

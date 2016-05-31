@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace PersistenceBenchmark
 {
-    public class Promotions : StateOf<Promotions>,
+    public class Promotions : State<Promotions>,
         IUpdatesWhen<FreePointsRewardedToUser>
     {
         private int points = 0;
