@@ -6,7 +6,9 @@ using EventCentric.Messaging;
 using EventCentric.Messaging.Commands;
 using EventCentric.Persistence.SqlServer;
 using EventCentric.Publishing;
+using EventCentric.Publishing.Dto;
 using EventCentric.Serialization;
+using EventCentric.Transport;
 using EventCentric.Utils;
 using Microsoft.Practices.Unity;
 using System;
@@ -117,6 +119,11 @@ namespace EventCentric.MicroserviceFactory
                 throw new KeyNotFoundException($"The microservice {microserviceName} does not exist!");
 
             childContainers[microserviceName].Resolve<IBus>().Publish(new AddNewSubscriptionOnTheFly(sourceName, Constants.InMemorySusbscriptionUrl, Constants.OcassionallyConnectedSourceToken));
+        }
+
+        public static bool TryUpdateServer(string serverName, PollResponse response, out ServerStatus status)
+        {
+            return mainPublisher.TryUpdateServer(serverName, response, out status);
         }
 
         private static void PrintSystemInfo(ILogger log, int processorsCount)
