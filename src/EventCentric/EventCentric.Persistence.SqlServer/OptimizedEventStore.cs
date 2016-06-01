@@ -1,5 +1,6 @@
 ﻿using EventCentric.Database;
 using EventCentric.EventSourcing;
+using EventCentric.Handling;
 using EventCentric.Log;
 using EventCentric.Serialization;
 using EventCentric.Utils;
@@ -205,9 +206,6 @@ namespace EventCentric.Persistence
                     {
                         try
                         {
-                            // Log the incoming message in the inbox
-                            this.addToInboxFactory.Invoke(connection, transaction, localNow, incomingEvent);
-
                             // Update subscription
                             using (var command = connection.CreateCommand())
                             {
@@ -224,6 +222,9 @@ namespace EventCentric.Persistence
 
                             if (pendingEvents.Count == 0)
                             {
+                                if (!(incomingEvent is CloakedEvent))
+                                    this.addToInboxFactory.Invoke(connection, transaction, localNow, incomingEvent);
+
                                 transaction.Commit();
                                 return;
                             }
@@ -251,6 +252,9 @@ namespace EventCentric.Persistence
 
                             if (currentVersion + 1 != pendingEvents.First().Version)
                                 throw new EventStoreConcurrencyException();
+
+                            // Log the incoming message in the inbox
+                            this.addToInboxFactory.Invoke(connection, transaction, localNow, incomingEvent);
 
                             // Cache Memento And Publish Stream
                             var snapshot = ((ISnapshotOriginator)eventSourced).SaveToSnapshot();

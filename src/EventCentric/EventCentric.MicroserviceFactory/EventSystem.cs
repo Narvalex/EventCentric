@@ -3,6 +3,7 @@ using EventCentric.EventSourcing;
 using EventCentric.Factory;
 using EventCentric.Log;
 using EventCentric.Messaging;
+using EventCentric.Messaging.Commands;
 using EventCentric.Persistence.SqlServer;
 using EventCentric.Publishing;
 using EventCentric.Serialization;
@@ -32,9 +33,9 @@ namespace EventCentric.MicroserviceFactory
             return this;
         }
 
-        public EventSystemSetup RegisterOcassionallyConnectedSources(params IPollableEventSource[] sources)
+        public EventSystemSetup RegisterOcassionallyConnectedSources(params string[] sources)
         {
-            EventSystem.OcassionallyConnectedSources = sources;
+            EventSystem.OcassionallyConnectedSources = sources.Select(s => new OcassionallyConnectedSource(s)).ToArray();
             return this;
         }
 
@@ -52,7 +53,7 @@ namespace EventCentric.MicroserviceFactory
 
         internal static bool UseSignalRLog = false;
         internal static bool Verbose = false;
-        internal static IPollableEventSource[] OcassionallyConnectedSources = null;
+        internal static OcassionallyConnectedSource[] OcassionallyConnectedSources = null;
 
 
         private static IUnityContainer mainContainer;
@@ -105,6 +106,39 @@ namespace EventCentric.MicroserviceFactory
             }
         }
 
+        public static IProcessor<T> ResolveProcessor<T>(string name) where T : class, IEventSourced
+        {
+            IUnityContainer container;
+            if (childContainers.TryGetValue(name, out container))
+                return container.Resolve<IProcessor<T>>();
+
+            throw new ArgumentException($"The event processor {name} is not registered in the event system");
+        }
+
+        public static IPollableEventSource ResolveEventSource(string name)
+        {
+            IUnityContainer container;
+            if (childContainers.TryGetValue(name, out container))
+                return container.Resolve<IPollableEventSource>();
+
+            throw new ArgumentException($"The source {name} is not registered in the event system");
+        }
+
+        public static IOcassionallyConnectedSourceConsumer ResolveOcassionallyConnectedSourceConsumer(string sourceName)
+        {
+            return OcassionallyConnectedSources.Where(s => s.SourceName == sourceName).SingleOrDefault();
+        }
+
+        public static bool TryAddOcassionallyConnectedSourceOnTheFly(string ocassionallyConnectedSourceName, string consumerName)
+        {
+            if (!childContainers.ContainsKey(consumerName))
+                return false;
+
+            mainContainer.Resolve<IInMemoryEventPublisher>().Register(new OcassionallyConnectedSource(ocassionallyConnectedSourceName));
+            childContainers[consumerName].Resolve<IBus>().Publish(new AddNewSubscriptionOnTheFly(ocassionallyConnectedSourceName, Constants.InMemorySusbscriptionUrl, Constants.InMemorySusbscriptionToken));
+            return true;
+        }
+
         private static void PrintSystemInfo(ILogger log, int processorsCount)
         {
             int workerThreads;
@@ -130,15 +164,6 @@ namespace EventCentric.MicroserviceFactory
             logLines[5] = $"| MicroserviceCount: {processorCount}";
 
             log.Log($"Starting Event Centric System...", logLines);
-        }
-
-        public static IProcessor<T> ResolveProcessor<T>(string name) where T : class, IEventSourced
-        {
-            IUnityContainer container;
-            if (childContainers.TryGetValue(name, out container))
-                return container.Resolve<IProcessor<T>>();
-
-            throw new ArgumentException($"The event processor {name} is not in the event system");
         }
 
         private static IUnityContainer ResolveCommonDependenciesForMainContainer(bool useSignalRLog, bool verbose)

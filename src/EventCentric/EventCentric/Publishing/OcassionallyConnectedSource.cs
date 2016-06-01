@@ -13,7 +13,7 @@ namespace EventCentric.Publishing
     /// This is the endpoints where the clients can connect to in orther to push events (sync).
     /// This is hosted by the server.
     /// </summary>
-    public class OcassionallyConnectedSource : IPollableEventSource
+    public class OcassionallyConnectedSource : IPollableEventSource, IOcassionallyConnectedSourceConsumer
     {
         private readonly ConcurrentBag<PollResponse> clientResponse = new ConcurrentBag<PollResponse>();
         private readonly ConcurrentBag<ServerStatus> serverStatus = new ConcurrentBag<ServerStatus>();

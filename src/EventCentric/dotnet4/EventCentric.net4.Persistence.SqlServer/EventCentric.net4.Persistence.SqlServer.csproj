@@ -63,7 +63,7 @@
       <Link>Database\TransientFaultHandlingDbConfiguration.cs</Link>
     </Compile>
     <Compile Include="..\..\EventCentric.Persistence.SqlServer\OptimizedEventStore.cs">
-      <Link>Repository\OptimizedEventStore.cs</Link>
+      <Link>OptimizedEventStore.cs</Link>
     </Compile>
     <Compile Include="..\..\EventCentric.Persistence.SqlServer\Repository\EventQueueDbContext.cs">
       <Link>Repository\EventQueueDbContext.cs</Link>

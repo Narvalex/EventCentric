@@ -97,6 +97,7 @@
     <Compile Include="Handling\Handler.cs" />
     <Compile Include="Handling\IHandle.cs" />
     <Compile Include="EventSourcing\SerializedEvent.cs" />
+    <Compile Include="Publishing\IOcassionallyConnectedSourceConsumer.cs" />
     <Compile Include="Publishing\PublisherBase.cs" />
     <Compile Include="Publishing\ServerStatus.cs" />
     <Compile Include="Config\EventStoreConfig.cs" />

@@ -1,4 +1,5 @@
 ﻿using EventCentric.EventSourcing;
+using EventCentric.Handling;
 using EventCentric.Log;
 using EventCentric.Messaging;
 using EventCentric.Polling;
@@ -214,9 +215,6 @@ namespace EventCentric.Persistence
                 var now = this.time.Now;
                 var localNow = this.time.Now.ToLocalTime();
 
-                // Log the incoming message in the inbox
-                this.Inbox.Add(this.inboxEntityFactory.Invoke(incomingEvent));
-
                 // Update subscription
                 try
                 {
@@ -231,7 +229,13 @@ namespace EventCentric.Persistence
 
                 // No new events to persist
                 if (pendingEvents.Count == 0)
+                {
+                    if (!(incomingEvent is CloakedEvent))
+                        // Log the incoming message in the inbox
+                        this.Inbox.Add(this.inboxEntityFactory.Invoke(incomingEvent));
+
                     return;
+                }
 
                 if (eventSourced.Id == default(Guid))
                     throw new ArgumentOutOfRangeException("StreamId", $"The eventsourced of type {typeof(T).FullName} has a default GUID value for its stream id, which is not valid");
@@ -244,6 +248,9 @@ namespace EventCentric.Persistence
 
                 if (currentVersion + 1 != pendingEvents.First().Version)
                     throw new EventStoreConcurrencyException();
+
+                // Log the incoming message in the inbox
+                this.Inbox.Add(this.inboxEntityFactory.Invoke(incomingEvent));
 
                 // Cache Memento And Publish Stream
                 var snapshot = ((ISnapshotOriginator)eventSourced).SaveToSnapshot();

@@ -70,16 +70,6 @@
     <Compile Include="Repository\ViewDao.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\EventCentric.Persistence\EventCentric.Persistence.csproj">
-      <Project>{c01c199e-c7bc-45d4-a1d5-b521f333e57e}</Project>
-      <Name>EventCentric.Persistence</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\EventCentric\EventCentric.csproj">
-      <Project>{4b00e8dd-813c-4abb-8c87-c664d188f62c}</Project>
-      <Name>EventCentric</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
     <None Include="App.config" />
     <None Include="packages.config" />
   </ItemGroup>
@@ -88,6 +78,16 @@
     <Content Include="Repository\SqlScripts\ProcessorNodeDb.sql" />
     <Content Include="Repository\SqlScripts\ViewNodeDb.sql" />
     <Content Include="Repository\SqlScripts\ViewNodeDbWithEventuallyConsistentResults.sql" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\EventCentric.Persistence\EventCentric.Persistence.csproj">
+      <Project>{c01c199e-c7bc-45d4-a1d5-b521f333e57e}</Project>
+      <Name>EventCentric.Persistence</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\EventCentric\EventCentric.csproj">
+      <Project>{4b00e8dd-813c-4abb-8c87-c664d188f62c}</Project>
+      <Name>EventCentric</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
