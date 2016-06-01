@@ -258,6 +258,9 @@
     <Compile Include="..\..\EventCentric\Polling\SubscriptionBuffer.cs">
       <Link>Polling\SubscriptionBuffer.cs</Link>
     </Compile>
+    <Compile Include="..\..\EventCentric\Publishing\IOcassionallyConnectedSourceConsumer.cs">
+      <Link>Publishing\IOcassionallyConnectedSourceConsumer.cs</Link>
+    </Compile>
     <Compile Include="..\..\EventCentric\Publishing\IPollableEventSource.cs">
       <Link>Publishing\IPollableEventSource.cs</Link>
     </Compile>
