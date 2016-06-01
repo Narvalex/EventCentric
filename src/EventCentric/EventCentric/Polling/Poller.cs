@@ -3,6 +3,7 @@ using EventCentric.Log;
 using EventCentric.Messaging;
 using EventCentric.Messaging.Commands;
 using EventCentric.Messaging.Events;
+using EventCentric.Publishing;
 using EventCentric.Serialization;
 using EventCentric.Transport;
 using EventCentric.Utils;
@@ -45,11 +46,12 @@ namespace EventCentric.Polling
         private ConcurrentBag<SubscriptionBuffer> onTheFlyBufferPool;
         private Thread onTheFlyThread;
         private bool onTheFlySubscriptionsDetected = false;
+        private IInMemoryEventPublisherRegistry mainPublisherRegistry;
 
         private readonly object lockObjectForOnTheFlySub = new object();
         private readonly object lockObjectForPoisonedSubs = new object();
 
-        public Poller(IBus bus, ILogger log, ISubscriptionRepository repository, ILongPoller poller, ITextSerializer serializer,
+        public Poller(IBus bus, ILogger log, IInMemoryEventPublisherRegistry mainPublisherRegistry, ISubscriptionRepository repository, ILongPoller poller, ITextSerializer serializer,
             int queueMaxCount, int eventsToFlushMaxCount)
             : base(bus, log)
         {
@@ -57,6 +59,7 @@ namespace EventCentric.Polling
             Ensure.NotNull(poller, nameof(poller));
             Ensure.NotNull(serializer, "serializer");
             Ensure.NotNull(log, "logger");
+            Ensure.NotNull(mainPublisherRegistry, nameof(mainPublisherRegistry));
 
             Ensure.Positive(queueMaxCount, "queueMaxCount");
             Ensure.Positive(eventsToFlushMaxCount, "eventsToFlushMaxCount");
@@ -65,6 +68,7 @@ namespace EventCentric.Polling
             this.poller = poller;
             this.serializer = serializer;
             this.log = log;
+            this.mainPublisherRegistry = mainPublisherRegistry;
 
             this.queueMaxCount = queueMaxCount;
             this.eventsToFlushMaxCount = eventsToFlushMaxCount;
@@ -397,6 +401,7 @@ namespace EventCentric.Polling
                 var subscription = this.bufferPool[i];
                 subscriptionCount += 1;
                 lines.Add($"| --> Subscription {subscriptionCount} | Name: {subscription.StreamType} | {subscription.Url} | Buffer version: {subscription.CurrentBufferVersion}");
+                this.RegisterOcassionallyConnectedSourceIfApplicable(subscription);
             }
 
             if (this.thread != null)
@@ -410,6 +415,12 @@ namespace EventCentric.Polling
             this.log.Log($"Starting {this.microserviceName} poller...", lines.ToArray());
 
             this.bus.Publish(new EventPollerStarted());
+        }
+
+        private void RegisterOcassionallyConnectedSourceIfApplicable(SubscriptionBuffer subscription)
+        {
+            if (subscription.Token == Constants.InMemorySusbscriptionToken)
+                this.mainPublisherRegistry.Register(new OcassionallyConnectedSource(subscription.StreamType));
         }
 
         public void Handle(AddNewSubscriptionOnTheFly message)
@@ -426,6 +437,7 @@ namespace EventCentric.Polling
                         return;
 
                     var sub = new SubscriptionBuffer(message.StreamType, message.Url, message.Token, 0, false);
+                    this.mainPublisherRegistry.Register(new OcassionallyConnectedSource(sub.StreamType));
                     this.onTheFlyBufferPool.Add(sub);
 
                     if (this.onTheFlySubscriptionsDetected)

@@ -38,7 +38,7 @@ namespace EventCentric.Querying
             this.queryName = queryName;
 
             this.subRepo = new InMemorySubscriptionRepository();
-            this.poller = new Poller(this.bus, this.log, this.subRepo, new LongPoller(this.bus, this.log, TimeSpan.FromMinutes(2), this.queryName, null), new JsonTextSerializer(), 1000, 1000);
+            this.poller = new Poller(this.bus, this.log, new InMemoryEventPublisher(this.log), this.subRepo, new LongPoller(this.bus, this.log, TimeSpan.FromMinutes(2), this.queryName, null), new JsonTextSerializer(), 1000, 1000);
         }
 
         public IGiven<TState> From(params EventSourceConnection[] connections)

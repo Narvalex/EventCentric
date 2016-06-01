@@ -96,7 +96,7 @@ namespace EventCentric
                 {
                     pollerConfig = ConfigResolver.ResolveConfig(pollerConfig);
                     var receiver = new LongPoller(bus, log, TimeSpan.FromMilliseconds(pollerConfig.Timeout), streamFullName, inMemoryPublisher);
-                    var poller = new Poller(bus, log, container.Resolve<ISubscriptionRepository>(), receiver, container.Resolve<ITextSerializer>(), pollerConfig.BufferQueueMaxCount, pollerConfig.EventsToFlushMaxCount);
+                    var poller = new Poller(bus, log, inMemoryPublisher, container.Resolve<ISubscriptionRepository>(), receiver, container.Resolve<ITextSerializer>(), pollerConfig.BufferQueueMaxCount, pollerConfig.EventsToFlushMaxCount);
                     container.RegisterInstance<IMonitoredSubscriber>(poller);
 
                     var heartbeatEmitter = new HeartbeatEmitter(fsm, log, poller);
@@ -156,7 +156,7 @@ namespace EventCentric
 
                 var subscriptionRepository = new SubscriptionRepository(storeContextFactory, streamFullName, serializer, time);
 
-                var poller = new Poller(bus, log, subscriptionRepository, receiver, serializer, pollerConfig.BufferQueueMaxCount, pollerConfig.EventsToFlushMaxCount);
+                var poller = new Poller(bus, log, container.Resolve<IInMemoryEventPublisher>(), subscriptionRepository, receiver, serializer, pollerConfig.BufferQueueMaxCount, pollerConfig.EventsToFlushMaxCount);
                 container.RegisterInstance<IMonitoredSubscriber>(poller);
 
                 var publisher = new Publisher(streamFullName, eventStore, bus, log, eventStoreConfig.PushMaxCount, TimeSpan.FromMilliseconds(eventStoreConfig.LongPollingTimeout));

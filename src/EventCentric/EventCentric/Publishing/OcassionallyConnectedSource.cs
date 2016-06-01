@@ -17,6 +17,7 @@ namespace EventCentric.Publishing
     {
         private readonly ConcurrentBag<PollResponse> clientResponse = new ConcurrentBag<PollResponse>();
         private readonly ConcurrentBag<ServerStatus> serverStatus = new ConcurrentBag<ServerStatus>();
+        private readonly object lockObject = new object();
 
         public OcassionallyConnectedSource(string sourceName)
         {
@@ -35,7 +36,7 @@ namespace EventCentric.Publishing
             while (!this.clientResponse.TryTake(out clientResponse))
                 Thread.Sleep(1);
 
-            lock (this)
+            lock (this.lockObject)
             {
                 if (clientResponse.ProducerVersion > eventBufferVersion &&
                     clientResponse.NewRawEvents.Max(x => x.EventCollectionVersion) > eventBufferVersion)

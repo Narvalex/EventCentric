@@ -33,12 +33,6 @@ namespace EventCentric.MicroserviceFactory
             return this;
         }
 
-        public EventSystemSetup RegisterOcassionallyConnectedSources(params string[] sources)
-        {
-            EventSystem.OcassionallyConnectedSources = sources.Select(s => new OcassionallyConnectedSource(s)).ToArray();
-            return this;
-        }
-
         public void Create(params Func<IMicroservice>[] microservicesFactories)
         {
             EventSystem.Create(microservicesFactories);
@@ -47,14 +41,13 @@ namespace EventCentric.MicroserviceFactory
 
     public class EventSystem
     {
+        private static IInMemoryEventPublisher mainPublisher;
         private static readonly object _lockObject = new object();
         private static MultiMicroserviceContainer multiContainer = null;
         private static bool isRunning = false;
 
         internal static bool UseSignalRLog = false;
         internal static bool Verbose = false;
-        internal static OcassionallyConnectedSource[] OcassionallyConnectedSources = null;
-
 
         private static IUnityContainer mainContainer;
         private static readonly Dictionary<string, IUnityContainer> childContainers = new Dictionary<string, IUnityContainer>();
@@ -93,12 +86,6 @@ namespace EventCentric.MicroserviceFactory
                     mainContainer.Resolve<ILogger>(),
                     microservicesFactories.Select(f => f.Invoke()));
 
-                if (OcassionallyConnectedSources != null)
-                {
-                    var inMemoryEventPublisher = mainContainer.Resolve<IInMemoryEventPublisher>();
-                    OcassionallyConnectedSources.ForEach(x => inMemoryEventPublisher.Register(x));
-                }
-
                 multiContainer.Start();
 
                 isRunning = true;
@@ -124,19 +111,12 @@ namespace EventCentric.MicroserviceFactory
             throw new ArgumentException($"The source {name} is not registered in the event system");
         }
 
-        public static IOcassionallyConnectedSourceConsumer ResolveOcassionallyConnectedSourceConsumer(string sourceName)
+        public static void AddOcassionallyConnectedSourceOnTheFly(string microserviceName, string sourceName)
         {
-            return OcassionallyConnectedSources.Where(s => s.SourceName == sourceName).SingleOrDefault();
-        }
+            if (!childContainers.ContainsKey(microserviceName))
+                throw new KeyNotFoundException($"The microservice {microserviceName} does not exist!");
 
-        public static bool TryAddOcassionallyConnectedSourceOnTheFly(string ocassionallyConnectedSourceName, string consumerName)
-        {
-            if (!childContainers.ContainsKey(consumerName))
-                return false;
-
-            mainContainer.Resolve<IInMemoryEventPublisher>().Register(new OcassionallyConnectedSource(ocassionallyConnectedSourceName));
-            childContainers[consumerName].Resolve<IBus>().Publish(new AddNewSubscriptionOnTheFly(ocassionallyConnectedSourceName, Constants.InMemorySusbscriptionUrl, Constants.InMemorySusbscriptionToken));
-            return true;
+            childContainers[microserviceName].Resolve<IBus>().Publish(new AddNewSubscriptionOnTheFly(sourceName, Constants.InMemorySusbscriptionUrl, Constants.OcassionallyConnectedSourceToken));
         }
 
         private static void PrintSystemInfo(ILogger log, int processorsCount)
@@ -173,8 +153,7 @@ namespace EventCentric.MicroserviceFactory
             var log = useSignalRLog ? (ILogger)SignalRLogger.GetResolvedSignalRLogger(verbose) : new ConsoleLogger(verbose);
             mainContainer.RegisterInstance<ILogger>(log);
 
-            // Only one instance of the event publisher sould be in a node.
-            mainContainer.RegisterInstance<IInMemoryEventPublisher>(new InMemoryEventPublisher(log));
+            mainPublisher = new InMemoryEventPublisher(log);
 
             var serializer = new JsonTextSerializer();
             mainContainer.RegisterInstance<ITextSerializer>(serializer);
@@ -195,7 +174,7 @@ namespace EventCentric.MicroserviceFactory
             var newContainer = new UnityContainer();
             newContainer.RegisterInstance<ILogger>(mainContainer.Resolve<ILogger>());
             // We resolve the in memory event publisher. There sould be only one instance of it.
-            newContainer.RegisterInstance<IInMemoryEventPublisher>(mainContainer.Resolve<IInMemoryEventPublisher>());
+            newContainer.RegisterInstance<IInMemoryEventPublisher>(mainPublisher);
             newContainer.RegisterInstance<ITextSerializer>(mainContainer.Resolve<ITextSerializer>());
             newContainer.RegisterInstance<IUtcTimeProvider>(mainContainer.Resolve<IUtcTimeProvider>());
             newContainer.RegisterInstance<IGuidProvider>(mainContainer.Resolve<IGuidProvider>());
