@@ -5,7 +5,6 @@ using EventCentric.Transport;
 using EventCentric.Utils;
 using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 
 namespace EventCentric.Messaging
 {
@@ -43,7 +42,7 @@ namespace EventCentric.Messaging
         {
             status = null;
             if (!this.ocassionallyConnectedSourcesByConsumer.ContainsKey(consumerName))
-                throw new KeyNotFoundException($"The consumer of name {nameof(consumerName)} is not registered in the system");
+                return false;
 
             var sources = this.ocassionallyConnectedSourcesByConsumer[consumerName];
             if (!sources.ContainsKey(response.StreamType))

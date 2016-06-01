@@ -121,9 +121,12 @@ namespace EventCentric.MicroserviceFactory
             childContainers[microserviceName].Resolve<IBus>().Publish(new AddNewSubscriptionOnTheFly(sourceName, Constants.InMemorySusbscriptionUrl, Constants.OcassionallyConnectedSourceToken));
         }
 
-        public static bool TryUpdateServer(string serverName, PollResponse response, out ServerStatus status)
+        public static bool TryUpdateConsumer(string consumerName, PollResponse response, out ServerStatus status)
         {
-            return mainPublisher.TryUpdateConsumer(serverName, response, out status);
+            if (childContainers.ContainsKey(consumerName))
+                return mainPublisher.TryUpdateConsumer(consumerName, response, out status);
+
+            throw new KeyNotFoundException($"The microservice [consumer] {consumerName} does not exist!");
         }
 
         private static void PrintSystemInfo(ILogger log, int processorsCount)
