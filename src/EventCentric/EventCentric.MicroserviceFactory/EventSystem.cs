@@ -141,7 +141,7 @@ namespace EventCentric.MicroserviceFactory
             logLines[2] = string.Format("| OSVersion:          {0}", Environment.OSVersion);
             logLines[3] = string.Format("| ProcessorCount:     {0}", processorCount);
             logLines[4] = string.Format("| ClockSpeed:         {0} MHZ", cpuSpeed);
-            logLines[5] = $"| MicroserviceCount: {processorCount}";
+            logLines[5] = $"| MicroserviceCount: {processorsCount}";
 
             log.Log($"Starting Event Centric System...", logLines);
         }
