@@ -13,7 +13,7 @@ namespace EventCentric.Messaging
     {
         private readonly ILogger log;
         private readonly ConcurrentDictionary<string, Func<long, string, PollResponse>> sourcesByStreamType = new ConcurrentDictionary<string, Func<long, string, PollResponse>>();
-        private readonly ConcurrentDictionary<string, ConcurrentDictionary<string, Func<PollResponse, ServerStatus>>> ocassionallyConnectedSourcesByConsumer = new ConcurrentDictionary<string, ConcurrentDictionary<string, Func<PollResponse, ServerStatus>>>();
+        private readonly ConcurrentDictionary<string, ConcurrentDictionary<string, IOcassionallyConnectedSourceConsumer>> ocassionallyConnectedSourcesByConsumer = new ConcurrentDictionary<string, ConcurrentDictionary<string, IOcassionallyConnectedSourceConsumer>>();
 
         public InMemoryEventPublisher(ILogger log)
         {
@@ -29,8 +29,8 @@ namespace EventCentric.Messaging
             {
                 var consumer = publisher as IOcassionallyConnectedSourceConsumer;
 
-                this.ocassionallyConnectedSourcesByConsumer.TryAdd(consumer.ConsumerName, new ConcurrentDictionary<string, Func<PollResponse, ServerStatus>>());
-                this.ocassionallyConnectedSourcesByConsumer[consumer.ConsumerName].TryAdd(consumer.SourceName, (response) => consumer.UpdateConsumer(response));
+                this.ocassionallyConnectedSourcesByConsumer.TryAdd(consumer.ConsumerName, new ConcurrentDictionary<string, IOcassionallyConnectedSourceConsumer>());
+                this.ocassionallyConnectedSourcesByConsumer[consumer.ConsumerName].TryAdd(consumer.SourceName, consumer);
             }
         }
 
@@ -49,7 +49,11 @@ namespace EventCentric.Messaging
             if (!sources.ContainsKey(response.StreamType))
                 return false;
 
-            status = sources[response.StreamType].Invoke(response);
+            var consumer = sources[response.StreamType];
+            lock (consumer)
+            {
+                status = consumer.UpdateConsumer(response);
+            }
             return true;
         }
     }
