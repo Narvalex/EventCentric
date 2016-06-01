@@ -123,7 +123,7 @@ namespace EventCentric.MicroserviceFactory
 
         public static bool TryUpdateServer(string serverName, PollResponse response, out ServerStatus status)
         {
-            return mainPublisher.TryUpdateServer(serverName, response, out status);
+            return mainPublisher.TryUpdateConsumer(serverName, response, out status);
         }
 
         private static void PrintSystemInfo(ILogger log, int processorsCount)

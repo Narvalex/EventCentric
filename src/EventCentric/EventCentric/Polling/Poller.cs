@@ -420,7 +420,7 @@ namespace EventCentric.Polling
         private void RegisterOcassionallyConnectedSourceIfApplicable(SubscriptionBuffer subscription)
         {
             if (subscription.Token == Constants.InMemorySusbscriptionToken)
-                this.mainPublisherRegistry.Register(new OcassionallyConnectedSource(subscription.StreamType));
+                this.mainPublisherRegistry.Register(new OcassionallyConnectedSource(subscription.StreamType, this.microserviceName));
         }
 
         public void Handle(AddNewSubscriptionOnTheFly message)
@@ -437,7 +437,7 @@ namespace EventCentric.Polling
                         return;
 
                     var sub = new SubscriptionBuffer(message.StreamType, message.Url, message.Token, 0, false);
-                    this.mainPublisherRegistry.Register(new OcassionallyConnectedSource(sub.StreamType));
+                    this.mainPublisherRegistry.Register(new OcassionallyConnectedSource(sub.StreamType, this.microserviceName));
                     this.onTheFlyBufferPool.Add(sub);
 
                     if (this.onTheFlySubscriptionsDetected)

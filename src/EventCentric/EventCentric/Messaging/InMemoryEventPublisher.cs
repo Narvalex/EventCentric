@@ -5,6 +5,7 @@ using EventCentric.Transport;
 using EventCentric.Utils;
 using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 
 namespace EventCentric.Messaging
 {
@@ -12,7 +13,7 @@ namespace EventCentric.Messaging
     {
         private readonly ILogger log;
         private readonly ConcurrentDictionary<string, Func<long, string, PollResponse>> sourcesByStreamType = new ConcurrentDictionary<string, Func<long, string, PollResponse>>();
-        private readonly ConcurrentDictionary<string, Func<PollResponse, ServerStatus>> serversByStreamType = new ConcurrentDictionary<string, Func<PollResponse, ServerStatus>>();
+        private readonly ConcurrentDictionary<string, ConcurrentDictionary<string, Func<PollResponse, ServerStatus>>> ocassionallyConnectedSourcesByConsumer = new ConcurrentDictionary<string, ConcurrentDictionary<string, Func<PollResponse, ServerStatus>>>();
 
         public InMemoryEventPublisher(ILogger log)
         {
@@ -27,7 +28,9 @@ namespace EventCentric.Messaging
             if (publisher is IOcassionallyConnectedSourceConsumer)
             {
                 var consumer = publisher as IOcassionallyConnectedSourceConsumer;
-                serversByStreamType.TryAdd(consumer.SourceName, (response) => consumer.UpdateServer(response));
+
+                this.ocassionallyConnectedSourcesByConsumer.TryAdd(consumer.ConsumerName, new ConcurrentDictionary<string, Func<PollResponse, ServerStatus>>());
+                this.ocassionallyConnectedSourcesByConsumer[consumer.ConsumerName].TryAdd(consumer.SourceName, (response) => consumer.UpdateConsumer(response));
             }
         }
 
@@ -36,17 +39,18 @@ namespace EventCentric.Messaging
             return this.sourcesByStreamType[streamType].Invoke(fromVersion, consumerName);
         }
 
-        public bool TryUpdateServer(string serverName, PollResponse response, out ServerStatus status)
+        public bool TryUpdateConsumer(string consumerName, PollResponse response, out ServerStatus status)
         {
             status = null;
-            Func<PollResponse, ServerStatus> update = null;
-            if (this.serversByStreamType.TryGetValue(serverName, out update))
-            {
-                status = update.Invoke(response);
-                return true;
-            }
+            if (!this.ocassionallyConnectedSourcesByConsumer.ContainsKey(consumerName))
+                throw new KeyNotFoundException($"The consumer of name {nameof(consumerName)} is not registered in the system");
 
-            return false;
+            var sources = this.ocassionallyConnectedSourcesByConsumer[consumerName];
+            if (!sources.ContainsKey(response.StreamType))
+                return false;
+
+            status = sources[response.StreamType].Invoke(response);
+            return true;
         }
     }
 }

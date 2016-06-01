@@ -19,14 +19,18 @@ namespace EventCentric.Publishing
         private readonly ConcurrentBag<ServerStatus> serverStatus = new ConcurrentBag<ServerStatus>();
         private readonly object lockObject = new object();
 
-        public OcassionallyConnectedSource(string sourceName)
+        public OcassionallyConnectedSource(string sourceName, string consumerName)
         {
             Ensure.NotNullNeitherEmtpyNorWhiteSpace(sourceName, nameof(sourceName));
+            Ensure.NotNullNeitherEmtpyNorWhiteSpace(consumerName, nameof(consumerName));
 
             this.SourceName = sourceName;
+            this.ConsumerName = consumerName;
         }
 
         public string SourceName { get; }
+
+        public string ConsumerName { get; }
 
         public PollResponse PollEvents(long eventBufferVersion, string consumerName)
         {
@@ -53,7 +57,7 @@ namespace EventCentric.Publishing
             }
         }
 
-        public ServerStatus UpdateServer(PollResponse response)
+        public ServerStatus UpdateConsumer(PollResponse response)
         {
             this.clientResponse.Add(response);
 

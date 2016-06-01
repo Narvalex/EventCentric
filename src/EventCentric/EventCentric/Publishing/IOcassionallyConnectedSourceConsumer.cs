@@ -7,6 +7,8 @@ namespace EventCentric.Publishing
     {
         string SourceName { get; }
 
-        ServerStatus UpdateServer(PollResponse response);
+        string ConsumerName { get; }
+
+        ServerStatus UpdateConsumer(PollResponse response);
     }
 }
