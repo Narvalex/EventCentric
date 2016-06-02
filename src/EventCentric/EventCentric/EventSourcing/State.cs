@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace EventCentric.EventSourcing
 {
@@ -16,9 +15,19 @@ namespace EventCentric.EventSourcing
 
         public State(Guid id, IEnumerable<IEvent> streamOfEvents) : base(id, streamOfEvents) { }
 
+        public T Apply(Message message) => base.UpdateFromMessage(message);
+
+        public T Apply(params Message[] messages) => this.Apply(messages);
+
+        public T Apply(IEnumerable<Message> messages)
+        {
+            messages.ForEach(m => base.UpdateFromMessage(m));
+            return this as T;
+        }
+
         public T Update(Event @event) => base.UpdateFromMessage(@event);
 
-        public T Update(params Event[] events) => this.Update(events.AsEnumerable());
+        public T Update(params Event[] events) => this.Update(events);
 
         public T Update(IEnumerable<Event> events)
         {
@@ -28,7 +37,7 @@ namespace EventCentric.EventSourcing
 
         public T UpdateAfterSending(Command command) => base.UpdateFromMessage(command);
 
-        public T UpdateAfterSending(params Command[] commands) => this.UpdateAfterSending(commands.AsEnumerable());
+        public T UpdateAfterSending(params Command[] commands) => this.UpdateAfterSending(commands);
 
         public T UpdateAfterSending(IEnumerable<Command> commands)
         {
@@ -39,14 +48,21 @@ namespace EventCentric.EventSourcing
         public T UpdateIf(bool condition, params Event[] events)
         {
             if (condition)
-                events.ForEach(e => this.Update(e));
+                this.Update(events);
             return this as T;
         }
 
         public T UpdateAfterSendingIf(bool condition, params Command[] commands)
         {
             if (condition)
-                commands.ForEach(c => this.UpdateAfterSending(c));
+                this.UpdateAfterSending(commands);
+            return this as T;
+        }
+
+        public T ApplyIf(bool condition, params Message[] messages)
+        {
+            if (condition)
+                this.Apply(messages);
             return this as T;
         }
 
