@@ -9,6 +9,8 @@ namespace EventCentric.EventSourcing
         long CurrentEventCollectionVersion { get; }
 
         SerializedEvent[] FindEventsForConsumer(long fromEventCollectionVersion, int quantity, string consumer);
+
+        SerializedEvent[] FindEventsForConsumer(long fromEventCollectionVersion, Guid streamId, int quantity, string consumer);
     }
 
     public interface IEventStore<T> : IEventStore where T : IEventSourced

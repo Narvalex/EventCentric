@@ -1,4 +1,5 @@
 ﻿using EventCentric.Transport;
+using System;
 
 namespace EventCentric.Publishing
 {
@@ -17,5 +18,7 @@ namespace EventCentric.Publishing
         /// <param name="consumerName">The consumer's name.</param>
         /// <returns></returns>
         PollResponse PollEvents(long eventBufferVersion, string consumerName);
+
+        PollResponse PollEvents(long eventBufferVersion, Guid streamId, string consumerName);
     }
 }
