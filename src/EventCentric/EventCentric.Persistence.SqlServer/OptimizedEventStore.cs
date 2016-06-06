@@ -467,13 +467,14 @@ namespace EventCentric.Persistence
         /// FindEvents
         /// </summary>
         /// <returns>Events if found, otherwise return empty list.</returns>
-        public SerializedEvent[] FindEventsForConsumer(long lastReceivedVersion, int quantity, string consumer)
+        public SerializedEvent[] FindEventsForConsumer(long from, long to, int quantity, string consumer)
         {
             return this.sql.ExecuteReader(this.findEventsQuery,
                 r => new SerializedEvent(r.GetInt64("EventCollectionVersion"), r.GetString("Payload")),
                 new SqlParameter("@Quantity", quantity),
                 new SqlParameter("@StreamType", this.streamName),
-                new SqlParameter("@LastReceivedVersion", lastReceivedVersion))
+                new SqlParameter("@LastReceivedVersion", from),
+                new SqlParameter("@MaxVersion", to))
                 .Where(e => this.consumerFilter(consumer, e.Payload))
                 .Select(e =>
                             EventStore.ApplyConsumerFilter(
@@ -483,6 +484,29 @@ namespace EventCentric.Persistence
                                 this.consumerFilter))
                 .ToArray();
         }
+        public SerializedEvent[] FindEventsForConsumer(long from, long to, Guid streamId, int quantity, string consumer)
+        {
+            var events = this.sql.ExecuteReader(this.findEventsWithStreamIdQuery,
+                r => new SerializedEvent(r.GetInt64("EventCollectionVersion"), r.GetString("Payload")),
+                new SqlParameter("@Quantity", quantity),
+                new SqlParameter("@StreamType", this.streamName),
+                new SqlParameter("@LastReceivedVersion", from),
+                new SqlParameter("@MaxVersion", to),
+                new SqlParameter("@StreamId", streamId))
+                .Where(e => this.consumerFilter(consumer, e.Payload))
+                .Select(e =>
+                            EventStore.ApplyConsumerFilter(
+                                new SerializedEvent(e.EventCollectionVersion, e.Payload),
+                                consumer,
+                                this.serializer,
+                                this.consumerFilter))
+                .ToArray();
+
+            return events.Length > 0
+                ? events
+                : new SerializedEvent[] { new SerializedEvent(to, this.serializer.Serialize(CloakedEvent.New(to, this.streamName))) };
+        }
+
 
         #region Scripts
         private readonly string findSnapshotQuery =
@@ -645,6 +669,18 @@ Payload
 from EventStore.Events
 where StreamType = @StreamType
 and EventCollectionVersion > @LastReceivedVersion
+and EventCollectionVersion <= @MaxVersion
+order by EventCollectionVersion";
+
+        private readonly string findEventsWithStreamIdQuery =
+            @"select top (@Quantity)
+EventCollectionVersion,
+Payload
+from EventStore.Events
+where StreamType = @StreamType
+and EventCollectionVersion > @LastReceivedVersion
+and EventCollectionVersion <= @MaxVersion
+and StreamId = @StreamId
 order by EventCollectionVersion";
         #endregion
     }

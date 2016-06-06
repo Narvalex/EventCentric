@@ -2,6 +2,7 @@
 using EventCentric.Publishing.Dto;
 using EventCentric.Transport;
 using EventCentric.Utils;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
@@ -31,6 +32,13 @@ namespace EventCentric.Publishing
         public string SourceName { get; }
 
         public string ConsumerName { get; }
+
+        public PollResponse PollEvents(long eventBufferVersion, Guid streamId, string consumerName)
+        {
+            // We return this, because the filtering is made in the producer side, and this is in the consumer 
+            // side
+            return this.PollEvents(eventBufferVersion, consumerName);
+        }
 
         public PollResponse PollEvents(long eventBufferVersion, string consumerName)
         {

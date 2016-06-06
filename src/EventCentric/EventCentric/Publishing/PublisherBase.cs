@@ -63,7 +63,7 @@ namespace EventCentric.Publishing
                 // A Charly le paso. Sucede que limpio la base de datos y justo queria entregar un evento y no devolvia nada.
                 else if (ecv > consumerVersion)
                 {
-                    newEvents = this.store.FindEventsForConsumer(consumerVersion, this.eventsToPushMaxCount, consumerName);
+                    newEvents = this.store.FindEventsForConsumer(consumerVersion, ecv, this.eventsToPushMaxCount, consumerName);
 
                     if (newEvents.Length > 0)
                     {
@@ -120,24 +120,11 @@ namespace EventCentric.Publishing
                 // A Charly le paso. Sucede que limpio la base de datos y justo queria entregar un evento y no devolvia nada.
                 else if (ecv > consumerVersion)
                 {
-                    newEvents = this.store.FindEventsForConsumer(consumerVersion, streamId, this.eventsToPushMaxCount, consumerName);
+                    newEvents = this.store.FindEventsForConsumer(consumerVersion, ecv, streamId, this.eventsToPushMaxCount, consumerName);
 
-                    if (newEvents.Length > 0)
-                    {
-                        newEventsWereFound = true;
-                        this.log.Trace($"{this.streamType} publisher is pushing {newEvents.Length} event/s to {consumerName}");
-                        break;
-                    }
-                    else
-                    {
-                        // Lo que le paso a charly.
-                        newEventsWereFound = false;
-                        errorDetected = true;
-                        var errorMessage = $"There is an error in the event store or a racy condition. The consumer [{consumerName}] version is {consumerVersion} and the local event collection version should be {ecv} but it is not.";
-                        this.log.Error(errorMessage);
-                        this.bus.Publish(new FatalErrorOcurred(new FatalErrorException(errorMessage)));
-                        break;
-                    }
+                    newEventsWereFound = true;
+                    this.log.Trace($"{this.streamType} publisher is pushing {newEvents.Length} event/s to {consumerName}");
+                    break;
                 }
                 else
                     // bizzare, but helpful to avoid infinite loops

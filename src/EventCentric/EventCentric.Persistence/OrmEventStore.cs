@@ -365,17 +365,13 @@ namespace EventCentric.Persistence
 
         public string StreamName => this.streamName;
 
-        /// <summary>
-        /// FindEvents
-        /// </summary>
-        /// <returns>Events if found, otherwise return empty list.</returns>
-        public SerializedEvent[] FindEventsForConsumer(long lastReceivedVersion, int quantity, string consumer)
+        public SerializedEvent[] FindEventsForConsumer(long from, long to, int quantity, string consumer)
         {
             using (var context = this.contextFactory(true))
             {
                 return context
                         .Events
-                        .Where(e => e.StreamType == this.streamName && e.EventCollectionVersion > lastReceivedVersion)
+                        .Where(e => e.StreamType == this.streamName && e.EventCollectionVersion > from && e.EventCollectionVersion <= to)
                         .OrderBy(e => e.EventCollectionVersion)
                         .Take(quantity)
                         .ToList()
@@ -386,6 +382,33 @@ namespace EventCentric.Persistence
                                 this.serializer,
                                 this.consumerFilter))
                         .ToArray();
+            }
+        }
+
+        public SerializedEvent[] FindEventsForConsumer(long from, long to, Guid streamId, int quantity, string consumer)
+        {
+            using (var context = this.contextFactory(true))
+            {
+                var events = context
+                .Events
+                .Where(e => e.StreamType == this.streamName
+                    && e.EventCollectionVersion > from
+                    && e.EventCollectionVersion <= to
+                    && e.StreamId == streamId)
+                .OrderBy(e => e.EventCollectionVersion)
+                .Take(quantity)
+                .ToList()
+                .Select(e =>
+                    EventStore.ApplyConsumerFilter(
+                        new SerializedEvent(e.EventCollectionVersion, e.Payload),
+                        consumer,
+                        this.serializer,
+                        this.consumerFilter))
+                .ToArray();
+
+                return events.Length > 0
+                ? events
+                : new SerializedEvent[] { new SerializedEvent(to, this.serializer.Serialize(CloakedEvent.New(to, this.streamName))) };
             }
         }
     }
