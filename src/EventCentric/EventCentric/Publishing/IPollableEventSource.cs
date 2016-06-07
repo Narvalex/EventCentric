@@ -19,6 +19,6 @@ namespace EventCentric.Publishing
         /// <returns></returns>
         PollResponse PollEvents(long eventBufferVersion, string consumerName);
 
-        PollResponse PollEvents(long eventBufferVersion, Guid streamId, string consumerName);
+        PollResponse PollEvents(Guid streamId, long eventBufferVersion, string consumerName);
     }
 }

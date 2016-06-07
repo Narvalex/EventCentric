@@ -33,7 +33,7 @@ namespace EventCentric.Publishing
 
         public string ConsumerName { get; }
 
-        public PollResponse PollEvents(long eventBufferVersion, Guid streamId, string consumerName)
+        public PollResponse PollEvents(Guid streamId, long eventBufferVersion, string consumerName)
         {
             // We return this, because the filtering is made in the producer side, and this is in the consumer 
             // side

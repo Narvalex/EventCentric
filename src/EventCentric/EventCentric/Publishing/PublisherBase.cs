@@ -90,7 +90,7 @@ namespace EventCentric.Publishing
             return PollResponse.CreateSerializedResponse(errorDetected, newEventsWereFound, this.streamType, newEvents, consumerVersion, ecv);
         }
 
-        public PollResponse PollEvents(long consumerVersion, Guid streamId, string consumerName)
+        public PollResponse PollEvents(Guid streamId, long consumerVersion, string consumerName)
         {
             var ecv = this.store.CurrentEventCollectionVersion;
 
