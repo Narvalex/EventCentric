@@ -275,7 +275,8 @@ namespace EventCentric.Polling
                             {
                                 // Maybe the event source has new events type that we are not aware off.
 
-                                this.log.Error(ex, "An error ocurred while deserializing a message");
+                                if (this.log.Verbose)
+                                    this.log.Error(ex, "An error ocurred while deserializing a message");
                                 //this.log.Error($"An error was detected when serializing a message from {buffer.ProducerName} with event collection number of {raw.EventCollectionVersion}. The message will be ignored.");
 #endif
                                 incomingEvent = new Message();
