@@ -303,5 +303,10 @@ namespace EventCentric.Handling
         {
             return FromNewStream(Guid.Empty, state => state);
         }
+
+        protected IMessageHandling Ignore(IEvent e)
+        {
+            return this.Handle(CloakedEvent.New(e.EventCollectionVersion, e.StreamType));
+        }
     }
 }

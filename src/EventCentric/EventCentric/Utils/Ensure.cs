@@ -31,7 +31,7 @@ namespace EventCentric.Utils
         public static void NotNullNeitherEmtpyNorWhiteSpace(string text, string argumentName)
         {
             if (string.IsNullOrEmpty(text) || string.IsNullOrWhiteSpace(text))
-                throw new ArgumentException($"The argument '{text}' of type string can not be null, empty or white space.");
+                throw new ArgumentException($"The argument '{argumentName}' of type string can not be null, empty or white space.");
         }
     }
 }
