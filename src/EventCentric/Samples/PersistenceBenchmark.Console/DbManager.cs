@@ -26,7 +26,8 @@ namespace PersistenceBenchmark
                 switch (SelectedPlugin)
                 {
                     case PersistencePlugin.SqlServer:
-                        return "server = (local); Database = PersistenceBench; User Id = sa; pwd = 123456";
+                        //return "server = (local); Database = PersistenceBench; User Id = sa; pwd = 123456";
+                        return "Data Source=.\\SQLEXPRESS; Database = PersistenceBench; Integrated Security=True; MultipleActiveResultSets=True";
                     case PersistencePlugin.SqlServerCe:
                         return $"Data Source=|DataDirectory|PersistenceBenchCe.sdf; default lock timeout = 600000";
                     default:

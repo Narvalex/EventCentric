@@ -1,5 +1,4 @@
 ﻿using EventCentric.EventSourcing;
-using System;
 
 namespace EventCentric.Handling
 {
@@ -8,14 +7,10 @@ namespace EventCentric.Handling
     /// </summary>
     public class CloakedEvent : Event
     {
-        public static CloakedEvent New(Guid eventId, long eventCollectionVersion, string streamType)
+        public CloakedEvent(long eventCollectionVersion, string streamType)
         {
-            return new CloakedEvent()
-            {
-                EventId = eventId,
-                EventCollectionVersion = eventCollectionVersion,
-                StreamType = streamType
-            };
+            this.EventCollectionVersion = eventCollectionVersion;
+            this.StreamType = streamType;
         }
     }
 }

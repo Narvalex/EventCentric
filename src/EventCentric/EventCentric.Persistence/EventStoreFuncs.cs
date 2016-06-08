@@ -14,18 +14,7 @@ namespace EventCentric.EventSourcing
                 return e;
 
             var originalEvent = serializer.Deserialize<IEvent>(e.Payload);
-            var cloaked = new CloakedEvent()
-            {
-                TransactionId = originalEvent.TransactionId,
-                EventId = originalEvent.EventId,
-                StreamType = originalEvent.StreamType,
-                StreamId = originalEvent.StreamId,
-                Version = originalEvent.Version,
-                EventCollectionVersion = originalEvent.EventCollectionVersion,
-                ProcessorBufferVersion = originalEvent.ProcessorBufferVersion,
-                LocalTime = originalEvent.LocalTime,
-                UtcTime = originalEvent.UtcTime
-            };
+            var cloaked = new CloakedEvent(originalEvent.EventCollectionVersion, originalEvent.StreamType);
             return new SerializedEvent(e.EventCollectionVersion, serializer.Serialize(cloaked));
         }
     }
