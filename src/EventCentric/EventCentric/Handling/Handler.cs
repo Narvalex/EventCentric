@@ -117,12 +117,6 @@ namespace EventCentric.Handling
                 dynamic me = this;
                 IMessageHandling handling = me.Handle((dynamic)incomingEvent);
 
-                if (handling.ShouldBeIgnored)
-                {
-                    // happily ignore! :)
-                    return null;
-                }
-
                 if (handling.DeduplicateBeforeHandling)
                 {
                     Guid tranId;
@@ -270,7 +264,7 @@ namespace EventCentric.Handling
         }
 
         private IMessageHandling BuildHandlingInvocation(Guid streamId, Func<T, T> handle, Func<T> aggregateFactory)
-            => new MessageHandling(false, streamId, () => handle.Invoke(aggregateFactory.Invoke()), this.EnableDeduplicationBeforeHandling);
+            => new MessageHandling(streamId, () => handle.Invoke(aggregateFactory.Invoke()), this.EnableDeduplicationBeforeHandling);
 
         protected IMessageHandling FromNewStreamIfNotExists(Guid id, Func<T, T> handle)
             => this.BuildHandlingInvocation(id, handle, () =>
@@ -289,24 +283,18 @@ namespace EventCentric.Handling
         {
             if (this.log.Verbose)
                 this.log.Trace($"{name} is automatically ignoring message of type {message.GetType().Name} because no handling method where found");
-            return new MessageHandling(true, default(Guid), null, false);
+            return new MessageHandling();   
         }
+
+        public IMessageHandling Handle(CloakedEvent e) => new MessageHandling();
+
+        protected IMessageHandling Ignore(IEvent e) => new MessageHandling();
 
         protected override void RegisterHandlersInBus(IBusRegistry bus)
         {
             bus.Register<StartEventHandler>(this);
             bus.Register<StopEventHandler>(this);
             bus.Register<NewIncomingEvents>(this);
-        }
-
-        public IMessageHandling Handle(CloakedEvent message)
-        {
-            return FromNewStream(Guid.Empty, state => state);
-        }
-
-        protected IMessageHandling Ignore(IEvent e)
-        {
-            return this.Handle(CloakedEvent.New(e.EventCollectionVersion, e.StreamType));
         }
     }
 }

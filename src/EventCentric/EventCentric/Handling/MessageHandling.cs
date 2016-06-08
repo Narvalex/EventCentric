@@ -5,15 +5,24 @@ namespace EventCentric.Handling
 {
     public class MessageHandling : IMessageHandling
     {
-        public MessageHandling(bool shouldBeIgnored, Guid streamId, Func<IEventSourced> handle, bool deduplicateBeforeHandling)
+        public MessageHandling(Guid streamId, Func<IEventSourced> handle, bool deduplicateBeforeHandling)
         {
-            this.ShouldBeIgnored = shouldBeIgnored;
             this.StreamId = streamId;
             this.Handle = handle;
             this.DeduplicateBeforeHandling = deduplicateBeforeHandling;
         }
 
-        public bool ShouldBeIgnored { get; }
+
+        /// <summary>
+        /// Constructor for ignoring message
+        /// </summary>
+        public MessageHandling()
+        {
+            this.StreamId = Guid.NewGuid(); // this helps concurrent ignores...
+            this.Handle = () => null;
+            this.DeduplicateBeforeHandling = false;
+        }
+
         public Guid StreamId { get; }
         public Func<IEventSourced> Handle { get; }
         public bool DeduplicateBeforeHandling { get; set; }

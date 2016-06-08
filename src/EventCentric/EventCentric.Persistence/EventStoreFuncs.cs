@@ -4,7 +4,7 @@ using System;
 
 namespace EventCentric.EventSourcing
 {
-    public class EventStore
+    public class EventStoreFuncs
     {
         public static bool DefaultFilter(string consumer, string payload) => true;
 

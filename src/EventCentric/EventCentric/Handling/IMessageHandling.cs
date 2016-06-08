@@ -9,7 +9,6 @@ namespace EventCentric.Handling
     public interface IMessageHandling
     {
         Guid StreamId { get; }
-        bool ShouldBeIgnored { get; }
         Func<IEventSourced> Handle { get; }
         bool DeduplicateBeforeHandling { get; }
     }

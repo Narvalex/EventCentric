@@ -81,9 +81,6 @@
     <Compile Include="..\..\EventCentric\EventSourcing\EventSourced.cs">
       <Link>EventSourcing\EventSourced.cs</Link>
     </Compile>
-    <Compile Include="..\..\EventCentric\EventSourcing\EventStore.cs">
-      <Link>EventSourcing\EventStore.cs</Link>
-    </Compile>
     <Compile Include="..\..\EventCentric\EventSourcing\EventStoreConcurrencyException.cs">
       <Link>EventSourcing\EventStoreConcurrencyException.cs</Link>
     </Compile>

@@ -48,7 +48,7 @@ namespace EventCentric.Persistence
             this.time = time;
             this.guid = guid;
             this.log = log;
-            this.consumerFilter = consumerFilter != null ? consumerFilter : EventStore.DefaultFilter;
+            this.consumerFilter = consumerFilter != null ? consumerFilter : EventStoreFuncs.DefaultFilter;
             this.cache = new MemoryCache(streamName);
 
             this.sql = new SqlClientLite(this.connectionString, timeoutInSeconds: 120);
@@ -176,36 +176,37 @@ namespace EventCentric.Persistence
 
         public void Save(T eventSourced, IEvent incomingEvent)
         {
-            var pendingEvents = eventSourced.PendingEvents;
-
-            var key = eventSourced.Id.ToString();
+            string key = null;
             try
             {
                 using (var connection = new SqlConnection(this.connectionString))
                 {
                     connection.Open();
 
-                    // Check if incoming event is duplicate
-                    using (var command = connection.CreateCommand())
+                    // Check if incoming event is duplicate, if is not a cloaked event
+                    if (incomingEvent.EventId != Guid.Empty)
                     {
-                        command.CommandType = CommandType.Text;
-                        command.CommandText = this.isDuplicateQuery;
-                        command.Parameters.Add(new SqlParameter("@EventId", incomingEvent.EventId));
-
-                        using (var reader = command.ExecuteReader())
+                        using (var command = connection.CreateCommand())
                         {
-                            if (reader.Read())
-                                return;
+                            command.CommandType = CommandType.Text;
+                            command.CommandText = this.isDuplicateQuery;
+                            command.Parameters.Add(new SqlParameter("@EventId", incomingEvent.EventId));
+
+                            using (var reader = command.ExecuteReader())
+                            {
+                                if (reader.Read())
+                                    return;
+                            }
                         }
                     }
-
-                    var now = this.time.Now;
-                    var localNow = this.time.Now.ToLocalTime();
 
                     using (var transaction = connection.BeginTransaction(IsolationLevel.ReadUncommitted))
                     {
                         try
                         {
+                            var now = this.time.Now;
+                            var localNow = this.time.Now.ToLocalTime();
+
                             // Update subscription
                             using (var command = connection.CreateCommand())
                             {
@@ -220,7 +221,7 @@ namespace EventCentric.Persistence
                                 command.ExecuteNonQuery();
                             }
 
-                            if (pendingEvents.Count == 0)
+                            if (eventSourced == null)
                             {
                                 if (!(incomingEvent is CloakedEvent))
                                     this.addToInboxFactory.Invoke(connection, transaction, localNow, incomingEvent);
@@ -237,6 +238,7 @@ namespace EventCentric.Persistence
                             using (var command = connection.CreateCommand())
                             {
                                 command.CommandType = CommandType.Text;
+                                command.Transaction = transaction;
                                 command.CommandText = this.getStreamVersion;
                                 command.Parameters.Add(new SqlParameter("@StreamType", this.streamName));
                                 command.Parameters.Add(new SqlParameter("@StreamId", eventSourced.Id));
@@ -250,6 +252,7 @@ namespace EventCentric.Persistence
                                 }
                             }
 
+                            var pendingEvents = eventSourced.PendingEvents;
                             if (currentVersion + 1 != pendingEvents.First().Version)
                                 throw new EventStoreConcurrencyException();
 
@@ -260,7 +263,7 @@ namespace EventCentric.Persistence
                             var snapshot = ((ISnapshotOriginator)eventSourced).SaveToSnapshot();
                             var serializedMemento = this.serializer.Serialize(snapshot);
 
-
+                            key = eventSourced.Id.ToString();
                             // Cache in memory
                             this.cache.Set(
                                 key: key,
@@ -371,14 +374,17 @@ namespace EventCentric.Persistence
                 this.log.Error(ex, $"An error ocurred while storing events while processing incoming event of type '{incomingEvent.GetType().Name}'");
 
                 // Mark cache as stale
-                var item = (Tuple<ISnapshot, DateTime?>)this.cache.Get(key);
-                if (item != null && item.Item2.HasValue)
+                if (key != null)
                 {
-                    item = new Tuple<ISnapshot, DateTime?>(item.Item1, null);
-                    this.cache.Set(
-                        key,
-                        item,
-                        new CacheItemPolicy { AbsoluteExpiration = this.time.OffSetNow.AddMinutes(30) });
+                    var item = (Tuple<ISnapshot, DateTime?>)this.cache.Get(key);
+                    if (item != null && item.Item2.HasValue)
+                    {
+                        item = new Tuple<ISnapshot, DateTime?>(item.Item1, null);
+                        this.cache.Set(
+                            key,
+                            item,
+                            new CacheItemPolicy { AbsoluteExpiration = this.time.OffSetNow.AddMinutes(30) });
+                    }
                 }
 
                 throw;
@@ -477,7 +483,7 @@ namespace EventCentric.Persistence
                 new SqlParameter("@MaxVersion", to))
                 .Where(e => this.consumerFilter(consumer, e.Payload))
                 .Select(e =>
-                            EventStore.ApplyConsumerFilter(
+                            EventStoreFuncs.ApplyConsumerFilter(
                                 new SerializedEvent(e.EventCollectionVersion, e.Payload),
                                 consumer,
                                 this.serializer,
@@ -495,7 +501,7 @@ namespace EventCentric.Persistence
                 new SqlParameter("@StreamId", streamId))
                 .Where(e => this.consumerFilter(consumer, e.Payload))
                 .Select(e =>
-                            EventStore.ApplyConsumerFilter(
+                            EventStoreFuncs.ApplyConsumerFilter(
                                 new SerializedEvent(e.EventCollectionVersion, e.Payload),
                                 consumer,
                                 this.serializer,
@@ -504,7 +510,7 @@ namespace EventCentric.Persistence
 
             return events.Length > 0
                 ? events
-                : new SerializedEvent[] { new SerializedEvent(to, this.serializer.Serialize(CloakedEvent.New(to, this.streamName))) };
+                : new SerializedEvent[] { new SerializedEvent(to, this.serializer.Serialize(CloakedEvent.New(Guid.Empty, to, this.streamName))) };
         }
 
 

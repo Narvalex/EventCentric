@@ -48,7 +48,7 @@ namespace EventCentric.Persistence
             this.guid = guid;
             this.log = log;
             this.cache = new MemoryCache(streamName);
-            this.consumerFilter = consumerFilter != null ? consumerFilter : EventStore.DefaultFilter;
+            this.consumerFilter = consumerFilter != null ? consumerFilter : EventStoreFuncs.DefaultFilter;
 
             /// TODO: could be replaced with a compiled lambda to make it more performant.
             var fromMementoConstructor = typeof(T).GetConstructor(new[] { typeof(Guid), typeof(ISnapshot) });
@@ -119,7 +119,7 @@ namespace EventCentric.Persistence
                         .OrderBy(e => e.EventCollectionVersion)
                         .Take(quantity)
                         .Select(e =>
-                            EventStore.ApplyConsumerFilter(
+                            EventStoreFuncs.ApplyConsumerFilter(
                                 new SerializedEvent(e.EventCollectionVersion, e.Payload),
                                 consumer,
                                 this.serializer,
@@ -137,7 +137,7 @@ namespace EventCentric.Persistence
                        .OrderBy(e => e.EventCollectionVersion)
                        .Take(quantity)
                        .Select(e =>
-                           EventStore.ApplyConsumerFilter(
+                           EventStoreFuncs.ApplyConsumerFilter(
                                new SerializedEvent(e.EventCollectionVersion, e.Payload),
                                consumer,
                                this.serializer,
@@ -146,7 +146,7 @@ namespace EventCentric.Persistence
 
             return events.Length > 0
                 ? events
-                : new SerializedEvent[] { new SerializedEvent(to, this.serializer.Serialize(CloakedEvent.New(to, this.streamName))) };
+                : new SerializedEvent[] { new SerializedEvent(to, this.serializer.Serialize(CloakedEvent.New(Guid.Empty, to, this.streamName))) };
         }
 
         public long GetEventCollectionVersion()

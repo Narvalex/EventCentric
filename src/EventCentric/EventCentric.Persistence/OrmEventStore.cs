@@ -28,6 +28,8 @@ namespace EventCentric.Persistence
         private readonly Func<IEvent, DateTime, InboxEntity> inboxEntityFactory;
         private readonly Func<string, string, bool> consumerFilter;
 
+        //private readonly ConcurrentDictionary<string, long> subscriptionsCache = new ConcurrentDictionary<string, long>();
+
         private readonly object dbLock = new object();
 
         public OrmEventStore(string streamName, ITextSerializer serializer, Func<bool, IEventStoreDbContext> contextFactory, IUtcTimeProvider time, IGuidProvider guid, ILogger log, bool persistIncomingPayloads, Func<string, string, bool> consumerFilter)
@@ -46,7 +48,7 @@ namespace EventCentric.Persistence
             this.guid = guid;
             this.log = log;
             this.cache = new MemoryCache(streamName);
-            this.consumerFilter = consumerFilter != null ? consumerFilter : EventStore.DefaultFilter;
+            this.consumerFilter = consumerFilter != null ? consumerFilter : EventStoreFuncs.DefaultFilter;
 
             /// TODO: could be replaced with a compiled lambda to make it more performant.
             var fromMementoConstructor = typeof(T).GetConstructor(new[] { typeof(Guid), typeof(ISnapshot) });
@@ -376,7 +378,7 @@ namespace EventCentric.Persistence
                         .Take(quantity)
                         .ToList()
                         .Select(e =>
-                            EventStore.ApplyConsumerFilter(
+                            EventStoreFuncs.ApplyConsumerFilter(
                                 new SerializedEvent(e.EventCollectionVersion, e.Payload),
                                 consumer,
                                 this.serializer,
@@ -399,7 +401,7 @@ namespace EventCentric.Persistence
                 .Take(quantity)
                 .ToList()
                 .Select(e =>
-                    EventStore.ApplyConsumerFilter(
+                    EventStoreFuncs.ApplyConsumerFilter(
                         new SerializedEvent(e.EventCollectionVersion, e.Payload),
                         consumer,
                         this.serializer,
@@ -408,7 +410,7 @@ namespace EventCentric.Persistence
 
                 return events.Length > 0
                 ? events
-                : new SerializedEvent[] { new SerializedEvent(to, this.serializer.Serialize(CloakedEvent.New(to, this.streamName))) };
+                : new SerializedEvent[] { new SerializedEvent(to, this.serializer.Serialize(CloakedEvent.New(Guid.Empty, to, this.streamName))) };
             }
         }
     }

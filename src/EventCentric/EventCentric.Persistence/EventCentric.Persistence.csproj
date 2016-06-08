@@ -48,6 +48,7 @@
   <ItemGroup>
     <Compile Include="Denormalizer.cs" />
     <Compile Include="Entities.cs" />
+    <Compile Include="EventStoreFuncs.cs" />
     <Compile Include="OrmEventStore.cs" />
     <Compile Include="IDenormalizer.cs" />
     <Compile Include="IEventQueueDbContext.cs" />
