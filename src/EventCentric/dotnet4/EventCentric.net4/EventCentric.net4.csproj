@@ -102,9 +102,6 @@
     <Compile Include="..\..\EventCentric\EventSourcing\Message.cs">
       <Link>EventSourcing\Message.cs</Link>
     </Compile>
-    <Compile Include="..\..\EventCentric\EventSourcing\ReadModelUpdated.cs">
-      <Link>EventSourcing\ReadModelUpdated.cs</Link>
-    </Compile>
     <Compile Include="..\..\EventCentric\EventSourcing\SerializedEvent.cs">
       <Link>EventSourcing\SerializedEvent.cs</Link>
     </Compile>

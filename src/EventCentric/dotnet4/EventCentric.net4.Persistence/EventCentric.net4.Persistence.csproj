@@ -86,6 +86,9 @@
     <Compile Include="..\..\EventCentric.Persistence\OrmEventStore.cs">
       <Link>OrmEventStore.cs</Link>
     </Compile>
+    <Compile Include="..\..\EventCentric.Persistence\ReadModelUpdated.cs">
+      <Link>ReadModelUpdated.cs</Link>
+    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

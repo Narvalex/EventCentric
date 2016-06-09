@@ -1,4 +1,6 @@
-﻿namespace EventCentric.EventSourcing
+﻿using EventCentric.EventSourcing;
+
+namespace EventCentric.Persistence
 {
     /// <summary>
     /// A generic event to leverage when updating a read model.

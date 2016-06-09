@@ -60,6 +60,7 @@
     <Compile Include="InMemoryEventStore.cs" />
     <Compile Include="OptimizedDbContext.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ReadModelUpdated.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\EventCentric\EventCentric.csproj">

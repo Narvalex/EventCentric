@@ -106,7 +106,6 @@
     <Compile Include="Publishing\OcassionallyConnectedSource.cs" />
     <Compile Include="Publishing\OcassionallyConnectedPublisher.cs" />
     <Compile Include="Config\IEventStoreConfig.cs" />
-    <Compile Include="EventSourcing\ReadModelUpdated.cs" />
     <Compile Include="Messaging\Events\PollResponseWasReceived.cs" />
     <Compile Include="Messaging\Worker.cs" />
     <Compile Include="Polling\Poller.cs" />
