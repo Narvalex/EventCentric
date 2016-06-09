@@ -228,14 +228,10 @@ namespace EventCentric.Persistence
 
             try
             {
-                // Check if incoming event is duplicate, if is not a cloaked event
-                if (incomingEvent.EventId != Guid.Empty)
-                {
-                    // Check if incoming event is duplicate
-                    if (this.Inbox.Any(e => e.EventId == incomingEvent.EventId))
-                        // Incoming event is duplicate
-                        return;
-                }
+                // Check if incoming event is duplicate
+                if (this.Inbox.Any(e => e.EventId == incomingEvent.EventId))
+                    // Incoming event is duplicate
+                    return;
 
                 var now = this.time.Now;
                 var localNow = this.time.Now.ToLocalTime();
@@ -243,10 +239,8 @@ namespace EventCentric.Persistence
                 // No new events to persist
                 if (eventSourced == null)
                 {
-                    if (!(incomingEvent is CloakedEvent))
-                        // Log the incoming message in the inbox
-                        this.Inbox.Add(this.inboxEntityFactory.Invoke(incomingEvent));
-
+                    // Log the incoming message in the inbox
+                    this.Inbox.Add(this.inboxEntityFactory.Invoke(incomingEvent));
                     return;
                 }
 

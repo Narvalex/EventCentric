@@ -117,6 +117,8 @@ namespace EventCentric.Handling
                 dynamic me = this;
                 IMessageHandling handling = me.Handle((dynamic)incomingEvent);
 
+                if (handling.Ignore)
+                    return null;
 
 
                 if (handling.DeduplicateBeforeHandling)
@@ -285,12 +287,12 @@ namespace EventCentric.Handling
         {
             if (this.log.Verbose)
                 this.log.Trace($"{name} is automatically ignoring message of type {message.GetType().Name} because no handling method where found");
-            return new MessageHandling();
+            return MessageHandling.IgnoreHandling;
         }
 
-        public IMessageHandling Handle(CloakedEvent e) => new MessageHandling();
+        public IMessageHandling Handle(CloakedEvent e) => MessageHandling.IgnoreHandling;
 
-        protected IMessageHandling Ignore(IEvent e) => new MessageHandling();
+        protected IMessageHandling Ignore(IEvent e) => MessageHandling.IgnoreHandling;
 
         protected override void RegisterHandlersInBus(IBusRegistry bus)
         {

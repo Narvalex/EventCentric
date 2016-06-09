@@ -15,18 +15,11 @@ namespace EventCentric.Utils
         Guid NewGuid();
     }
 
-    public class DefaultGuidProvider : IGuidProvider
-    {
-        public Guid NewGuid()
-        {
-            return Guid.NewGuid();
-        }
-    }
-
     /// <summary>
     /// An <see cref="IGuidGenerator" /> that generates <see cref="System.Guid"/> values 
     /// using a strategy suggested Jimmy Nilsson's 
-    /// <a href="http://www.informit.com/articles/article.asp?p=25862">article</a>.
+    /// <a href="http://www.informit.com/articles/article.asp?p=25862">article</a>
+    /// and <a href="https://blog.codinghorror.com/primary-keys-ids-versus-guids/">.</a>
     /// </summary>
     /// <remarks>
     /// The <c>comb</c> algorithm is designed to make the use of GUIDs as Primary Keys, Foreign Keys, 
@@ -34,7 +27,7 @@ namespace EventCentric.Utils
     /// </remarks>
     public class SequentialGuid : IGuidProvider
     {
-        public static Guid GetNewGuid
+        public static Guid New
         {
             get { return new SequentialGuid().NewGuid(); }
         }
