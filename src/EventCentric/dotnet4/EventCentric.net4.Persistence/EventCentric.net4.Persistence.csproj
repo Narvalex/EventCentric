@@ -40,6 +40,7 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Runtime.Caching" />
     <Reference Include="System.Xml.Linq" />
@@ -49,6 +50,15 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\..\EventCentric.Persistence\Database\DataReaderExtensions.cs">
+      <Link>Database\DataReaderExtensions.cs</Link>
+    </Compile>
+    <Compile Include="..\..\EventCentric.Persistence\Database\SqlClientExtensions.cs">
+      <Link>Database\SqlClientExtensions.cs</Link>
+    </Compile>
+    <Compile Include="..\..\EventCentric.Persistence\Database\SqlClientLite.cs">
+      <Link>Database\SqlClientLite.cs</Link>
+    </Compile>
     <Compile Include="..\..\EventCentric.Persistence\Denormalizer.cs">
       <Link>Denormalizer.cs</Link>
     </Compile>
@@ -75,9 +85,6 @@
     </Compile>
     <Compile Include="..\..\EventCentric.Persistence\OrmEventStore.cs">
       <Link>OrmEventStore.cs</Link>
-    </Compile>
-    <Compile Include="..\..\EventCentric.Persistence\SubscriptionRepository.cs">
-      <Link>SubscriptionRepository.cs</Link>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

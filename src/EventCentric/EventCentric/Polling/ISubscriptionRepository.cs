@@ -10,5 +10,7 @@ namespace EventCentric.Polling
         void FlagSubscriptionAsPoisoned(IEvent poisonedEvent, PoisonMessageException exception);
 
         bool TryAddNewSubscriptionOnTheFly(string streamType, string url, string token);
+
+        void PersistSubscriptionVersion(string subscription, long version);
     }
 }

@@ -30,5 +30,10 @@ namespace EventCentric.Querying
         {
             throw new NotImplementedException();
         }
+
+        public void PersistSubscriptionVersion(string subscription, long version)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

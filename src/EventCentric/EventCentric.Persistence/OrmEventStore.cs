@@ -1,6 +1,8 @@
 ﻿using EventCentric.EventSourcing;
 using EventCentric.Handling;
 using EventCentric.Log;
+using EventCentric.Messaging;
+using EventCentric.Polling;
 using EventCentric.Serialization;
 using EventCentric.Utils;
 using System;
@@ -10,7 +12,7 @@ using System.Runtime.Caching;
 
 namespace EventCentric.Persistence
 {
-    public class OrmEventStore<T> : IEventStore<T> where T : class, IEventSourced
+    public class OrmEventStore<T> : ISubscriptionRepository, IEventStore<T> where T : class, IEventSourced
     {
         private long eventCollectionVersion = 0;
         private readonly string streamName;
@@ -27,8 +29,6 @@ namespace EventCentric.Persistence
         private readonly Action<T, IEventStoreDbContext> denormalizeIfApplicable;
         private readonly Func<IEvent, DateTime, InboxEntity> inboxEntityFactory;
         private readonly Func<string, string, bool> consumerFilter;
-
-        //private readonly ConcurrentDictionary<string, long> subscriptionsCache = new ConcurrentDictionary<string, long>();
 
         private readonly object dbLock = new object();
 
@@ -179,36 +179,24 @@ namespace EventCentric.Persistence
 
         public void Save(T eventSourced, IEvent incomingEvent)
         {
-            var pendingEvents = eventSourced.PendingEvents;
+            string key = null;
 
-            var key = eventSourced.Id.ToString();
             try
             {
                 using (var context = this.contextFactory.Invoke(false))
                 {
-                    // Check if incoming event is duplicate
-                    if (context.Inbox.Any(e => e.EventId == incomingEvent.EventId))
-                        // Incoming event is duplicate
-                        return;
+                    // Check if incoming event is duplicate, if is not a cloaked event
+                    if (incomingEvent.EventId != Guid.Empty)
+                    {
+                        if (context.Inbox.Any(e => e.EventId == incomingEvent.EventId))
+                            // Incoming event is duplicate
+                            return;
+                    }
 
                     var now = this.time.Now;
                     var localNow = this.time.Now.ToLocalTime();
 
-
-
-                    // Update subscription
-                    try
-                    {
-                        var subscription = context.Subscriptions.Where(s => s.StreamType == incomingEvent.StreamType && s.SubscriberStreamType == this.streamName).Single();
-                        subscription.ProcessorBufferVersion = incomingEvent.ProcessorBufferVersion;
-                        subscription.UpdateLocalTime = localNow;
-                    }
-                    catch (Exception ex)
-                    {
-                        throw new InvalidOperationException($"The incoming event belongs to a an stream type of {incomingEvent.StreamType}, but the event store could not found a subscription for that stream type.", ex);
-                    }
-
-                    if (pendingEvents.Count == 0)
+                    if (eventSourced == null)
                     {
                         if (!(incomingEvent is CloakedEvent))
                             context.Inbox.Add(this.inboxEntityFactory.Invoke(incomingEvent, localNow));
@@ -227,6 +215,7 @@ namespace EventCentric.Persistence
                         .Max(e => e.Version)
                       : 0;
 
+                    var pendingEvents = eventSourced.PendingEvents;
                     if (currentVersion + 1 != pendingEvents.First().Version)
                         throw new EventStoreConcurrencyException();
 
@@ -411,6 +400,85 @@ namespace EventCentric.Persistence
                 return events.Length > 0
                 ? events
                 : new SerializedEvent[] { new SerializedEvent(to, this.serializer.Serialize(CloakedEvent.New(Guid.Empty, to, this.streamName))) };
+            }
+        }
+
+        public SubscriptionBuffer[] GetSubscriptions()
+        {
+            var subscriptions = new List<SubscriptionBuffer>();
+
+            using (var context = this.contextFactory(true))
+            {
+                var subscriptionsQuery = context.Subscriptions.Where(s => s.SubscriberStreamType == this.streamName && !s.IsPoisoned && !s.WasCanceled);
+                if (subscriptionsQuery.Any())
+                    foreach (var s in subscriptionsQuery)
+                        // We substract one version in order to set the current version bellow the last one, in case that first event was not yet processed.
+                        subscriptions.Add(new SubscriptionBuffer(s.StreamType.Trim(), s.Url.Trim(), s.Token, s.ProcessorBufferVersion - 1, s.IsPoisoned));
+            }
+
+            return subscriptions.ToArray();
+        }
+
+        public void FlagSubscriptionAsPoisoned(IEvent poisonedEvent, PoisonMessageException exception)
+        {
+            using (var context = this.contextFactory.Invoke(false))
+            {
+                var subscription = context.Subscriptions.Where(s => s.StreamType == poisonedEvent.StreamType && s.SubscriberStreamType == this.streamName).Single();
+                subscription.IsPoisoned = true;
+                subscription.UpdateLocalTime = this.time.Now.ToLocalTime();
+                subscription.PoisonEventCollectionVersion = poisonedEvent.EventCollectionVersion;
+                try
+                {
+                    subscription.ExceptionMessage = this.serializer.Serialize(exception);
+                }
+                catch (Exception)
+                {
+                    subscription.ExceptionMessage = string.Format("Exception type: {0}. Exception message: {1}. Inner exception: {2}", exception.GetType().Name, exception.Message, exception.InnerException.Message != null ? exception.InnerException.Message : "null");
+                }
+                try
+                {
+                    subscription.DeadLetterPayload = this.serializer.Serialize(poisonedEvent);
+                }
+                catch (Exception)
+                {
+                    subscription.DeadLetterPayload = string.Format("EventType: {0}", poisonedEvent.GetType().Name);
+                }
+
+                context.SaveChanges();
+            }
+        }
+
+        public bool TryAddNewSubscriptionOnTheFly(string streamType, string url, string token)
+        {
+            using (var context = this.contextFactory.Invoke(false))
+            {
+                if (context.Subscriptions.Any(s => s.SubscriberStreamType == this.streamName && s.StreamType == streamType))
+                    return false;
+
+                var now = DateTime.Now;
+                context.Subscriptions.Add(new SubscriptionEntity
+                {
+                    SubscriberStreamType = this.streamName,
+                    StreamType = streamType,
+                    Url = url,
+                    Token = token,
+                    CreationLocalTime = now,
+                    UpdateLocalTime = now
+                });
+
+                context.SaveChanges();
+                return true;
+            }
+        }
+
+        public void PersistSubscriptionVersion(string subscription, long version)
+        {
+            using (var context = this.contextFactory.Invoke(false))
+            {
+                var sub = context.Subscriptions.Single(x => x.SubscriberStreamType == this.streamName && x.StreamType == subscription);
+                sub.ProcessorBufferVersion = version;
+                sub.UpdateLocalTime = DateTime.Now;
+                context.SaveChanges();
             }
         }
     }

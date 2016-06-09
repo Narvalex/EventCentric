@@ -50,18 +50,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\..\EventCentric.Persistence.SqlServer\Database\DataReaderExtensions.cs">
-      <Link>Database\DataReaderExtensions.cs</Link>
-    </Compile>
-    <Compile Include="..\..\EventCentric.Persistence.SqlServer\Database\SqlClientExtensions.cs">
-      <Link>Database\SqlClientExtensions.cs</Link>
-    </Compile>
-    <Compile Include="..\..\EventCentric.Persistence.SqlServer\Database\SqlClientLite.cs">
-      <Link>Database\SqlClientLite.cs</Link>
-    </Compile>
-    <Compile Include="..\..\EventCentric.Persistence.SqlServer\Database\TransientFaultHandlingDbConfiguration.cs">
-      <Link>Database\TransientFaultHandlingDbConfiguration.cs</Link>
-    </Compile>
     <Compile Include="..\..\EventCentric.Persistence.SqlServer\OptimizedEventStore.cs">
       <Link>OptimizedEventStore.cs</Link>
     </Compile>
@@ -94,6 +82,9 @@
     </Compile>
     <Compile Include="..\..\EventCentric.Persistence.SqlServer\Repository\Mapping\SubscriptionEntityMap.cs">
       <Link>Repository\Mapping\SubscriptionEntityMap.cs</Link>
+    </Compile>
+    <Compile Include="..\..\EventCentric.Persistence.SqlServer\Repository\TransientFaultHandlingDbConfiguration.cs">
+      <Link>Repository\TransientFaultHandlingDbConfiguration.cs</Link>
     </Compile>
     <Compile Include="..\..\EventCentric.Persistence.SqlServer\Repository\ViewDao.cs">
       <Link>Repository\ViewDao.cs</Link>

@@ -154,9 +154,7 @@ namespace EventCentric
 
                 var receiver = new LongPoller(bus, log, TimeSpan.FromMilliseconds(pollerConfig.Timeout), streamFullName, container.Resolve<IInMemoryEventPublisher>());
 
-                var subscriptionRepository = new SubscriptionRepository(storeContextFactory, streamFullName, serializer, time);
-
-                var poller = new Poller(bus, log, container.Resolve<IInMemoryEventPublisher>(), subscriptionRepository, receiver, serializer, pollerConfig.BufferQueueMaxCount, pollerConfig.EventsToFlushMaxCount);
+                var poller = new Poller(bus, log, container.Resolve<IInMemoryEventPublisher>(), eventStore, receiver, serializer, pollerConfig.BufferQueueMaxCount, pollerConfig.EventsToFlushMaxCount);
                 container.RegisterInstance<IMonitoredSubscriber>(poller);
 
                 var publisher = new Publisher(streamFullName, eventStore, bus, log, eventStoreConfig.PushMaxCount, TimeSpan.FromMilliseconds(eventStoreConfig.LongPollingTimeout));

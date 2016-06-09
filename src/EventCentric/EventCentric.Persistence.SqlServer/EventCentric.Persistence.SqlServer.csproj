@@ -51,10 +51,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Database\DataReaderExtensions.cs" />
-    <Compile Include="Database\SqlClientExtensions.cs" />
-    <Compile Include="Database\SqlClientLite.cs" />
-    <Compile Include="Database\TransientFaultHandlingDbConfiguration.cs" />
     <Compile Include="OptimizedEventStore.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Repository\EventQueueDbContext.cs" />
@@ -67,6 +63,7 @@
     <Compile Include="Repository\Mapping\SnapshotEntityMap.cs" />
     <Compile Include="Repository\Mapping\SubscriberHeartbeatEntityMap.cs" />
     <Compile Include="Repository\Mapping\SubscriptionEntityMap.cs" />
+    <Compile Include="Repository\TransientFaultHandlingDbConfiguration.cs" />
     <Compile Include="Repository\ViewDao.cs" />
   </ItemGroup>
   <ItemGroup>

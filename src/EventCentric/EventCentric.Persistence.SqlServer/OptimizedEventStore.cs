@@ -2,6 +2,9 @@
 using EventCentric.EventSourcing;
 using EventCentric.Handling;
 using EventCentric.Log;
+using EventCentric.Messaging;
+using EventCentric.Persistence.SqlServer;
+using EventCentric.Polling;
 using EventCentric.Serialization;
 using EventCentric.Utils;
 using System;
@@ -14,7 +17,7 @@ using System.Runtime.Caching;
 namespace EventCentric.Persistence
 {
     // This event store does not denormalize
-    public class OptimizedEventStore<T> : IEventStore<T> where T : class, IEventSourced
+    public class OptimizedEventStore<T> : ISubscriptionRepository, IEventStore<T> where T : class, IEventSourced
     {
         private long eventCollectionVersion;
         private readonly string streamName;
@@ -206,20 +209,6 @@ namespace EventCentric.Persistence
                         {
                             var now = this.time.Now;
                             var localNow = this.time.Now.ToLocalTime();
-
-                            // Update subscription
-                            using (var command = connection.CreateCommand())
-                            {
-                                command.Transaction = transaction;
-                                command.CommandType = CommandType.Text;
-                                command.CommandText = this.updateSubscriptionCommand;
-                                command.Parameters.Add(new SqlParameter("@ProcessorBufferVersion", incomingEvent.ProcessorBufferVersion));
-                                command.Parameters.Add(new SqlParameter("@UpdateLocalTime", localNow));
-                                command.Parameters.Add(new SqlParameter("@StreamType", incomingEvent.StreamType));
-                                command.Parameters.Add(new SqlParameter("@SubscriberStreamType", this.streamName));
-
-                                command.ExecuteNonQuery();
-                            }
 
                             if (eventSourced == null)
                             {
@@ -513,6 +502,80 @@ namespace EventCentric.Persistence
                 : new SerializedEvent[] { new SerializedEvent(to, this.serializer.Serialize(CloakedEvent.New(Guid.Empty, to, this.streamName))) };
         }
 
+        public SubscriptionBuffer[] GetSubscriptions()
+        {
+            return this.sql.ExecuteReader(this.getSubscriptionsQuery,
+                r => new SubscriptionBuffer(
+                        r.GetString("StreamType"),
+                        r.GetString("Url"),
+                        r.SafeGetString("Token"),
+                        r.GetInt64("ProcessorBufferVersion") - 1, // We substract one version in order to set the current version bellow the last one, in case that first event was not yet processed.
+                        false),
+                        new SqlParameter("@SubscriberStreamType", this.streamName))
+                        .ToArray();
+        }
+
+        public void FlagSubscriptionAsPoisoned(IEvent poisonedEvent, PoisonMessageException exception)
+        {
+            using (var context = new EventStoreDbContext(false, this.connectionString))
+            {
+                var subscription = context.Subscriptions.Where(s => s.StreamType == poisonedEvent.StreamType && s.SubscriberStreamType == this.streamName).Single();
+                subscription.IsPoisoned = true;
+                subscription.UpdateLocalTime = this.time.Now.ToLocalTime();
+                subscription.PoisonEventCollectionVersion = poisonedEvent.EventCollectionVersion;
+                try
+                {
+                    subscription.ExceptionMessage = this.serializer.Serialize(exception);
+                }
+                catch (Exception)
+                {
+                    subscription.ExceptionMessage = string.Format("Exception type: {0}. Exception message: {1}. Inner exception: {2}", exception.GetType().Name, exception.Message, exception.InnerException.Message != null ? exception.InnerException.Message : "null");
+                }
+                try
+                {
+                    subscription.DeadLetterPayload = this.serializer.Serialize(poisonedEvent);
+                }
+                catch (Exception)
+                {
+                    subscription.DeadLetterPayload = string.Format("EventType: {0}", poisonedEvent.GetType().Name);
+                }
+
+                context.SaveChanges();
+            }
+        }
+
+        public bool TryAddNewSubscriptionOnTheFly(string streamType, string url, string token)
+        {
+            using (var context = new EventStoreDbContext(false, this.connectionString))
+            {
+                if (context.Subscriptions.Any(s => s.SubscriberStreamType == this.streamName && s.StreamType == streamType))
+                    return false;
+
+                var now = DateTime.Now;
+                context.Subscriptions.Add(new SubscriptionEntity
+                {
+                    SubscriberStreamType = this.streamName,
+                    StreamType = streamType,
+                    Url = url,
+                    Token = token,
+                    CreationLocalTime = now,
+                    UpdateLocalTime = now
+                });
+
+                context.SaveChanges();
+                return true;
+            }
+        }
+
+        public void PersistSubscriptionVersion(string subscription, long version)
+        {
+            this.sql.ExecuteNonQuery(this.updateSubscriptionScript,
+                new SqlParameter("@SubscriberStreamType", this.streamName),
+                new SqlParameter("@StreamType", subscription),
+                new SqlParameter("@Version", version),
+                new SqlParameter("@UpdateLocalTime", DateTime.Now));
+        }
+
 
         #region Scripts
         private readonly string findSnapshotQuery =
@@ -580,12 +643,6 @@ VALUES
     @EventId,
     @CreationLocalTime,
     @TransactionId)";
-
-        private readonly string updateSubscriptionCommand =
-        @"UPDATE [EventStore].[Subscriptions]
-SET [ProcessorBufferVersion] = @ProcessorBufferVersion,
-    [UpdateLocalTime] = @UpdateLocalTime
-WHERE [StreamType] = @StreamType AND [SubscriberStreamType] = @SubscriberStreamType";
 
         private readonly string insertOrUpdateSnapshot =
         @"if exists (select StreamType from EventStore.Snapshots where StreamId = @StreamId AND StreamType = @StreamType)
@@ -688,6 +745,23 @@ and EventCollectionVersion > @LastReceivedVersion
 and EventCollectionVersion <= @MaxVersion
 and StreamId = @StreamId
 order by EventCollectionVersion";
+
+        private readonly string getSubscriptionsQuery =
+@"SELECT [StreamType]
+      ,[Url]
+      ,[Token]
+      ,[ProcessorBufferVersion]
+  FROM [EventStore].[Subscriptions]
+  WHERE SubscriberStreamType = @SubscriberStreamType
+  AND IsPoisoned = 0
+  AND WasCanceled = 0";
+
+        private readonly string updateSubscriptionScript =
+@"UPDATE [EventStore].[Subscriptions]
+   SET [ProcessorBufferVersion] = @Version
+      ,[UpdateLocalTime] = @UpdateLocalTime
+ WHERE SubscriberStreamType = @SubscriberStreamType
+ AND StreamType = @StreamType";
         #endregion
     }
 }

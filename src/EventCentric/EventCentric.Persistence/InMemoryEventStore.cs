@@ -224,33 +224,24 @@ namespace EventCentric.Persistence
 
         public void Save(T eventSourced, IEvent incomingEvent)
         {
-            var pendingEvents = eventSourced.PendingEvents;
+            string key = null;
 
-            var key = eventSourced.Id.ToString();
             try
             {
-                // Check if incoming event is duplicate
-                if (this.Inbox.Any(e => e.EventId == incomingEvent.EventId))
-                    // Incoming event is duplicate
-                    return;
+                // Check if incoming event is duplicate, if is not a cloaked event
+                if (incomingEvent.EventId != Guid.Empty)
+                {
+                    // Check if incoming event is duplicate
+                    if (this.Inbox.Any(e => e.EventId == incomingEvent.EventId))
+                        // Incoming event is duplicate
+                        return;
+                }
 
                 var now = this.time.Now;
                 var localNow = this.time.Now.ToLocalTime();
 
-                // Update subscription
-                try
-                {
-                    var subscription = this.Subscriptions.Where(s => s.StreamType == incomingEvent.StreamType && s.SubscriberStreamType == this.streamName).Single();
-                    subscription.ProcessorBufferVersion = incomingEvent.ProcessorBufferVersion;
-                    subscription.UpdateLocalTime = now;
-                }
-                catch (Exception ex)
-                {
-                    throw new InvalidOperationException($"The incoming event belongs to a an stream type of {incomingEvent.StreamType}, but the event store could not found a subscription for that stream type.", ex);
-                }
-
                 // No new events to persist
-                if (pendingEvents.Count == 0)
+                if (eventSourced == null)
                 {
                     if (!(incomingEvent is CloakedEvent))
                         // Log the incoming message in the inbox
@@ -268,6 +259,7 @@ namespace EventCentric.Persistence
                             .Max(e => e.Version)
                           : 0;
 
+                var pendingEvents = eventSourced.PendingEvents;
                 if (currentVersion + 1 != pendingEvents.First().Version)
                     throw new EventStoreConcurrencyException();
 
@@ -418,6 +410,13 @@ namespace EventCentric.Persistence
                 Token = token
             });
             return true;
+        }
+
+        public void PersistSubscriptionVersion(string subscription, long version)
+        {
+            var sub = this.Subscriptions.Where(s => s.StreamType == subscription && s.SubscriberStreamType == this.streamName).Single();
+            sub.ProcessorBufferVersion = version;
+            sub.UpdateLocalTime = DateTime.Now;
         }
 
         public long CurrentEventCollectionVersion { get; private set; }
