@@ -28,11 +28,11 @@ namespace EventCentric.Persistence
         private readonly Func<bool, IEventStoreDbContext> contextFactory;
         private readonly Action<T, IEventStoreDbContext> denormalizeIfApplicable;
         private readonly Func<IEvent, DateTime, InboxEntity> inboxEntityFactory;
-        private readonly Func<string, string, bool> consumerFilter;
+        private readonly Func<string, ITextSerializer, string, bool> consumerFilter;
 
         private readonly object dbLock = new object();
 
-        public OrmEventStore(string streamName, ITextSerializer serializer, Func<bool, IEventStoreDbContext> contextFactory, IUtcTimeProvider time, IGuidProvider guid, ILogger log, bool persistIncomingPayloads, Func<string, string, bool> consumerFilter)
+        public OrmEventStore(string streamName, ITextSerializer serializer, Func<bool, IEventStoreDbContext> contextFactory, IUtcTimeProvider time, IGuidProvider guid, ILogger log, bool persistIncomingPayloads, Func<string, ITextSerializer, string, bool> consumerFilter)
         {
             Ensure.NotNullNeitherEmtpyNorWhiteSpace(streamName, nameof(streamName));
             Ensure.NotNull(serializer, nameof(serializer));
@@ -186,21 +186,16 @@ namespace EventCentric.Persistence
                 using (var context = this.contextFactory.Invoke(false))
                 {
                     // Check if incoming event is duplicate, if is not a cloaked event
-                    if (incomingEvent.EventId != Guid.Empty)
-                    {
-                        if (context.Inbox.Any(e => e.EventId == incomingEvent.EventId))
-                            // Incoming event is duplicate
-                            return;
-                    }
+                    if (context.Inbox.Any(e => e.EventId == incomingEvent.EventId))
+                        // Incoming event is duplicate
+                        return;
 
                     var now = this.time.Now;
                     var localNow = this.time.Now.ToLocalTime();
 
                     if (eventSourced == null)
                     {
-                        if (!(incomingEvent is CloakedEvent))
-                            context.Inbox.Add(this.inboxEntityFactory.Invoke(incomingEvent, localNow));
-
+                        context.Inbox.Add(this.inboxEntityFactory.Invoke(incomingEvent, localNow));
                         context.SaveChanges();
                         return;
                     }
@@ -250,6 +245,7 @@ namespace EventCentric.Persistence
                     }
 
                     // Cache in memory
+                    key = eventSourced.Id.ToString();
                     this.cache.Set(
                         key: key,
                         value: new Tuple<ISnapshot, DateTime?>(snapshot, now),

@@ -16,7 +16,6 @@ using System.Runtime.Caching;
 
 namespace EventCentric.Persistence
 {
-    // This event store does not denormalize
     public class OptimizedEventStore<T> : ISubscriptionRepository, IEventStore<T> where T : class, IEventSourced
     {
         private long eventCollectionVersion;
@@ -30,13 +29,13 @@ namespace EventCentric.Persistence
         private readonly Func<Guid, IEnumerable<IEvent>, T> aggregateFactory;
         private readonly Func<Guid, ISnapshot, T> originatorAggregateFactory;
         private readonly Action<SqlConnection, SqlTransaction, DateTime, IEvent> addToInboxFactory;
-        private readonly Func<string, string, bool> consumerFilter;
+        private readonly Func<string, ITextSerializer, string, bool> consumerFilter;
 
         private readonly string connectionString;
         private readonly SqlClientLite sql;
         private readonly object dbLock = new object();
 
-        public OptimizedEventStore(string streamName, ITextSerializer serializer, string connectionString, IUtcTimeProvider time, IGuidProvider guid, ILogger log, bool persistIncomingPayloads, Func<string, string, bool> consumerFilter)
+        public OptimizedEventStore(string streamName, ITextSerializer serializer, string connectionString, IUtcTimeProvider time, IGuidProvider guid, ILogger log, bool persistIncomingPayloads, Func<string, ITextSerializer, string, bool> consumerFilter)
         {
             Ensure.NotNullNeitherEmtpyNorWhiteSpace(streamName, nameof(streamName));
             Ensure.NotNull(serializer, nameof(serializer));
@@ -186,20 +185,16 @@ namespace EventCentric.Persistence
                 {
                     connection.Open();
 
-                    // Check if incoming event is duplicate, if is not a cloaked event
-                    if (incomingEvent.EventId != Guid.Empty)
+                    using (var command = connection.CreateCommand())
                     {
-                        using (var command = connection.CreateCommand())
-                        {
-                            command.CommandType = CommandType.Text;
-                            command.CommandText = this.isDuplicateQuery;
-                            command.Parameters.Add(new SqlParameter("@EventId", incomingEvent.EventId));
+                        command.CommandType = CommandType.Text;
+                        command.CommandText = this.isDuplicateQuery;
+                        command.Parameters.Add(new SqlParameter("@EventId", incomingEvent.EventId));
 
-                            using (var reader = command.ExecuteReader())
-                            {
-                                if (reader.Read())
-                                    return;
-                            }
+                        using (var reader = command.ExecuteReader())
+                        {
+                            if (reader.Read())
+                                return;
                         }
                     }
 
@@ -212,9 +207,7 @@ namespace EventCentric.Persistence
 
                             if (eventSourced == null)
                             {
-                                if (!(incomingEvent is CloakedEvent))
-                                    this.addToInboxFactory.Invoke(connection, transaction, localNow, incomingEvent);
-
+                                this.addToInboxFactory.Invoke(connection, transaction, localNow, incomingEvent);
                                 transaction.Commit();
                                 return;
                             }
@@ -252,8 +245,8 @@ namespace EventCentric.Persistence
                             var snapshot = ((ISnapshotOriginator)eventSourced).SaveToSnapshot();
                             var serializedMemento = this.serializer.Serialize(snapshot);
 
-                            key = eventSourced.Id.ToString();
                             // Cache in memory
+                            key = eventSourced.Id.ToString();
                             this.cache.Set(
                                 key: key,
                                 value: new Tuple<ISnapshot, DateTime?>(snapshot, now),
@@ -470,7 +463,7 @@ namespace EventCentric.Persistence
                 new SqlParameter("@StreamType", this.streamName),
                 new SqlParameter("@LastReceivedVersion", from),
                 new SqlParameter("@MaxVersion", to))
-                .Where(e => this.consumerFilter(consumer, e.Payload))
+                .Where(e => this.consumerFilter(consumer, this.serializer, e.Payload))
                 .Select(e =>
                             EventStoreFuncs.ApplyConsumerFilter(
                                 new SerializedEvent(e.EventCollectionVersion, e.Payload),
@@ -488,7 +481,7 @@ namespace EventCentric.Persistence
                 new SqlParameter("@LastReceivedVersion", from),
                 new SqlParameter("@MaxVersion", to),
                 new SqlParameter("@StreamId", streamId))
-                .Where(e => this.consumerFilter(consumer, e.Payload))
+                .Where(e => this.consumerFilter(consumer, this.serializer, e.Payload))
                 .Select(e =>
                             EventStoreFuncs.ApplyConsumerFilter(
                                 new SerializedEvent(e.EventCollectionVersion, e.Payload),

@@ -3,6 +3,7 @@ using EventCentric.Config;
 using EventCentric.EventSourcing;
 using EventCentric.MicroserviceFactory;
 using EventCentric.Persistence;
+using EventCentric.Serialization;
 using Microsoft.Practices.Unity;
 using PersistenceBenchmark.ConsoleHost;
 using PersistenceBenchmark.PromotionsStream;
@@ -62,7 +63,14 @@ namespace PersistenceBenchmark
 
                MicroserviceFactory<Promotions, PromotionsHandler>.
                     CreateEventProcessor("promo", promotionsConfig, null, plugin, persistIncomingEvents,
-                        SetupInMemoryPersistence<Promotions>));
+                        SetupInMemoryPersistence<Promotions>,
+                        (consumer, serializer, payload) =>
+                        {
+                            var e = serializer.Deserialize<IEvent>(payload);
+                            if (e is FreePointsRewardedToUser)
+                                return false;
+                            return true;
+                        }));
         }
 
         private static InMemoryEventStore<T> SetupInMemoryPersistence<T>(InMemoryEventStore<T> store) where T : class, IEventSourced

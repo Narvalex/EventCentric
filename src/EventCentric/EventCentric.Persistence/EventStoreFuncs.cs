@@ -6,11 +6,11 @@ namespace EventCentric.EventSourcing
 {
     public class EventStoreFuncs
     {
-        public static bool DefaultFilter(string consumer, string payload) => true;
+        public static bool DefaultFilter(string consumer, ITextSerializer serializer, string payload) => true;
 
-        public static SerializedEvent ApplyConsumerFilter(SerializedEvent e, string consumer, ITextSerializer serializer, Func<string, string, bool> filter)
+        public static SerializedEvent ApplyConsumerFilter(SerializedEvent e, string consumer, ITextSerializer serializer, Func<string, ITextSerializer, string, bool> filter)
         {
-            if (filter(consumer, e.Payload))
+            if (filter(consumer, serializer, e.Payload))
                 return e;
 
             var originalEvent = serializer.Deserialize<IEvent>(e.Payload);

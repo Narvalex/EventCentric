@@ -30,11 +30,11 @@ namespace EventCentric.Persistence
         private readonly ConcurrentBag<SnapshotEntity> Snapshots = new ConcurrentBag<SnapshotEntity>();
         private readonly ConcurrentBag<InboxEntity> Inbox = new ConcurrentBag<InboxEntity>();
         private readonly Func<IEvent, InboxEntity> inboxEntityFactory;
-        private readonly Func<string, string, bool> consumerFilter;
+        private readonly Func<string, ITextSerializer, string, bool> consumerFilter;
 
         private readonly object dbLock = new object();
 
-        public InMemoryEventStore(string streamName, IUtcTimeProvider time, ITextSerializer serializer, IGuidProvider guid, ILogger log, bool persistIncomingPayloads, Func<string, string, bool> consumerFilter)
+        public InMemoryEventStore(string streamName, IUtcTimeProvider time, ITextSerializer serializer, IGuidProvider guid, ILogger log, bool persistIncomingPayloads, Func<string, ITextSerializer, string, bool> consumerFilter)
         {
             Ensure.NotNull(streamName, nameof(streamName));
             Ensure.NotNull(time, nameof(time));
@@ -288,6 +288,7 @@ namespace EventCentric.Persistence
                 }
 
                 // Cache in memory
+                key = eventSourced.Id.ToString();
                 this.cache.Set(
                     key: key,
                     value: new Tuple<ISnapshot, DateTime?>(snapshot, now),

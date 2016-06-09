@@ -13,6 +13,7 @@ namespace EventCentric.Handling
             this.DeduplicateBeforeHandling = deduplicateBeforeHandling;
         }
 
+        // Ignore constructor
         private MessageHandling()
         {
             this.Ignore = true;

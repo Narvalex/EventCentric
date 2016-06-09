@@ -35,7 +35,7 @@ namespace EventCentric
             PersistencePlugin selectedPlugin = PersistencePlugin.SqlServer,
             bool persistIncomingPayloads = true,
             Func<InMemoryEventStore<TStream>, InMemoryEventStore<TStream>> setupInMemoryPersistence = null,
-            Func<string, string, bool> consumerFilter = null,
+            Func<string, ITextSerializer, string, bool> consumerFilter = null,
             bool isSubscriptor = true,
             Func<IBus, ILogger, IEventStore<TStream>, THandler> processorFactory = null,
             Func<string, IEventStore, IBus, ILogger, int, TimeSpan, IPollableEventSource> publisherFactory = null)

@@ -118,6 +118,7 @@ namespace EventCentric.Handling
                 IMessageHandling handling = me.Handle((dynamic)incomingEvent);
 
                 if (handling.Ignore)
+                    // Happily ignore! :D
                     return null;
 
 

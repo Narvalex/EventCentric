@@ -31,7 +31,7 @@ namespace PersistenceBenchmark
 
         public IMessageHandling Handle(AddNewSubscription message)
         {
-            return base.FromNewStream(Guid.NewGuid(), state =>
+            return base.FromNewStream(SequentialGuid.New, state =>
             state.UpdateAfterSending(new TryAddNewSubscription(message.SubscriberStreamType, message.StreamTypeOfProducer, message.Url, message.Token)));
         }
 
@@ -40,7 +40,7 @@ namespace PersistenceBenchmark
             var list = new List<CreateOrUpdateUser>(quantity);
             for (int i = 0; i < quantity; i++)
             {
-                var id = Guid.NewGuid();
+                var id = SequentialGuid.New;
 
                 for (int j = 0; j < waves; j++)
                 {

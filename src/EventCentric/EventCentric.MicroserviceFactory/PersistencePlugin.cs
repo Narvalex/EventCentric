@@ -25,7 +25,7 @@ namespace EventCentric.MicroserviceFactory
             bool persistIncomingPayloads,
             // Sql Based persistence
             Func<InMemoryEventStore<TStream>, InMemoryEventStore<TStream>> setupInMemoryPersistence,
-            Func<string, string, bool> consumerFilter)
+            Func<string, ITextSerializer, string, bool> consumerFilter)
         {
             switch (selectedPlugin)
             {
@@ -61,7 +61,7 @@ namespace EventCentric.MicroserviceFactory
             return container;
         }
 
-        private static void ResolveForSqlServer(IUnityContainer container, string microserviceName, string connectionString, bool persistIncomingPayloads, Func<string, string, bool> consumerFilter)
+        private static void ResolveForSqlServer(IUnityContainer container, string microserviceName, string connectionString, bool persistIncomingPayloads, Func<string, ITextSerializer, string, bool> consumerFilter)
         {
             Func<bool, EventStoreDbContext> storeContextFactory = isReadOnly => new EventStoreDbContext(isReadOnly, connectionString);
             Func<bool, EventQueueDbContext> queueContextFactory = isReadOnly => new EventQueueDbContext(isReadOnly, connectionString);
@@ -74,7 +74,7 @@ namespace EventCentric.MicroserviceFactory
             container.RegisterInstance<ISubscriptionRepository>(eventStore);
         }
 
-        private static void ResolveForSqlServerCe(IUnityContainer container, string microserviceName, string connectionString, bool persistIncomingPayloads, Func<string, string, bool> consumerFilter)
+        private static void ResolveForSqlServerCe(IUnityContainer container, string microserviceName, string connectionString, bool persistIncomingPayloads, Func<string, ITextSerializer, string, bool> consumerFilter)
         {
             Func<bool, EventStoreCeDbContext> storeContextFactory = isReadOnly =>
                 new EventStoreCeDbContext(isReadOnly, connectionString);
