@@ -8,6 +8,7 @@ namespace EventCentric.Handling
     /// </summary>
     public interface IMessageHandling
     {
+        bool Ignore { get; }
         Guid StreamId { get; }
         Func<IEventSourced> Handle { get; }
         bool DeduplicateBeforeHandling { get; }

@@ -399,7 +399,7 @@ namespace EventCentric.Persistence
 
                 return events.Length > 0
                 ? events
-                : new SerializedEvent[] { new SerializedEvent(to, this.serializer.Serialize(CloakedEvent.New(Guid.Empty, to, this.streamName))) };
+                : new SerializedEvent[] { new SerializedEvent(to, this.serializer.Serialize(new CloakedEvent(to, this.streamName))) };
             }
         }
 

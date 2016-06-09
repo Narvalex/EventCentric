@@ -117,6 +117,8 @@ namespace EventCentric.Handling
                 dynamic me = this;
                 IMessageHandling handling = me.Handle((dynamic)incomingEvent);
 
+
+
                 if (handling.DeduplicateBeforeHandling)
                 {
                     Guid tranId;
@@ -283,7 +285,7 @@ namespace EventCentric.Handling
         {
             if (this.log.Verbose)
                 this.log.Trace($"{name} is automatically ignoring message of type {message.GetType().Name} because no handling method where found");
-            return new MessageHandling();   
+            return new MessageHandling();
         }
 
         public IMessageHandling Handle(CloakedEvent e) => new MessageHandling();
