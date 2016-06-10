@@ -33,7 +33,7 @@ namespace EventCentric
             IEventStoreConfig eventStoreConfig = null,
             IPollerConfig pollerConfig = null,
             PersistencePlugin selectedPlugin = PersistencePlugin.SqlServer,
-            bool persistIncomingPayloads = true,
+            bool persistIncomingPayloads = false,
             Func<InMemoryEventStore<TStream>, InMemoryEventStore<TStream>> setupInMemoryPersistence = null,
             Func<string, ITextSerializer, string, bool> consumerFilter = null,
             bool isSubscriptor = true,
