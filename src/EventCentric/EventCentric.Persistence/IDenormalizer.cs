@@ -2,7 +2,7 @@
 
 namespace EventCentric.Persistence
 {
-    public interface IDenormalizer : IEventSourced, IUpdatesWhen<ReadModelUpdated>
+    public interface IDenormalizer : IEventSourced
     {
         void UpdateReadModel(IEventStoreDbContext context);
     }

@@ -30,10 +30,7 @@ namespace EventCentric.Persistence.SqlServer
         public TAggregate Denormalize(Action<TDbContext> denormalize)
         {
             this.denormalize = denormalize;
-            return base.UpdateFromMessage(new ReadModelUpdated());
+            return this as TAggregate;
         }
-
-        public void When(ReadModelUpdated e)
-        { }
     }
 }
