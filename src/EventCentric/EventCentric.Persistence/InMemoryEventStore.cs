@@ -353,14 +353,17 @@ namespace EventCentric.Persistence
                 this.log.Error(ex, $"An error ocurred while storing events while processing incoming event of type '{incomingEvent.GetType().Name}'");
 
                 // Mark cache as stale
-                var item = (Tuple<ISnapshot, DateTime?>)this.cache.Get(key);
-                if (item != null && item.Item2.HasValue)
+                if (key != null)
                 {
-                    item = new Tuple<ISnapshot, DateTime?>(item.Item1, null);
-                    this.cache.Set(
-                        key,
-                        item,
-                        new CacheItemPolicy { AbsoluteExpiration = this.time.OffSetNow.AddMinutes(30) });
+                    var item = (Tuple<ISnapshot, DateTime?>)this.cache.Get(key);
+                    if (item != null && item.Item2.HasValue)
+                    {
+                        item = new Tuple<ISnapshot, DateTime?>(item.Item1, null);
+                        this.cache.Set(
+                            key,
+                            item,
+                            new CacheItemPolicy { AbsoluteExpiration = this.time.OffSetNow.AddMinutes(30) });
+                    }
                 }
 
                 throw;
