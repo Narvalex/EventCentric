@@ -13,7 +13,7 @@ namespace PersistenceBenchmark.ConsoleHost
 
             PrintWelcomeMessage(plugin);
 
-            //DbManager.ResetDbs(plugin);
+            DbManager.ResetDbs(plugin);
             UnityConfig.InitializeMainContainer(plugin);
 
             // Holding in memory messages
@@ -35,6 +35,7 @@ namespace PersistenceBenchmark.ConsoleHost
             // SQL SERVER ADO.NET --------------------------------------------
             // 100 througput,   completes in 20 s   7.498 messages      374 m/s
             // 100 througput,   completes in 40 s   12.650  messages    316 m/s
+            // 100 througput,   completes in 15:00  70.066  messages    77 m/s
             if (plugin == PersistencePlugin.SqlServer)
             {
                 user1App.StressWithWavesOfConcurrentUsers(wavesCount: 25, concurrentUsers: 1000);

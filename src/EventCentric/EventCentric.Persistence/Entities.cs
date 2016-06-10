@@ -15,7 +15,6 @@ namespace EventCentric.Persistence
         public long EventCollectionVersion { get; set; }
         public DateTime LocalTime { get; set; }
         public DateTime UtcTime { get; set; }
-        public byte[] RowVersion { get; set; }
         public string Payload { get; set; }
     }
 

@@ -29,8 +29,6 @@ namespace EventCentric.Persistence.SqlServer
             this.Property(t => t.Payload)
                 .IsRequired();
 
-            this.Property(t => t.RowVersion).IsRowVersion();
-
 
             // Table & Column Mappings
             this.ToTable("Events", "EventStore");
@@ -44,7 +42,6 @@ namespace EventCentric.Persistence.SqlServer
             this.Property(t => t.EventCollectionVersion).HasColumnName("EventCollectionVersion");
             this.Property(t => t.LocalTime).HasColumnName("LocalTime");
             this.Property(t => t.UtcTime).HasColumnName("UtcTime");
-            this.Property(t => t.RowVersion).HasColumnName("RowVersion");
             this.Property(t => t.Payload).HasColumnName("Payload");
         }
     }

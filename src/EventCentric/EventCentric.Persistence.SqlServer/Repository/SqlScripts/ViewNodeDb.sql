@@ -54,7 +54,6 @@ CREATE TABLE [EventStore].[Events](
     [EventCollectionVersion] [bigint] NOT NULL,
     [LocalTime] [datetime] NOT NULL,
 	[UtcTime] [datetime] NOT NULL,
-	[RowVersion] [rowversion] NOT NULL,
 	[Payload] [nvarchar] (max) NOT NULL
 
 PRIMARY KEY CLUSTERED 
