@@ -216,27 +216,31 @@ namespace EventCentric.Persistence
                                 throw new ArgumentOutOfRangeException("StreamId", $"The eventsourced of type {typeof(T).FullName} has a default GUID value for its stream id, which is not valid");
 
                             // get current version
-                            long currentVersion = 0;
-                            using (var command = connection.CreateCommand())
+                            var pendingEvents = eventSourced.PendingEvents;
+                            if (pendingEvents.Count > 0)
                             {
-                                command.CommandType = CommandType.Text;
-                                command.Transaction = transaction;
-                                command.CommandText = this.getStreamVersion;
-                                command.Parameters.Add(new SqlParameter("@StreamType", this.streamName));
-                                command.Parameters.Add(new SqlParameter("@StreamId", eventSourced.Id));
-
-                                using (var reader = command.ExecuteReader())
+                                long currentVersion = 0;
+                                using (var command = connection.CreateCommand())
                                 {
-                                    if (reader.Read())
+                                    command.CommandType = CommandType.Text;
+                                    command.Transaction = transaction;
+                                    command.CommandText = this.getStreamVersion;
+                                    command.Parameters.Add(new SqlParameter("@StreamType", this.streamName));
+                                    command.Parameters.Add(new SqlParameter("@StreamId", eventSourced.Id));
+
+                                    using (var reader = command.ExecuteReader())
                                     {
-                                        currentVersion = reader.GetInt64("Version");
+                                        if (reader.Read())
+                                        {
+                                            currentVersion = reader.GetInt64("Version");
+                                        }
                                     }
                                 }
-                            }
 
-                            var pendingEvents = eventSourced.PendingEvents;
-                            if (currentVersion + 1 != pendingEvents.First().Version)
-                                throw new EventStoreConcurrencyException();
+
+                                if (currentVersion + 1 != pendingEvents.First().Version)
+                                    throw new EventStoreConcurrencyException();
+                            }
 
                             // Log the incoming message in the inbox
                             this.addToInboxFactory.Invoke(connection, transaction, localNow, incomingEvent);

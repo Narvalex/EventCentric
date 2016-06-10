@@ -203,16 +203,18 @@ namespace EventCentric.Persistence
                     if (eventSourced.Id == default(Guid))
                         throw new ArgumentOutOfRangeException("StreamId", $"The eventsourced of type {typeof(T).FullName} has a default GUID value for its stream id, which is not valid");
 
-
-                    var currentVersion = context.Events.Any(e => e.StreamId == eventSourced.Id && e.StreamType == this.streamName)
+                    var pendingEvents = eventSourced.PendingEvents;
+                    if (pendingEvents.Count > 0)
+                    {
+                        var currentVersion = context.Events.Any(e => e.StreamId == eventSourced.Id && e.StreamType == this.streamName)
                       ? context.Events
                         .Where(e => e.StreamId == eventSourced.Id && e.StreamType == this.streamName)
                         .Max(e => e.Version)
                       : 0;
 
-                    var pendingEvents = eventSourced.PendingEvents;
-                    if (currentVersion + 1 != pendingEvents.First().Version)
-                        throw new EventStoreConcurrencyException();
+                        if (currentVersion + 1 != pendingEvents.First().Version)
+                            throw new EventStoreConcurrencyException();
+                    }
 
                     // Log the incoming message in the inbox
                     context.Inbox.Add(this.inboxEntityFactory.Invoke(incomingEvent, localNow));
