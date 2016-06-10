@@ -463,7 +463,6 @@ namespace EventCentric.Persistence
                 new SqlParameter("@StreamType", this.streamName),
                 new SqlParameter("@LastReceivedVersion", from),
                 new SqlParameter("@MaxVersion", to))
-                .Where(e => this.consumerFilter(consumer, this.serializer, e.Payload))
                 .Select(e =>
                             EventStoreFuncs.ApplyConsumerFilter(
                                 new SerializedEvent(e.EventCollectionVersion, e.Payload),
@@ -481,7 +480,6 @@ namespace EventCentric.Persistence
                 new SqlParameter("@LastReceivedVersion", from),
                 new SqlParameter("@MaxVersion", to),
                 new SqlParameter("@StreamId", streamId))
-                .Where(e => this.consumerFilter(consumer, this.serializer, e.Payload))
                 .Select(e =>
                             EventStoreFuncs.ApplyConsumerFilter(
                                 new SerializedEvent(e.EventCollectionVersion, e.Payload),

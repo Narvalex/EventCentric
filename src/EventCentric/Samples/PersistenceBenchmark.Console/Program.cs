@@ -9,11 +9,11 @@ namespace PersistenceBenchmark.ConsoleHost
 
         static void Main(string[] args)
         {
-            var plugin = DbManager.SetPlugin(PersistencePlugin.InMemory);
+            var plugin = DbManager.SetPlugin(PersistencePlugin.SqlServer);
 
             PrintWelcomeMessage(plugin);
 
-            DbManager.ResetDbs(plugin);
+            //DbManager.ResetDbs(plugin);
             UnityConfig.InitializeMainContainer(plugin);
 
             // Holding in memory messages
@@ -37,10 +37,10 @@ namespace PersistenceBenchmark.ConsoleHost
             // 100 througput,   completes in 40 s   12.650  messages    316 m/s
             if (plugin == PersistencePlugin.SqlServer)
             {
-                //user1App.StressWithWavesOfConcurrentUsers(wavesCount: 5, concurrentUsers: 1000);
-                //user2App.StressWithWavesOfConcurrentUsers(wavesCount: 5, concurrentUsers: 1000);
+                user1App.StressWithWavesOfConcurrentUsers(wavesCount: 25, concurrentUsers: 1000);
+                user2App.StressWithWavesOfConcurrentUsers(wavesCount: 25, concurrentUsers: 1000);
 
-                user1App.StressWithWavesOfConcurrentUsers(wavesCount: 1, concurrentUsers: 1);
+                //user1App.StressWithWavesOfConcurrentUsers(wavesCount: 1, concurrentUsers: 1);
             }
 
             // IN-MEMORY-------------------------------------------------------

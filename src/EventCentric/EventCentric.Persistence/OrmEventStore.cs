@@ -361,7 +361,7 @@ namespace EventCentric.Persistence
                         .Where(e => e.StreamType == this.streamName && e.EventCollectionVersion > from && e.EventCollectionVersion <= to)
                         .OrderBy(e => e.EventCollectionVersion)
                         .Take(quantity)
-                        .ToList()
+                        .ToArray()
                         .Select(e =>
                             EventStoreFuncs.ApplyConsumerFilter(
                                 new SerializedEvent(e.EventCollectionVersion, e.Payload),
@@ -384,7 +384,7 @@ namespace EventCentric.Persistence
                     && e.StreamId == streamId)
                 .OrderBy(e => e.EventCollectionVersion)
                 .Take(quantity)
-                .ToList()
+                .ToArray()
                 .Select(e =>
                     EventStoreFuncs.ApplyConsumerFilter(
                         new SerializedEvent(e.EventCollectionVersion, e.Payload),
