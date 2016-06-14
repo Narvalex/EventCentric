@@ -2,9 +2,9 @@ using System.Data.Entity.ModelConfiguration;
 
 namespace EventCentric.Persistence
 {
-    public class StreamEntityMapCe : EntityTypeConfiguration<SnapshotEntity>
+    public class StreamEntityMap : EntityTypeConfiguration<SnapshotEntity>
     {
-        public StreamEntityMapCe()
+        public StreamEntityMap()
         {
             // Primary Key
             this.HasKey(t => new { t.StreamType, t.StreamId });
@@ -12,7 +12,7 @@ namespace EventCentric.Persistence
             this.Property(t => t.StreamType).HasMaxLength(255);
 
             // Table & Column Mappings
-            this.ToTable("Snapshots");
+            this.ToTable("Snapshots", "EventStore");
             this.Property(t => t.StreamType).HasColumnName("StreamType");
             this.Property(t => t.StreamId).HasColumnName("StreamId");
             this.Property(t => t.Version).HasColumnName("Version");

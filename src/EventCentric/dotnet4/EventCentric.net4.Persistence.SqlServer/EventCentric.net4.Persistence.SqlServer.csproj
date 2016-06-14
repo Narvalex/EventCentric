@@ -65,24 +65,6 @@
     <Compile Include="..\..\EventCentric.Persistence.SqlServer\Repository\IViewDao.cs">
       <Link>Repository\IViewDao.cs</Link>
     </Compile>
-    <Compile Include="..\..\EventCentric.Persistence.SqlServer\Repository\Mapping\EventEntityMap.cs">
-      <Link>Repository\Mapping\EventEntityMap.cs</Link>
-    </Compile>
-    <Compile Include="..\..\EventCentric.Persistence.SqlServer\Repository\Mapping\EventuallyConsistentResultEntityMap.cs">
-      <Link>Repository\Mapping\EventuallyConsistentResultEntityMap.cs</Link>
-    </Compile>
-    <Compile Include="..\..\EventCentric.Persistence.SqlServer\Repository\Mapping\InboxEntityMap.cs">
-      <Link>Repository\Mapping\InboxEntityMap.cs</Link>
-    </Compile>
-    <Compile Include="..\..\EventCentric.Persistence.SqlServer\Repository\Mapping\SnapshotEntityMap.cs">
-      <Link>Repository\Mapping\SnapshotEntityMap.cs</Link>
-    </Compile>
-    <Compile Include="..\..\EventCentric.Persistence.SqlServer\Repository\Mapping\SubscriberHeartbeatEntityMap.cs">
-      <Link>Repository\Mapping\SubscriberHeartbeatEntityMap.cs</Link>
-    </Compile>
-    <Compile Include="..\..\EventCentric.Persistence.SqlServer\Repository\Mapping\SubscriptionEntityMap.cs">
-      <Link>Repository\Mapping\SubscriptionEntityMap.cs</Link>
-    </Compile>
     <Compile Include="..\..\EventCentric.Persistence.SqlServer\Repository\TransientFaultHandlingDbConfiguration.cs">
       <Link>Repository\TransientFaultHandlingDbConfiguration.cs</Link>
     </Compile>

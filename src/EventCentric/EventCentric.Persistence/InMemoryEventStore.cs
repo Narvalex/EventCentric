@@ -25,10 +25,10 @@ namespace EventCentric.Persistence
         private readonly Func<Guid, IEnumerable<IEvent>, T> aggregateFactory;
         private readonly Func<Guid, ISnapshot, T> originatorAggregateFactory;
 
-        private readonly ConcurrentBag<EventEntity> Events = new ConcurrentBag<EventEntity>();
-        private readonly ConcurrentBag<SubscriptionEntity> Subscriptions = new ConcurrentBag<SubscriptionEntity>();
-        private readonly ConcurrentBag<SnapshotEntity> Snapshots = new ConcurrentBag<SnapshotEntity>();
-        private readonly ConcurrentBag<InboxEntity> Inbox = new ConcurrentBag<InboxEntity>();
+        private readonly ConcurrentDictionary<long, EventEntity> events = new ConcurrentDictionary<long, EventEntity>();
+        private readonly ConcurrentBag<SubscriptionEntity> subscriptions = new ConcurrentBag<SubscriptionEntity>();
+        private readonly ConcurrentDictionary<string, SnapshotEntity> snapshots = new ConcurrentDictionary<string, SnapshotEntity>();
+        private readonly ConcurrentDictionary<string, InboxEntity> inbox = new ConcurrentDictionary<string, InboxEntity>();
         private readonly Func<IEvent, InboxEntity> inboxEntityFactory;
         private readonly Func<string, ITextSerializer, string, bool> consumerFilter;
 
@@ -70,15 +70,15 @@ namespace EventCentric.Persistence
             else
                 this.inboxEntityFactory = incomingEvent => new InboxEntity { InboxStreamType = this.streamName, EventId = incomingEvent.EventId, TransactionId = incomingEvent.TransactionId };
 
-            if (this.Events.Any(e => e.StreamType == this.streamName))
-                this.eventCollectionVersion = this.Events.Where(e => e.StreamType == this.streamName).Max(e => e.EventCollectionVersion);
+            if (!this.events.IsEmpty)
+                this.eventCollectionVersion = this.events.Max(e => e.Key);
             this.CurrentEventCollectionVersion = this.eventCollectionVersion;
 
             // Add subscription of app, if not exists
-            if (!this.Subscriptions.Any(s => s.SubscriberStreamType == this.streamName && s.StreamType == this.streamName + Constants.AppEventStreamNameSufix))
+            if (!this.subscriptions.Any(s => s.SubscriberStreamType == this.streamName && s.StreamType == this.streamName + Constants.AppEventStreamNameSufix))
             {
                 // We should add the new subscription
-                this.Subscriptions.Add(new SubscriptionEntity
+                this.subscriptions.Add(new SubscriptionEntity
                 {
                     SubscriberStreamType = this.streamName,
                     StreamType = this.streamName + Constants.AppEventStreamNameSufix,
@@ -95,32 +95,31 @@ namespace EventCentric.Persistence
 
         public InMemoryEventStore<T> Setup(IEnumerable<SubscriptionEntity> subscriptions)
         {
-            subscriptions.ForEach(s => this.Subscriptions.Add(s));
+            subscriptions.ForEach(s => this.subscriptions.Add(s));
             return this;
         }
 
         public InMemoryEventStore<T> Setup(params SubscriptionEntity[] subscriptions)
         {
-            subscriptions.ForEach(s => this.Subscriptions.Add(s));
+            subscriptions.ForEach(s => this.subscriptions.Add(s));
             return this;
         }
 
         public EventStoreStats GetStats()
         {
-            return new EventStoreStats(this.Events.Count(), this.Inbox.Count());
+            return new EventStoreStats(this.events.Count(), this.inbox.Count());
         }
 
         public SerializedEvent[] FindEventsForConsumer(long from, long to, int quantity, string consumer)
         {
-            return this.Events
-                        .Where(e => e.StreamType == this.streamName
-                                    && e.EventCollectionVersion > from
-                                    && e.EventCollectionVersion <= to)
-                        .OrderBy(e => e.EventCollectionVersion)
+            return this.events
+                        .Where(e => e.Key > from
+                                    && e.Key <= to)
+                        .OrderBy(e => e.Key)
                         .Take(quantity)
                         .Select(e =>
                             EventStoreFuncs.ApplyConsumerFilter(
-                                new SerializedEvent(e.EventCollectionVersion, e.Payload),
+                                new SerializedEvent(e.Key, e.Value.Payload),
                                 consumer,
                                 this.serializer,
                                 this.consumerFilter))
@@ -129,16 +128,15 @@ namespace EventCentric.Persistence
 
         public SerializedEvent[] FindEventsForConsumer(long from, long to, Guid streamId, int quantity, string consumer)
         {
-            var events = this.Events
-                       .Where(e => e.StreamType == this.streamName
-                                   && e.EventCollectionVersion > from
-                                   && e.EventCollectionVersion <= to
-                                   && e.StreamId == streamId)
-                       .OrderBy(e => e.EventCollectionVersion)
+            var events = this.events
+                       .Where(e => e.Key > from
+                                   && e.Key <= to
+                                   && e.Value.StreamId == streamId)
+                       .OrderBy(e => e.Key)
                        .Take(quantity)
                        .Select(e =>
                            EventStoreFuncs.ApplyConsumerFilter(
-                               new SerializedEvent(e.EventCollectionVersion, e.Payload),
+                               new SerializedEvent(e.Key, e.Value.Payload),
                                consumer,
                                this.serializer,
                                this.consumerFilter))
@@ -151,16 +149,15 @@ namespace EventCentric.Persistence
 
         public long GetEventCollectionVersion()
         {
-            return !this.Events.Any(e => e.StreamType == this.streamName)
+            return this.events.IsEmpty
                     ? 0
-                    : this.Events.Where(e => e.StreamType == this.streamName)
-                        .Max(e => e.EventCollectionVersion);
+                    : this.events.Max(e => e.Key);
         }
 
         #region SubscriptionRepository
         public void FlagSubscriptionAsPoisoned(IEvent poisonedEvent, PoisonMessageException exception)
         {
-            var sub = this.Subscriptions.Where(s => s.StreamType == poisonedEvent.StreamType && s.SubscriberStreamType == this.streamName).Single();
+            var sub = this.subscriptions.Where(s => s.StreamType == poisonedEvent.StreamType && s.SubscriberStreamType == this.streamName).Single();
             sub.IsPoisoned = true;
             sub.UpdateLocalTime = this.time.Now.ToLocalTime();
             sub.PoisonEventCollectionVersion = poisonedEvent.EventCollectionVersion;
@@ -170,7 +167,7 @@ namespace EventCentric.Persistence
 
         public SubscriptionBuffer[] GetSubscriptions()
         {
-            return this.Subscriptions
+            return this.subscriptions
                         .Where(s => s.SubscriberStreamType == this.streamName && !s.IsPoisoned && !s.WasCanceled)
                         .Select(s => new SubscriptionBuffer(s.StreamType.Trim(), s.Url.Trim(), s.Token, s.ProcessorBufferVersion - 1, s.IsPoisoned))
                         .ToArray();
@@ -184,7 +181,7 @@ namespace EventCentric.Persistence
             var cachedMemento = (Tuple<ISnapshot, DateTime?>)this.cache.Get(id.ToString());
             if (cachedMemento == null || !cachedMemento.Item2.HasValue)
             {
-                var snapshotEntity = this.Snapshots.Where(s => s.StreamId == id && s.StreamType == this.streamName).SingleOrDefault();
+                var snapshotEntity = this.snapshots.TryGetValue(id.ToString());
                 if (snapshotEntity != null)
                     cachedMemento = new Tuple<ISnapshot, DateTime?>(this.serializer.Deserialize<ISnapshot>(snapshotEntity.Payload), null);
                 else
@@ -196,11 +193,11 @@ namespace EventCentric.Persistence
 
         private T GetFromFullStreamOfEvents(Guid id)
         {
-            var stream = this.Events
-                                .Where(e => e.StreamId == id && e.StreamType == this.streamName)
-                                .OrderBy(e => e.Version)
+            var stream = this.events
+                                .Where(e => e.Value.StreamId == id)
+                                .OrderBy(e => e.Value.Version)
                                 .AsEnumerable()
-                                .Select(e => this.serializer.Deserialize<IEvent>(e.Payload))
+                                .Select(e => this.serializer.Deserialize<IEvent>(e.Value.Payload))
                                 .AsCachedAnyEnumerable();
 
             if (stream.Any())
@@ -229,7 +226,7 @@ namespace EventCentric.Persistence
             try
             {
                 // Check if incoming event is duplicate
-                if (this.Inbox.Any(e => e.EventId == incomingEvent.EventId))
+                if (this.inbox.ContainsKey(incomingEvent.EventId.ToString()))
                     // Incoming event is duplicate
                     return;
 
@@ -240,7 +237,7 @@ namespace EventCentric.Persistence
                 if (eventSourced == null)
                 {
                     // Log the incoming message in the inbox
-                    this.Inbox.Add(this.inboxEntityFactory.Invoke(incomingEvent));
+                    this.inbox[incomingEvent.EventId.ToString()] = this.inboxEntityFactory.Invoke(incomingEvent);
                     return;
                 }
 
@@ -250,10 +247,10 @@ namespace EventCentric.Persistence
                 var pendingEvents = eventSourced.PendingEvents;
                 if (pendingEvents.Count > 0)
                 {
-                    var currentVersion = this.Events.Any(e => e.StreamId == eventSourced.Id && e.StreamType == this.streamName)
-                          ? this.Events
-                            .Where(e => e.StreamId == eventSourced.Id && e.StreamType == this.streamName)
-                            .Max(e => e.Version)
+                    var currentVersion = this.events.Any(e => e.Value.StreamId == eventSourced.Id)
+                          ? this.events
+                            .Where(e => e.Value.StreamId == eventSourced.Id)
+                            .Max(e => e.Value.Version)
                           : 0;
 
 
@@ -262,15 +259,17 @@ namespace EventCentric.Persistence
                 }
 
                 // Log the incoming message in the inbox
-                this.Inbox.Add(this.inboxEntityFactory.Invoke(incomingEvent));
+                this.inbox[incomingEvent.EventId.ToString()] = this.inboxEntityFactory.Invoke(incomingEvent);
 
                 // Cache Memento And Publish Stream
                 var snapshot = ((ISnapshotOriginator)eventSourced).SaveToSnapshot();
 
+                key = eventSourced.Id.ToString();
+
                 // Cache in Sql Server
                 var serializedMemento = this.serializer.Serialize(snapshot);
 
-                var streamEntity = this.Snapshots.Where(s => s.StreamId == eventSourced.Id && s.StreamType == this.streamName).SingleOrDefault();
+                var streamEntity = this.snapshots.TryGetValue(key);
                 if (streamEntity != null)
                 {
                     streamEntity.Version = eventSourced.Version;
@@ -288,11 +287,10 @@ namespace EventCentric.Persistence
                         CreationLocalTime = localNow,
                         UpdateLocalTime = localNow
                     };
-                    this.Snapshots.Add(streamEntity);
+                    this.snapshots[key] = streamEntity;
                 }
 
                 // Cache in memory
-                key = eventSourced.Id.ToString();
                 this.cache.Set(
                     key: key,
                     value: new Tuple<ISnapshot, DateTime?>(snapshot, now),
@@ -338,7 +336,7 @@ namespace EventCentric.Persistence
                             entity.EventCollectionVersion = this.eventCollectionVersion;
                             entity.Payload = this.serializer.Serialize(@event);
 
-                            this.Events.Add(entity);
+                            this.events[this.eventCollectionVersion] = entity;
                         }
 
                         //var random = new Random();
@@ -379,19 +377,13 @@ namespace EventCentric.Persistence
             cache.Remove(streamId.ToString());
 
             SnapshotEntity snapshot;
-
-            while (this.Snapshots.TryTake(out snapshot))
-            {
-                // this is not optimized, but in-memory persistence is not meant to be production-ready though.
-                if (snapshot.StreamId == streamId)
-                    break;
-            }
+            this.snapshots.TryRemove(streamId.ToString(), out snapshot);
         }
 
         public bool IsDuplicate(Guid eventId, out Guid transactionId)
         {
             transactionId = default(Guid);
-            var duplicate = this.Inbox.SingleOrDefault(e => e.EventId == eventId);
+            var duplicate = this.inbox.TryGetValue(eventId.ToString());
             if (duplicate == null)
                 return false;
 
@@ -401,10 +393,10 @@ namespace EventCentric.Persistence
 
         public bool TryAddNewSubscriptionOnTheFly(string streamType, string url, string token)
         {
-            if (this.Subscriptions.Any(s => s.SubscriberStreamType == this.streamName && s.StreamType == streamType))
+            if (this.subscriptions.Any(s => s.SubscriberStreamType == this.streamName && s.StreamType == streamType))
                 return false;
 
-            this.Subscriptions.Add(new SubscriptionEntity
+            this.subscriptions.Add(new SubscriptionEntity
             {
                 SubscriberStreamType = this.streamName,
                 StreamType = streamType,
@@ -416,7 +408,7 @@ namespace EventCentric.Persistence
 
         public void PersistSubscriptionVersion(string subscription, long version)
         {
-            var sub = this.Subscriptions.Where(s => s.StreamType == subscription && s.SubscriberStreamType == this.streamName).Single();
+            var sub = this.subscriptions.Where(s => s.StreamType == subscription && s.SubscriberStreamType == this.streamName).Single();
             sub.ProcessorBufferVersion = version;
             sub.UpdateLocalTime = DateTime.Now;
         }

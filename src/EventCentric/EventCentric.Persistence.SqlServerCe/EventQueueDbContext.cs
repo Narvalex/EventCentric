@@ -16,7 +16,7 @@ namespace EventCentric.Persistence.SqlServerCe
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
-            modelBuilder.Configurations.Add(new EventEntityMapCe());
+            modelBuilder.Configurations.Add(new EventEntityMap());
         }
     }
 }

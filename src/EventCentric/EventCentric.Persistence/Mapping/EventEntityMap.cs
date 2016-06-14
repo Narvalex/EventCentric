@@ -3,12 +3,12 @@ using System.Data.Entity.ModelConfiguration;
 
 namespace EventCentric.Persistence
 {
-    public class EventEntityMapCe : EntityTypeConfiguration<EventEntity>
+    public class EventEntityMap : EntityTypeConfiguration<EventEntity>
     {
-        public EventEntityMapCe()
+        public EventEntityMap()
         {
             // Primary Key
-            this.HasKey(t => new { t.StreamType, t.StreamId, t.Version });
+            this.HasKey(t => new { t.StreamType, t.EventCollectionVersion });
 
             // Properties
             this.Property(t => t.Version)
@@ -31,15 +31,15 @@ namespace EventCentric.Persistence
 
 
             // Table & Column Mappings
-            this.ToTable("Events");
+            this.ToTable("Events", "EventStore");
             this.Property(t => t.StreamType).HasColumnName("StreamType");
+            this.Property(t => t.EventCollectionVersion).HasColumnName("EventCollectionVersion");
             this.Property(t => t.StreamId).HasColumnName("StreamId");
             this.Property(t => t.Version).HasColumnName("Version");
             this.Property(t => t.TransactionId).HasColumnName("TransactionId");
             this.Property(t => t.EventId).HasColumnName("EventId");
             this.Property(t => t.EventType).HasColumnName("EventType");
             this.Property(t => t.CorrelationId).HasColumnName("CorrelationId");
-            this.Property(t => t.EventCollectionVersion).HasColumnName("EventCollectionVersion");
             this.Property(t => t.LocalTime).HasColumnName("LocalTime");
             this.Property(t => t.UtcTime).HasColumnName("UtcTime");
             this.Property(t => t.Payload).HasColumnName("Payload");

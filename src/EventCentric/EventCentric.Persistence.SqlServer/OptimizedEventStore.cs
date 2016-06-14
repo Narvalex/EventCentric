@@ -585,7 +585,7 @@ and StreamId = @StreamId
 order by [Version]";
 
         private readonly string isDuplicateQuery =
-        "select InboxId, TransactionId from eventstore.inbox where EventId = @EventId";
+        "select TransactionId from eventstore.inbox where EventId = @EventId";
 
         private readonly string tryFindAppSubscription =
         @"select count(*) from EventStore.Subscriptions

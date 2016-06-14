@@ -57,12 +57,6 @@
     <Compile Include="Repository\EventStoreDbContext.cs" />
     <Compile Include="Repository\EventuallyConsistentDbContext.cs" />
     <Compile Include="Repository\IViewDao.cs" />
-    <Compile Include="Repository\Mapping\EventEntityMap.cs" />
-    <Compile Include="Repository\Mapping\EventuallyConsistentResultEntityMap.cs" />
-    <Compile Include="Repository\Mapping\InboxEntityMap.cs" />
-    <Compile Include="Repository\Mapping\SnapshotEntityMap.cs" />
-    <Compile Include="Repository\Mapping\SubscriberHeartbeatEntityMap.cs" />
-    <Compile Include="Repository\Mapping\SubscriptionEntityMap.cs" />
     <Compile Include="Repository\TransientFaultHandlingDbConfiguration.cs" />
     <Compile Include="Repository\ViewDao.cs" />
   </ItemGroup>
@@ -71,10 +65,9 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Repository\SqlScripts\Commands\InsertSubscriptions.sql" />
-    <Content Include="Repository\SqlScripts\ProcessorNodeDb.sql" />
-    <Content Include="Repository\SqlScripts\ViewNodeDb.sql" />
-    <Content Include="Repository\SqlScripts\ViewNodeDbWithEventuallyConsistentResults.sql" />
+    <Content Include="SqlScripts\Commands\InsertSubscriptions.sql" />
+    <Content Include="SqlScripts\EventStore.sql" />
+    <Content Include="SqlScripts\EventuallyConsistentResultsTable.sql" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\EventCentric.Persistence\EventCentric.Persistence.csproj">

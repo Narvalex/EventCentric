@@ -59,10 +59,6 @@
   <ItemGroup>
     <Compile Include="EventQueueDbContext.cs" />
     <Compile Include="EventStoreDbContext.cs" />
-    <Compile Include="Mapping\EventEntityMap.cs" />
-    <Compile Include="Mapping\InboxEntityMap.cs" />
-    <Compile Include="Mapping\SnapshotEntityMap.cs" />
-    <Compile Include="Mapping\SubscriptionEntityMap.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

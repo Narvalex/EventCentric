@@ -62,18 +62,6 @@
     <Compile Include="..\..\EventCentric.Persistence.SqlServerCe\EventStoreDbContext.cs">
       <Link>EventStoreDbContext.cs</Link>
     </Compile>
-    <Compile Include="..\..\EventCentric.Persistence.SqlServerCe\Mapping\EventEntityMap.cs">
-      <Link>Mapping\EventEntityMap.cs</Link>
-    </Compile>
-    <Compile Include="..\..\EventCentric.Persistence.SqlServerCe\Mapping\InboxEntityMap.cs">
-      <Link>Mapping\InboxEntityMap.cs</Link>
-    </Compile>
-    <Compile Include="..\..\EventCentric.Persistence.SqlServerCe\Mapping\SnapshotEntityMap.cs">
-      <Link>Mapping\SnapshotEntityMap.cs</Link>
-    </Compile>
-    <Compile Include="..\..\EventCentric.Persistence.SqlServerCe\Mapping\SubscriptionEntityMap.cs">
-      <Link>Mapping\SubscriptionEntityMap.cs</Link>
-    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -2,12 +2,12 @@ using System.Data.Entity.ModelConfiguration;
 
 namespace EventCentric.Persistence
 {
-    public class InboxEntityMapCe : EntityTypeConfiguration<InboxEntity>
+    public class InboxEntityMap : EntityTypeConfiguration<InboxEntity>
     {
-        public InboxEntityMapCe()
+        public InboxEntityMap()
         {
             // Primary Key
-            this.HasKey(t => t.InboxId);
+            this.HasKey(t => t.EventId);
 
             // Properties
             this.Property(t => t.InboxStreamType)
@@ -15,27 +15,26 @@ namespace EventCentric.Persistence
                 .HasMaxLength(255);
 
             this.Property(t => t.StreamType)
-                .IsRequired()
+                .IsOptional()
                 .HasMaxLength(255);
 
             this.Property(t => t.EventType)
-                .IsRequired()
+                .IsOptional()
                 .HasMaxLength(255);
 
             this.Property(t => t.Payload)
-                .IsRequired();
+                .IsOptional();
 
             this.Property(t => t.EventCollectionVersion)
-                .IsRequired();
+                .IsOptional();
 
             this.Property(t => t.TransactionId)
-                .IsRequired();
+                .IsOptional();
 
             // Table & Column Mappings
-            this.ToTable("Inbox");
-            this.Property(t => t.InboxStreamType).HasColumnName("InboxStreamType");
-            this.Property(t => t.InboxId).HasColumnName("InboxId");
+            this.ToTable("Inbox", "EventStore");
             this.Property(t => t.EventId).HasColumnName("EventId");
+            this.Property(t => t.InboxStreamType).HasColumnName("InboxStreamType");
             this.Property(t => t.TransactionId).HasColumnName("TransactionId");
             this.Property(t => t.StreamType).HasColumnName("StreamType");
             this.Property(t => t.StreamId).HasColumnName("StreamId");

@@ -53,6 +53,11 @@
     <Compile Include="Denormalizer.cs" />
     <Compile Include="Entities.cs" />
     <Compile Include="EventStoreFuncs.cs" />
+    <Compile Include="Mapping\EventEntityMap.cs" />
+    <Compile Include="Mapping\EventuallyConsistentResultEntityMap.cs" />
+    <Compile Include="Mapping\InboxEntityMap.cs" />
+    <Compile Include="Mapping\SnapshotEntityMap.cs" />
+    <Compile Include="Mapping\SubscriptionEntityMap.cs" />
     <Compile Include="OrmEventStore.cs" />
     <Compile Include="IDenormalizer.cs" />
     <Compile Include="IEventQueueDbContext.cs" />

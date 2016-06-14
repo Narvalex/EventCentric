@@ -80,6 +80,21 @@
     <Compile Include="..\..\EventCentric.Persistence\InMemoryEventStore.cs">
       <Link>InMemoryEventStore.cs</Link>
     </Compile>
+    <Compile Include="..\..\EventCentric.Persistence\Mapping\EventEntityMap.cs">
+      <Link>Mapping\EventEntityMap.cs</Link>
+    </Compile>
+    <Compile Include="..\..\EventCentric.Persistence\Mapping\EventuallyConsistentResultEntityMap.cs">
+      <Link>Mapping\EventuallyConsistentResultEntityMap.cs</Link>
+    </Compile>
+    <Compile Include="..\..\EventCentric.Persistence\Mapping\InboxEntityMap.cs">
+      <Link>Mapping\InboxEntityMap.cs</Link>
+    </Compile>
+    <Compile Include="..\..\EventCentric.Persistence\Mapping\SnapshotEntityMap.cs">
+      <Link>Mapping\SnapshotEntityMap.cs</Link>
+    </Compile>
+    <Compile Include="..\..\EventCentric.Persistence\Mapping\SubscriptionEntityMap.cs">
+      <Link>Mapping\SubscriptionEntityMap.cs</Link>
+    </Compile>
     <Compile Include="..\..\EventCentric.Persistence\OptimizedDbContext.cs">
       <Link>OptimizedDbContext.cs</Link>
     </Compile>

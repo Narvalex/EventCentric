@@ -19,10 +19,10 @@ namespace EventCentric.Persistence.SqlServerCe
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
-            modelBuilder.Configurations.Add(new EventEntityMapCe());
-            modelBuilder.Configurations.Add(new InboxEntityMapCe());
-            modelBuilder.Configurations.Add(new StreamEntityMapCe());
-            modelBuilder.Configurations.Add(new SubscriptionEntityMapCe());
+            modelBuilder.Configurations.Add(new EventEntityMap());
+            modelBuilder.Configurations.Add(new InboxEntityMap());
+            modelBuilder.Configurations.Add(new StreamEntityMap());
+            modelBuilder.Configurations.Add(new SubscriptionEntityMap());
         }
     }
 }

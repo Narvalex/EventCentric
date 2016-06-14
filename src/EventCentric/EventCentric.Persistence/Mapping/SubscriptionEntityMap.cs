@@ -1,6 +1,6 @@
 ﻿using System.Data.Entity.ModelConfiguration;
 
-namespace EventCentric.Persistence.SqlServer
+namespace EventCentric.Persistence
 {
     public class SubscriptionEntityMap : EntityTypeConfiguration<SubscriptionEntity>
     {
