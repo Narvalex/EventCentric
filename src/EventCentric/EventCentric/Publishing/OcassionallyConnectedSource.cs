@@ -5,6 +5,7 @@ using EventCentric.Utils;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 
@@ -16,9 +17,10 @@ namespace EventCentric.Publishing
     /// </summary>
     public class OcassionallyConnectedSource : IPollableEventSource, IOcassionallyConnectedSourceConsumer
     {
-        private readonly ConcurrentBag<PollResponse> clientResponse = new ConcurrentBag<PollResponse>();
-        private readonly ConcurrentBag<ServerStatus> serverStatus = new ConcurrentBag<ServerStatus>();
-        private readonly object lockObject = new object();
+        private readonly ConcurrentBag<PollResponse> producerResponse = new ConcurrentBag<PollResponse>();
+        private long consumerEventCollectionVersion = 0;
+
+        private readonly TimeSpan pusherTimeout;
 
         public OcassionallyConnectedSource(string sourceName, string consumerName)
         {
@@ -27,6 +29,7 @@ namespace EventCentric.Publishing
 
             this.SourceName = sourceName;
             this.ConsumerName = consumerName;
+            this.pusherTimeout = TimeSpan.FromMinutes(1);
         }
 
         public string SourceName { get; }
@@ -42,38 +45,39 @@ namespace EventCentric.Publishing
 
         public PollResponse PollEvents(long eventBufferVersion, string consumerName)
         {
-            this.serverStatus.Add(new ServerStatus(eventBufferVersion));
+            this.consumerEventCollectionVersion = eventBufferVersion;
 
             PollResponse clientResponse;
-            while (!this.clientResponse.TryTake(out clientResponse))
+            while (!this.producerResponse.TryTake(out clientResponse))
                 Thread.Sleep(1);
 
-            lock (this.lockObject)
+            if (!clientResponse.ErrorDetected
+                && clientResponse.NewEventsWereFound
+                && clientResponse.ProducerVersion > eventBufferVersion
+                && clientResponse.NewRawEvents.Max(x => x.EventCollectionVersion) > eventBufferVersion)
             {
-                if (clientResponse.ProducerVersion > eventBufferVersion &&
-                    clientResponse.NewRawEvents.Max(x => x.EventCollectionVersion) > eventBufferVersion)
-                {
-                    clientResponse = PollResponse.CreateSerializedResponse(false, true, clientResponse.StreamType,
-                                        clientResponse.NewRawEvents.Where(x => x.EventCollectionVersion > eventBufferVersion).ToList(), eventBufferVersion, clientResponse.ProducerVersion);
-                }
-                else
-                {
-                    clientResponse = PollResponse.CreateSerializedResponse(false, false, clientResponse.StreamType, new List<SerializedEvent>(), 0, 0);
-                }
-
-                return clientResponse;
+                clientResponse = PollResponse.CreateSerializedResponse(false, true, clientResponse.StreamType,
+                                    clientResponse.NewRawEvents.Where(x => x.EventCollectionVersion > eventBufferVersion).ToList(), eventBufferVersion, clientResponse.ProducerVersion);
             }
+            else
+            {
+                clientResponse = PollResponse.CreateSerializedResponse(false, false, clientResponse.StreamType, new List<SerializedEvent>(), 0, 0);
+            }
+
+            return clientResponse;
         }
 
-        public ServerStatus UpdateConsumer(PollResponse response)
+        public ServerStatus UpdateConsumer(PollResponse producerResponse)
         {
-            this.clientResponse.Add(response);
+            var ecvBefore = this.consumerEventCollectionVersion;
 
-            ServerStatus status;
-            while (!this.serverStatus.TryTake(out status))
+            this.producerResponse.Add(producerResponse);
+
+            var stopwatch = Stopwatch.StartNew();
+            while (this.consumerEventCollectionVersion == ecvBefore && this.pusherTimeout > stopwatch.Elapsed)
                 Thread.Sleep(1);
 
-            return status;
+            return new ServerStatus(this.consumerEventCollectionVersion);
         }
     }
 }

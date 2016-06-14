@@ -52,6 +52,10 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\EventCentric.MicroserviceFactory\EventCentric.MicroserviceFactory.csproj">
+      <Project>{44302C31-F9A4-4531-A43A-0E33CC5D4FD2}</Project>
+      <Name>EventCentric.MicroserviceFactory</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\EventCentric\EventCentric.csproj">
       <Project>{4B00E8DD-813C-4ABB-8C87-C664D188F62C}</Project>
       <Name>EventCentric</Name>
