@@ -225,7 +225,7 @@ namespace EventCentric.Persistence
                                     command.CommandType = CommandType.Text;
                                     command.Transaction = transaction;
                                     command.CommandText = this.getStreamVersion;
-                                    command.Parameters.Add(new SqlParameter("@StreamType", this.streamName));
+                                    command.Parameters.Add(new SqlParameter("@StreamType", SqlDbType.NVarChar, 40) { Value = this.streamName });
                                     command.Parameters.Add(new SqlParameter("@StreamId", eventSourced.Id));
 
                                     using (var reader = command.ExecuteReader())

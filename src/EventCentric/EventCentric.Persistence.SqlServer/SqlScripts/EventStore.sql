@@ -49,7 +49,7 @@ EXECUTE sp_executesql N'CREATE SCHEMA [EventStore] AUTHORIZATION [dbo]';
 -- Create EventStore.Events
 IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[EventStore].[Events]') AND type in (N'U'))
 CREATE TABLE [EventStore].[Events](
-	[StreamType] [nvarchar](255) NOT NULL,
+	[StreamType] [nvarchar](40) NOT NULL,
 	[EventCollectionVersion] [bigint] NOT NULL,
 	[StreamId] [uniqueidentifier] NOT NULL,
 	[Version] [bigint] NOT NULL,
@@ -74,7 +74,7 @@ CREATE NONCLUSTERED INDEX IX_EventStore_Rehydration
 -- Create EventStore.Snapshots
 IF NOT EXISTS(SELECT* FROM sys.objects WHERE object_id = OBJECT_ID(N'[EventStore].[Snapshots]') AND type in (N'U'))
 CREATE TABLE[EventStore].[Snapshots](
-	[StreamType] [nvarchar](255) NOT NULL,
+	[StreamType] [nvarchar](40) NOT NULL,
     [StreamId] [uniqueidentifier] NOT NULL,
     [Version] [bigint] NOT NULL,
     [Payload] [nvarchar](max) NULL,
@@ -90,8 +90,8 @@ PRIMARY KEY CLUSTERED
 -- Create EventStore.Subscriptions
 IF NOT EXISTS(SELECT* FROM sys.objects WHERE object_id = OBJECT_ID(N'[EventStore].[SubscribedSources]') AND type in (N'U'))
 CREATE TABLE[EventStore].[Subscriptions](
-	[SubscriberStreamType] [nvarchar](128) NOT NULL,
-	[StreamType] [nvarchar] (255) NOT NULL,
+	[SubscriberStreamType] [nvarchar](40) NOT NULL,
+	[StreamType] [nvarchar] (40) NOT NULL,
     [Url] [nvarchar] (500) NOT NULL,
 	[Token] [nvarchar] (max) NOT NULL,
     [ProcessorBufferVersion] [bigint] NOT NULL,
@@ -113,9 +113,9 @@ PRIMARY KEY CLUSTERED
 IF NOT EXISTS(SELECT* FROM sys.objects WHERE object_id = OBJECT_ID(N'[EventStore].[Inbox]') AND type in (N'U'))
 CREATE TABLE[EventStore].[Inbox](
 	[EventId] [uniqueidentifier] NOT NULL,
-	[InboxStreamType] [nvarchar](128) NOT NULL,
+	[InboxStreamType] [nvarchar](40) NOT NULL,
     [TransactionId] [uniqueidentifier] NOT NULL,
-	[StreamType] [nvarchar] (255) NULL,
+	[StreamType] [nvarchar] (40) NULL,
     [StreamId] [uniqueidentifier] NULL,
     [Version] [bigint] NULL,
     [EventType] [nvarchar] (255) NULL,
