@@ -27,8 +27,8 @@ namespace EventCentric.Persistence
 
         private readonly ConcurrentDictionary<long, EventEntity> events = new ConcurrentDictionary<long, EventEntity>();
         private readonly ConcurrentBag<SubscriptionEntity> subscriptions = new ConcurrentBag<SubscriptionEntity>();
-        private readonly ConcurrentDictionary<string, SnapshotEntity> snapshots = new ConcurrentDictionary<string, SnapshotEntity>();
-        private readonly ConcurrentDictionary<string, InboxEntity> inbox = new ConcurrentDictionary<string, InboxEntity>();
+        private readonly ConcurrentDictionary<Guid, SnapshotEntity> snapshots = new ConcurrentDictionary<Guid, SnapshotEntity>();
+        private readonly ConcurrentDictionary<Guid, InboxEntity> inbox = new ConcurrentDictionary<Guid, InboxEntity>();
         private readonly Func<IEvent, InboxEntity> inboxEntityFactory;
         private readonly Func<string, ITextSerializer, string, bool> consumerFilter;
 
@@ -181,7 +181,7 @@ namespace EventCentric.Persistence
             var cachedMemento = (Tuple<ISnapshot, DateTime?>)this.cache.Get(id.ToString());
             if (cachedMemento == null || !cachedMemento.Item2.HasValue)
             {
-                var snapshotEntity = this.snapshots.TryGetValue(id.ToString());
+                var snapshotEntity = this.snapshots.TryGetValue(id);
                 if (snapshotEntity != null)
                     cachedMemento = new Tuple<ISnapshot, DateTime?>(this.serializer.Deserialize<ISnapshot>(snapshotEntity.Payload), null);
                 else
@@ -226,7 +226,7 @@ namespace EventCentric.Persistence
             try
             {
                 // Check if incoming event is duplicate
-                if (this.inbox.ContainsKey(incomingEvent.EventId.ToString()))
+                if (this.inbox.ContainsKey(incomingEvent.EventId))
                     // Incoming event is duplicate
                     return;
 
@@ -237,7 +237,7 @@ namespace EventCentric.Persistence
                 if (eventSourced == null)
                 {
                     // Log the incoming message in the inbox
-                    this.inbox[incomingEvent.EventId.ToString()] = this.inboxEntityFactory.Invoke(incomingEvent);
+                    this.inbox[incomingEvent.EventId] = this.inboxEntityFactory.Invoke(incomingEvent);
                     return;
                 }
 
@@ -259,7 +259,7 @@ namespace EventCentric.Persistence
                 }
 
                 // Log the incoming message in the inbox
-                this.inbox[incomingEvent.EventId.ToString()] = this.inboxEntityFactory.Invoke(incomingEvent);
+                this.inbox[incomingEvent.EventId] = this.inboxEntityFactory.Invoke(incomingEvent);
 
                 // Cache Memento And Publish Stream
                 var snapshot = ((ISnapshotOriginator)eventSourced).SaveToSnapshot();
@@ -269,7 +269,7 @@ namespace EventCentric.Persistence
                 // Cache in Sql Server
                 var serializedMemento = this.serializer.Serialize(snapshot);
 
-                var streamEntity = this.snapshots.TryGetValue(key);
+                var streamEntity = this.snapshots.TryGetValue(eventSourced.Id);
                 if (streamEntity != null)
                 {
                     streamEntity.Version = eventSourced.Version;
@@ -287,7 +287,7 @@ namespace EventCentric.Persistence
                         CreationLocalTime = localNow,
                         UpdateLocalTime = localNow
                     };
-                    this.snapshots[key] = streamEntity;
+                    this.snapshots[eventSourced.Id] = streamEntity;
                 }
 
                 // Cache in memory
@@ -377,13 +377,13 @@ namespace EventCentric.Persistence
             cache.Remove(streamId.ToString());
 
             SnapshotEntity snapshot;
-            this.snapshots.TryRemove(streamId.ToString(), out snapshot);
+            this.snapshots.TryRemove(streamId, out snapshot);
         }
 
         public bool IsDuplicate(Guid eventId, out Guid transactionId)
         {
             transactionId = default(Guid);
-            var duplicate = this.inbox.TryGetValue(eventId.ToString());
+            var duplicate = this.inbox.TryGetValue(eventId);
             if (duplicate == null)
                 return false;
 
