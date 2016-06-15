@@ -27,7 +27,7 @@ namespace EventCentric.EventSourcing
 
         public T Update(Event @event) => base.UpdateFromMessage(@event);
 
-        public T Update(params Event[] events) => this.Update(events);
+        public T Update(params Event[] events) => this.Update((IEnumerable<Event>)events);
 
         public T Update(IEnumerable<Event> events)
         {
@@ -37,7 +37,7 @@ namespace EventCentric.EventSourcing
 
         public T UpdateAfterSending(Command command) => base.UpdateFromMessage(command);
 
-        public T UpdateAfterSending(params Command[] commands) => this.UpdateAfterSending(commands);
+        public T UpdateAfterSending(params Command[] commands) => this.UpdateAfterSending((IEnumerable<Command>)commands);
 
         public T UpdateAfterSending(IEnumerable<Command> commands)
         {
