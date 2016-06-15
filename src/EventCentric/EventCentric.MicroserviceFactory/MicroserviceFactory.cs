@@ -32,7 +32,7 @@ namespace EventCentric
             string uniqueName,
             IEventStoreConfig eventStoreConfig = null,
             IPollerConfig pollerConfig = null,
-            PersistencePlugin selectedPlugin = PersistencePlugin.SqlServer,
+            PersistencePlugin persistencePlugin = PersistencePlugin.SqlServer,
             bool persistIncomingPayloads = false,
             Func<InMemoryEventStore<TStream>, InMemoryEventStore<TStream>> setupInMemoryPersistence = null,
             Func<string, ITextSerializer, string, bool> consumerFilter = null,
@@ -54,7 +54,7 @@ namespace EventCentric
                 AuthorizationFactory.SetToken(eventStoreConfig);
 
                 PersistencePluginResolver<TStream>.ResolvePersistence(
-                    container, selectedPlugin, streamFullName, connectionString, persistIncomingPayloads, setupInMemoryPersistence, consumerFilter);
+                    container, persistencePlugin, streamFullName, connectionString, persistIncomingPayloads, setupInMemoryPersistence, consumerFilter);
 
                 var log = container.Resolve<ILogger>();
 
