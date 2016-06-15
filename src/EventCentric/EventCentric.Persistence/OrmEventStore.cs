@@ -214,44 +214,44 @@ namespace EventCentric.Persistence
 
                         if (currentVersion + 1 != pendingEvents.First().Version)
                             throw new EventStoreConcurrencyException();
+
+                        // Cache Memento And Publish Stream
+                        var snapshot = ((ISnapshotOriginator)eventSourced).SaveToSnapshot();
+
+                        // Cache in Sql Server
+                        var serializedMemento = this.serializer.Serialize(snapshot);
+
+                        var streamEntity = context.Snapshots.Where(s => s.StreamId == eventSourced.Id && s.StreamType == this.streamName).SingleOrDefault();
+                        if (streamEntity != null)
+                        {
+                            streamEntity.Version = eventSourced.Version;
+                            streamEntity.Payload = serializedMemento;
+                            streamEntity.UpdateLocalTime = localNow;
+                        }
+                        else
+                        {
+                            streamEntity = new SnapshotEntity
+                            {
+                                StreamType = this.streamName,
+                                StreamId = eventSourced.Id,
+                                Version = eventSourced.Version,
+                                Payload = serializedMemento,
+                                CreationLocalTime = localNow,
+                                UpdateLocalTime = localNow
+                            };
+                            context.Snapshots.Add(streamEntity);
+                        }
+
+                        // Cache in memory
+                        key = eventSourced.Id.ToString();
+                        this.cache.Set(
+                            key: key,
+                            value: new Tuple<ISnapshot, DateTime?>(snapshot, now),
+                            policy: new CacheItemPolicy { AbsoluteExpiration = this.time.OffSetNow.AddMinutes(30) });
                     }
 
                     // Log the incoming message in the inbox
                     context.Inbox.Add(this.inboxEntityFactory.Invoke(incomingEvent, localNow));
-
-                    // Cache Memento And Publish Stream
-                    var snapshot = ((ISnapshotOriginator)eventSourced).SaveToSnapshot();
-
-                    // Cache in Sql Server
-                    var serializedMemento = this.serializer.Serialize(snapshot);
-
-                    var streamEntity = context.Snapshots.Where(s => s.StreamId == eventSourced.Id && s.StreamType == this.streamName).SingleOrDefault();
-                    if (streamEntity != null)
-                    {
-                        streamEntity.Version = eventSourced.Version;
-                        streamEntity.Payload = serializedMemento;
-                        streamEntity.UpdateLocalTime = localNow;
-                    }
-                    else
-                    {
-                        streamEntity = new SnapshotEntity
-                        {
-                            StreamType = this.streamName,
-                            StreamId = eventSourced.Id,
-                            Version = eventSourced.Version,
-                            Payload = serializedMemento,
-                            CreationLocalTime = localNow,
-                            UpdateLocalTime = localNow
-                        };
-                        context.Snapshots.Add(streamEntity);
-                    }
-
-                    // Cache in memory
-                    key = eventSourced.Id.ToString();
-                    this.cache.Set(
-                        key: key,
-                        value: new Tuple<ISnapshot, DateTime?>(snapshot, now),
-                        policy: new CacheItemPolicy { AbsoluteExpiration = this.time.OffSetNow.AddMinutes(30) });
 
                     // Denormalize if applicable.
                     this.denormalizeIfApplicable(eventSourced, context);

@@ -244,6 +244,9 @@ namespace EventCentric.Persistence
                 if (eventSourced.Id == default(Guid))
                     throw new ArgumentOutOfRangeException("StreamId", $"The eventsourced of type {typeof(T).FullName} has a default GUID value for its stream id, which is not valid");
 
+                // Log the incoming message in the inbox
+                this.inbox[incomingEvent.EventId] = this.inboxEntityFactory.Invoke(incomingEvent);
+
                 var pendingEvents = eventSourced.PendingEvents;
                 if (pendingEvents.Count > 0)
                 {
@@ -256,97 +259,93 @@ namespace EventCentric.Persistence
 
                     if (currentVersion + 1 != pendingEvents.First().Version)
                         throw new EventStoreConcurrencyException();
-                }
 
-                // Log the incoming message in the inbox
-                this.inbox[incomingEvent.EventId] = this.inboxEntityFactory.Invoke(incomingEvent);
+                    // Cache Memento And Publish Stream
+                    var snapshot = ((ISnapshotOriginator)eventSourced).SaveToSnapshot();
 
-                // Cache Memento And Publish Stream
-                var snapshot = ((ISnapshotOriginator)eventSourced).SaveToSnapshot();
+                    key = eventSourced.Id.ToString();
 
-                key = eventSourced.Id.ToString();
+                    // Cache in Sql Server
+                    var serializedMemento = this.serializer.Serialize(snapshot);
 
-                // Cache in Sql Server
-                var serializedMemento = this.serializer.Serialize(snapshot);
-
-                var streamEntity = this.snapshots.TryGetValue(eventSourced.Id);
-                if (streamEntity != null)
-                {
-                    streamEntity.Version = eventSourced.Version;
-                    streamEntity.Payload = serializedMemento;
-                    streamEntity.UpdateLocalTime = localNow;
-                }
-                else
-                {
-                    streamEntity = new SnapshotEntity
+                    var streamEntity = this.snapshots.TryGetValue(eventSourced.Id);
+                    if (streamEntity != null)
                     {
-                        StreamType = this.streamName,
-                        StreamId = eventSourced.Id,
-                        Version = eventSourced.Version,
-                        Payload = serializedMemento,
-                        CreationLocalTime = localNow,
-                        UpdateLocalTime = localNow
-                    };
-                    this.snapshots[eventSourced.Id] = streamEntity;
-                }
-
-                // Cache in memory
-                this.cache.Set(
-                    key: key,
-                    value: new Tuple<ISnapshot, DateTime?>(snapshot, now),
-                    policy: new CacheItemPolicy { AbsoluteExpiration = this.time.OffSetNow.AddMinutes(30) });
-
-
-                List<EventEntity> eventEntities = new List<EventEntity>();
-                foreach (var @event in pendingEvents)
-                {
-                    var e = (Message)@event;
-                    e.TransactionId = incomingEvent.TransactionId;
-                    e.EventId = this.guid.NewGuid();
-                    e.StreamType = this.streamName;
-                    e.LocalTime = now;
-                    e.UtcTime = localNow;
-
-                    eventEntities.Add(
-                        new EventEntity
+                        streamEntity.Version = eventSourced.Version;
+                        streamEntity.Payload = serializedMemento;
+                        streamEntity.UpdateLocalTime = localNow;
+                    }
+                    else
+                    {
+                        streamEntity = new SnapshotEntity
                         {
                             StreamType = this.streamName,
-                            StreamId = @event.StreamId,
-                            Version = @event.Version,
-                            EventId = @event.EventId,
-                            TransactionId = @event.TransactionId,
-                            EventType = @event.GetType().Name,
-                            CorrelationId = incomingEvent.EventId,
-                            LocalTime = localNow,
-                            UtcTime = now
-                        });
-                }
-
-                lock (this.dbLock)
-                {
-                    var eventCollectionBeforeCrash = this.eventCollectionVersion;
-                    try
-                    {
-                        for (int i = 0; i < pendingEvents.Count; i++)
-                        {
-                            this.eventCollectionVersion += 1;
-                            var @event = pendingEvents[i];
-                            ((Message)@event).EventCollectionVersion = this.eventCollectionVersion;
-                            var entity = eventEntities[i];
-                            entity.EventCollectionVersion = this.eventCollectionVersion;
-                            entity.Payload = this.serializer.Serialize(@event);
-
-                            this.events[this.eventCollectionVersion] = entity;
-                        }
-
-                        //var random = new Random();
-                        //Thread.Sleep(random.Next(0, 1000));
-                        this.CurrentEventCollectionVersion = this.eventCollectionVersion;
+                            StreamId = eventSourced.Id,
+                            Version = eventSourced.Version,
+                            Payload = serializedMemento,
+                            CreationLocalTime = localNow,
+                            UpdateLocalTime = localNow
+                        };
+                        this.snapshots[eventSourced.Id] = streamEntity;
                     }
-                    catch (Exception ex)
+
+                    // Cache in memory
+                    this.cache.Set(
+                        key: key,
+                        value: new Tuple<ISnapshot, DateTime?>(snapshot, now),
+                        policy: new CacheItemPolicy { AbsoluteExpiration = this.time.OffSetNow.AddMinutes(30) });
+
+                    List<EventEntity> eventEntities = new List<EventEntity>();
+                    foreach (var @event in pendingEvents)
                     {
-                        this.eventCollectionVersion = eventCollectionBeforeCrash;
-                        throw ex;
+                        var e = (Message)@event;
+                        e.TransactionId = incomingEvent.TransactionId;
+                        e.EventId = this.guid.NewGuid();
+                        e.StreamType = this.streamName;
+                        e.LocalTime = now;
+                        e.UtcTime = localNow;
+
+                        eventEntities.Add(
+                            new EventEntity
+                            {
+                                StreamType = this.streamName,
+                                StreamId = @event.StreamId,
+                                Version = @event.Version,
+                                EventId = @event.EventId,
+                                TransactionId = @event.TransactionId,
+                                EventType = @event.GetType().Name,
+                                CorrelationId = incomingEvent.EventId,
+                                LocalTime = localNow,
+                                UtcTime = now
+                            });
+                    }
+
+                    lock (this.dbLock)
+                    {
+                        var eventCollectionBeforeCrash = this.eventCollectionVersion;
+                        try
+                        {
+                            for (int i = 0; i < pendingEvents.Count; i++)
+                            {
+                                this.eventCollectionVersion += 1;
+                                var @event = pendingEvents[i];
+                                ((Message)@event).EventCollectionVersion = this.eventCollectionVersion;
+                                var entity = eventEntities[i];
+                                entity.EventCollectionVersion = this.eventCollectionVersion;
+                                entity.Payload = this.serializer.Serialize(@event);
+
+                                this.events[this.eventCollectionVersion] = entity;
+                            }
+
+                            //var random = new Random();
+                            //Thread.Sleep(random.Next(0, 1000));
+                            this.CurrentEventCollectionVersion = this.eventCollectionVersion;
+                        }
+                        catch (Exception ex)
+                        {
+                            this.eventCollectionVersion = eventCollectionBeforeCrash;
+                            throw ex;
+                        }
                     }
                 }
             }

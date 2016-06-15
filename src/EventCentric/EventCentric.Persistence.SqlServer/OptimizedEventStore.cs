@@ -240,37 +240,37 @@ namespace EventCentric.Persistence
 
                                 if (currentVersion + 1 != pendingEvents.First().Version)
                                     throw new EventStoreConcurrencyException();
+
+                                // Cache Memento And Publish Stream
+                                var snapshot = ((ISnapshotOriginator)eventSourced).SaveToSnapshot();
+                                var serializedMemento = this.serializer.Serialize(snapshot);
+
+                                // Cache in memory
+                                key = eventSourced.Id.ToString();
+                                this.cache.Set(
+                                    key: key,
+                                    value: new Tuple<ISnapshot, DateTime?>(snapshot, now),
+                                    policy: new CacheItemPolicy { AbsoluteExpiration = this.time.OffSetNow.AddMinutes(30) });
+
+                                // Insert or Update snapshot
+                                using (var command = connection.CreateCommand())
+                                {
+                                    command.Transaction = transaction;
+                                    command.CommandType = CommandType.Text;
+                                    command.CommandText = this.insertOrUpdateSnapshot;
+                                    command.Parameters.Add(new SqlParameter("@StreamType", this.streamName));
+                                    command.Parameters.Add(new SqlParameter("@StreamId", eventSourced.Id));
+                                    command.Parameters.Add(new SqlParameter("@Version", eventSourced.Version));
+                                    command.Parameters.Add(new SqlParameter("@Payload", serializedMemento));
+                                    command.Parameters.Add(new SqlParameter("@CreationLocalTime", localNow));
+                                    command.Parameters.Add(new SqlParameter("@UpdateLocalTime", localNow));
+
+                                    command.ExecuteNonQuery();
+                                }
                             }
 
                             // Log the incoming message in the inbox
                             this.addToInboxFactory.Invoke(connection, transaction, localNow, incomingEvent);
-
-                            // Cache Memento And Publish Stream
-                            var snapshot = ((ISnapshotOriginator)eventSourced).SaveToSnapshot();
-                            var serializedMemento = this.serializer.Serialize(snapshot);
-
-                            // Cache in memory
-                            key = eventSourced.Id.ToString();
-                            this.cache.Set(
-                                key: key,
-                                value: new Tuple<ISnapshot, DateTime?>(snapshot, now),
-                                policy: new CacheItemPolicy { AbsoluteExpiration = this.time.OffSetNow.AddMinutes(30) });
-
-                            // Insert or Update snapshot
-                            using (var command = connection.CreateCommand())
-                            {
-                                command.Transaction = transaction;
-                                command.CommandType = CommandType.Text;
-                                command.CommandText = this.insertOrUpdateSnapshot;
-                                command.Parameters.Add(new SqlParameter("@StreamType", this.streamName));
-                                command.Parameters.Add(new SqlParameter("@StreamId", eventSourced.Id));
-                                command.Parameters.Add(new SqlParameter("@Version", eventSourced.Version));
-                                command.Parameters.Add(new SqlParameter("@Payload", serializedMemento));
-                                command.Parameters.Add(new SqlParameter("@CreationLocalTime", localNow));
-                                command.Parameters.Add(new SqlParameter("@UpdateLocalTime", localNow));
-
-                                command.ExecuteNonQuery();
-                            }
 
                             var eventEntities = new EventEntity[pendingEvents.Count];
                             for (int i = 0; i < pendingEvents.Count; i++)
