@@ -423,7 +423,7 @@ namespace EventCentric.Polling
 
         private void RegisterOcassionallyConnectedSourceIfApplicable(SubscriptionBuffer subscription)
         {
-            if (subscription.Token == Constants.InMemorySusbscriptionToken)
+            if (subscription.Token == Constants.OcassionallyConnectedSourceToken)
                 this.mainPublisherRegistry.Register(new OcassionallyConnectedSource(subscription.StreamType, this.microserviceName));
         }
 
