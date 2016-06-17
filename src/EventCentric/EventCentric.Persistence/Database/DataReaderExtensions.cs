@@ -165,5 +165,24 @@ namespace EventCentric.Database
         public static bool? SafeGetBooleanOrNull(this IDataReader reader, string name) => reader[name] as bool?;
 
         #endregion
+
+        #region Object
+
+        public static object GetValue(this IDataReader reader, string column)
+        {
+            return reader[column];
+        }
+
+        public static object SafeGetValue(this IDataReader reader, string column)
+        {
+            return reader.SafeGetValue(reader.GetOrdinal(column));
+        }
+
+        public static object SafeGetValue(this IDataReader reader, int i)
+        {
+            return reader.IsDBNull(i) ? null : reader.GetValue(i);
+        }
+
+        #endregion
     }
 }
