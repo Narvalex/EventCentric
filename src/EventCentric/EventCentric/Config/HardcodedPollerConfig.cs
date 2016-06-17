@@ -2,19 +2,18 @@
 {
     public class HardcodedPollerConfig : IPollerConfig
     {
-        public HardcodedPollerConfig(int bufferQueueMaxCount, int eventsToFlushMaxCount, double timeout)
+        /// <summary>
+        /// HardcodedPollerConfig constructor.
+        /// </summary>
+        /// <param name="bufferQueueMaxCount"></param>
+        /// <param name="eventsToFlushMaxCount"></param>
+        /// <param name="timeout">We wait MORE than the publisher timeout, by default.</param>
+        public HardcodedPollerConfig(int bufferQueueMaxCount = 2000, int eventsToFlushMaxCount = 100, double timeout = 180000)
         {
             this.BufferQueueMaxCount = bufferQueueMaxCount;
             this.EventsToFlushMaxCount = eventsToFlushMaxCount;
             this.Timeout = timeout;
         }
-
-        public HardcodedPollerConfig()
-            : this(
-                  2000,
-                  100,
-                  90000) // we wait 30 seconds more than the publisher timeout
-        { }
 
         public int BufferQueueMaxCount { get; }
 

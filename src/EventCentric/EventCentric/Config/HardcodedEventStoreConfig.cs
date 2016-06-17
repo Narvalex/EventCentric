@@ -2,7 +2,14 @@
 {
     public class HardcodedEventStoreConfig : IEventStoreConfig
     {
-        public HardcodedEventStoreConfig(string connectionString, double longPollingTimeout, int pushMaxCount, string token)
+        /// <summary>
+        /// HardcodedEventStoreConfig constructor
+        /// </summary>
+        /// <param name="connectionString"></param>
+        /// <param name="longPollingTimeout"></param>
+        /// <param name="pushMaxCount"></param>
+        /// <param name="token">We wait LESS than the publisher timeout, by default.</param>
+        public HardcodedEventStoreConfig(string connectionString, double longPollingTimeout = 120000, int pushMaxCount = 100, string token = "")
         {
             this.ConnectionString = connectionString;
             this.LongPollingTimeout = longPollingTimeout;
@@ -11,7 +18,7 @@
         }
 
         public HardcodedEventStoreConfig()
-            : this("", 60000, 100, "")
+            : this("")
         { }
 
         public string ConnectionString { get; }
