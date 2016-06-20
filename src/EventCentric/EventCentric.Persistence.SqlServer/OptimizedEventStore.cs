@@ -549,7 +549,7 @@ namespace EventCentric.Persistence
                                     new SqlParameter("@SubscriberStreamType", this.streamName),
                                     new SqlParameter("@StreamType", streamType));
 
-            if (subCount < 1)
+            if (subCount > 0)
                 return false;
 
             var now = this.time.Now.ToLocalTime();
