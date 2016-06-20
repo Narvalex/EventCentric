@@ -786,8 +786,8 @@ AND StreamType = @StreamType";
            ,[CreationLocalTime]
            ,[UpdateLocalTime])
      VALUES
-           (@SubscriberStreamType, -- nvarchar(40)
-           ,@StreamType, -- nvarchar(40)
+           (@SubscriberStreamType -- nvarchar(40)
+           ,@StreamType -- nvarchar(40)
            ,@Url
            ,@Token
            ,0
