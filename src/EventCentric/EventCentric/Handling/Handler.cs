@@ -230,35 +230,46 @@ namespace EventCentric.Handling
 
         private void ReadFromQueue()
         {
-            while (!this.stopping)
+            try
             {
-                if (this.eventQueue.IsEmpty)
-                    Thread.Sleep(1);
-                else
+                while (!this.stopping)
                 {
-                    IEvent @event;
-                    var events = new IEvent[this.eventQueue.Count];
-                    for (int i = 0; i < events.Length; i++)
+                    if (this.eventQueue.IsEmpty)
+                        Thread.Sleep(1);
+                    else
                     {
-                        this.eventQueue.TryDequeue(out @event);
-                        events[i] = @event;
-                    }
-
-                    // TODO: move this.
-                    var streams = events.GroupBy(e => e.StreamId);
-                    foreach (var stream in streams)
-                    {
-                        ThreadPool.UnsafeQueueUserWorkItem(new WaitCallback(_ =>
+                        IEvent @event;
+                        var events = new IEvent[this.eventQueue.Count];
+                        for (int i = 0; i < events.Length; i++)
                         {
-                            foreach (var e in stream)
+                            this.eventQueue.TryDequeue(out @event);
+                            events[i] = @event;
+                        }
+
+                        // TODO: move this.
+                        var streams = events.GroupBy(e => e.StreamId);
+                        foreach (var stream in streams)
+                        {
+                            if (!ThreadPool.UnsafeQueueUserWorkItem(new WaitCallback(_ =>
+                             {
+                                 foreach (var e in stream)
+                                 {
+                                     this.HandleGracefully(e);
+                                     this.bus.Publish(new IncomingEventHasBeenProcessed(e));
+                                 }
+                             }),
+                            null))
                             {
-                                this.HandleGracefully(e);
-                                this.bus.Publish(new IncomingEventHasBeenProcessed(e));
+                                this.bus.Publish(new FatalErrorOcurred(new FatalErrorException("A work item could not be queued in Handler")));
                             }
-                        }),
-                        null);
+                        }
                     }
                 }
+            }
+            catch (Exception ex)
+            {
+                this.bus.Publish(new FatalErrorOcurred(new FatalErrorException("A work item could not be queued in Handler", ex)));
+                throw;
             }
         }
 

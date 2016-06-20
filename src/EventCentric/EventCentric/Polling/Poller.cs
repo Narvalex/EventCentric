@@ -79,8 +79,19 @@ namespace EventCentric.Polling
             if (!buffer.IsPolling && !buffer.IsPoisoned && buffer.NewEventsQueue.Count < queueMaxCount)
             {
                 buffer.IsPolling = true;
-                ThreadPool.UnsafeQueueUserWorkItem(new WaitCallback(_ =>
-                    poller.PollSubscription(buffer.StreamType, buffer.Url, buffer.Token, buffer.CurrentBufferVersion)), null);
+                try
+                {
+                    if (!ThreadPool.UnsafeQueueUserWorkItem(new WaitCallback(_ =>
+                                poller.PollSubscription(buffer.StreamType, buffer.Url, buffer.Token, buffer.CurrentBufferVersion)), null))
+                    {
+                        this.bus.Publish(new FatalErrorOcurred(new FatalErrorException("A work item could not be queued in Poller.TryFill()")));
+                    }
+                }
+                catch (Exception ex)
+                {
+                    this.bus.Publish(new FatalErrorOcurred(new FatalErrorException("A work item could not be queued in Poller.TryFill()", ex)));
+                    throw;
+                }
                 return true;
             }
 

@@ -3,7 +3,6 @@ using EventCentric.EventSourcing;
 using EventCentric.Handling;
 using EventCentric.Log;
 using EventCentric.Messaging;
-using EventCentric.Persistence.SqlServer;
 using EventCentric.Polling;
 using EventCentric.Serialization;
 using EventCentric.Utils;
@@ -512,54 +511,55 @@ namespace EventCentric.Persistence
 
         public void FlagSubscriptionAsPoisoned(IEvent poisonedEvent, PoisonMessageException exception)
         {
-            using (var context = new EventStoreDbContext(false, this.connectionString))
-            {
-                var subscription = context.Subscriptions.Where(s => s.StreamType == poisonedEvent.StreamType && s.SubscriberStreamType == this.streamName).Single();
-                subscription.IsPoisoned = true;
-                subscription.UpdateLocalTime = this.time.Now.ToLocalTime();
-                subscription.PoisonEventCollectionVersion = poisonedEvent.EventCollectionVersion;
-                try
-                {
-                    subscription.ExceptionMessage = this.serializer.Serialize(exception);
-                }
-                catch (Exception)
-                {
-                    subscription.ExceptionMessage = string.Format("Exception type: {0}. Exception message: {1}. Inner exception: {2}", exception.GetType().Name, exception.Message, exception.InnerException.Message != null ? exception.InnerException.Message : "null");
-                }
-                try
-                {
-                    subscription.DeadLetterPayload = this.serializer.Serialize(poisonedEvent);
-                }
-                catch (Exception)
-                {
-                    subscription.DeadLetterPayload = string.Format("EventType: {0}", poisonedEvent.GetType().Name);
-                }
+            string exceptionMessage;
 
-                context.SaveChanges();
+            try
+            {
+                exceptionMessage = this.serializer.Serialize(exception);
             }
+            catch (Exception)
+            {
+                exceptionMessage = string.Format("Exception type: {0}. Exception message: {1}. Inner exception: {2}", exception.GetType().Name, exception.Message, exception.InnerException.Message != null ? exception.InnerException.Message : "null");
+            }
+
+            string deadLetterPayload;
+            try
+            {
+                deadLetterPayload = this.serializer.Serialize(poisonedEvent);
+            }
+            catch (Exception)
+            {
+                deadLetterPayload = string.Format("EventType: {0}", poisonedEvent.GetType().Name);
+            }
+
+            this.sql.ExecuteNonQuery(this.markAsPoisoned,
+                new SqlParameter("@UpdateLocalTime", this.time.Now.ToLocalTime()),
+                new SqlParameter("@PoisonEventCollectionVersion", poisonedEvent.EventCollectionVersion),
+                new SqlParameter("@ExceptionMessage", exceptionMessage),
+                new SqlParameter("@DeadLetterPayload", deadLetterPayload),
+                new SqlParameter("@SubscriberStreamType", this.streamName),
+                new SqlParameter("@StreamType", poisonedEvent.StreamType));
+
         }
 
         public bool TryAddNewSubscriptionOnTheFly(string streamType, string url, string token)
         {
-            using (var context = new EventStoreDbContext(false, this.connectionString))
-            {
-                if (context.Subscriptions.Any(s => s.SubscriberStreamType == this.streamName && s.StreamType == streamType))
-                    return false;
+            var subCount = this.sql.ExecuteReaderFirstOrDefault(this.subscriptionAlreadyExistsScript,
+                                    r => r.GetInt32("SubCount"),
+                                    new SqlParameter("@SubscriberStreamType", this.streamName),
+                                    new SqlParameter("@StreamType", streamType));
 
-                var now = DateTime.Now;
-                context.Subscriptions.Add(new SubscriptionEntity
-                {
-                    SubscriberStreamType = this.streamName,
-                    StreamType = streamType,
-                    Url = url,
-                    Token = token,
-                    CreationLocalTime = now,
-                    UpdateLocalTime = now
-                });
+            if (subCount < 1)
+                return false;
 
-                context.SaveChanges();
-                return true;
-            }
+            var now = this.time.Now.ToLocalTime();
+            this.sql.ExecuteNonQuery(this.addSubOnTheFlyScript,
+                new SqlParameter("@SubscriberStreamType", this.StreamName),
+                new SqlParameter("@StreamType", streamType),
+                new SqlParameter("@Url", url),
+                new SqlParameter("@CreationLocalTime", now),
+                new SqlParameter("@UpdateLocalTime", now));
+            return true;
         }
 
         public void PersistSubscriptionVersion(string subscription, long version)
@@ -757,6 +757,44 @@ order by EventCollectionVersion";
       ,[UpdateLocalTime] = @UpdateLocalTime
  WHERE SubscriberStreamType = @SubscriberStreamType
  AND StreamType = @StreamType";
+
+        private readonly string markAsPoisoned =
+@"UPDATE EventStore.Subscriptions SET 
+IsPoisoned = 1,
+UpdateLocalTime = @UpdateLocalTime,
+PoisonEventCollectionVersion = @PoisonEventCollectionVersion,
+ExceptionMessage = @ExceptionMessage,
+DeadLetterPayload = @DeadLetterPayload
+WHERE SubscriberStreamType = @SubscriberStreamType
+AND StreamType = @StreamType";
+
+        private readonly string subscriptionAlreadyExistsScript =
+@"SELECT count (*)
+  FROM [EventStore].[Subscriptions]
+  WHERE SubscriberStreamType = @SubscriberStreamType
+  AND StreamType = @StreamType";
+
+        private readonly string addSubOnTheFlyScript =
+@"INSERT INTO [EventStore].[Subscriptions]
+           ([SubscriberStreamType]
+           ,[StreamType]
+           ,[Url]
+           ,[Token]
+           ,[ProcessorBufferVersion]
+           ,[IsPoisoned]
+           ,[WasCanceled]
+           ,[CreationLocalTime]
+           ,[UpdateLocalTime])
+     VALUES
+           (@SubscriberStreamType, -- nvarchar(40)
+           ,@StreamType, -- nvarchar(40)
+           ,@Url
+           ,@Token
+           ,0
+           ,0
+           ,0
+           ,@CreationLocalTime
+           ,@UpdateLocalTime)";
         #endregion
     }
 }
