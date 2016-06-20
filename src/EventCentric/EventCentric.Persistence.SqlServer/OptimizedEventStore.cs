@@ -557,6 +557,7 @@ namespace EventCentric.Persistence
                 new SqlParameter("@SubscriberStreamType", this.StreamName),
                 new SqlParameter("@StreamType", streamType),
                 new SqlParameter("@Url", url),
+                new SqlParameter("@Token", token),
                 new SqlParameter("@CreationLocalTime", now),
                 new SqlParameter("@UpdateLocalTime", now));
             return true;
