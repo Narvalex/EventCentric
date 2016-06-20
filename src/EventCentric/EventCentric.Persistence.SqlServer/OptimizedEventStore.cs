@@ -769,7 +769,7 @@ WHERE SubscriberStreamType = @SubscriberStreamType
 AND StreamType = @StreamType";
 
         private readonly string subscriptionAlreadyExistsScript =
-@"SELECT count (*)
+@"SELECT count (*) as SubCount
   FROM [EventStore].[Subscriptions]
   WHERE SubscriberStreamType = @SubscriberStreamType
   AND StreamType = @StreamType";
