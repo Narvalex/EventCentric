@@ -159,7 +159,7 @@ namespace EventCentric.Persistence
                 this.serializer.Deserialize<IEvent>(r.GetString("Payload")),
                 new SqlParameter("@StreamType", this.streamType),
                 new SqlParameter("@StreamId", id))
-                .ToArray();
+                .AsCachedAnyEnumerable();
 
             if (streamOfEvents.Any())
                 return this.aggregateFactory.Invoke(id, streamOfEvents);
