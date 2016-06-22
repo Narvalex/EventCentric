@@ -54,15 +54,15 @@ namespace PersistenceBenchmark
 
             EventSystem.Create(
                MicroserviceFactory<UserManagement, UserManagementHandler>
-                        .CreateEventProcessor("user1", user1Config, null, plugin, persistIncomingEvents,
+                        .CreateEventProcessor("user1", user1Config, null, plugin, persistIncomingEvents, false,
                             SetupInMemoryPersistence<UserManagement>),
 
                MicroserviceFactory<UserManagement, UserManagementHandler>
-                    .CreateEventProcessor("user2", user2Config, null, plugin, persistIncomingEvents,
+                    .CreateEventProcessor("user2", user2Config, null, plugin, persistIncomingEvents, false,
                         SetupInMemoryPersistence<UserManagement>),
 
                MicroserviceFactory<Promotions, PromotionsHandler>.
-                    CreateEventProcessor("promo", promotionsConfig, null, plugin, persistIncomingEvents,
+                    CreateEventProcessor("promo", promotionsConfig, null, plugin, persistIncomingEvents, false,
                         SetupInMemoryPersistence<Promotions>,
                         (consumer, serializer, payload) =>
                         {

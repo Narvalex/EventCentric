@@ -23,6 +23,7 @@ namespace EventCentric.MicroserviceFactory
         public static IUnityContainer ResolvePersistence(IUnityContainer container, PersistencePlugin selectedPlugin, string microserviceName,
             string connectionString,
             bool persistIncomingPayloads,
+            bool persistSnapshots,
             // Sql Based persistence
             Func<InMemoryEventStore<TStream>, InMemoryEventStore<TStream>> setupInMemoryPersistence,
             Func<string, ITextSerializer, string, bool> consumerFilter)
@@ -47,7 +48,7 @@ namespace EventCentric.MicroserviceFactory
                     break;
 
                 case PersistencePlugin.SqlServer:
-                    ResolveForSqlServer(container, microserviceName, connectionString, persistIncomingPayloads, consumerFilter);
+                    ResolveForSqlServer(container, microserviceName, connectionString, persistIncomingPayloads, persistSnapshots, consumerFilter);
                     break;
 
                 case PersistencePlugin.SqlServerCe:
@@ -61,7 +62,7 @@ namespace EventCentric.MicroserviceFactory
             return container;
         }
 
-        private static void ResolveForSqlServer(IUnityContainer container, string microserviceName, string connectionString, bool persistIncomingPayloads, Func<string, ITextSerializer, string, bool> consumerFilter)
+        private static void ResolveForSqlServer(IUnityContainer container, string microserviceName, string connectionString, bool persistIncomingPayloads, bool persistSnapshots, Func<string, ITextSerializer, string, bool> consumerFilter)
         {
             Func<bool, EventStoreDbContext> storeContextFactory = isReadOnly => new EventStoreDbContext(isReadOnly, connectionString);
             Func<bool, EventQueueDbContext> queueContextFactory = isReadOnly => new EventQueueDbContext(isReadOnly, connectionString);
@@ -69,7 +70,7 @@ namespace EventCentric.MicroserviceFactory
             var serializer = container.Resolve<ITextSerializer>();
             var time = container.Resolve<IUtcTimeProvider>();
 
-            var eventStore = new AdoDotNetEventStore<TStream>(microserviceName, serializer, connectionString, time, container.Resolve<IGuidProvider>(), container.Resolve<ILogger>(), persistIncomingPayloads, consumerFilter);
+            var eventStore = new AdoDotNetEventStore<TStream>(microserviceName, serializer, connectionString, time, container.Resolve<IGuidProvider>(), container.Resolve<ILogger>(), persistIncomingPayloads, persistSnapshots, consumerFilter);
             container.RegisterInstance<IEventStore<TStream>>(eventStore);
             container.RegisterInstance<ISubscriptionRepository>(eventStore);
         }

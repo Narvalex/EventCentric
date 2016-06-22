@@ -33,7 +33,9 @@ namespace EventCentric.Persistence
         private readonly SqlClientLite sql;
         private readonly object dbLock = new object();
 
-        public AdoDotNetEventStore(string streamType, ITextSerializer serializer, string connectionString, IUtcTimeProvider time, IGuidProvider guid, ILogger log, bool persistIncomingPayloads, Func<string, ITextSerializer, string, bool> consumerFilter)
+        private readonly bool persistSnapshot;
+
+        public AdoDotNetEventStore(string streamType, ITextSerializer serializer, string connectionString, IUtcTimeProvider time, IGuidProvider guid, ILogger log, bool persistIncomingPayloads, bool persistSnapshot, Func<string, ITextSerializer, string, bool> consumerFilter)
             : base(streamType)
         {
             Ensure.NotNull(serializer, nameof(serializer));
@@ -83,6 +85,8 @@ namespace EventCentric.Persistence
                     new SqlParameter("@CreationLocalTime", now),
                     new SqlParameter("@UpdateLocalTime", now));
             }
+
+            this.persistSnapshot = persistSnapshot;
         }
 
         private long GetLatestEventCollectionVersionFromDb()
@@ -250,19 +254,22 @@ namespace EventCentric.Persistence
                                     policy: new CacheItemPolicy { AbsoluteExpiration = this.time.OffSetNow.AddMinutes(30) });
 
                                 // Insert or Update snapshot
-                                using (var command = connection.CreateCommand())
+                                if (this.persistSnapshot)
                                 {
-                                    command.Transaction = transaction;
-                                    command.CommandType = CommandType.Text;
-                                    command.CommandText = this.insertOrUpdateSnapshot;
-                                    command.Parameters.Add(new SqlParameter("@StreamType", SqlDbType.NVarChar, 40) { Value = this.streamType });
-                                    command.Parameters.Add(new SqlParameter("@StreamId", SqlDbType.UniqueIdentifier) { Value = eventSourced.Id });
-                                    command.Parameters.Add(new SqlParameter("@Version", SqlDbType.BigInt) { Value = eventSourced.Version });
-                                    command.Parameters.Add(new SqlParameter("@Payload", SqlDbType.NVarChar) { Value = serializedMemento });
-                                    command.Parameters.Add(new SqlParameter("@CreationLocalTime", SqlDbType.DateTime) { Value = localNow });
-                                    command.Parameters.Add(new SqlParameter("@UpdateLocalTime", SqlDbType.DateTime) { Value = localNow });
+                                    using (var command = connection.CreateCommand())
+                                    {
+                                        command.Transaction = transaction;
+                                        command.CommandType = CommandType.Text;
+                                        command.CommandText = this.insertOrUpdateSnapshot;
+                                        command.Parameters.Add(new SqlParameter("@StreamType", SqlDbType.NVarChar, 40) { Value = this.streamType });
+                                        command.Parameters.Add(new SqlParameter("@StreamId", SqlDbType.UniqueIdentifier) { Value = eventSourced.Id });
+                                        command.Parameters.Add(new SqlParameter("@Version", SqlDbType.BigInt) { Value = eventSourced.Version });
+                                        command.Parameters.Add(new SqlParameter("@Payload", SqlDbType.NVarChar) { Value = serializedMemento });
+                                        command.Parameters.Add(new SqlParameter("@CreationLocalTime", SqlDbType.DateTime) { Value = localNow });
+                                        command.Parameters.Add(new SqlParameter("@UpdateLocalTime", SqlDbType.DateTime) { Value = localNow });
 
-                                    command.ExecuteNonQuery();
+                                        command.ExecuteNonQuery();
+                                    }
                                 }
                             }
 
