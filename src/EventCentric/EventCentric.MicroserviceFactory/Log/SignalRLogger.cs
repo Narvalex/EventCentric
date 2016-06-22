@@ -109,21 +109,18 @@ namespace EventCentric.Factory
 
         private void FlushMessage(Message msg)
         {
-            ThreadPool.UnsafeQueueUserWorkItem(new WaitCallback(_ =>
+            this.messageQueue.Enqueue(msg);
+            lock (this)
             {
-                this.messageQueue.Enqueue(msg);
-                lock (this)
-                {
-                    if (messageQueue.Any())
-                        foreach (var message in this.messageQueue)
-                            this.Hub.Clients.All.notify(message);
+                if (messageQueue.Any())
+                    foreach (var message in this.messageQueue)
+                        this.Hub.Clients.All.notify(message);
 
-                    // Clean a little bit
-                    Message nullMessage;
-                    while (this.messageQueue.Count >= this.messageMaxCount)
-                        this.messageQueue.TryDequeue(out nullMessage);
-                }
-            }), null);
+                // Clean a little bit
+                Message nullMessage;
+                while (this.messageQueue.Count >= this.messageMaxCount)
+                    this.messageQueue.TryDequeue(out nullMessage);
+            }
         }
 
         private int GetMessageId() => Interlocked.Increment(ref _nextMessageId);

@@ -69,7 +69,7 @@ namespace EventCentric.MicroserviceFactory
             var serializer = container.Resolve<ITextSerializer>();
             var time = container.Resolve<IUtcTimeProvider>();
 
-            var eventStore = new OptimizedEventStore<TStream>(microserviceName, serializer, connectionString, time, container.Resolve<IGuidProvider>(), container.Resolve<ILogger>(), persistIncomingPayloads, consumerFilter);
+            var eventStore = new AdoDotNetEventStore<TStream>(microserviceName, serializer, connectionString, time, container.Resolve<IGuidProvider>(), container.Resolve<ILogger>(), persistIncomingPayloads, consumerFilter);
             container.RegisterInstance<IEventStore<TStream>>(eventStore);
             container.RegisterInstance<ISubscriptionRepository>(eventStore);
         }

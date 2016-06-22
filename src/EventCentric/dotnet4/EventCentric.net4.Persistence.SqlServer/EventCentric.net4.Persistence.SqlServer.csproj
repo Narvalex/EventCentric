@@ -50,8 +50,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\..\EventCentric.Persistence.SqlServer\OptimizedEventStore.cs">
-      <Link>OptimizedEventStore.cs</Link>
+    <Compile Include="..\..\EventCentric.Persistence.SqlServer\AdoDotNetEventStore.cs">
+      <Link>AdoDotNetEventStore.cs</Link>
     </Compile>
     <Compile Include="..\..\EventCentric.Persistence.SqlServer\Repository\EventQueueDbContext.cs">
       <Link>Repository\EventQueueDbContext.cs</Link>

@@ -13,10 +13,9 @@ using System.Runtime.Caching;
 
 namespace EventCentric.Persistence
 {
-    public class InMemoryEventStore<T> : ISubscriptionRepository, IEventStore<T> where T : class, IEventSourced
+    public class InMemoryEventStore<T> : EventStoreBase, ISubscriptionRepository, IEventStore<T> where T : class, IEventSourced
     {
         private long eventCollectionVersion = 0;
-        private readonly string streamName;
         private readonly IUtcTimeProvider time;
         private readonly ITextSerializer serializer;
         private readonly IGuidProvider guid;
@@ -34,20 +33,19 @@ namespace EventCentric.Persistence
 
         private readonly object dbLock = new object();
 
-        public InMemoryEventStore(string streamName, IUtcTimeProvider time, ITextSerializer serializer, IGuidProvider guid, ILogger log, bool persistIncomingPayloads, Func<string, ITextSerializer, string, bool> consumerFilter)
+        public InMemoryEventStore(string streamType, IUtcTimeProvider time, ITextSerializer serializer, IGuidProvider guid, ILogger log, bool persistIncomingPayloads, Func<string, ITextSerializer, string, bool> consumerFilter)
+            : base(streamType)
         {
-            Ensure.NotNull(streamName, nameof(streamName));
             Ensure.NotNull(time, nameof(time));
             Ensure.NotNull(serializer, nameof(serializer));
             Ensure.NotNull(guid, nameof(guid));
             Ensure.NotNull(log, nameof(log));
 
-            this.streamName = streamName;
             this.time = time;
             this.serializer = serializer;
             this.guid = guid;
             this.log = log;
-            this.cache = new MemoryCache(streamName);
+            this.cache = new MemoryCache(streamType);
             this.consumerFilter = consumerFilter != null ? consumerFilter : EventStoreFuncs.DefaultFilter;
 
             /// TODO: could be replaced with a compiled lambda to make it more performant.
@@ -62,26 +60,26 @@ namespace EventCentric.Persistence
             if (persistIncomingPayloads)
                 this.inboxEntityFactory = incomingEvent => new InboxEntity
                 {
-                    InboxStreamType = this.streamName,
+                    InboxStreamType = this.streamType,
                     EventId = incomingEvent.EventId,
                     Payload = this.serializer.Serialize(incomingEvent),
                     TransactionId = incomingEvent.TransactionId
                 };
             else
-                this.inboxEntityFactory = incomingEvent => new InboxEntity { InboxStreamType = this.streamName, EventId = incomingEvent.EventId, TransactionId = incomingEvent.TransactionId };
+                this.inboxEntityFactory = incomingEvent => new InboxEntity { InboxStreamType = this.streamType, EventId = incomingEvent.EventId, TransactionId = incomingEvent.TransactionId };
 
             if (!this.events.IsEmpty)
                 this.eventCollectionVersion = this.events.Max(e => e.Key);
             this.CurrentEventCollectionVersion = this.eventCollectionVersion;
 
             // Add subscription of app, if not exists
-            if (!this.subscriptions.Any(s => s.SubscriberStreamType == this.streamName && s.StreamType == this.streamName + Constants.AppEventStreamNameSufix))
+            if (!this.subscriptions.Any(s => s.SubscriberStreamType == this.streamType && s.StreamType == this.streamType + Constants.AppEventStreamNameSufix))
             {
                 // We should add the new subscription
                 this.subscriptions.Add(new SubscriptionEntity
                 {
-                    SubscriberStreamType = this.streamName,
-                    StreamType = this.streamName + Constants.AppEventStreamNameSufix,
+                    SubscriberStreamType = this.streamType,
+                    StreamType = this.streamType + Constants.AppEventStreamNameSufix,
                     Url = "none",
                     Token = "#token",
                     ProcessorBufferVersion = 0,
@@ -144,7 +142,7 @@ namespace EventCentric.Persistence
 
             return events.Length > 0
                 ? events
-                : new SerializedEvent[] { new SerializedEvent(to, this.serializer.Serialize(new CloakedEvent(to, this.streamName))) };
+                : new SerializedEvent[] { new SerializedEvent(to, this.serializer.Serialize(new CloakedEvent(to, this.streamType))) };
         }
 
         public long GetEventCollectionVersion()
@@ -157,7 +155,7 @@ namespace EventCentric.Persistence
         #region SubscriptionRepository
         public void FlagSubscriptionAsPoisoned(IEvent poisonedEvent, PoisonMessageException exception)
         {
-            var sub = this.subscriptions.Where(s => s.StreamType == poisonedEvent.StreamType && s.SubscriberStreamType == this.streamName).Single();
+            var sub = this.subscriptions.Where(s => s.StreamType == poisonedEvent.StreamType && s.SubscriberStreamType == this.streamType).Single();
             sub.IsPoisoned = true;
             sub.UpdateLocalTime = this.time.Now.ToLocalTime();
             sub.PoisonEventCollectionVersion = poisonedEvent.EventCollectionVersion;
@@ -168,7 +166,7 @@ namespace EventCentric.Persistence
         public SubscriptionBuffer[] GetSubscriptions()
         {
             return this.subscriptions
-                        .Where(s => s.SubscriberStreamType == this.streamName && !s.IsPoisoned && !s.WasCanceled)
+                        .Where(s => s.SubscriberStreamType == this.streamType && !s.IsPoisoned && !s.WasCanceled)
                         .Select(s => new SubscriptionBuffer(s.StreamType.Trim(), s.Url.Trim(), s.Token, s.ProcessorBufferVersion - 1, s.IsPoisoned))
                         .ToArray();
         }
@@ -211,8 +209,8 @@ namespace EventCentric.Persistence
             var aggregate = this.Find(id);
             if (aggregate == null)
             {
-                var ex = new StreamNotFoundException(id, streamName);
-                this.log.Error(ex, string.Format("Stream not found exception for stream {0} with id of {1}", streamName, id));
+                var ex = new StreamNotFoundException(id, streamType);
+                this.log.Error(ex, string.Format("Stream not found exception for stream {0} with id of {1}", streamType, id));
                 throw ex;
             }
 
@@ -279,7 +277,7 @@ namespace EventCentric.Persistence
                     {
                         streamEntity = new SnapshotEntity
                         {
-                            StreamType = this.streamName,
+                            StreamType = this.streamType,
                             StreamId = eventSourced.Id,
                             Version = eventSourced.Version,
                             Payload = serializedMemento,
@@ -301,14 +299,14 @@ namespace EventCentric.Persistence
                         var e = (Message)@event;
                         e.TransactionId = incomingEvent.TransactionId;
                         e.EventId = this.guid.NewGuid();
-                        e.StreamType = this.streamName;
+                        e.StreamType = this.streamType;
                         e.LocalTime = now;
                         e.UtcTime = localNow;
 
                         eventEntities.Add(
                             new EventEntity
                             {
-                                StreamType = this.streamName,
+                                StreamType = this.streamType,
                                 StreamId = @event.StreamId,
                                 Version = @event.Version,
                                 EventId = @event.EventId,
@@ -392,12 +390,12 @@ namespace EventCentric.Persistence
 
         public bool TryAddNewSubscriptionOnTheFly(string streamType, string url, string token)
         {
-            if (this.subscriptions.Any(s => s.SubscriberStreamType == this.streamName && s.StreamType == streamType))
+            if (this.subscriptions.Any(s => s.SubscriberStreamType == this.streamType && s.StreamType == streamType))
                 return false;
 
             this.subscriptions.Add(new SubscriptionEntity
             {
-                SubscriberStreamType = this.streamName,
+                SubscriberStreamType = this.streamType,
                 StreamType = streamType,
                 Url = url,
                 Token = token
@@ -407,14 +405,14 @@ namespace EventCentric.Persistence
 
         public void PersistSubscriptionVersion(string subscription, long version)
         {
-            var sub = this.subscriptions.Where(s => s.StreamType == subscription && s.SubscriberStreamType == this.streamName).Single();
+            var sub = this.subscriptions.Where(s => s.StreamType == subscription && s.SubscriberStreamType == this.streamType).Single();
             sub.ProcessorBufferVersion = version;
             sub.UpdateLocalTime = DateTime.Now;
         }
 
         public long CurrentEventCollectionVersion { get; private set; }
 
-        public string StreamName => this.streamName;
+        public string StreamName => this.streamType;
         #endregion
     }
 

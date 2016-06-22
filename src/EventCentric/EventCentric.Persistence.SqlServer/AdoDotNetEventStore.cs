@@ -15,10 +15,9 @@ using System.Runtime.Caching;
 
 namespace EventCentric.Persistence
 {
-    public class OptimizedEventStore<T> : ISubscriptionRepository, IEventStore<T> where T : class, IEventSourced
+    public class AdoDotNetEventStore<T> : EventStoreBase, ISubscriptionRepository, IEventStore<T> where T : class, IEventSourced
     {
         private long eventCollectionVersion;
-        private readonly string streamName;
         private readonly ILogger log;
         private readonly ITextSerializer serializer;
         private readonly IUtcTimeProvider time;
@@ -34,23 +33,22 @@ namespace EventCentric.Persistence
         private readonly SqlClientLite sql;
         private readonly object dbLock = new object();
 
-        public OptimizedEventStore(string streamName, ITextSerializer serializer, string connectionString, IUtcTimeProvider time, IGuidProvider guid, ILogger log, bool persistIncomingPayloads, Func<string, ITextSerializer, string, bool> consumerFilter)
+        public AdoDotNetEventStore(string streamType, ITextSerializer serializer, string connectionString, IUtcTimeProvider time, IGuidProvider guid, ILogger log, bool persistIncomingPayloads, Func<string, ITextSerializer, string, bool> consumerFilter)
+            : base(streamType)
         {
-            Ensure.NotNullNeitherEmtpyNorWhiteSpace(streamName, nameof(streamName));
             Ensure.NotNull(serializer, nameof(serializer));
             Ensure.NotNullNeitherEmtpyNorWhiteSpace(connectionString, nameof(connectionString));
             Ensure.NotNull(time, nameof(time));
             Ensure.NotNull(guid, nameof(guid));
             Ensure.NotNull(log, nameof(log));
 
-            this.streamName = streamName;
             this.serializer = serializer;
             this.connectionString = connectionString;
             this.time = time;
             this.guid = guid;
             this.log = log;
             this.consumerFilter = consumerFilter != null ? consumerFilter : EventStoreFuncs.DefaultFilter;
-            this.cache = new MemoryCache(streamName);
+            this.cache = new MemoryCache(streamType);
 
             this.sql = new SqlClientLite(this.connectionString, timeoutInSeconds: 120);
 
@@ -73,15 +71,15 @@ namespace EventCentric.Persistence
 
             // adding app subscription if missing
             var appSubCount = this.sql.ExecuteReaderFirstOrDefault(this.tryFindAppSubscription, r => r.GetInt32(0),
-                                new SqlParameter("@SubscriberStreamType", this.streamName),
-                                new SqlParameter("@StreamType", this.streamName + Constants.AppEventStreamNameSufix));
+                                new SqlParameter("@SubscriberStreamType", this.streamType),
+                                new SqlParameter("@StreamType", this.streamType + Constants.AppEventStreamNameSufix));
 
             if (appSubCount == 0)
             {
                 var now = DateTime.Now;
                 this.sql.ExecuteNonQuery(this.createAppSubscription,
-                    new SqlParameter("@SubscriberStreamType", this.streamName),
-                    new SqlParameter("@StreamType", this.streamName + Constants.AppEventStreamNameSufix),
+                    new SqlParameter("@SubscriberStreamType", this.streamType),
+                    new SqlParameter("@StreamType", this.streamType + Constants.AppEventStreamNameSufix),
                     new SqlParameter("@CreationLocalTime", now),
                     new SqlParameter("@UpdateLocalTime", now));
             }
@@ -101,7 +99,7 @@ namespace EventCentric.Persistence
                                             where StreamType = @StreamType
                                             order by EventCollectionVersion desc";
 
-                    command.Parameters.Add(new SqlParameter("@StreamType", this.streamName));
+                    command.Parameters.Add(new SqlParameter("@StreamType", this.streamType));
 
                     using (var reader = command.ExecuteReader())
                     {
@@ -127,7 +125,7 @@ namespace EventCentric.Persistence
                                          {
                                              Payload = r.GetString("Payload"),
                                          },
-                                         new SqlParameter("@StreamType", this.streamName),
+                                         new SqlParameter("@StreamType", this.streamType),
                                          new SqlParameter("@StreamId", id));
 
                 if (snapshotEntity != null)
@@ -152,7 +150,7 @@ namespace EventCentric.Persistence
             var streamOfEvents =
                 this.sql.ExecuteReader(this.getEventsQuery, r =>
                 this.serializer.Deserialize<IEvent>(r.GetString("Payload")),
-                new SqlParameter("@StreamType", this.streamName),
+                new SqlParameter("@StreamType", this.streamType),
                 new SqlParameter("@StreamId", id))
                 .ToArray();
 
@@ -167,8 +165,8 @@ namespace EventCentric.Persistence
             var aggregate = this.Find(id);
             if (aggregate == null)
             {
-                var ex = new StreamNotFoundException(id, streamName);
-                this.log.Error(ex, string.Format("Stream not found exception for stream {0} with id of {1}", streamName, id));
+                var ex = new StreamNotFoundException(id, streamType);
+                this.log.Error(ex, string.Format("Stream not found exception for stream {0} with id of {1}", streamType, id));
                 throw ex;
             }
 
@@ -188,7 +186,7 @@ namespace EventCentric.Persistence
                     {
                         command.CommandType = CommandType.Text;
                         command.CommandText = this.isDuplicateQuery;
-                        command.Parameters.Add(new SqlParameter("@EventId", incomingEvent.EventId));
+                        command.Parameters.Add(new SqlParameter("@EventId", SqlDbType.UniqueIdentifier) { Value = incomingEvent.EventId });
 
                         using (var reader = command.ExecuteReader())
                         {
@@ -224,8 +222,8 @@ namespace EventCentric.Persistence
                                     command.CommandType = CommandType.Text;
                                     command.Transaction = transaction;
                                     command.CommandText = this.getStreamVersion;
-                                    command.Parameters.Add(new SqlParameter("@StreamType", SqlDbType.NVarChar, 40) { Value = this.streamName });
-                                    command.Parameters.Add(new SqlParameter("@StreamId", eventSourced.Id));
+                                    command.Parameters.Add(new SqlParameter("@StreamType", SqlDbType.NVarChar, 40) { Value = this.streamType });
+                                    command.Parameters.Add(new SqlParameter("@StreamId", SqlDbType.UniqueIdentifier) { Value = eventSourced.Id });
 
                                     using (var reader = command.ExecuteReader())
                                     {
@@ -257,12 +255,12 @@ namespace EventCentric.Persistence
                                     command.Transaction = transaction;
                                     command.CommandType = CommandType.Text;
                                     command.CommandText = this.insertOrUpdateSnapshot;
-                                    command.Parameters.Add(new SqlParameter("@StreamType", this.streamName));
-                                    command.Parameters.Add(new SqlParameter("@StreamId", eventSourced.Id));
-                                    command.Parameters.Add(new SqlParameter("@Version", eventSourced.Version));
-                                    command.Parameters.Add(new SqlParameter("@Payload", serializedMemento));
-                                    command.Parameters.Add(new SqlParameter("@CreationLocalTime", localNow));
-                                    command.Parameters.Add(new SqlParameter("@UpdateLocalTime", localNow));
+                                    command.Parameters.Add(new SqlParameter("@StreamType", SqlDbType.NVarChar, 40) { Value = this.streamType });
+                                    command.Parameters.Add(new SqlParameter("@StreamId", SqlDbType.UniqueIdentifier) { Value = eventSourced.Id });
+                                    command.Parameters.Add(new SqlParameter("@Version", SqlDbType.BigInt) { Value = eventSourced.Version });
+                                    command.Parameters.Add(new SqlParameter("@Payload", SqlDbType.NVarChar) { Value = serializedMemento });
+                                    command.Parameters.Add(new SqlParameter("@CreationLocalTime", SqlDbType.DateTime) { Value = localNow });
+                                    command.Parameters.Add(new SqlParameter("@UpdateLocalTime", SqlDbType.DateTime) { Value = localNow });
 
                                     command.ExecuteNonQuery();
                                 }
@@ -278,11 +276,11 @@ namespace EventCentric.Persistence
                                 var e = (Message)@event;
                                 e.TransactionId = incomingEvent.TransactionId;
                                 e.EventId = this.guid.NewGuid();
-                                e.StreamType = this.streamName;
+                                e.StreamType = this.streamType;
 
                                 eventEntities[i] = new EventEntity
                                 {
-                                    StreamType = this.streamName,
+                                    StreamType = this.streamType,
                                     StreamId = @event.StreamId,
                                     Version = @event.Version,
                                     EventId = @event.EventId,
@@ -314,17 +312,17 @@ namespace EventCentric.Persistence
                                             command.Transaction = transaction;
                                             command.CommandType = CommandType.Text;
                                             command.CommandText = this.appendEventCommand;
-                                            command.Parameters.Add(new SqlParameter("@StreamType", entity.StreamType));
-                                            command.Parameters.Add(new SqlParameter("@StreamId", entity.StreamId));
-                                            command.Parameters.Add(new SqlParameter("@Version", entity.Version));
-                                            command.Parameters.Add(new SqlParameter("@TransactionId", entity.TransactionId));
-                                            command.Parameters.Add(new SqlParameter("@EventId", entity.EventId));
-                                            command.Parameters.Add(new SqlParameter("@EventType", entity.EventType));
-                                            command.Parameters.Add(new SqlParameter("@CorrelationId", entity.CorrelationId));
-                                            command.Parameters.Add(new SqlParameter("@EventCollectionVersion", entity.EventCollectionVersion));
-                                            command.Parameters.Add(new SqlParameter("@LocalTime", entity.LocalTime));
-                                            command.Parameters.Add(new SqlParameter("@UtcTime", entity.UtcTime));
-                                            command.Parameters.Add(new SqlParameter("@Payload", entity.Payload));
+                                            command.Parameters.Add(new SqlParameter("@StreamType", SqlDbType.NVarChar, 40) { Value = entity.StreamType });
+                                            command.Parameters.Add(new SqlParameter("@StreamId", SqlDbType.UniqueIdentifier) { Value = entity.StreamId });
+                                            command.Parameters.Add(new SqlParameter("@Version", SqlDbType.BigInt) { Value = entity.Version });
+                                            command.Parameters.Add(new SqlParameter("@TransactionId", SqlDbType.UniqueIdentifier) { Value = entity.TransactionId });
+                                            command.Parameters.Add(new SqlParameter("@EventId", SqlDbType.UniqueIdentifier) { Value = entity.EventId });
+                                            command.Parameters.Add(new SqlParameter("@EventType", SqlDbType.NVarChar, 255) { Value = entity.EventType });
+                                            command.Parameters.Add(new SqlParameter("@CorrelationId", SqlDbType.UniqueIdentifier) { Value = entity.CorrelationId });
+                                            command.Parameters.Add(new SqlParameter("@EventCollectionVersion", SqlDbType.BigInt) { Value = entity.EventCollectionVersion });
+                                            command.Parameters.Add(new SqlParameter("@LocalTime", SqlDbType.DateTime) { Value = entity.LocalTime });
+                                            command.Parameters.Add(new SqlParameter("@UtcTime", SqlDbType.DateTime) { Value = entity.UtcTime });
+                                            command.Parameters.Add(new SqlParameter("@Payload", SqlDbType.NVarChar) { Value = entity.Payload });
 
                                             command.ExecuteNonQuery();
                                         }
@@ -383,16 +381,16 @@ namespace EventCentric.Persistence
                 command.Transaction = transaction;
                 command.CommandType = CommandType.Text;
                 command.CommandText = this.addToInboxWithPayloadCommand;
-                command.Parameters.Add(new SqlParameter("@InboxStreamType", this.streamName));
-                command.Parameters.Add(new SqlParameter("@EventId", incomingEvent.EventId));
-                command.Parameters.Add(new SqlParameter("@TransactionId", incomingEvent.TransactionId));
-                command.Parameters.Add(new SqlParameter("@StreamType", incomingEvent.StreamType));
-                command.Parameters.Add(new SqlParameter("@StreamId", incomingEvent.StreamId));
-                command.Parameters.Add(new SqlParameter("@Version", incomingEvent.Version));
-                command.Parameters.Add(new SqlParameter("@EventType", incomingEvent.GetType().Name));
-                command.Parameters.Add(new SqlParameter("@EventCollectionVersion", incomingEvent.EventCollectionVersion));
-                command.Parameters.Add(new SqlParameter("@CreationLocalTime", localNow));
-                command.Parameters.Add(new SqlParameter("@Payload", this.serializer.Serialize(incomingEvent)));
+                command.Parameters.Add(new SqlParameter("@InboxStreamType", SqlDbType.NVarChar, 40) { Value = this.streamType });
+                command.Parameters.Add(new SqlParameter("@EventId", SqlDbType.UniqueIdentifier) { Value = incomingEvent.EventId });
+                command.Parameters.Add(new SqlParameter("@TransactionId", SqlDbType.UniqueIdentifier) { Value = incomingEvent.TransactionId });
+                command.Parameters.Add(new SqlParameter("@StreamType", SqlDbType.NVarChar, 40) { Value = incomingEvent.StreamType });
+                command.Parameters.Add(new SqlParameter("@StreamId", SqlDbType.UniqueIdentifier) { Value = incomingEvent.StreamId });
+                command.Parameters.Add(new SqlParameter("@Version", SqlDbType.BigInt) { Value = incomingEvent.Version });
+                command.Parameters.Add(new SqlParameter("@EventType", SqlDbType.NVarChar, 255) { Value = incomingEvent.GetType().Name });
+                command.Parameters.Add(new SqlParameter("@EventCollectionVersion", SqlDbType.BigInt) { Value = incomingEvent.EventCollectionVersion });
+                command.Parameters.Add(new SqlParameter("@CreationLocalTime", SqlDbType.DateTime) { Value = localNow });
+                command.Parameters.Add(new SqlParameter("@Payload", SqlDbType.NVarChar) { Value = this.serializer.Serialize(incomingEvent) });
 
                 command.ExecuteNonQuery();
             }
@@ -405,10 +403,10 @@ namespace EventCentric.Persistence
                 command.Transaction = transaction;
                 command.CommandType = CommandType.Text;
                 command.CommandText = this.addToInboxWithoutPayloadCommand;
-                command.Parameters.Add(new SqlParameter("@InboxStreamType", this.streamName));
-                command.Parameters.Add(new SqlParameter("@EventId", incomingEvent.EventId));
-                command.Parameters.Add(new SqlParameter("@CreationLocalTime", localNow));
-                command.Parameters.Add(new SqlParameter("@TransactionId", incomingEvent.TransactionId));
+                command.Parameters.Add(new SqlParameter("@InboxStreamType", SqlDbType.NVarChar, 40) { Value = this.streamType });
+                command.Parameters.Add(new SqlParameter("@EventId", SqlDbType.UniqueIdentifier) { Value = incomingEvent.EventId });
+                command.Parameters.Add(new SqlParameter("@CreationLocalTime", SqlDbType.DateTime) { Value = localNow });
+                command.Parameters.Add(new SqlParameter("@TransactionId", SqlDbType.UniqueIdentifier) { Value = incomingEvent.TransactionId });
 
                 command.ExecuteNonQuery();
             }
@@ -425,7 +423,7 @@ namespace EventCentric.Persistence
                 {
                     command.CommandType = CommandType.Text;
                     command.CommandText = this.isDuplicateQuery;
-                    command.Parameters.Add(new SqlParameter("@EventId", eventId));
+                    command.Parameters.Add(new SqlParameter("@EventId", SqlDbType.UniqueIdentifier) { Value = eventId });
 
                     using (var reader = command.ExecuteReader())
                     {
@@ -447,12 +445,13 @@ namespace EventCentric.Persistence
         {
             cache.Remove(streamId.ToString());
             this.sql.ExecuteNonQuery(this.removeSnapshotCommand,
-                new SqlParameter("@StreamId", streamId), new SqlParameter(@"StreamType", this.streamName));
+                new SqlParameter("@StreamId", SqlDbType.UniqueIdentifier) { Value = streamId },
+                new SqlParameter(@"StreamType", SqlDbType.NVarChar, 40) { Value = this.streamType });
         }
 
         public long CurrentEventCollectionVersion { get; private set; }
 
-        public string StreamName => this.streamName;
+        public string StreamName => this.streamType;
 
         /// <summary>
         /// FindEvents
@@ -462,10 +461,10 @@ namespace EventCentric.Persistence
         {
             return this.sql.ExecuteReader(this.findEventsQuery,
                 r => new SerializedEvent(r.GetInt64("EventCollectionVersion"), r.GetString("Payload")),
-                new SqlParameter("@Quantity", quantity),
-                new SqlParameter("@StreamType", this.streamName),
-                new SqlParameter("@LastReceivedVersion", from),
-                new SqlParameter("@MaxVersion", to))
+                new SqlParameter("@Quantity", SqlDbType.Int) { Value = quantity },
+                new SqlParameter("@StreamType", SqlDbType.NVarChar, 40) { Value = this.streamType },
+                new SqlParameter("@LastReceivedVersion", SqlDbType.BigInt) { Value = from },
+                new SqlParameter("@MaxVersion", SqlDbType.BigInt) { Value = to })
                 .Select(e =>
                             EventStoreFuncs.ApplyConsumerFilter(
                                 new SerializedEvent(e.EventCollectionVersion, e.Payload),
@@ -478,11 +477,11 @@ namespace EventCentric.Persistence
         {
             var events = this.sql.ExecuteReader(this.findEventsWithStreamIdQuery,
                 r => new SerializedEvent(r.GetInt64("EventCollectionVersion"), r.GetString("Payload")),
-                new SqlParameter("@Quantity", quantity),
-                new SqlParameter("@StreamType", this.streamName),
-                new SqlParameter("@LastReceivedVersion", from),
-                new SqlParameter("@MaxVersion", to),
-                new SqlParameter("@StreamId", streamId))
+                new SqlParameter("@Quantity", SqlDbType.Int) { Value = quantity },
+                new SqlParameter("@StreamType", SqlDbType.NVarChar, 40) { Value = this.streamType },
+                new SqlParameter("@LastReceivedVersion", SqlDbType.BigInt) { Value = from },
+                new SqlParameter("@MaxVersion", SqlDbType.BigInt) { Value = to },
+                new SqlParameter("@StreamId", SqlDbType.UniqueIdentifier) { Value = streamId })
                 .Select(e =>
                             EventStoreFuncs.ApplyConsumerFilter(
                                 new SerializedEvent(e.EventCollectionVersion, e.Payload),
@@ -493,7 +492,7 @@ namespace EventCentric.Persistence
 
             return events.Length > 0
                 ? events
-                : new SerializedEvent[] { new SerializedEvent(to, this.serializer.Serialize(new CloakedEvent(to, this.streamName))) };
+                : new SerializedEvent[] { new SerializedEvent(to, this.serializer.Serialize(new CloakedEvent(to, this.streamType))) };
         }
 
         public SubscriptionBuffer[] GetSubscriptions()
@@ -505,7 +504,7 @@ namespace EventCentric.Persistence
                         r.SafeGetString("Token"),
                         r.GetInt64("ProcessorBufferVersion") - 1, // We substract one version in order to set the current version bellow the last one, in case that first event was not yet processed.
                         false),
-                        new SqlParameter("@SubscriberStreamType", this.streamName))
+                        new SqlParameter("@SubscriberStreamType", this.streamType))
                         .ToArray();
         }
 
@@ -535,9 +534,9 @@ namespace EventCentric.Persistence
             this.sql.ExecuteNonQuery(this.markAsPoisoned,
                 new SqlParameter("@UpdateLocalTime", this.time.Now.ToLocalTime()),
                 new SqlParameter("@PoisonEventCollectionVersion", poisonedEvent.EventCollectionVersion),
-                new SqlParameter("@ExceptionMessage", exceptionMessage),
-                new SqlParameter("@DeadLetterPayload", deadLetterPayload),
-                new SqlParameter("@SubscriberStreamType", this.streamName),
+                new SqlParameter("@ExceptionMessage", SqlDbType.NVarChar) { Value = exceptionMessage },
+                new SqlParameter("@DeadLetterPayload", SqlDbType.NVarChar) { Value = deadLetterPayload },
+                new SqlParameter("@SubscriberStreamType", this.streamType),
                 new SqlParameter("@StreamType", poisonedEvent.StreamType));
 
         }
@@ -546,7 +545,7 @@ namespace EventCentric.Persistence
         {
             var subCount = this.sql.ExecuteReaderFirstOrDefault(this.subscriptionAlreadyExistsScript,
                                     r => r.GetInt32("SubCount"),
-                                    new SqlParameter("@SubscriberStreamType", this.streamName),
+                                    new SqlParameter("@SubscriberStreamType", this.streamType),
                                     new SqlParameter("@StreamType", streamType));
 
             if (subCount > 0)
@@ -566,10 +565,10 @@ namespace EventCentric.Persistence
         public void PersistSubscriptionVersion(string subscription, long version)
         {
             this.sql.ExecuteNonQuery(this.updateSubscriptionScript,
-                new SqlParameter("@SubscriberStreamType", this.streamName),
-                new SqlParameter("@StreamType", subscription),
-                new SqlParameter("@Version", version),
-                new SqlParameter("@UpdateLocalTime", DateTime.Now));
+                new SqlParameter("@SubscriberStreamType", SqlDbType.NVarChar, 40) { Value = this.streamType },
+                new SqlParameter("@StreamType", SqlDbType.NVarChar, 40) { Value = subscription },
+                new SqlParameter("@Version", SqlDbType.BigInt) { Value = version },
+                new SqlParameter("@UpdateLocalTime", SqlDbType.DateTime) { Value = this.time.Now.ToLocalTime() });
         }
 
 

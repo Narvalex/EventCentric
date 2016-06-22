@@ -52,6 +52,7 @@
     <Compile Include="Database\SqlClientLite.cs" />
     <Compile Include="Denormalizer.cs" />
     <Compile Include="Entities.cs" />
+    <Compile Include="EventStoreBase.cs" />
     <Compile Include="EventStoreFuncs.cs" />
     <Compile Include="Mapping\EventEntityMap.cs" />
     <Compile Include="Mapping\EventuallyConsistentResultEntityMap.cs" />
