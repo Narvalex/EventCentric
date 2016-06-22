@@ -21,6 +21,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Docs", "Docs", "{7B295ED5-3
 		..\Docs\AboutStreamTypeResolver.txt = ..\Docs\AboutStreamTypeResolver.txt
 		..\Docs\AboutSubscriptions.txt = ..\Docs\AboutSubscriptions.txt
 		..\Docs\AboutTfsIgnore.txt = ..\Docs\AboutTfsIgnore.txt
+		SqlQueryForTablesAndRowCounts.sql = SqlQueryForTablesAndRowCounts.sql
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{397224F2-E917-47C0-A197-04504D3CA3A8}"
