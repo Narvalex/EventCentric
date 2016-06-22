@@ -65,6 +65,9 @@
     <Compile Include="..\..\EventCentric.Persistence\Entities.cs">
       <Link>Entities.cs</Link>
     </Compile>
+    <Compile Include="..\..\EventCentric.Persistence\EventStoreBase.cs">
+      <Link>EventStoreBase.cs</Link>
+    </Compile>
     <Compile Include="..\..\EventCentric.Persistence\EventStoreFuncs.cs">
       <Link>EventStoreFuncs.cs</Link>
     </Compile>
