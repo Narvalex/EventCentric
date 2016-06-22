@@ -33,9 +33,9 @@ namespace EventCentric.Persistence
         private readonly SqlClientLite sql;
         private readonly object dbLock = new object();
 
-        private readonly bool persistSnapshot;
+        private readonly bool persistSnapshots;
 
-        public AdoDotNetEventStore(string streamType, ITextSerializer serializer, string connectionString, IUtcTimeProvider time, IGuidProvider guid, ILogger log, bool persistIncomingPayloads, bool persistSnapshot, Func<string, ITextSerializer, string, bool> consumerFilter)
+        public AdoDotNetEventStore(string streamType, ITextSerializer serializer, string connectionString, IUtcTimeProvider time, IGuidProvider guid, ILogger log, bool persistIncomingPayloads, bool persistSnapshots, Func<string, ITextSerializer, string, bool> consumerFilter)
             : base(streamType)
         {
             Ensure.NotNull(serializer, nameof(serializer));
@@ -86,7 +86,7 @@ namespace EventCentric.Persistence
                     new SqlParameter("@UpdateLocalTime", now));
             }
 
-            this.persistSnapshot = persistSnapshot;
+            this.persistSnapshots = persistSnapshots;
         }
 
         private long GetLatestEventCollectionVersionFromDb()
@@ -122,6 +122,9 @@ namespace EventCentric.Persistence
             var cachedMemento = (Tuple<ISnapshot, DateTime?>)this.cache.Get(id.ToString());
             if (cachedMemento == null || !cachedMemento.Item2.HasValue)
             {
+                if (!this.persistSnapshots)
+                    return this.GetFromFullStreamOfEvents(id);
+
                 // try return memento from SQL Server;
                 var snapshotEntity = this.sql
                                          .ExecuteReaderFirstOrDefault(this.findSnapshotQuery,
@@ -254,7 +257,7 @@ namespace EventCentric.Persistence
                                     policy: new CacheItemPolicy { AbsoluteExpiration = this.time.OffSetNow.AddMinutes(30) });
 
                                 // Insert or Update snapshot
-                                if (this.persistSnapshot)
+                                if (this.persistSnapshots)
                                 {
                                     using (var command = connection.CreateCommand())
                                     {
