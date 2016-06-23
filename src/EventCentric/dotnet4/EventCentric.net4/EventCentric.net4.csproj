@@ -114,9 +114,6 @@
     <Compile Include="..\..\EventCentric\EventSourcing\StreamNotFoundException.cs">
       <Link>EventSourcing\StreamNotFoundException.cs</Link>
     </Compile>
-    <Compile Include="..\..\EventCentric\EventSourcing\ValueObject.cs">
-      <Link>EventSourcing\ValueObject.cs</Link>
-    </Compile>
     <Compile Include="..\..\EventCentric\Handling\CloakedEvent.cs">
       <Link>Handling\CloakedEvent.cs</Link>
     </Compile>
@@ -332,6 +329,9 @@
     </Compile>
     <Compile Include="..\..\EventCentric\Utils\UtcTimeProvider.cs">
       <Link>Utils\UtcTimeProvider.cs</Link>
+    </Compile>
+    <Compile Include="..\..\EventCentric\Utils\ValueObject.cs">
+      <Link>Utils\ValueObject.cs</Link>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
