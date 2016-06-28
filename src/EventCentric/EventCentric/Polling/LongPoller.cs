@@ -66,10 +66,10 @@ namespace EventCentric.Transport
                 catch (Exception ex)
                 {
                     this.log.Error(ex, $"Error while polling {streamType} located on {dynamicUrl}");
-                    this.log.Trace($"An error has been detected while polling {streamType} located on {dynamicUrl} but a retry will be performed every 10 seconds");
+                    this.log.Trace($"An error has been detected while polling {streamType} located on {dynamicUrl} but a retry will be performed every {this.timeout.TotalSeconds} seconds");
 
                     // To have a break;
-                    Thread.Sleep(10000);
+                    Thread.Sleep(this.timeout);
                     this.bus.Publish(new PollResponseWasReceived(PollResponse.CreateErrorResponse(streamType)));
                 }
             }

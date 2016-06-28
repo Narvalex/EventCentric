@@ -64,10 +64,10 @@ namespace EventCentric.Publishing
                 }
                 catch (Exception ex)
                 {
-                    this.log.Error(ex, ex.Message);
+                    this.log.Error(ex, $"An error ocurred while trying to sync with server. Retry will ocurr in {this.longPollingTimeout.TotalSeconds} seconds.");
 
                     // for all exception, we wait 10 seconds
-                    Thread.Sleep(10000);
+                    Thread.Sleep(this.longPollingTimeout);
                 }
             }
         }
