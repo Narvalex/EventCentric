@@ -30,6 +30,7 @@ namespace EventCentric.Persistence
         private readonly Func<string, ITextSerializer, string, bool> consumerFilter;
 
         private readonly string connectionString;
+        private readonly int saveTimeoutInSeconds = 600;
         private readonly SqlClientLite sql;
         private readonly object dbLock = new object();
 
@@ -192,6 +193,7 @@ namespace EventCentric.Persistence
                     using (var command = connection.CreateCommand())
                     {
                         command.CommandType = CommandType.Text;
+                        command.CommandTimeout = saveTimeoutInSeconds;
                         command.CommandText = this.isDuplicateQuery;
                         command.Parameters.Add(new SqlParameter("@EventId", SqlDbType.UniqueIdentifier) { Value = incomingEvent.EventId });
 
@@ -228,6 +230,7 @@ namespace EventCentric.Persistence
                                 {
                                     command.CommandType = CommandType.Text;
                                     command.Transaction = transaction;
+                                    command.CommandTimeout = this.saveTimeoutInSeconds;
                                     command.CommandText = this.getStreamVersion;
                                     command.Parameters.Add(new SqlParameter("@StreamType", SqlDbType.NVarChar, 40) { Value = this.streamType });
                                     command.Parameters.Add(new SqlParameter("@StreamId", SqlDbType.UniqueIdentifier) { Value = eventSourced.Id });
@@ -262,6 +265,7 @@ namespace EventCentric.Persistence
                                     using (var command = connection.CreateCommand())
                                     {
                                         command.Transaction = transaction;
+                                        command.CommandTimeout = this.saveTimeoutInSeconds;
                                         command.CommandType = CommandType.Text;
                                         command.CommandText = this.insertOrUpdateSnapshot;
                                         command.Parameters.Add(new SqlParameter("@StreamType", SqlDbType.NVarChar, 40) { Value = this.streamType });
@@ -321,6 +325,7 @@ namespace EventCentric.Persistence
                                         {
                                             command.Transaction = transaction;
                                             command.CommandType = CommandType.Text;
+                                            command.CommandTimeout = this.saveTimeoutInSeconds;
                                             command.CommandText = this.appendEventCommand;
                                             command.Parameters.Add(new SqlParameter("@StreamType", SqlDbType.NVarChar, 40) { Value = entity.StreamType });
                                             command.Parameters.Add(new SqlParameter("@StreamId", SqlDbType.UniqueIdentifier) { Value = entity.StreamId });
@@ -389,6 +394,7 @@ namespace EventCentric.Persistence
             using (var command = connection.CreateCommand())
             {
                 command.Transaction = transaction;
+                command.CommandTimeout = this.saveTimeoutInSeconds;
                 command.CommandType = CommandType.Text;
                 command.CommandText = this.addToInboxWithPayloadCommand;
                 command.Parameters.Add(new SqlParameter("@InboxStreamType", SqlDbType.NVarChar, 40) { Value = this.streamType });
@@ -411,6 +417,7 @@ namespace EventCentric.Persistence
             using (var command = connection.CreateCommand())
             {
                 command.Transaction = transaction;
+                command.CommandTimeout = this.saveTimeoutInSeconds;
                 command.CommandType = CommandType.Text;
                 command.CommandText = this.addToInboxWithoutPayloadCommand;
                 command.Parameters.Add(new SqlParameter("@InboxStreamType", SqlDbType.NVarChar, 40) { Value = this.streamType });
