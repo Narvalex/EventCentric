@@ -155,7 +155,7 @@ namespace EventCentric.Persistence
         private T GetFromFullStreamOfEvents(Guid id)
         {
             var streamOfEvents =
-                this.sql.ExecuteReader(this.getEventsQuery, r =>
+                this.sql.ExecuteReader(600, this.getEventsQuery, r =>
                 this.serializer.Deserialize<IEvent>(r.GetString("Payload")),
                 new SqlParameter("@StreamType", this.streamType),
                 new SqlParameter("@StreamId", id))

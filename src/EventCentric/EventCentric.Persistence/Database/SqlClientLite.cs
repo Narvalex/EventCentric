@@ -45,11 +45,11 @@ namespace EventCentric.Database
             }
         }
 
-        public IEnumerable<T> ExecuteReader<T>(int adhocTimeout, string commandText, Func<IDataReader, T> project, params SqlParameter[] parameters)
+        public IEnumerable<T> ExecuteReader<T>(int adhocTimeoutInSeconds, string commandText, Func<IDataReader, T> project, params SqlParameter[] parameters)
         {
             var connection = new SqlConnection(this.ConnectionString);
             var command = new SqlCommand(commandText, connection);
-            command.CommandTimeout = adhocTimeout;
+            command.CommandTimeout = adhocTimeoutInSeconds;
             command.CommandType = CommandType.Text;
 
             if (parameters.Length > 0)
