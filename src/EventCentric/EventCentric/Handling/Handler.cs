@@ -53,6 +53,9 @@ namespace EventCentric.Handling
             this.newAggregateFactory = (id) => (T)constructor.Invoke(new object[] { id });
         }
 
+        /// <summary>
+        /// Enable deduplication before handling is true by default.
+        /// </summary>
         public bool EnableDeduplicationBeforeHandling { get; set; } = true;
 
         public Guid Process(Message message)
