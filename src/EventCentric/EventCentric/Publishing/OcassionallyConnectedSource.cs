@@ -53,6 +53,7 @@ namespace EventCentric.Publishing
 
             if (!clientResponse.ErrorDetected
                 && clientResponse.NewEventsWereFound
+                && clientResponse.ConsumerVersion == this.consumerEventCollectionVersion // only updates if versions are equall. Nasty errors ocurred while trying to synchronize.
                 && clientResponse.ProducerVersion > eventBufferVersion
                 && clientResponse.NewRawEvents.Max(x => x.EventCollectionVersion) > eventBufferVersion)
             {
@@ -69,13 +70,16 @@ namespace EventCentric.Publishing
 
         public ServerStatus UpdateConsumer(PollResponse producerResponse)
         {
-            var ecvBefore = this.consumerEventCollectionVersion;
+            if (this.consumerEventCollectionVersion == producerResponse.ConsumerVersion) // only updates if versions are equal. Nasty errors.
+            {
+                var ecvBefore = this.consumerEventCollectionVersion;
 
-            this.producerResponse.Add(producerResponse);
+                this.producerResponse.Add(producerResponse);
 
-            var stopwatch = Stopwatch.StartNew();
-            while (this.consumerEventCollectionVersion == ecvBefore && this.pusherTimeout > stopwatch.Elapsed)
-                Thread.Sleep(1);
+                var stopwatch = Stopwatch.StartNew();
+                while (this.consumerEventCollectionVersion == ecvBefore && this.pusherTimeout > stopwatch.Elapsed)
+                    Thread.Sleep(1);
+            }
 
             return new ServerStatus(this.consumerEventCollectionVersion);
         }
