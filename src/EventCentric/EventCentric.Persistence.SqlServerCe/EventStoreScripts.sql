@@ -37,6 +37,8 @@ CREATE TABLE [Subscriptions](
     [Url] [nvarchar] (500) NOT NULL,
 	[Token] [ntext] NOT NULL,
     [ProcessorBufferVersion] [bigint] NOT NULL,
+	[ProducerVersion] [bigint] NULL,
+	[ConsistencyPercentage] [nvarchar] (10) NULL,
     [IsPoisoned] [bit] NOT NULL,
 	[WasCanceled] [bit] NOT NULL,
     [PoisonEventCollectionVersion] [bigint] NULL,

@@ -113,6 +113,8 @@ namespace EventCentric.MicroserviceFactory
             throw new ArgumentException($"The source {name} is not registered in the event system");
         }
 
+        public static ILogger ResolveLogger() => mainContainer.Resolve<ILogger>();
+
         public static void AddOcassionallyConnectedSourceOnTheFly(string microserviceName, string sourceName)
         {
             if (!childContainers.ContainsKey(microserviceName))

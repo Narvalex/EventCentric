@@ -470,12 +470,14 @@ namespace EventCentric.Persistence
             }
         }
 
-        public void PersistSubscriptionVersion(string subscription, long version)
+        public void PersistSubscriptionVersion(string subscription, long consumerVersion, long producerVersion)
         {
             using (var context = this.contextFactory.Invoke(false))
             {
                 var sub = context.Subscriptions.Single(x => x.SubscriberStreamType == this.streamType && x.StreamType == subscription);
-                sub.ProcessorBufferVersion = version;
+                sub.ProcessorBufferVersion = consumerVersion;
+                sub.ProducerVersion = producerVersion;
+                sub.ConsistencyPercentage = base.GetConsistencyPercentage(consumerVersion, producerVersion);
                 sub.UpdateLocalTime = DateTime.Now;
                 context.SaveChanges();
             }

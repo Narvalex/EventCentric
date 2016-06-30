@@ -46,7 +46,7 @@ namespace EventCentric.Polling
 
         public long ProducerVersion { get; internal set; }
 
-        public decimal UpToDatePercentage =>
+        public decimal ConsistencyPercentage =>
             this.ProducerVersion == 0 ? 100
                                       : (this.ConsumerVersion * 100) / this.ProducerVersion;
 

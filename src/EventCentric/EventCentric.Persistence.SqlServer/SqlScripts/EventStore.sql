@@ -95,6 +95,8 @@ CREATE TABLE[EventStore].[Subscriptions](
     [Url] [nvarchar] (2000) NOT NULL,
 	[Token] [nvarchar] (max) NOT NULL,
     [ProcessorBufferVersion] [bigint] NOT NULL,
+	[ProducerVersion] [bigint] NULL,
+	[ConsistencyPercentage] [nvarchar] (10) NULL,
     [IsPoisoned] [bit] NOT NULL,
 	[WasCanceled] [bit] NOT NULL,
     [PoisonEventCollectionVersion] [bigint] NULL,

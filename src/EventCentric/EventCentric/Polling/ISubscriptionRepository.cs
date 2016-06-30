@@ -11,6 +11,6 @@ namespace EventCentric.Polling
 
         bool TryAddNewSubscriptionOnTheFly(string streamType, string url, string token);
 
-        void PersistSubscriptionVersion(string subscription, long version);
+        void PersistSubscriptionVersion(string subscription, long consumerVersion, long producerVersion);
     }
 }

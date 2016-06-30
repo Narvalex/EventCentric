@@ -33,7 +33,7 @@ namespace EventCentric.Heartbeating
 
             var responseText = $"Heartbeat of {node.Name} from {ipAddressString} | Status {node.Status.ToString()}";
             foreach (var subscription in subscriber.GetSubscriptionsMetrics())
-                responseText += $" | {subscription.ProducerName} subscription is in version {subscription.ConsumerVersion}/{subscription.ProducerVersion} {subscription.UpToDatePercentage.ToString("N2")}%";
+                responseText += $" | {subscription.ProducerName} subscription is in version {subscription.ConsumerVersion}/{subscription.ProducerVersion} {subscription.ConsistencyPercentage.ToString("N2")}%";
 
             log.Trace($"{heartbeatListener} requested a heartbeat.");
 

@@ -193,7 +193,7 @@ namespace EventCentric.Polling
             this.bus.Publish(new NewIncomingEvents(streams));
 
             // Here we persist the current subscription version state
-            this.repository.PersistSubscriptionVersion(buffer.StreamType, processorBufferVersion);
+            this.repository.PersistSubscriptionVersion(buffer.StreamType, processorBufferVersion, buffer.ProducerVersion);
             return true;
         }
 

@@ -61,6 +61,8 @@ namespace EventCentric.Persistence
         public string Url { get; set; }
         public string Token { get; set; }
         public long ProcessorBufferVersion { get; set; }
+        public long ProducerVersion { get; set; }
+        public string ConsistencyPercentage { get; set; }
         public bool IsPoisoned { get; set; }
         public bool WasCanceled { get; set; }
 

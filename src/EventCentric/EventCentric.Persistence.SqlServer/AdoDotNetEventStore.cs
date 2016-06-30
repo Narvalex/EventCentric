@@ -579,12 +579,14 @@ namespace EventCentric.Persistence
             return true;
         }
 
-        public void PersistSubscriptionVersion(string subscription, long version)
+        public void PersistSubscriptionVersion(string subscription, long consumerVersion, long producerVersion)
         {
             this.sql.ExecuteNonQuery(this.updateSubscriptionScript,
                 new SqlParameter("@SubscriberStreamType", SqlDbType.NVarChar, 40) { Value = this.streamType },
                 new SqlParameter("@StreamType", SqlDbType.NVarChar, 40) { Value = subscription },
-                new SqlParameter("@Version", SqlDbType.BigInt) { Value = version },
+                new SqlParameter("@ConsumerVersion", SqlDbType.BigInt) { Value = consumerVersion },
+                new SqlParameter("@ProducerVersion", SqlDbType.BigInt) { Value = producerVersion },
+                new SqlParameter("@ConsistencyPercentage", SqlDbType.NVarChar, 10) { Value = base.GetConsistencyPercentage(consumerVersion, producerVersion) },
                 new SqlParameter("@UpdateLocalTime", SqlDbType.DateTime) { Value = this.time.Now.ToLocalTime() });
         }
 
@@ -770,7 +772,9 @@ order by EventCollectionVersion";
 
         private readonly string updateSubscriptionScript =
 @"UPDATE [EventStore].[Subscriptions]
-   SET [ProcessorBufferVersion] = @Version
+   SET [ProcessorBufferVersion] = @ConsumerVersion
+      ,[ProducerVersion] = @ProducerVersion
+      ,[ConsistencyPercentage] = @ConsistencyPercentage
       ,[UpdateLocalTime] = @UpdateLocalTime
  WHERE SubscriberStreamType = @SubscriberStreamType
  AND StreamType = @StreamType";

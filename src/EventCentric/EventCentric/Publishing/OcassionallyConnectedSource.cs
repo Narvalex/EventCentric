@@ -45,7 +45,7 @@ namespace EventCentric.Publishing
 
         public PollResponse PollEvents(long eventBufferVersion, string consumerName)
         {
-            this.consumerEventCollectionVersion = eventBufferVersion;
+            this.consumerEventCollectionVersion = eventBufferVersion < 0 ? 0 : eventBufferVersion;
 
             PollResponse clientResponse;
             while (!this.producerResponse.TryTake(out clientResponse))

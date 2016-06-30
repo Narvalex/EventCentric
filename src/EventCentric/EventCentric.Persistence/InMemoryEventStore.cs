@@ -403,10 +403,10 @@ namespace EventCentric.Persistence
             return true;
         }
 
-        public void PersistSubscriptionVersion(string subscription, long version)
+        public void PersistSubscriptionVersion(string subscription, long consumerVersion, long producerVersion)
         {
             var sub = this.subscriptions.Where(s => s.StreamType == subscription && s.SubscriberStreamType == this.streamType).Single();
-            sub.ProcessorBufferVersion = version;
+            sub.ProcessorBufferVersion = consumerVersion;
             sub.UpdateLocalTime = DateTime.Now;
         }
 

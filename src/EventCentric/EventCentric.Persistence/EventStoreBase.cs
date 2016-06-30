@@ -15,5 +15,13 @@ namespace EventCentric.Persistence
 
             this.streamType = streamType;
         }
+
+        protected string GetConsistencyPercentage(long consumerVersion, long producerVersion)
+        {
+            if (producerVersion == 0) return "100%";
+
+            double fullPercentage = (consumerVersion * 100) / producerVersion;
+            return $"{Math.Round(fullPercentage, 2)}%";
+        }
     }
 }
