@@ -9,6 +9,8 @@ namespace EventCentric.EventSourcing
         IUpdatesAfterSending<Command>
         where T : class, IEventSourced
     {
+        protected State() {  }
+
         public State(Guid id) : base(id) { }
 
         public State(Guid id, ISnapshot snapshot) : base(id, snapshot) { }

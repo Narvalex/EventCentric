@@ -11,8 +11,10 @@ namespace EventCentric.EventSourcing
         where T : class, IEventSourced
     {
         private readonly Guid id;
-        private long version = 0;
+        private long version = -1;
         private List<IEvent> pendingEvents = new List<IEvent>();
+
+        protected EventSourced()  { }
 
         public EventSourced(Guid id)
         {
@@ -38,7 +40,7 @@ namespace EventCentric.EventSourcing
 
         public IList<IEvent> PendingEvents => this.pendingEvents;
 
-        protected T UpdateFromMessage(Message @event)
+        protected virtual T UpdateFromMessage(Message @event)
         {
             var now = DateTime.UtcNow;
             @event.StreamId = this.id;
@@ -51,7 +53,7 @@ namespace EventCentric.EventSourcing
             return this as T;
         }
 
-        private void Apply(IEvent @event)
+        protected void Apply(IEvent @event)
         {
             dynamic me = this;
             if (!@event.IsACommand)

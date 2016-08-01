@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 
-namespace EventCentric
+namespace EventCentric.EventSourcing
 {
     /// <summary>
     /// A value object.
