@@ -100,7 +100,8 @@ namespace EventCentric
                     var poller = new Poller(bus, log, inMemoryPublisher, container.Resolve<ISubscriptionRepository>(), receiver, container.Resolve<ITextSerializer>(), pollerConfig.BufferQueueMaxCount, pollerConfig.EventsToFlushMaxCount);
                     container.RegisterInstance<IMonitoredSubscriber>(poller);
 
-                    var heartbeatEmitter = new HeartbeatEmitter(fsm, log, poller);
+                    //var heartbeatEmitter = new HeartbeatEmitter(fsm, log, poller);
+                    var heartbeatEmitter = new HeartbeatEmitter(streamFullName);
                     container.RegisterInstance<HeartbeatEmitter>(heartbeatEmitter);
                 }
 
@@ -175,8 +176,8 @@ namespace EventCentric
                     var processor = processorFactory.Invoke(bus, log, eventStore);
                 }
 
-                var heartbeatEmitter = new HeartbeatEmitter(fsm, log, poller);
-                container.RegisterInstance<HeartbeatEmitter>(heartbeatEmitter);
+                //var heartbeatEmitter = new HeartbeatEmitter(fsm, log, poller);
+                var heartbeatEmitter = new HeartbeatEmitter(streamFullName);
 
                 return fsm;
             };
