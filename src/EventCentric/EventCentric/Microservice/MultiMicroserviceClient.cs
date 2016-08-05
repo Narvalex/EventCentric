@@ -27,15 +27,24 @@ namespace EventCentric
 
         public TResponse Send<TRequest, TResponse>(string url, TRequest payload)
         {
-            HttpResponseMessage response;
+            HttpResponseMessage response = null;
             using (var client = this.HttpClientFactory())
             {
-                response = client.PostAsJsonAsync(url, payload).Result;
+                try
+                {
+                    response = client.PostAsJsonAsync(url, payload).Result;
+                }
+                catch (Exception ex)
+                {
+
+                    throw new MultimicroserviceClientException("An error ocurred", response, ex);
+                }
+
             }
             if (response.IsSuccessStatusCode)
                 return response.Content.ReadAsAsync<TResponse>().Result;
 
-            throw new HttpRequestException($"The attempt to make a request to {url} got a status code of {(int)response.StatusCode}.");
+            throw new MultimicroserviceClientException($"The attempt to make a request to {url} got a status code of {(int)response.StatusCode}.", response);
         }
 
         public TResponse Send<TRequest, TResponse>(TEnum node, string url, TRequest payload) => this.Send<TRequest, TResponse>(this.microservices[node] + url, payload);
@@ -49,5 +58,15 @@ namespace EventCentric
             client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
             return client;
         }
+    }
+
+    public class MultimicroserviceClientException : Exception
+    {
+        public MultimicroserviceClientException(string message, HttpResponseMessage response, Exception inner = null)
+            : base(message, inner)
+        {
+            this.Response = response;
+        }
+        public HttpResponseMessage Response { get; }
     }
 }

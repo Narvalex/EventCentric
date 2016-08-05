@@ -10,11 +10,11 @@ namespace EventCentric.EventSourcing
     public abstract class EventSourced<T> : IEventSourced, ISnapshotOriginator
         where T : class, IEventSourced
     {
-        private readonly Guid id;
+        protected Guid id;
         private long version = -1;
         private List<IEvent> pendingEvents = new List<IEvent>();
 
-        protected EventSourced()  { }
+        protected EventSourced() { }
 
         public EventSourced(Guid id)
         {
